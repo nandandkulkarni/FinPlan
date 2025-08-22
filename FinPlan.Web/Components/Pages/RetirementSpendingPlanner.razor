@@ -1,0 +1,994 @@
+@page "/retirement-spending"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.Routing
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.JSInterop
+@rendermode InteractiveServer
+
+<PageTitle>Retirement Spending Planner</PageTitle>
+
+<style>
+    /* Dark theme styles */
+    .dark-theme {
+        background-color: #121212;
+        color: #E2E8F0;
+    }
+
+    .dark-theme .card {
+        background-color: #1E1E1E;
+        border-color: #333;
+    }
+
+    .dark-theme .card-header {
+        background-color: #252525 !important;
+        border-bottom-color: #333;
+        color: #E2E8F0 !important;
+    }
+
+    .dark-theme .form-control {
+        background-color: #252525;
+        border-color: #333;
+        color: #E2E8F0;
+    }
+
+    .dark-theme .form-control:focus {
+        background-color: #2D2D2D;
+        box-shadow: 0 0 0 0.25rem rgba(109, 93, 252, 0.25);
+    }
+
+    .dark-theme .btn-primary {
+        background-color: #6D5DFC;
+        border-color: #6D5DFC;
+    }
+
+    .dark-theme .btn-primary:hover {
+        background-color: #5A4AE3;
+        border-color: #5A4AE3;
+    }
+
+    .dark-theme .text-primary {
+        color: #6D5DFC !important;
+    }
+
+    .dark-theme .text-success {
+        color: #38B2AC !important;
+    }
+
+    .dark-theme .text-info {
+        color: #4FD1C5 !important;
+    }
+
+    .dark-theme .text-warning {
+        color: #F6AD55 !important;
+    }
+
+    .dark-theme .text-danger {
+        color: #F56565 !important;
+    }
+
+    .dark-theme .progress-bar.bg-info {
+        background-color: #4FD1C5 !important;
+    }
+
+    .dark-theme .progress-bar.bg-success {
+        background-color: #38B2AC !important;
+    }
+
+    .dark-theme .progress-bar.bg-warning {
+        background-color: #F6AD55 !important;
+    }
+
+    .dark-theme .table {
+        color: #E2E8F0;
+    }
+
+    .dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-theme .form-text {
+        color: #A0AEC0;
+    }
+
+    .dark-theme .interval-summary {
+        background-color: #252525;
+    }
+
+    .dark-theme .interval-summary:hover {
+        background-color: #2D2D2D;
+    }
+    
+    .dark-theme .card.bg-light {
+        background-color: #252525 !important;
+    }
+    
+    .dark-theme .alert-info {
+        background-color: rgba(79, 209, 197, 0.15);
+        color: #E2E8F0;
+        border-color: rgba(79, 209, 197, 0.4);
+    }
+    
+    .dark-theme .alert-warning {
+        background-color: rgba(246, 173, 85, 0.15);
+        color: #E2E8F0;
+        border-color: rgba(246, 173, 85, 0.4);
+    }
+    
+    .dark-theme .alert-danger {
+        background-color: rgba(245, 101, 101, 0.15);
+        color: #E2E8F0;
+        border-color: rgba(245, 101, 101, 0.4);
+    }
+    
+    .theme-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
+
+    /* Special styles for this page */
+    .sustainability-high {
+        color: #38B2AC;
+    }
+
+    .sustainability-medium {
+        color: #F6AD55;
+    }
+
+    .sustainability-low {
+        color: #F56565;
+    }
+
+    .dark-theme .sustainability-high {
+        color: #38B2AC;
+    }
+
+    .dark-theme .sustainability-medium {
+        color: #F6AD55;
+    }
+
+    .dark-theme .sustainability-low {
+        color: #F56565;
+    }
+
+    .duration-exceeded {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+</style>
+
+<div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
+    <!-- Theme toggle button -->
+    <button @onclick="ToggleTheme" class="btn btn-sm theme-toggle @(isDarkTheme ? "btn-light" : "btn-dark")">
+        <i class="bi @(isDarkTheme ? "bi-sun" : "bi-moon")"></i>
+        @(isDarkTheme ? "Light Mode" : "Dark Mode")
+    </button>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header @(isDarkTheme ? "" : "bg-primary text-white")">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-wallet2"></i> Retirement Spending Planner
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@spendingModel" OnValidSubmit="@Calculate" FormName="SpendingPlannerForm">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label for="startingBalance" class="form-label">Starting Retirement Balance ($)</label>
+                            <input type="number" id="startingBalance" class="form-control" 
+                                   @bind-value="spendingModel.StartingBalance" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.StartingBalance)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="retirementAge" class="form-label">Retirement Age</label>
+                            <input type="number" id="retirementAge" class="form-control" 
+                                   @bind-value="spendingModel.RetirementAge" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.RetirementAge)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lifeExpectancy" class="form-label">Life Expectancy (Age)</label>
+                            <input type="number" id="lifeExpectancy" class="form-control" 
+                                   @bind-value="spendingModel.LifeExpectancy" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.LifeExpectancy)" class="text-danger" />
+                            <div class="form-text">The age you want your money to last until</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="planDuration" class="form-label">Plan Duration (Years)</label>
+                            <input type="text" id="planDuration" class="form-control bg-light" value="@spendingModel.PlanYears" readonly />
+                            <div class="form-text">Automatically calculated based on your ages above</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="withdrawalStrategy" class="form-label">Spending Strategy</label>
+                            <select id="withdrawalStrategy" class="form-control" @bind="spendingModel.Strategy">
+                                <option value="@SpendingPlanModel.WithdrawalStrategy.FixedAmount">Fixed Yearly Amount</option>
+                                <option value="@SpendingPlanModel.WithdrawalStrategy.FixedPercentage">Fixed Percentage of Balance</option>
+                                <option value="@SpendingPlanModel.WithdrawalStrategy.InflationAdjusted">Inflation-Adjusted Amount</option>
+                            </select>
+                            <div class="form-text">How you plan to withdraw money during retirement</div>
+                        </div>
+
+                        @if (spendingModel.Strategy == SpendingPlanModel.WithdrawalStrategy.FixedAmount || 
+                             spendingModel.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
+                        {
+                            <div class="mb-3">
+                                <label for="annualWithdrawal" class="form-label">Yearly Spending Amount ($)</label>
+                                <input type="number" id="annualWithdrawal" class="form-control" 
+                                       @bind-value="spendingModel.AnnualWithdrawal" @bind-value:event="oninput" />
+                                <ValidationMessage For="@(() => spendingModel.AnnualWithdrawal)" class="text-danger" />
+                                <div class="form-text">How much you plan to spend each year in retirement</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <label for="withdrawalPercentage" class="form-label">Yearly Spending Percentage (%)</label>
+                                <input type="number" id="withdrawalPercentage" class="form-control" step="0.1"
+                                       @bind-value="spendingModel.WithdrawalPercentage" @bind-value:event="oninput" />
+                                <ValidationMessage For="@(() => spendingModel.WithdrawalPercentage)" class="text-danger" />
+                                <div class="form-text">Percentage of your balance you'll spend each year (4% is a common rule of thumb)</div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="investmentReturn" class="form-label">Investment Growth Rate (%)</label>
+                            <input type="number" id="investmentReturn" class="form-control" step="0.1"
+                                   @bind-value="spendingModel.InvestmentReturn" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.InvestmentReturn)" class="text-danger" />
+                            <div class="form-text">Expected annual return on investments during retirement (typically 4-5%)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inflationRate" class="form-label">Inflation Rate (%)</label>
+                            <input type="number" id="inflationRate" class="form-control" step="0.1"
+                                   @bind-value="spendingModel.InflationRate" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.InflationRate)" class="text-danger" />
+                            <div class="form-text">Expected annual inflation rate (typically 2-3%)</div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <div class="form-check mb-0">
+                                    <input type="checkbox" id="hasPartialRetirement" class="form-check-input" 
+                                           @bind="hasPartialRetirementChecked" />
+                                    <label for="hasPartialRetirement" class="form-check-label fw-bold">
+                                        I plan to work part-time during early retirement
+                                    </label>
+                                </div>
+                            </div>
+                            @if (hasPartialRetirementChecked)
+                            {
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Many retirees work part-time in early retirement for health insurance, 
+                                        social connection, or extra income. This can significantly extend your portfolio's life.
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partialRetirementEndAge" class="form-label">Work part-time until age</label>
+                                            <input type="number" id="partialRetirementEndAge" class="form-control" 
+                                                   @bind-value="spendingModel.PartialRetirementEndAge" @bind-value:event="oninput" />
+                                            <div class="form-text">When you plan to fully retire</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="partialRetirementIncome" class="form-label">Annual part-time income ($)</label>
+                                            <input type="number" id="partialRetirementIncome" class="form-control" 
+                                                   @bind-value="spendingModel.PartialRetirementIncome" @bind-value:event="oninput" />
+                                            <div class="form-text">Estimated yearly income from part-time work</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-calculator"></i> Calculate Spending Plan
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            @if (results != null)
+            {
+                <div class="card">
+                    <div class="card-header @(isDarkTheme ? "" : "bg-success text-white")">
+                        <h3 class="card-title mb-0">
+                            <i class="bi bi-graph-up"></i> Results
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-primary">@results.TotalWithdrawals.ToString("C")</h4>
+                                        <p class="mb-0">Total Spending</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-success">@results.TotalGrowth.ToString("C")</h4>
+                                        <p class="mb-0">Investment Growth</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="@GetSustainabilityClass(results.IsSustainable)">
+                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C") : "$0")
+                                        </h4>
+                                        <p class="mb-0">Final Balance</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="@GetSustainabilityClass(results.IsSustainable)">
+                                            @(results.MoneyRunsOutAge > 0 && !results.IsSustainable 
+                                                ? $"Age {results.MoneyRunsOutAge}" 
+                                                : "Lifetime")
+                                        </h4>
+                                        <p class="mb-0">Money Lasts Until</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: @(CalculateProgressBarWidth(spendingModel.StartingBalance, results.TotalWithdrawals, results.TotalGrowth, 1))%">
+                                Original Balance
+                            </div>
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @(CalculateProgressBarWidth(spendingModel.StartingBalance, results.TotalWithdrawals, results.TotalGrowth, 2))%">
+                                Investment Growth
+                            </div>
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: @(CalculateProgressBarWidth(spendingModel.StartingBalance, results.TotalWithdrawals, results.TotalGrowth, 3))%">
+                                Remaining Balance
+                            </div>
+                        </div>
+
+                        <div class="alert @(results.IsSustainable ? "alert-info" : "alert-warning")">
+                            <strong>💡 @(results.IsSustainable ? "Your Plan Looks Sustainable!" : "Caution: Your Money May Not Last")</strong><br>
+                            @if (results.IsSustainable)
+                            {
+                                <span>
+                                    You'll spend <strong>@results.TotalWithdrawals.ToString("C")</strong> over @spendingModel.PlanYears years, 
+                                    and your investments will grow by <strong>@results.TotalGrowth.ToString("C")</strong>, 
+                                    @if (hasPartialRetirementChecked && results.TotalPartTimeIncome > 0)
+                                    {
+                                        <span>plus <strong>@results.TotalPartTimeIncome.ToString("C")</strong> from part-time work, </span>
+                                    }
+                                    leaving you with <strong>@results.FinalBalance.ToString("C")</strong> at age @spendingModel.LifeExpectancy.
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    Your plan shows that your money will run out at age <strong>@results.MoneyRunsOutAge</strong>, which is 
+                                    @(spendingModel.LifeExpectancy - results.MoneyRunsOutAge) years before your target age of @spendingModel.LifeExpectancy.
+                                    Consider adjusting your spending amount or investment strategy.
+                                </span>
+                            }
+                        </div>
+
+                        <h5>Your Spending Plan Summary</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
+                            <li><strong>Plan Duration:</strong> @spendingModel.PlanYears years (until age @spendingModel.LifeExpectancy)</li>
+                            <li><strong>Starting Balance:</strong> @spendingModel.StartingBalance.ToString("C")</li>
+                            <li><strong>Spending Strategy:</strong> @GetStrategyText()</li>
+                            @if (hasPartialRetirementChecked)
+                            {
+                                <li><strong>Part-time Work:</strong> @spendingModel.PartialRetirementIncome.ToString("C")/year until age @spendingModel.PartialRetirementEndAge</li>
+                            }
+                            <li><strong>Investment Return:</strong> @spendingModel.InvestmentReturn% annually</li>
+                            <li><strong>Inflation Rate:</strong> @spendingModel.InflationRate% annually</li>
+                            <li><strong>Sustainability:</strong> <span class="@GetSustainabilityClass(results.IsSustainable)">@GetSustainabilityText(results.IsSustainable)</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                @if (yearlyBreakdown.Any())
+                {
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-graph-down-arrow"></i> Your Age-Based Spending Journey
+                                @if (spendingModel.PlanYears > 10)
+                                {
+                                    <small class="text-muted ms-2">Click age ranges to see yearly details (@intervalSummaries.Count intervals)</small>
+                                }
+                            </h5>
+                        </div>
+                        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                            @if (spendingModel.PlanYears > 10 && intervalSummaries.Any())
+                            {
+                                <!-- 5-Year Interval View for Long-Term Plans -->
+                                @foreach (var interval in intervalSummaries)
+                                {
+                                    var isExpanded = expandedIntervals.Contains(interval.StartYear);
+                                    var isFundsDepleted = interval.FundsDepletedInInterval;
+                                    
+                                    <div class="interval-group mb-3">
+                                        <!-- Interval Summary Row -->
+                                        <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "") @(isFundsDepleted ? "border-danger" : "")" 
+                                             style="cursor: pointer; transition: all 0.2s ease;">
+                                            <div class="row align-items-center" @onclick="@(() => ToggleInterval(interval.StartYear))">
+                                                <div class="col-md-3">
+                                                    <h6 class="mb-1 @(isFundsDepleted ? "text-danger" : "")">
+                                                        <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
+                                                        Ages @interval.StartAge-@interval.EndAge
+                                                    </h6>
+                                                    @if (!string.IsNullOrEmpty(interval.StatusMessage))
+                                                    {
+                                                        <small class="@(isFundsDepleted ? "text-danger" : "text-success") fw-bold">@interval.StatusMessage</small>
+                                                    }
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong class="@(isFundsDepleted ? "text-danger" : "")">@interval.FinalBalance.ToString("C")</strong>
+                                                    <br><small class="text-muted">Final Balance</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <span class="text-success">+@interval.TotalGrowth.ToString("C")</span>
+                                                    <br><small class="text-muted">Investment Growth</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <span class="text-info">-@interval.TotalWithdrawals.ToString("C")</span>
+                                                    <br><small class="text-muted">Total Spending</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Expanded Yearly Details -->
+                                        @if (isExpanded)
+                                        {
+                                            <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Year/Age</th>
+                                                                <th>Starting Balance</th>
+                                                                @if (spendingModel.HasPartialRetirement)
+                                                                {
+                                                                    <th>Part-time Income</th>
+                                                                }
+                                                                <th>Withdrawal</th>
+                                                                <th>Growth</th>
+                                                                <th>Ending Balance</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var year in interval.YearlyDetails)
+                                                            {
+                                                                var rowClass = !year.FundsRemaining ? "text-danger duration-exceeded" : "";
+                                                                rowClass += year.IsPartialRetirement ? " bg-light" : "";
+                                                                
+                                                                <tr class="@rowClass">
+                                                                    <td>
+                                                                        Year @year.Year (Age @year.Age)
+                                                                        @if (year.IsPartialRetirement)
+                                                                        {
+                                                                            <small class="badge bg-info">Part-time work</small>
+                                                                        }
+                                                                    </td>
+                                                                    <td>@year.StartingBalance.ToString("C")</td>
+                                                                    @if (spendingModel.HasPartialRetirement)
+                                                                    {
+                                                                        <td>@year.PartTimeIncome.ToString("C")</td>
+                                                                    }
+                                                                    <td>@year.Withdrawal.ToString("C")</td>
+                                                                    <td>@year.InvestmentGrowth.ToString("C")</td>
+                                                                    <td>@year.EndingBalance.ToString("C")</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <!-- Traditional Year-by-Year View for Short-Term Plans -->
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Year/Age</th>
+                                                <th>Starting Balance</th>
+                                                @if (spendingModel.HasPartialRetirement)
+                                                {
+                                                    <th>Part-time Income</th>
+                                                }
+                                                <th>Withdrawal</th>
+                                                <th>Growth</th>
+                                                <th>Ending Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var year in yearlyBreakdown)
+                                            {
+                                                var rowClass = !year.FundsRemaining ? "text-danger duration-exceeded" : "";
+                                                rowClass += year.IsPartialRetirement ? " bg-light" : "";
+                                                
+                                                <tr class="@rowClass">
+                                                    <td>
+                                                        Year @year.Year (Age @year.Age)
+                                                        @if (year.IsPartialRetirement)
+                                                        {
+                                                            <small class="badge bg-info">Part-time work</small>
+                                                        }
+                                                    </td>
+                                                    <td>@year.StartingBalance.ToString("C")</td>
+                                                    @if (spendingModel.HasPartialRetirement)
+                                                    {
+                                                        <td>@year.PartTimeIncome.ToString("C")</td>
+                                                    }
+                                                    <td>@year.Withdrawal.ToString("C")</td>
+                                                    <td>@year.InvestmentGrowth.ToString("C")</td>
+                                                    <td>@year.EndingBalance.ToString("C")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isDarkTheme = false;
+    
+    private void ToggleTheme()
+    {
+        isDarkTheme = !isDarkTheme;
+        Console.WriteLine($"Theme toggled to {(isDarkTheme ? "dark" : "light")} mode");
+    }
+    
+    [SupplyParameterFromForm]
+    public SpendingPlanModel spendingModel { get; set; } = new SpendingPlanModel();
+    private SpendingResults? results;
+    private List<YearlySpendingBreakdown> yearlyBreakdown = new();
+    private List<SpendingIntervalSummary> intervalSummaries = new();
+    private HashSet<int> expandedIntervals = new();
+    
+    // Helper property to handle the checkbox state
+    private bool hasPartialRetirementChecked
+    {
+        get => spendingModel.HasPartialRetirement;
+        set 
+        {
+            spendingModel.HasPartialRetirement = value;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Ensure we have a fresh model with all new properties
+        spendingModel = new SpendingPlanModel
+        {
+            RetirementAge = 65,
+            LifeExpectancy = 95,
+            StartingBalance = 1000000,
+            AnnualWithdrawal = 40000,
+            InflationRate = 2.5m,
+            InvestmentReturn = 5.0m,
+            WithdrawalPercentage = 4.0m,
+            Strategy = SpendingPlanModel.WithdrawalStrategy.InflationAdjusted,
+            HasPartialRetirement = false,
+            PartialRetirementEndAge = 70,
+            PartialRetirementIncome = 25000
+        };
+        
+        base.OnInitialized();
+    }
+
+    private void Calculate() 
+    {
+        try
+        {
+            var calculator = new SpendingCalculationEngine();
+            results = calculator.Calculate(spendingModel);
+            yearlyBreakdown = calculator.GetYearlyBreakdown(spendingModel);
+            
+            // Create interval summaries for better UX
+            if (spendingModel.PlanYears > 10)
+            {
+                intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
+            }
+            
+            StateHasChanged(); // Force UI update
+        }
+        catch (Exception ex)
+        {
+            // For debugging - you can remove this later
+            Console.WriteLine($"Calculation error: {ex.Message}");
+        } 
+    }
+
+    private string GetStrategyText()
+    {
+        switch (spendingModel.Strategy)
+        {
+            case SpendingPlanModel.WithdrawalStrategy.FixedAmount:
+                return $"Fixed amount of {spendingModel.AnnualWithdrawal.ToString("C")} yearly";
+            case SpendingPlanModel.WithdrawalStrategy.FixedPercentage:
+                return $"Fixed {spendingModel.WithdrawalPercentage}% of balance yearly";
+            case SpendingPlanModel.WithdrawalStrategy.InflationAdjusted:
+                return $"Starting at {spendingModel.AnnualWithdrawal.ToString("C")} yearly, adjusted for inflation";
+            default:
+                return "Custom spending plan";
+        }
+    }
+
+    private string GetSustainabilityClass(bool isSustainable)
+    {
+        return isSustainable ? "sustainability-high" : "sustainability-low";
+    }
+
+    private string GetSustainabilityText(bool isSustainable)
+    {
+        return isSustainable ? "Plan is sustainable for your lifetime" : "Money may run out before end of plan";
+    }
+
+    private decimal CalculateProgressBarWidth(decimal startingBalance, decimal totalWithdrawals, decimal totalGrowth, int segment)
+    {
+        decimal total = startingBalance + totalGrowth;
+        
+        // Segment 1: Original balance (as percentage of total spent+remaining)
+        if (segment == 1)
+        {
+            return Math.Min(100, (startingBalance / total) * 100);
+        }
+        // Segment 2: Growth (as percentage of total spent+remaining)
+        else if (segment == 2)
+        {
+            return Math.Min(100, (totalGrowth / total) * 100);
+        }
+        // Segment 3: Remaining (as percentage of total spent+remaining)
+        else
+        {
+            decimal finalBalance = startingBalance + totalGrowth - totalWithdrawals;
+            return Math.Max(0, Math.Min(100, (finalBalance / total) * 100));
+        }
+    }
+
+    private List<SpendingIntervalSummary> CreateIntervalSummaries(List<YearlySpendingBreakdown> breakdown)
+    {
+        // Get starting age - round up to next 5-year interval
+        int startingAge = spendingModel.RetirementAge;
+        int roundedStartAge = (int)Math.Ceiling(startingAge / 5.0) * 5;
+        
+        return breakdown
+            .Select((y, index) => new 
+            { 
+                Year = y, 
+                Age = spendingModel.RetirementAge + index
+            })
+            .GroupBy(item => ((item.Age - 1) / 5) * 5 + 5) // Group into 5-year age intervals
+            .Select(g => new SpendingIntervalSummary
+            {
+                StartYear = g.First().Year.Year,
+                EndYear = g.Last().Year.Year,
+                StartAge = g.Key - 5,
+                EndAge = Math.Min(g.Key, spendingModel.LifeExpectancy),
+                FinalBalance = g.Last().Year.EndingBalance,
+                TotalGrowth = g.Sum(item => item.Year.InvestmentGrowth),
+                TotalWithdrawals = g.Sum(item => item.Year.Withdrawal),
+                YearlyDetails = g.Select(item => item.Year).ToList(),
+                FundsDepletedInInterval = g.Any(item => !item.Year.FundsRemaining),
+                StatusMessage = GetIntervalStatusMessage(g.Last().Year)
+            })
+            .ToList();
+    }
+
+    private string GetIntervalStatusMessage(YearlySpendingBreakdown lastYear)
+    {
+        if (!lastYear.FundsRemaining)
+        {
+            return "⚠️ Funds depleted";
+        }
+        
+        decimal withdrawalRate = lastYear.Withdrawal / lastYear.StartingBalance * 100;
+        
+        if (withdrawalRate > 7)
+        {
+            return "⚠️ High withdrawal rate";
+        }
+        else if (withdrawalRate > 4)
+        {
+            return "⚠️ Moderate withdrawal rate";
+        }
+        else if (lastYear.EndingBalance > lastYear.StartingBalance * 1.5m)
+        {
+            return "💰 Significant growth";
+        }
+        
+        return "";
+    }
+
+    private void ToggleInterval(int startYear)
+    {
+        if (expandedIntervals.Contains(startYear))
+        {
+            expandedIntervals.Remove(startYear);
+        }
+        else
+        {
+            expandedIntervals.Add(startYear);
+        }
+        StateHasChanged(); // Force UI refresh
+    }
+
+    public class SpendingPlanModel
+    {
+        [Required]
+        [Range(50, 100, ErrorMessage = "Retirement age should be between 50-100")]
+        public int RetirementAge { get; set; } = 65;
+
+        [Required]
+        [Range(55, 120, ErrorMessage = "Life expectancy should be between 55-120")]
+        public int LifeExpectancy { get; set; } = 95;
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Starting balance must be positive")]
+        public decimal StartingBalance { get; set; } = 1000000;
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Annual withdrawal must be positive")]
+        public decimal AnnualWithdrawal { get; set; } = 40000;
+
+        [Required]
+        [Range(0, 20, ErrorMessage = "Inflation rate must be between 0 and 20%")]
+        public decimal InflationRate { get; set; } = 2.5m;
+
+        [Required]
+        [Range(0, 20, ErrorMessage = "Investment return must be between 0 and 20%")]
+        public decimal InvestmentReturn { get; set; } = 5.0m;
+
+        // Partial retirement settings
+        public bool HasPartialRetirement { get; set; } = false;
+
+        [Range(0, 120, ErrorMessage = "Partial retirement end age should be between 0-120")]
+        public int PartialRetirementEndAge { get; set; } = 70; // Default 5 years of partial retirement
+
+        [Range(0, double.MaxValue, ErrorMessage = "Part-time income must be positive")]
+        public decimal PartialRetirementIncome { get; set; } = 25000; // Default $25,000/year
+
+        // Withdrawal strategies
+        public enum WithdrawalStrategy
+        {
+            FixedAmount,         // Same dollar amount each year
+            FixedPercentage,     // Same percentage of remaining balance
+            InflationAdjusted    // Fixed amount adjusted for inflation
+        }
+
+        public WithdrawalStrategy Strategy { get; set; } = WithdrawalStrategy.InflationAdjusted;
+        
+        // Fixed percentage if that strategy is selected
+        [Range(0, 100, ErrorMessage = "Percentage must be between 0 and 100")]
+        public decimal WithdrawalPercentage { get; set; } = 4.0m;
+
+        // Years the plan needs to cover
+        public int PlanYears => Math.Max(0, LifeExpectancy - RetirementAge);
+    }
+
+    public class SpendingResults
+    {
+        public decimal FinalBalance { get; set; }
+        public decimal TotalWithdrawals { get; set; }
+        public decimal TotalGrowth { get; set; }
+        public decimal TotalPartTimeIncome { get; set; }
+        public bool IsSustainable { get; set; }
+        public int MoneyRunsOutAge { get; set; }
+    }
+
+    public class YearlySpendingBreakdown
+    {
+        public int Year { get; set; }
+        public int Age { get; set; }
+        public decimal StartingBalance { get; set; }
+        public decimal Withdrawal { get; set; }
+        public decimal InvestmentGrowth { get; set; }
+        public decimal EndingBalance { get; set; }
+        public decimal PartTimeIncome { get; set; }
+        public bool IsPartialRetirement { get; set; }
+        
+        // Helper properties
+        public bool FundsRemaining => EndingBalance > 0;
+        public decimal WithdrawalRate => StartingBalance > 0 ? (Withdrawal / StartingBalance) * 100 : 0;
+    }
+
+    public class SpendingIntervalSummary
+    {
+        public int StartYear { get; set; }
+        public int EndYear { get; set; }
+        public int StartAge { get; set; }
+        public int EndAge { get; set; }
+        public decimal FinalBalance { get; set; }
+        public decimal TotalGrowth { get; set; }
+        public decimal TotalWithdrawals { get; set; }
+        public List<YearlySpendingBreakdown> YearlyDetails { get; set; } = new();
+        public bool FundsDepletedInInterval { get; set; }
+        public string StatusMessage { get; set; } = "";
+    }
+
+    public class SpendingCalculationEngine
+    {
+        public SpendingResults Calculate(SpendingPlanModel model)
+        {
+            decimal totalWithdrawals = 0;
+            decimal totalGrowth = 0;
+            decimal totalPartTimeIncome = 0;
+            decimal balance = model.StartingBalance;
+            decimal currentWithdrawal = model.AnnualWithdrawal;
+            bool isSustainable = true;
+            int moneyRunsOutAge = 0;
+            
+            for (int year = 1; year <= model.PlanYears; year++)
+            {
+                int currentAge = model.RetirementAge + year - 1;
+                
+                // Add part-time income if in partial retirement phase
+                if (model.HasPartialRetirement && currentAge < model.PartialRetirementEndAge)
+                {
+                    balance += model.PartialRetirementIncome;
+                    totalPartTimeIncome += model.PartialRetirementIncome;
+                }
+                
+                // Calculate withdrawal based on strategy
+                decimal withdrawal = CalculateWithdrawal(currentWithdrawal, balance, model);
+                
+                // Ensure we don't withdraw more than available
+                withdrawal = Math.Min(withdrawal, balance);
+                
+                // Update total withdrawals
+                totalWithdrawals += withdrawal;
+                
+                // Calculate investment returns (simplified - assumes withdrawal at year end)
+                decimal investmentGrowth = Math.Max(0, (balance - withdrawal) * (model.InvestmentReturn / 100));
+                totalGrowth += investmentGrowth;
+                
+                // Update balance
+                balance = Math.Max(0, balance - withdrawal + investmentGrowth);
+                
+                // For inflation-adjusted, increase withdrawal amount
+                if (model.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
+                {
+                    currentWithdrawal *= (1 + model.InflationRate / 100);
+                }
+                
+                // Check if funds depleted
+                if (balance <= 0 && moneyRunsOutAge == 0)
+                {
+                    isSustainable = false;
+                    moneyRunsOutAge = model.RetirementAge + year;
+                    break;
+                }
+            }
+            
+            return new SpendingResults
+            {
+                FinalBalance = Math.Round(balance, 2),
+                TotalWithdrawals = Math.Round(totalWithdrawals, 2),
+                TotalGrowth = Math.Round(totalGrowth, 2),
+                TotalPartTimeIncome = Math.Round(totalPartTimeIncome, 2),
+                IsSustainable = isSustainable,
+                MoneyRunsOutAge = moneyRunsOutAge
+            };
+        }
+        
+        public List<YearlySpendingBreakdown> GetYearlyBreakdown(SpendingPlanModel model)
+        {
+            var breakdown = new List<YearlySpendingBreakdown>();
+            decimal balance = model.StartingBalance;
+            decimal currentWithdrawal = model.AnnualWithdrawal;
+            
+            for (int year = 1; year <= model.PlanYears; year++)
+            {
+                int age = model.RetirementAge + year - 1;
+                
+                // Add part-time income if in partial retirement phase
+                decimal partTimeIncome = 0;
+                if (model.HasPartialRetirement && age < model.PartialRetirementEndAge)
+                {
+                    partTimeIncome = model.PartialRetirementIncome;
+                    balance += partTimeIncome;
+                }
+                
+                // Calculate withdrawal based on strategy
+                decimal withdrawal = CalculateWithdrawal(currentWithdrawal, balance, model);
+                
+                // Ensure we don't withdraw more than available
+                withdrawal = Math.Min(withdrawal, balance);
+                
+                // Calculate investment returns (simplified - assumes withdrawal at year end)
+                decimal investmentGrowth = Math.Max(0, (balance - withdrawal) * (model.InvestmentReturn / 100));
+                
+                // Update balance
+                decimal endBalance = Math.Max(0, balance - withdrawal + investmentGrowth);
+                
+                // Add to results
+                breakdown.Add(new YearlySpendingBreakdown
+                {
+                    Year = year,
+                    Age = age,
+                    StartingBalance = Math.Round(balance, 2),
+                    Withdrawal = Math.Round(withdrawal, 2),
+                    InvestmentGrowth = Math.Round(investmentGrowth, 2),
+                    EndingBalance = Math.Round(endBalance, 2),
+                    PartTimeIncome = Math.Round(partTimeIncome, 2),
+                    IsPartialRetirement = partTimeIncome > 0
+                });
+                
+                // Update for next year
+                balance = endBalance;
+                
+                // For inflation-adjusted, increase withdrawal amount
+                if (model.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
+                {
+                    currentWithdrawal *= (1 + model.InflationRate / 100);
+                }
+                
+                // Break if funds depleted
+                if (balance <= 0)
+                {
+                    break;
+                }
+            }
+            
+            return breakdown;
+        }
+        
+        private decimal CalculateWithdrawal(decimal baseWithdrawal, decimal currentBalance, SpendingPlanModel model)
+        {
+            switch (model.Strategy)
+            {
+                case SpendingPlanModel.WithdrawalStrategy.FixedAmount:
+                    return baseWithdrawal;
+                    
+                case SpendingPlanModel.WithdrawalStrategy.FixedPercentage:
+                    return currentBalance * (model.WithdrawalPercentage / 100);
+                    
+                case SpendingPlanModel.WithdrawalStrategy.InflationAdjusted:
+                    // Base withdrawal is already adjusted for inflation in the main loop
+                    return baseWithdrawal;
+                    
+                default:
+                    return baseWithdrawal;
+            }
+        }
+    }
+}
