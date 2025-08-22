@@ -170,6 +170,42 @@
                             <div class="form-text">Interest is compounded monthly</div>
                         </div>
 
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <div class="form-check mb-0">
+                                    <input type="checkbox" id="useTaxAdvantaged" class="form-check-input" 
+                                           @bind="calculatorModel.UseTaxAdvantaged" />
+                                    <label for="useTaxAdvantaged" class="form-check-label fw-bold">
+                                        Include tax-advantaged accounts (401k, IRA)
+                                    </label>
+                                </div>
+                            </div>
+                            @if (calculatorModel.UseTaxAdvantaged)
+                            {
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Tax-deferred accounts (401k, IRA) grow tax-free until withdrawal, 
+                                        while taxable accounts are subject to annual taxes on growth.
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="annualTaxDeferredContribution" class="form-label">Annual 401k/IRA Contribution ($)</label>
+                                            <InputNumber id="annualTaxDeferredContribution" class="form-control" 
+                                                   @bind-Value="calculatorModel.AnnualTaxDeferredContribution" />
+                                            <div class="form-text">Annual contribution to tax-deferred accounts</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="annualTaxableContribution" class="form-label">Annual Taxable Account Contribution ($)</label>
+                                            <InputNumber id="annualTaxableContribution" class="form-control" 
+                                                   @bind-Value="calculatorModel.AnnualTaxableContribution" />
+                                            <div class="form-text">Annual contribution to taxable investment accounts</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-lg w-100">
                             <i class="bi bi-calculator"></i> Calculate Savings
                         </button>
@@ -242,8 +278,22 @@
                             You'll contribute <strong>@results.TotalContributions.ToString("C")</strong> over @calculatorModel.Years years, 
                             and compound interest will add <strong>@results.TotalInterestEarned.ToString("C")</strong> more!
                             <br><br>
-                            <small>That's a <strong>@((results.TotalInterestEarned / results.TotalContributions * 100).ToString("F0"))% total growth</strong> over @calculatorModel.Years years 
-                            with @calculatorModel.AnnualGrowthRate% annual returns.</small>
+                            @if (calculatorModel.UseTaxAdvantaged)
+                            {
+                                <div>
+                                    <strong>Tax-Advantaged Summary:</strong><br>
+                                    <ul class="mb-0">
+                                        <li>Tax-deferred accounts (401k/IRA): <strong>@results.TaxDeferredBalance.ToString("C")</strong></li>
+                                        <li>Taxable investment accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
+                                        <li>Estimated tax advantage benefit: <strong>@results.EstimatedTaxSavings.ToString("C")</strong></li>
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <small>That's a <strong>@((results.TotalInterestEarned / results.TotalContributions * 100).ToString("F0"))% total growth</strong> over @calculatorModel.Years years 
+                                with @calculatorModel.AnnualGrowthRate% annual returns.</small>
+                            }
                         </div>
 
                         <h5>Your Retirement Plan Summary</h5>
@@ -252,7 +302,17 @@
                             <li><strong>Target Retirement Age:</strong> @calculatorModel.RetirementAge years old</li>
                             <li><strong>Years to Save:</strong> @calculatorModel.Years years</li>
                             <li><strong>Initial Investment:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
-                            <li><strong>Monthly Savings:</strong> @calculatorModel.MonthlyContribution.ToString("C")</li>
+                            @if (!calculatorModel.UseTaxAdvantaged)
+                            {
+                                <li><strong>Monthly Savings:</strong> @calculatorModel.MonthlyContribution.ToString("C")</li>
+                            }
+                            else
+                            {
+                                <li><strong>Monthly Tax-Deferred Savings:</strong> @(calculatorModel.AnnualTaxDeferredContribution / 12).ToString("C")</li>
+                                <li><strong>Monthly Taxable Savings:</strong> @(calculatorModel.AnnualTaxableContribution / 12).ToString("C")</li>
+                                <li><strong>Monthly Total Savings:</strong> @((calculatorModel.AnnualTaxDeferredContribution / 12) + (calculatorModel.AnnualTaxableContribution / 12)).ToString("C")</li>
+                                <li><strong>Tax Assumption:</strong> 15% capital gains tax on taxable account growth</li>
+                            }
                             <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
                             <li><strong>Compounding:</strong> @GetCompoundingText()</li>
                         </ul>
@@ -320,6 +380,11 @@
                                                                 <th>Balance</th>
                                                                 <th>Interest</th>
                                                                 <th>Contributions</th>
+                                                                @if (calculatorModel.UseTaxAdvantaged)
+                                                                {
+                                                                    <th>Tax-Deferred</th>
+                                                                    <th>Taxable</th>
+                                                                }
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -330,6 +395,11 @@
                                                                     <td>@year.Balance.ToString("C")</td>
                                                                     <td class="text-success">@year.InterestEarned.ToString("C")</td>
                                                                     <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
+                                                                    @if (calculatorModel.UseTaxAdvantaged)
+                                                                    {
+                                                                        <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                                        <td>@year.TaxableBalance.ToString("C")</td>
+                                                                    }
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -351,6 +421,11 @@
                                                 <th>Balance</th>
                                                 <th>Interest</th>
                                                 <th>Contributions</th>
+                                                @if (calculatorModel.UseTaxAdvantaged)
+                                                {
+                                                    <th>Tax-Deferred</th>
+                                                    <th>Taxable</th>
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -361,6 +436,11 @@
                                                     <td>@year.Balance.ToString("C")</td>
                                                     <td>@year.InterestEarned.ToString("C")</td>
                                                     <td>@year.ContributionsThisYear.ToString("C")</td>
+                                                    @if (calculatorModel.UseTaxAdvantaged)
+                                                    {
+                                                        <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                        <td>@year.TaxableBalance.ToString("C")</td>
+                                                    }
                                                 </tr>
                                             }
                                         </tbody>
@@ -390,6 +470,24 @@
     private List<YearlyBreakdown> yearlyBreakdown = new();
     private List<IntervalSummary> intervalSummaries = new();
     private HashSet<int> expandedIntervals = new();
+
+    protected override void OnInitialized()
+    {
+        // Initialize model with default values
+        calculatorModel = new SavingsCalculatorModel
+        {
+            CurrentAge = 30,
+            RetirementAge = 65,
+            InitialAmount = 1000,
+            MonthlyContribution = 500,
+            AnnualGrowthRate = 7,
+            UseTaxAdvantaged = false,
+            AnnualTaxDeferredContribution = 6000, // $6,000/year to 401k/IRA
+            AnnualTaxableContribution = 6000      // $6,000/year to taxable accounts
+        };
+        
+        base.OnInitialized();
+    }
 
 // Add a custom StateHasChanged method
     private void ForceUpdate()
@@ -502,6 +600,15 @@
         [Range(0, 50, ErrorMessage = "Growth rate must be between 0 and 50%")]
         public decimal AnnualGrowthRate { get; set; } = 7;
 
+        // Tax-advantaged account properties
+        public bool UseTaxAdvantaged { get; set; } = false;
+        
+        [Range(0, double.MaxValue, ErrorMessage = "Tax-deferred contribution must be positive")]
+        public decimal AnnualTaxDeferredContribution { get; set; } = 6000;
+        
+        [Range(0, double.MaxValue, ErrorMessage = "Taxable contribution must be positive")]
+        public decimal AnnualTaxableContribution { get; set; } = 6000;
+
         // Calculated property
         public int Years 
         { 
@@ -522,6 +629,13 @@
         public decimal FinalAmount { get; set; }
         public decimal TotalContributions { get; set; }
         public decimal TotalInterestEarned { get; set; }
+        
+        // Tax-advantaged specific results
+        public decimal TaxDeferredBalance { get; set; }
+        public decimal TaxableBalance { get; set; }
+        public decimal TaxDeferredInterestEarned { get; set; }
+        public decimal TaxableInterestEarned { get; set; }
+        public decimal EstimatedTaxSavings { get; set; }
     }
 
     public class YearlyBreakdown
@@ -530,6 +644,14 @@
         public decimal Balance { get; set; }
         public decimal InterestEarned { get; set; }
         public decimal ContributionsThisYear { get; set; }
+        
+        // Tax-advantaged specific breakdowns
+        public decimal TaxDeferredBalance { get; set; }
+        public decimal TaxableBalance { get; set; }
+        public decimal TaxDeferredInterest { get; set; }
+        public decimal TaxableInterest { get; set; }
+        public decimal TaxDeferredContribution { get; set; }
+        public decimal TaxableContribution { get; set; }
     }
 
     public class IntervalSummary
@@ -547,65 +669,211 @@
 
     public class SavingsCalculationEngine
     {
+        // Assumed tax rates
+        private const decimal CAPITAL_GAINS_TAX_RATE = 0.15m; // 15% for capital gains
+        private const decimal EFFECTIVE_TAX_RATE = 0.15m;     // 15% effective tax rate for withdrawals
+
         public SavingsResults Calculate(SavingsCalculatorModel model)
         {
-            decimal principal = model.InitialAmount;
-            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-            int totalMonths = model.Years * 12;
-            decimal totalContributions = model.InitialAmount + (model.MonthlyContribution * totalMonths);
-
-            // Calculate future value with compound interest and regular contributions
-            decimal futureValue = principal;
-            
-            // Compound the initial amount
-            futureValue *= (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths);
-            
-            // Add future value of monthly contributions (annuity)
-            if (monthlyRate > 0)
+            if (!model.UseTaxAdvantaged)
             {
-                decimal annuityFV = model.MonthlyContribution * 
-                    ((decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - 1) / monthlyRate;
-                futureValue += annuityFV;
+                // Original calculation method for non-tax-advantaged
+                decimal principal = model.InitialAmount;
+                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+                int totalMonths = model.Years * 12;
+                decimal totalContributions = model.InitialAmount + (model.MonthlyContribution * totalMonths);
+
+                // Calculate future value with compound interest and regular contributions
+                decimal futureValue = principal;
+                
+                // Compound the initial amount
+                futureValue *= (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths);
+                
+                // Add future value of monthly contributions (annuity)
+                if (monthlyRate > 0)
+                {
+                    decimal annuityFV = model.MonthlyContribution * 
+                        ((decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - 1) / monthlyRate;
+                    futureValue += annuityFV;
+                }
+                else
+                {
+                    futureValue += model.MonthlyContribution * totalMonths;
+                }
+
+                return new SavingsResults
+                {
+                    FinalAmount = Math.Round(futureValue, 2),
+                    TotalContributions = totalContributions,
+                    TotalInterestEarned = Math.Round(futureValue - totalContributions, 2)
+                };
             }
             else
             {
-                futureValue += model.MonthlyContribution * totalMonths;
+                // Tax-advantaged calculation
+                decimal taxDeferredBalance = model.InitialAmount / 2; // Split initial amount between accounts
+                decimal taxableBalance = model.InitialAmount / 2;
+                
+                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+                int totalMonths = model.Years * 12;
+                
+                decimal monthlyTaxDeferredContribution = model.AnnualTaxDeferredContribution / 12;
+                decimal monthlyTaxableContribution = model.AnnualTaxableContribution / 12;
+                
+                decimal totalTaxDeferredContributions = taxDeferredBalance + (monthlyTaxDeferredContribution * totalMonths);
+                decimal totalTaxableContributions = taxableBalance + (monthlyTaxableContribution * totalMonths);
+                
+                // Calculate tax-deferred account growth (no annual tax drag)
+                decimal taxDeferredFutureValue = taxDeferredBalance;
+                
+                // Compound the initial tax-deferred amount
+                taxDeferredFutureValue *= (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths);
+                
+                // Add future value of monthly tax-deferred contributions
+                if (monthlyRate > 0)
+                {
+                    decimal annuityFV = monthlyTaxDeferredContribution * 
+                        ((decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - 1) / monthlyRate;
+                    taxDeferredFutureValue += annuityFV;
+                }
+                else
+                {
+                    taxDeferredFutureValue += monthlyTaxDeferredContribution * totalMonths;
+                }
+                
+                // Calculate taxable account growth (with annual tax drag)
+                // For simplicity, we'll apply a reduced effective growth rate to account for tax drag
+                decimal taxableMonthlyRate = monthlyRate * (1 - CAPITAL_GAINS_TAX_RATE);
+                
+                decimal taxableFutureValue = taxableBalance;
+                
+                // Compound the initial taxable amount with reduced growth rate
+                taxableFutureValue *= (decimal)Math.Pow((double)(1 + taxableMonthlyRate), totalMonths);
+                
+                // Add future value of monthly taxable contributions with reduced growth rate
+                if (taxableMonthlyRate > 0)
+                {
+                    decimal annuityFV = monthlyTaxableContribution * 
+                        ((decimal)Math.Pow((double)(1 + taxableMonthlyRate), totalMonths) - 1) / taxableMonthlyRate;
+                    taxableFutureValue += annuityFV;
+                }
+                else
+                {
+                    taxableFutureValue += monthlyTaxableContribution * totalMonths;
+                }
+                
+                // Calculate tax savings and total
+                decimal taxDeferredInterest = taxDeferredFutureValue - totalTaxDeferredContributions;
+                decimal taxableInterest = taxableFutureValue - totalTaxableContributions;
+                
+                // Estimate tax savings (difference between growth with and without tax advantages)
+                decimal noTaxDragGrowth = taxableBalance * 
+                    (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - taxableBalance;
+                
+                decimal withTaxDragGrowth = taxableInterest;
+                
+                decimal estimatedTaxSavings = (noTaxDragGrowth - withTaxDragGrowth) + 
+                    (taxDeferredInterest * EFFECTIVE_TAX_RATE); // This is just estimated tax deferral benefit
+                
+                // Total combined values
+                decimal totalFutureValue = taxDeferredFutureValue + taxableFutureValue;
+                decimal totalContributions = totalTaxDeferredContributions + totalTaxableContributions;
+                
+                return new SavingsResults
+                {
+                    FinalAmount = Math.Round(totalFutureValue, 2),
+                    TotalContributions = totalContributions,
+                    TotalInterestEarned = Math.Round(taxDeferredInterest + taxableInterest, 2),
+                    TaxDeferredBalance = Math.Round(taxDeferredFutureValue, 2),
+                    TaxableBalance = Math.Round(taxableFutureValue, 2),
+                    TaxDeferredInterestEarned = Math.Round(taxDeferredInterest, 2),
+                    TaxableInterestEarned = Math.Round(taxableInterest, 2),
+                    EstimatedTaxSavings = Math.Round(estimatedTaxSavings, 2)
+                };
             }
-
-            return new SavingsResults
-            {
-                FinalAmount = Math.Round(futureValue, 2),
-                TotalContributions = totalContributions,
-                TotalInterestEarned = Math.Round(futureValue - totalContributions, 2)
-            };
         }
 
         public List<YearlyBreakdown> GetYearlyBreakdown(SavingsCalculatorModel model)
         {
             var breakdown = new List<YearlyBreakdown>();
-            decimal balance = model.InitialAmount;
-            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-
-            for (int year = 1; year <= model.Years; year++)
+            
+            if (!model.UseTaxAdvantaged)
             {
-                decimal startBalance = balance;
-                decimal yearlyInterest = 0;
+                // Original breakdown calculation
+                decimal balance = model.InitialAmount;
+                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
 
-                // Calculate month by month for this year
-                for (int month = 1; month <= 12; month++)
+                for (int year = 1; year <= model.Years; year++)
                 {
-                    decimal monthlyInterest = balance * monthlyRate;
-                    yearlyInterest += monthlyInterest;
-                    balance += monthlyInterest + model.MonthlyContribution;
+                    decimal startBalance = balance;
+                    decimal yearlyInterest = 0;
+
+                    // Calculate month by month for this year
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        decimal monthlyInterest = balance * monthlyRate;
+                        yearlyInterest += monthlyInterest;
+                        balance += monthlyInterest + model.MonthlyContribution;
+                    }
+
+                    breakdown.Add(new YearlyBreakdown
+                    {
+                        Year = year,
+                        Balance = Math.Round(balance, 2),
+                        InterestEarned = Math.Round(yearlyInterest, 2),
+                        ContributionsThisYear = model.MonthlyContribution * 12
+                    });
                 }
+            }
+            else
+            {
+                // Tax-advantaged breakdown calculation
+                decimal taxDeferredBalance = model.InitialAmount / 2; // Split initial amount between accounts
+                decimal taxableBalance = model.InitialAmount / 2;
+                
+                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+                decimal taxableMonthlyRate = monthlyRate * (1 - CAPITAL_GAINS_TAX_RATE); // Reduced for tax drag
+                
+                decimal monthlyTaxDeferredContribution = model.AnnualTaxDeferredContribution / 12;
+                decimal monthlyTaxableContribution = model.AnnualTaxableContribution / 12;
 
-                breakdown.Add(new YearlyBreakdown
+                for (int year = 1; year <= model.Years; year++)
                 {
-                    Year = year,
-                    Balance = Math.Round(balance, 2),
-                    InterestEarned = Math.Round(yearlyInterest, 2),
-                    ContributionsThisYear = model.MonthlyContribution * 12
-                });
+                    decimal yearlyTaxDeferredInterest = 0;
+                    decimal yearlyTaxableInterest = 0;
+
+                    // Calculate month by month for this year
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        // Tax-deferred account growth
+                        decimal monthlyTaxDeferredInterest = taxDeferredBalance * monthlyRate;
+                        yearlyTaxDeferredInterest += monthlyTaxDeferredInterest;
+                        taxDeferredBalance += monthlyTaxDeferredInterest + monthlyTaxDeferredContribution;
+                        
+                        // Taxable account growth
+                        decimal monthlyTaxableInterest = taxableBalance * taxableMonthlyRate;
+                        yearlyTaxableInterest += monthlyTaxableInterest;
+                        taxableBalance += monthlyTaxableInterest + monthlyTaxableContribution;
+                    }
+
+                    decimal totalBalance = taxDeferredBalance + taxableBalance;
+                    decimal totalYearlyInterest = yearlyTaxDeferredInterest + yearlyTaxableInterest;
+                    decimal totalYearlyContributions = (monthlyTaxDeferredContribution + monthlyTaxableContribution) * 12;
+
+                    breakdown.Add(new YearlyBreakdown
+                    {
+                        Year = year,
+                        Balance = Math.Round(totalBalance, 2),
+                        InterestEarned = Math.Round(totalYearlyInterest, 2),
+                        ContributionsThisYear = totalYearlyContributions,
+                        TaxDeferredBalance = Math.Round(taxDeferredBalance, 2),
+                        TaxableBalance = Math.Round(taxableBalance, 2),
+                        TaxDeferredInterest = Math.Round(yearlyTaxDeferredInterest, 2),
+                        TaxableInterest = Math.Round(yearlyTaxableInterest, 2),
+                        TaxDeferredContribution = Math.Round(monthlyTaxDeferredContribution * 12, 2),
+                        TaxableContribution = Math.Round(monthlyTaxableContribution * 12, 2)
+                    });
+                }
             }
 
             return breakdown;
