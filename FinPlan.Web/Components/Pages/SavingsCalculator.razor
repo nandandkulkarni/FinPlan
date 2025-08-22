@@ -1,0 +1,297 @@
+@page "/savings-calculator"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Savings Calculator</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-calculator"></i> Savings Calculator
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label for="initialAmount" class="form-label">Initial Amount ($)</label>
+                            <InputNumber id="initialAmount" class="form-control" @bind-Value="calculatorModel.InitialAmount" />
+                            <ValidationMessage For="@(() => calculatorModel.InitialAmount)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="monthlyContribution" class="form-label">Monthly Contribution ($)</label>
+                            <InputNumber id="monthlyContribution" class="form-control" @bind-Value="calculatorModel.MonthlyContribution" />
+                            <ValidationMessage For="@(() => calculatorModel.MonthlyContribution)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="annualGrowthRate" class="form-label">Annual Growth Rate (%)</label>
+                            <InputNumber id="annualGrowthRate" class="form-control" @bind-Value="calculatorModel.AnnualGrowthRate" step="0.1" />
+                            <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
+                            <div class="form-text">Enter as percentage (e.g., 7 for 7%)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="years" class="form-label">Number of Years</label>
+                            <InputNumber id="years" class="form-control" @bind-Value="calculatorModel.Years" />
+                            <ValidationMessage For="@(() => calculatorModel.Years)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="compoundingFrequency" class="form-label">Compounding Frequency</label>
+                            <InputSelect id="compoundingFrequency" class="form-select" @bind-Value="calculatorModel.CompoundingFrequency">
+                                <option value="1">Annually</option>
+                                <option value="4">Quarterly</option>
+                                <option value="12">Monthly</option>
+                                <option value="365">Daily</option>
+                            </InputSelect>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-calculator"></i> Calculate Savings
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            @if (results != null)
+            {
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="card-title mb-0">
+                            <i class="bi bi-graph-up"></i> Results
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-primary">@results.FinalAmount.ToString("C")</h4>
+                                        <p class="mb-0">Final Amount</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
+                                        <p class="mb-0">Interest Earned</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-info">@results.TotalContributions.ToString("C")</h4>
+                                        <p class="mb-0">Total Contributions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-warning">@(results.TotalInterestEarned / results.TotalContributions * 100).ToString("F1")%</h4>
+                                        <p class="mb-0">Return on Investment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: @(results.TotalContributions / results.FinalAmount * 100)%">
+                                Contributions
+                            </div>
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @(results.TotalInterestEarned / results.FinalAmount * 100)%">
+                                Interest
+                            </div>
+                        </div>
+
+                        <h5>Summary</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Initial Investment:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
+                            <li><strong>Monthly Contributions:</strong> @calculatorModel.MonthlyContribution.ToString("C")</li>
+                            <li><strong>Growth Rate:</strong> @calculatorModel.AnnualGrowthRate%</li>
+                            <li><strong>Time Period:</strong> @calculatorModel.Years years</li>
+                            <li><strong>Compounding:</strong> @GetCompoundingText()</li>
+                        </ul>
+                    </div>
+                </div>
+
+                @if (yearlyBreakdown.Any())
+                {
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Year-by-Year Breakdown</h5>
+                        </div>
+                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Balance</th>
+                                            <th>Interest</th>
+                                            <th>Contributions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var year in yearlyBreakdown)
+                                        {
+                                            <tr>
+                                                <td>@year.Year</td>
+                                                <td>@year.Balance.ToString("C")</td>
+                                                <td>@year.InterestEarned.ToString("C")</td>
+                                                <td>@year.ContributionsThisYear.ToString("C")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private SavingsCalculatorModel calculatorModel = new();
+    private SavingsResults? results;
+    private List<YearlyBreakdown> yearlyBreakdown = new();
+
+    private void Calculate()
+    {
+        var calculator = new SavingsCalculationEngine();
+        results = calculator.Calculate(calculatorModel);
+        yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+    }
+
+    private string GetCompoundingText()
+    {
+        return calculatorModel.CompoundingFrequency switch
+        {
+            1 => "Annually",
+            4 => "Quarterly", 
+            12 => "Monthly",
+            365 => "Daily",
+            _ => "Unknown"
+        };
+    }
+
+    public class SavingsCalculatorModel
+    {
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Initial amount must be positive")]
+        public decimal InitialAmount { get; set; } = 1000;
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Monthly contribution must be positive")]
+        public decimal MonthlyContribution { get; set; } = 500;
+
+        [Required]
+        [Range(0, 50, ErrorMessage = "Growth rate must be between 0 and 50%")]
+        public decimal AnnualGrowthRate { get; set; } = 7;
+
+        [Required]
+        [Range(1, 100, ErrorMessage = "Years must be between 1 and 100")]
+        public int Years { get; set; } = 10;
+
+        [Required]
+        public int CompoundingFrequency { get; set; } = 12;
+    }
+
+    public class SavingsResults
+    {
+        public decimal FinalAmount { get; set; }
+        public decimal TotalContributions { get; set; }
+        public decimal TotalInterestEarned { get; set; }
+    }
+
+    public class YearlyBreakdown
+    {
+        public int Year { get; set; }
+        public decimal Balance { get; set; }
+        public decimal InterestEarned { get; set; }
+        public decimal ContributionsThisYear { get; set; }
+    }
+
+    public class SavingsCalculationEngine
+    {
+        public SavingsResults Calculate(SavingsCalculatorModel model)
+        {
+            decimal principal = model.InitialAmount;
+            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+            int totalMonths = model.Years * 12;
+            decimal totalContributions = model.InitialAmount + (model.MonthlyContribution * totalMonths);
+
+            // Calculate future value with compound interest and regular contributions
+            decimal futureValue = principal;
+            
+            // Compound the initial amount
+            futureValue *= (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths);
+            
+            // Add future value of monthly contributions (annuity)
+            if (monthlyRate > 0)
+            {
+                decimal annuityFV = model.MonthlyContribution * 
+                    ((decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - 1) / monthlyRate;
+                futureValue += annuityFV;
+            }
+            else
+            {
+                futureValue += model.MonthlyContribution * totalMonths;
+            }
+
+            return new SavingsResults
+            {
+                FinalAmount = Math.Round(futureValue, 2),
+                TotalContributions = totalContributions,
+                TotalInterestEarned = Math.Round(futureValue - totalContributions, 2)
+            };
+        }
+
+        public List<YearlyBreakdown> GetYearlyBreakdown(SavingsCalculatorModel model)
+        {
+            var breakdown = new List<YearlyBreakdown>();
+            decimal balance = model.InitialAmount;
+            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+
+            for (int year = 1; year <= model.Years; year++)
+            {
+                decimal startBalance = balance;
+                decimal yearlyInterest = 0;
+
+                // Calculate month by month for this year
+                for (int month = 1; month <= 12; month++)
+                {
+                    decimal monthlyInterest = balance * monthlyRate;
+                    yearlyInterest += monthlyInterest;
+                    balance += monthlyInterest + model.MonthlyContribution;
+                }
+
+                breakdown.Add(new YearlyBreakdown
+                {
+                    Year = year,
+                    Balance = Math.Round(balance, 2),
+                    InterestEarned = Math.Round(yearlyInterest, 2),
+                    ContributionsThisYear = model.MonthlyContribution * 12
+                });
+            }
+
+            return breakdown;
+        }
+    }
+}
