@@ -7,6 +7,8 @@
 @using Microsoft.AspNetCore.Components.Routing
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.JSInterop
+@using System.IO
+@using ClosedXML.Excel
 @rendermode InteractiveServer
 
 <PageTitle>Retirement Spending Planner</PageTitle>
@@ -182,10 +184,35 @@
                         <DataAnnotationsValidator />
                         
                         <div class="mb-3">
-                            <label for="startingBalance" class="form-label">Starting Retirement Balance ($)</label>
-                            <input type="number" id="startingBalance" class="form-control" 
-                                   @bind-value="spendingModel.StartingBalance" @bind-value:event="oninput" />
-                            <ValidationMessage For="@(() => spendingModel.StartingBalance)" class="text-danger" />
+                            <label for="taxableBalance" class="form-label">Taxable Account Balance ($)</label>
+                            <input type="number" id="taxableBalance" class="form-control" 
+                                   @bind-value="spendingModel.TaxableBalance" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
+                            <div class="form-text">Money in brokerage accounts (taxed as you go)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="traditionalBalance" class="form-label">Traditional Account Balance ($)</label>
+                            <input type="number" id="traditionalBalance" class="form-control" 
+                                   @bind-value="spendingModel.TraditionalBalance" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.TraditionalBalance)" class="text-danger" />
+                            <div class="form-text">Money in tax-deferred accounts (401k, Traditional IRA)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rothBalance" class="form-label">Roth Account Balance ($)</label>
+                            <input type="number" id="rothBalance" class="form-control" 
+                                   @bind-value="spendingModel.RothBalance" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.RothBalance)" class="text-danger" />
+                            <div class="form-text">Money in tax-free accounts (Roth IRA, Roth 401k)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="traditionalTaxRate" class="form-label">Traditional Account Tax Rate (%)</label>
+                            <input type="number" id="traditionalTaxRate" class="form-control" step="0.1" min="0" max="50"
+                                   @bind-value="spendingModel.TraditionalTaxRate" @bind-value:event="oninput" />
+                            <ValidationMessage For="@(() => spendingModel.TraditionalTaxRate)" class="text-danger" />
+                            <div class="form-text">Estimated tax rate on Traditional account withdrawals</div>
                         </div>
 
                         <div class="mb-3">
@@ -238,6 +265,69 @@
                                        @bind-value="spendingModel.WithdrawalPercentage" @bind-value:event="oninput" />
                                 <ValidationMessage For="@(() => spendingModel.WithdrawalPercentage)" class="text-danger" />
                                 <div class="form-text">Percentage of your balance you'll spend each year (4% is a common rule of thumb)</div>
+                            </div>
+                        }
+                        
+                        <div class="mb-3">
+                            <label for="priorityStrategy" class="form-label">Account Withdrawal Strategy</label>
+                            <select id="priorityStrategy" class="form-control" @bind="spendingModel.PriorityStrategy">
+                                <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized">Tax Optimized (Taxable → Traditional → Roth)</option>
+                                <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.ProportionalSplit">Proportional Split (All accounts)</option>
+                                <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder">Custom Order</option>
+                            </select>
+                            <div class="form-text">Which accounts to withdraw from first</div>
+                        </div>
+                        
+                        @if (spendingModel.PriorityStrategy == SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Custom Withdrawal Order</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Select the order in which you want to withdraw from your accounts
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-2 d-flex align-items-center">
+                                            <span class="fw-bold">1st:</span>
+                                        </div>
+                                        <div class="col-10">
+                                            <select class="form-control" @bind="firstWithdrawalType" @bind:after="UpdateWithdrawalOrder">
+                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Traditional">Traditional Account</option>
+                                                <option value="Roth">Roth Account</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-2 d-flex align-items-center">
+                                            <span class="fw-bold">2nd:</span>
+                                        </div>
+                                        <div class="col-10">
+                                            <select class="form-control" @bind="secondWithdrawalType" @bind:after="UpdateWithdrawalOrder">
+                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Traditional">Traditional Account</option>
+                                                <option value="Roth">Roth Account</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-2 d-flex align-items-center">
+                                            <span class="fw-bold">3rd:</span>
+                                        </div>
+                                        <div class="col-10">
+                                            <select class="form-control" @bind="thirdWithdrawalType" @bind:after="UpdateWithdrawalOrder">
+                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Traditional">Traditional Account</option>
+                                                <option value="Roth">Roth Account</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         }
 
@@ -354,6 +444,34 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Final Account Balances</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Taxable Account:</strong></td>
+                                            <td class="text-end">@results.TaxableBalance.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Traditional Account:</strong></td>
+                                            <td class="text-end">@results.TraditionalBalance.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Roth Account:</strong></td>
+                                            <td class="text-end">@results.RothBalance.ToString("C")</td>
+                                        </tr>
+                                        <tr class="table-active">
+                                            <td><strong>Total:</strong></td>
+                                            <td class="text-end"><strong>@results.FinalBalance.ToString("C")</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
                         <div class="progress mb-3" style="height: 30px;">
                             <div class="progress-bar bg-info" role="progressbar" 
@@ -376,6 +494,7 @@
                             {
                                 <span>
                                     You'll spend <strong>@results.TotalWithdrawals.ToString("C")</strong> over @spendingModel.PlanYears years, 
+                                    pay <strong>@results.TotalTaxesPaid.ToString("C")</strong> in taxes,
                                     and your investments will grow by <strong>@results.TotalGrowth.ToString("C")</strong>, 
                                     @if (hasPartialRetirementChecked && results.TotalPartTimeIncome > 0)
                                     {
@@ -398,8 +517,12 @@
                         <ul class="list-unstyled">
                             <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
                             <li><strong>Plan Duration:</strong> @spendingModel.PlanYears years (until age @spendingModel.LifeExpectancy)</li>
-                            <li><strong>Starting Balance:</strong> @spendingModel.StartingBalance.ToString("C")</li>
-                            <li><strong>Spending Strategy:</strong> @GetStrategyText()</li>
+                            <li><strong>Starting Taxable Balance:</strong> @spendingModel.TaxableBalance.ToString("C")</li>
+                            <li><strong>Starting Traditional Balance:</strong> @spendingModel.TraditionalBalance.ToString("C")</li>
+                            <li><strong>Starting Roth Balance:</strong> @spendingModel.RothBalance.ToString("C")</li>
+                            <li><strong>Traditional Account Tax Rate:</strong> @spendingModel.TraditionalTaxRate%</li>
+                            <li><strong>Withdrawal Strategy:</strong> @GetStrategyText()</li>
+                            <li><strong>Account Withdrawal Priority:</strong> @GetPriorityStrategyText()</li>
                             @if (hasPartialRetirementChecked)
                             {
                                 <li><strong>Part-time Work:</strong> @spendingModel.PartialRetirementIncome.ToString("C")/year until age @spendingModel.PartialRetirementEndAge</li>
@@ -467,7 +590,7 @@
                                         {
                                             <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
                                                 <div class="table-responsive">
-                                                    <table class="table table-sm">
+                                                <table class="table table-sm">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Year/Age</th>
@@ -476,7 +599,8 @@
                                                                 {
                                                                     <th>Part-time Income</th>
                                                                 }
-                                                                <th>Withdrawal</th>
+                                                                <th>Withdrawals</th>
+                                                                <th>Taxes</th>
                                                                 <th>Growth</th>
                                                                 <th>Ending Balance</th>
                                                             </tr>
@@ -495,14 +619,87 @@
                                                                             <small class="badge bg-info">Part-time work</small>
                                                                         }
                                                                     </td>
-                                                                    <td>@year.StartingBalance.ToString("C")</td>
+                                                                    <td>
+                                                                        @year.StartingTotalBalance.ToString("C")
+                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                                type="button" 
+                                                                                data-bs-toggle="collapse" 
+                                                                                data-bs-target="#startBalance@(year.Year)" 
+                                                                                aria-expanded="false">
+                                                                            <i class="bi bi-info-circle-fill"></i>
+                                                                        </button>
+                                                                        <div class="collapse" id="startBalance@(year.Year)">
+                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                                <small>
+                                                                                    <div>Taxable: @year.StartingTaxableBalance.ToString("C")</div>
+                                                                                    <div>Traditional: @year.StartingTraditionalBalance.ToString("C")</div>
+                                                                                    <div>Roth: @year.StartingRothBalance.ToString("C")</div>
+                                                                                </small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
                                                                     @if (spendingModel.HasPartialRetirement)
                                                                     {
                                                                         <td>@year.PartTimeIncome.ToString("C")</td>
                                                                     }
-                                                                    <td>@year.Withdrawal.ToString("C")</td>
-                                                                    <td>@year.InvestmentGrowth.ToString("C")</td>
-                                                                    <td>@year.EndingBalance.ToString("C")</td>
+                                                                    <td>
+                                                                        @year.TotalWithdrawal.ToString("C")
+                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                                type="button" 
+                                                                                data-bs-toggle="collapse" 
+                                                                                data-bs-target="#withdrawals@(year.Year)" 
+                                                                                aria-expanded="false">
+                                                                            <i class="bi bi-info-circle-fill"></i>
+                                                                        </button>
+                                                                        <div class="collapse" id="withdrawals@(year.Year)">
+                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                                <small>
+                                                                                    <div>Taxable: @year.TaxableWithdrawal.ToString("C")</div>
+                                                                                    <div>Traditional: @year.TraditionalWithdrawal.ToString("C")</div>
+                                                                                    <div>Roth: @year.RothWithdrawal.ToString("C")</div>
+                                                                                </small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>@year.TaxPaid.ToString("C")</td>
+                                                                    <td>
+                                                                        @year.TotalGrowth.ToString("C")
+                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                                type="button" 
+                                                                                data-bs-toggle="collapse" 
+                                                                                data-bs-target="#growth@(year.Year)" 
+                                                                                aria-expanded="false">
+                                                                            <i class="bi bi-info-circle-fill"></i>
+                                                                        </button>
+                                                                        <div class="collapse" id="growth@(year.Year)">
+                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                                <small>
+                                                                                    <div>Taxable: @year.TaxableGrowth.ToString("C")</div>
+                                                                                    <div>Traditional: @year.TraditionalGrowth.ToString("C")</div>
+                                                                                    <div>Roth: @year.RothGrowth.ToString("C")</div>
+                                                                                </small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        @year.EndingTotalBalance.ToString("C")
+                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                                type="button" 
+                                                                                data-bs-toggle="collapse" 
+                                                                                data-bs-target="#endBalance@(year.Year)" 
+                                                                                aria-expanded="false">
+                                                                            <i class="bi bi-info-circle-fill"></i>
+                                                                        </button>
+                                                                        <div class="collapse" id="endBalance@(year.Year)">
+                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                                <small>
+                                                                                    <div>Taxable: @year.EndingTaxableBalance.ToString("C")</div>
+                                                                                    <div>Traditional: @year.EndingTraditionalBalance.ToString("C")</div>
+                                                                                    <div>Roth: @year.EndingRothBalance.ToString("C")</div>
+                                                                                </small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -526,7 +723,8 @@
                                                 {
                                                     <th>Part-time Income</th>
                                                 }
-                                                <th>Withdrawal</th>
+                                                <th>Withdrawals</th>
+                                                <th>Taxes</th>
                                                 <th>Growth</th>
                                                 <th>Ending Balance</th>
                                             </tr>
@@ -545,14 +743,87 @@
                                                             <small class="badge bg-info">Part-time work</small>
                                                         }
                                                     </td>
-                                                    <td>@year.StartingBalance.ToString("C")</td>
+                                                    <td>
+                                                        @year.StartingTotalBalance.ToString("C")
+                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#startBalance@(year.Year)" 
+                                                                aria-expanded="false">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                        </button>
+                                                        <div class="collapse" id="startBalance@(year.Year)">
+                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                <small>
+                                                                    <div>Taxable: @year.StartingTaxableBalance.ToString("C")</div>
+                                                                    <div>Traditional: @year.StartingTraditionalBalance.ToString("C")</div>
+                                                                    <div>Roth: @year.StartingRothBalance.ToString("C")</div>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @if (spendingModel.HasPartialRetirement)
                                                     {
                                                         <td>@year.PartTimeIncome.ToString("C")</td>
                                                     }
-                                                    <td>@year.Withdrawal.ToString("C")</td>
-                                                    <td>@year.InvestmentGrowth.ToString("C")</td>
-                                                    <td>@year.EndingBalance.ToString("C")</td>
+                                                    <td>
+                                                        @year.TotalWithdrawal.ToString("C")
+                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#withdrawals@(year.Year)" 
+                                                                aria-expanded="false">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                        </button>
+                                                        <div class="collapse" id="withdrawals@(year.Year)">
+                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                <small>
+                                                                    <div>Taxable: @year.TaxableWithdrawal.ToString("C")</div>
+                                                                    <div>Traditional: @year.TraditionalWithdrawal.ToString("C")</div>
+                                                                    <div>Roth: @year.RothWithdrawal.ToString("C")</div>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>@year.TaxPaid.ToString("C")</td>
+                                                    <td>
+                                                        @year.TotalGrowth.ToString("C")
+                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#growth@(year.Year)" 
+                                                                aria-expanded="false">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                        </button>
+                                                        <div class="collapse" id="growth@(year.Year)">
+                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                <small>
+                                                                    <div>Taxable: @year.TaxableGrowth.ToString("C")</div>
+                                                                    <div>Traditional: @year.TraditionalGrowth.ToString("C")</div>
+                                                                    <div>Roth: @year.RothGrowth.ToString("C")</div>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @year.EndingTotalBalance.ToString("C")
+                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#endBalance@(year.Year)" 
+                                                                aria-expanded="false">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                        </button>
+                                                        <div class="collapse" id="endBalance@(year.Year)">
+                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
+                                                                <small>
+                                                                    <div>Taxable: @year.EndingTaxableBalance.ToString("C")</div>
+                                                                    <div>Traditional: @year.EndingTraditionalBalance.ToString("C")</div>
+                                                                    <div>Roth: @year.EndingRothBalance.ToString("C")</div>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -570,10 +841,60 @@
 @code {
     private bool isDarkTheme = false;
     
+    // Properties for custom withdrawal order UI
+    private string firstWithdrawalType = "Taxable";
+    private string secondWithdrawalType = "Traditional";
+    private string thirdWithdrawalType = "Roth";
+    
     private void ToggleTheme()
     {
         isDarkTheme = !isDarkTheme;
         Console.WriteLine($"Theme toggled to {(isDarkTheme ? "dark" : "light")} mode");
+    }
+    
+    // Update the withdrawal order based on UI selections
+    private void UpdateWithdrawalOrder()
+    {
+        // Ensure no duplicates by checking if user selected the same account type multiple times
+        var uniqueTypes = new HashSet<string> { firstWithdrawalType, secondWithdrawalType, thirdWithdrawalType };
+        
+        if (uniqueTypes.Count < 3)
+        {
+            // Handle duplicates - set defaults
+            if (!uniqueTypes.Contains("Taxable"))
+            {
+                if (firstWithdrawalType == secondWithdrawalType)
+                    thirdWithdrawalType = "Taxable";
+                else if (firstWithdrawalType == thirdWithdrawalType)
+                    secondWithdrawalType = "Taxable";
+                else
+                    firstWithdrawalType = "Taxable";
+            }
+            else if (!uniqueTypes.Contains("Traditional"))
+            {
+                if (firstWithdrawalType == secondWithdrawalType)
+                    thirdWithdrawalType = "Traditional";
+                else if (firstWithdrawalType == thirdWithdrawalType)
+                    secondWithdrawalType = "Traditional";
+                else
+                    firstWithdrawalType = "Traditional";
+            }
+            else if (!uniqueTypes.Contains("Roth"))
+            {
+                if (firstWithdrawalType == secondWithdrawalType)
+                    thirdWithdrawalType = "Roth";
+                else if (firstWithdrawalType == thirdWithdrawalType)
+                    secondWithdrawalType = "Roth";
+                else
+                    firstWithdrawalType = "Roth";
+            }
+        }
+        
+        // Update the model's withdrawal order
+        spendingModel.WithdrawalOrder = new[] { firstWithdrawalType, secondWithdrawalType, thirdWithdrawalType };
+        
+        // Recalculate results with the new withdrawal order
+        Calculate();
     }
     
     [SupplyParameterFromForm]
@@ -601,12 +922,17 @@
         {
             RetirementAge = 65,
             LifeExpectancy = 95,
-            StartingBalance = 1000000,
+            TaxableBalance = 250000,
+            TraditionalBalance = 500000,
+            RothBalance = 250000,
+            TraditionalTaxRate = 22.0m,
             AnnualWithdrawal = 40000,
             InflationRate = 2.5m,
             InvestmentReturn = 5.0m,
             WithdrawalPercentage = 4.0m,
             Strategy = SpendingPlanModel.WithdrawalStrategy.InflationAdjusted,
+            PriorityStrategy = SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized,
+            WithdrawalOrder = new[] { "Taxable", "Traditional", "Roth" },
             HasPartialRetirement = false,
             PartialRetirementEndAge = 70,
             PartialRetirementIncome = 25000
@@ -650,6 +976,345 @@
                 return $"Starting at {spendingModel.AnnualWithdrawal.ToString("C")} yearly, adjusted for inflation";
             default:
                 return "Custom spending plan";
+        }
+    }
+    
+    private string GetPriorityStrategyText()
+    {
+        switch (spendingModel.PriorityStrategy)
+        {
+            case SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized:
+                return "Tax-optimized (Taxable → Traditional → Roth)";
+            case SpendingPlanModel.WithdrawalPriorityStrategy.ProportionalSplit:
+                return "Proportional from all accounts";
+            case SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder:
+                return $"Custom order ({string.Join(" → ", spendingModel.WithdrawalOrder)})";
+            default:
+                return "Default strategy";
+        }
+    }
+    
+    // Excel export functionality
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
+    
+    private async Task ExportToExcel()
+    {
+        try
+        {
+            // Make sure we have results to export
+            if (results == null)
+            {
+                Console.WriteLine("Cannot export to Excel: No results available");
+                return;
+            }
+            
+            using var workbook = new XLWorkbook();
+            
+            // Add Summary Sheet
+            var summarySheet = workbook.Worksheets.Add("Summary");
+            
+            // Title and Date
+            summarySheet.Cell("A1").Value = "Retirement Spending Plan Summary";
+            summarySheet.Cell("A1").Style.Font.Bold = true;
+            summarySheet.Cell("A1").Style.Font.FontSize = 16;
+            summarySheet.Range("A1:F1").Merge();
+            
+            summarySheet.Cell("A2").Value = $"Generated on {DateTime.Now:MMMM d, yyyy}";
+            summarySheet.Range("A2:F2").Merge();
+            
+            // Input Parameters
+            summarySheet.Cell("A4").Value = "Plan Parameters";
+            summarySheet.Cell("A4").Style.Font.Bold = true;
+            summarySheet.Range("A4:F4").Merge();
+            
+            var row = 5;
+            summarySheet.Cell($"A{row}").Value = "Current Age:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.RetirementAge - (spendingModel.LifeExpectancy - spendingModel.PlanYears);
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Retirement Age:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.RetirementAge;
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Life Expectancy:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.LifeExpectancy;
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Plan Duration (Years):";
+            summarySheet.Cell($"B{row}").Value = spendingModel.PlanYears;
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Taxable Account Balance:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.TaxableBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Traditional Account Balance:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.TraditionalBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Roth Account Balance:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.RothBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Traditional Account Tax Rate:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.TraditionalTaxRate / 100;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "0.0%";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Investment Return:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.InvestmentReturn / 100;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "0.0%";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Inflation Rate:";
+            summarySheet.Cell($"B{row}").Value = spendingModel.InflationRate / 100;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "0.0%";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Withdrawal Strategy:";
+            summarySheet.Cell($"B{row}").Value = GetStrategyText();
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Account Withdrawal Priority:";
+            summarySheet.Cell($"B{row}").Value = GetPriorityStrategyText();
+            
+            if (spendingModel.HasPartialRetirement)
+            {
+                row++;
+                summarySheet.Cell($"A{row}").Value = "Part-time Income:";
+                summarySheet.Cell($"B{row}").Value = spendingModel.PartialRetirementIncome;
+                summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+                
+                row++;
+                summarySheet.Cell($"A{row}").Value = "Part-time Income Until Age:";
+                summarySheet.Cell($"B{row}").Value = spendingModel.PartialRetirementEndAge;
+            }
+            
+            // Results Section
+            row += 2;
+            summarySheet.Cell($"A{row}").Value = "Results Summary";
+            summarySheet.Cell($"A{row}").Style.Font.Bold = true;
+            summarySheet.Range($"A{row}:F{row}").Merge();
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Final Balance (Total):";
+            summarySheet.Cell($"B{row}").Value = results.FinalBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Final Taxable Balance:";
+            summarySheet.Cell($"B{row}").Value = results.TaxableBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Final Traditional Balance:";
+            summarySheet.Cell($"B{row}").Value = results.TraditionalBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Final Roth Balance:";
+            summarySheet.Cell($"B{row}").Value = results.RothBalance;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Total Withdrawals:";
+            summarySheet.Cell($"B{row}").Value = results.TotalWithdrawals;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Total Taxes Paid:";
+            summarySheet.Cell($"B{row}").Value = results.TotalTaxesPaid;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Total Investment Growth:";
+            summarySheet.Cell($"B{row}").Value = results.TotalGrowth;
+            summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            
+            if (spendingModel.HasPartialRetirement)
+            {
+                row++;
+                summarySheet.Cell($"A{row}").Value = "Total Part-Time Income:";
+                summarySheet.Cell($"B{row}").Value = results.TotalPartTimeIncome;
+                summarySheet.Cell($"B{row}").Style.NumberFormat.Format = "$#,##0";
+            }
+            
+            row++;
+            summarySheet.Cell($"A{row}").Value = "Plan Sustainability:";
+            summarySheet.Cell($"B{row}").Value = results.IsSustainable ? "Sustainable for lifetime" : $"Money runs out at age {results.MoneyRunsOutAge}";
+            
+            // Format Summary Sheet
+            summarySheet.Columns().AdjustToContents();
+            
+            // Add Yearly Breakdown Sheet
+            var detailSheet = workbook.Worksheets.Add("Yearly Breakdown");
+            
+            // Headers
+            detailSheet.Cell("A1").Value = "Year";
+            detailSheet.Cell("B1").Value = "Age";
+            detailSheet.Cell("C1").Value = "Starting Taxable";
+            detailSheet.Cell("D1").Value = "Starting Traditional";
+            detailSheet.Cell("E1").Value = "Starting Roth";
+            detailSheet.Cell("F1").Value = "Starting Total";
+            
+            if (spendingModel.HasPartialRetirement)
+            {
+                detailSheet.Cell("G1").Value = "Part-Time Income";
+                detailSheet.Cell("H1").Value = "Taxable Withdrawal";
+                detailSheet.Cell("I1").Value = "Traditional Withdrawal";
+                detailSheet.Cell("J1").Value = "Roth Withdrawal";
+                detailSheet.Cell("K1").Value = "Total Withdrawal";
+                detailSheet.Cell("L1").Value = "Tax Paid";
+                detailSheet.Cell("M1").Value = "Taxable Growth";
+                detailSheet.Cell("N1").Value = "Traditional Growth";
+                detailSheet.Cell("O1").Value = "Roth Growth";
+                detailSheet.Cell("P1").Value = "Total Growth";
+                detailSheet.Cell("Q1").Value = "Ending Taxable";
+                detailSheet.Cell("R1").Value = "Ending Traditional";
+                detailSheet.Cell("S1").Value = "Ending Roth";
+                detailSheet.Cell("T1").Value = "Ending Total";
+            }
+            else
+            {
+                detailSheet.Cell("G1").Value = "Taxable Withdrawal";
+                detailSheet.Cell("H1").Value = "Traditional Withdrawal";
+                detailSheet.Cell("I1").Value = "Roth Withdrawal";
+                detailSheet.Cell("J1").Value = "Total Withdrawal";
+                detailSheet.Cell("K1").Value = "Tax Paid";
+                detailSheet.Cell("L1").Value = "Taxable Growth";
+                detailSheet.Cell("M1").Value = "Traditional Growth";
+                detailSheet.Cell("N1").Value = "Roth Growth";
+                detailSheet.Cell("O1").Value = "Total Growth";
+                detailSheet.Cell("P1").Value = "Ending Taxable";
+                detailSheet.Cell("Q1").Value = "Ending Traditional";
+                detailSheet.Cell("R1").Value = "Ending Roth";
+                detailSheet.Cell("S1").Value = "Ending Total";
+            }
+            
+            // Style header row
+            var headerRow = detailSheet.Row(1);
+            headerRow.Style.Font.Bold = true;
+            headerRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+            
+            // Data rows
+            for (int i = 0; i < yearlyBreakdown.Count; i++)
+            {
+                var year = yearlyBreakdown[i];
+                int dataRow = i + 2; // Start data on row 2
+                
+                detailSheet.Cell($"A{dataRow}").Value = year.Year;
+                detailSheet.Cell($"B{dataRow}").Value = year.Age;
+                detailSheet.Cell($"C{dataRow}").Value = year.StartingTaxableBalance;
+                detailSheet.Cell($"D{dataRow}").Value = year.StartingTraditionalBalance;
+                detailSheet.Cell($"E{dataRow}").Value = year.StartingRothBalance;
+                detailSheet.Cell($"F{dataRow}").Value = year.StartingTotalBalance;
+                
+                if (spendingModel.HasPartialRetirement)
+                {
+                    detailSheet.Cell($"G{dataRow}").Value = year.PartTimeIncome;
+                    detailSheet.Cell($"H{dataRow}").Value = year.TaxableWithdrawal;
+                    detailSheet.Cell($"I{dataRow}").Value = year.TraditionalWithdrawal;
+                    detailSheet.Cell($"J{dataRow}").Value = year.RothWithdrawal;
+                    detailSheet.Cell($"K{dataRow}").Value = year.TotalWithdrawal;
+                    detailSheet.Cell($"L{dataRow}").Value = year.TaxPaid;
+                    detailSheet.Cell($"M{dataRow}").Value = year.TaxableGrowth;
+                    detailSheet.Cell($"N{dataRow}").Value = year.TraditionalGrowth;
+                    detailSheet.Cell($"O{dataRow}").Value = year.RothGrowth;
+                    detailSheet.Cell($"P{dataRow}").Value = year.TotalGrowth;
+                    detailSheet.Cell($"Q{dataRow}").Value = year.EndingTaxableBalance;
+                    detailSheet.Cell($"R{dataRow}").Value = year.EndingTraditionalBalance;
+                    detailSheet.Cell($"S{dataRow}").Value = year.EndingRothBalance;
+                    detailSheet.Cell($"T{dataRow}").Value = year.EndingTotalBalance;
+                }
+                else
+                {
+                    detailSheet.Cell($"G{dataRow}").Value = year.TaxableWithdrawal;
+                    detailSheet.Cell($"H{dataRow}").Value = year.TraditionalWithdrawal;
+                    detailSheet.Cell($"I{dataRow}").Value = year.RothWithdrawal;
+                    detailSheet.Cell($"J{dataRow}").Value = year.TotalWithdrawal;
+                    detailSheet.Cell($"K{dataRow}").Value = year.TaxPaid;
+                    detailSheet.Cell($"L{dataRow}").Value = year.TaxableGrowth;
+                    detailSheet.Cell($"M{dataRow}").Value = year.TraditionalGrowth;
+                    detailSheet.Cell($"N{dataRow}").Value = year.RothGrowth;
+                    detailSheet.Cell($"O{dataRow}").Value = year.TotalGrowth;
+                    detailSheet.Cell($"P{dataRow}").Value = year.EndingTaxableBalance;
+                    detailSheet.Cell($"Q{dataRow}").Value = year.EndingTraditionalBalance;
+                    detailSheet.Cell($"R{dataRow}").Value = year.EndingRothBalance;
+                    detailSheet.Cell($"S{dataRow}").Value = year.EndingTotalBalance;
+                }
+                
+                // Format money cells
+                if (spendingModel.HasPartialRetirement)
+                {
+                    for (char col = 'C'; col <= 'T'; col++)
+                    {
+                        if (col != 'A' && col != 'B')
+                        {
+                            detailSheet.Cell($"{col}{dataRow}").Style.NumberFormat.Format = "$#,##0";
+                        }
+                    }
+                }
+                else
+                {
+                    for (char col = 'C'; col <= 'S'; col++)
+                    {
+                        if (col != 'A' && col != 'B')
+                        {
+                            detailSheet.Cell($"{col}{dataRow}").Style.NumberFormat.Format = "$#,##0";
+                        }
+                    }
+                }
+                
+                // Highlight partial retirement years
+                if (year.IsPartialRetirement)
+                {
+                    var rowCells = detailSheet.Row(dataRow).Cells();
+                    rowCells.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                }
+                
+                // Highlight if funds depleted
+                if (!year.FundsRemaining)
+                {
+                    var rowCells = detailSheet.Row(dataRow).Cells();
+                    rowCells.Style.Fill.BackgroundColor = XLColor.LightPink;
+                    rowCells.Style.Font.FontColor = XLColor.Red;
+                }
+            }
+            
+            // Format detail sheet
+            detailSheet.Columns().AdjustToContents();
+            
+            // Save to memory stream
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+            
+            // Get base64 string
+            var base64 = Convert.ToBase64String(stream.ToArray());
+            
+            // Use JS to download the file
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync(
+                    "downloadFileFromBase64",
+                    base64,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"RetirementSpendingPlan_{DateTime.Now:yyyyMMdd}.xlsx"
+                );
+            }
+            else
+            {
+                Console.WriteLine("JSRuntime is null, cannot download file");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error exporting to Excel: {ex.Message}");
+            // Consider displaying an error message to the user
         }
     }
 
@@ -762,9 +1427,26 @@
         [Range(55, 120, ErrorMessage = "Life expectancy should be between 55-120")]
         public int LifeExpectancy { get; set; } = 95;
 
+        // Individual account balances
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Starting balance must be positive")]
-        public decimal StartingBalance { get; set; } = 1000000;
+        [Range(0, double.MaxValue, ErrorMessage = "Taxable balance must be positive")]
+        public decimal TaxableBalance { get; set; } = 250000;
+        
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Traditional balance must be positive")]
+        public decimal TraditionalBalance { get; set; } = 500000;
+        
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Roth balance must be positive")]
+        public decimal RothBalance { get; set; } = 250000;
+        
+        // Legacy property for backward compatibility, now a computed property
+        public decimal StartingBalance => TaxableBalance + TraditionalBalance + RothBalance;
+        
+        // Tax rate for traditional withdrawals
+        [Required]
+        [Range(0, 50, ErrorMessage = "Tax rate must be between 0 and 50%")]
+        public decimal TraditionalTaxRate { get; set; } = 22.0m;
 
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Annual withdrawal must be positive")]
@@ -797,6 +1479,19 @@
 
         public WithdrawalStrategy Strategy { get; set; } = WithdrawalStrategy.InflationAdjusted;
         
+        // Account withdrawal priority strategies
+        public enum WithdrawalPriorityStrategy
+        {
+            TaxOptimized,      // Prioritize based on tax efficiency (typically Taxable, then Traditional, then Roth)
+            ProportionalSplit, // Withdraw proportionally from all accounts
+            CustomOrder        // User-defined order
+        }
+        
+        public WithdrawalPriorityStrategy PriorityStrategy { get; set; } = WithdrawalPriorityStrategy.TaxOptimized;
+        
+        // For CustomOrder strategy
+        public string[] WithdrawalOrder { get; set; } = { "Taxable", "Traditional", "Roth" };
+        
         // Fixed percentage if that strategy is selected
         [Range(0, 100, ErrorMessage = "Percentage must be between 0 and 100")]
         public decimal WithdrawalPercentage { get; set; } = 4.0m;
@@ -811,24 +1506,59 @@
         public decimal TotalWithdrawals { get; set; }
         public decimal TotalGrowth { get; set; }
         public decimal TotalPartTimeIncome { get; set; }
+        public decimal TotalTaxesPaid { get; set; }
         public bool IsSustainable { get; set; }
         public int MoneyRunsOutAge { get; set; }
+        
+        // Account-specific final balances
+        public decimal TaxableBalance { get; set; }
+        public decimal TraditionalBalance { get; set; }
+        public decimal RothBalance { get; set; }
     }
 
     public class YearlySpendingBreakdown
     {
         public int Year { get; set; }
         public int Age { get; set; }
-        public decimal StartingBalance { get; set; }
-        public decimal Withdrawal { get; set; }
-        public decimal InvestmentGrowth { get; set; }
-        public decimal EndingBalance { get; set; }
+        
+        // Starting balances by account type
+        public decimal StartingTaxableBalance { get; set; }
+        public decimal StartingTraditionalBalance { get; set; }
+        public decimal StartingRothBalance { get; set; }
+        public decimal StartingTotalBalance => StartingTaxableBalance + StartingTraditionalBalance + StartingRothBalance;
+        
+        // Withdrawals by account type
+        public decimal TaxableWithdrawal { get; set; }
+        public decimal TraditionalWithdrawal { get; set; }
+        public decimal RothWithdrawal { get; set; }
+        public decimal TotalWithdrawal => TaxableWithdrawal + TraditionalWithdrawal + RothWithdrawal;
+        
+        // Tax on traditional withdrawals
+        public decimal TaxPaid { get; set; }
+        
+        // Growth by account type
+        public decimal TaxableGrowth { get; set; }
+        public decimal TraditionalGrowth { get; set; }
+        public decimal RothGrowth { get; set; }
+        public decimal TotalGrowth => TaxableGrowth + TraditionalGrowth + RothGrowth;
+        
+        // Ending balances by account type
+        public decimal EndingTaxableBalance { get; set; }
+        public decimal EndingTraditionalBalance { get; set; }
+        public decimal EndingRothBalance { get; set; }
+        public decimal EndingTotalBalance => EndingTaxableBalance + EndingTraditionalBalance + EndingRothBalance;
+        
+        // Legacy properties for compatibility with existing UI
+        public decimal StartingBalance => StartingTotalBalance;
+        public decimal Withdrawal => TotalWithdrawal;
+        public decimal InvestmentGrowth => TotalGrowth;
+        public decimal EndingBalance => EndingTotalBalance;
         public decimal PartTimeIncome { get; set; }
         public bool IsPartialRetirement { get; set; }
         
         // Helper properties
-        public bool FundsRemaining => EndingBalance > 0;
-        public decimal WithdrawalRate => StartingBalance > 0 ? (Withdrawal / StartingBalance) * 100 : 0;
+        public bool FundsRemaining => EndingTotalBalance > 0;
+        public decimal WithdrawalRate => StartingTotalBalance > 0 ? (TotalWithdrawal / StartingTotalBalance) * 100 : 0;
     }
 
     public class SpendingIntervalSummary
@@ -852,7 +1582,13 @@
             decimal totalWithdrawals = 0;
             decimal totalGrowth = 0;
             decimal totalPartTimeIncome = 0;
-            decimal balance = model.StartingBalance;
+            decimal totalTaxesPaid = 0;
+            
+            // Track individual account balances
+            decimal taxableBalance = model.TaxableBalance;
+            decimal traditionalBalance = model.TraditionalBalance;
+            decimal rothBalance = model.RothBalance;
+            
             decimal currentWithdrawal = model.AnnualWithdrawal;
             bool isSustainable = true;
             int moneyRunsOutAge = 0;
@@ -864,25 +1600,43 @@
                 // Add part-time income if in partial retirement phase
                 if (model.HasPartialRetirement && currentAge < model.PartialRetirementEndAge)
                 {
-                    balance += model.PartialRetirementIncome;
+                    // Apply part-time income to taxable account (most realistic)
+                    taxableBalance += model.PartialRetirementIncome;
                     totalPartTimeIncome += model.PartialRetirementIncome;
                 }
                 
-                // Calculate withdrawal based on strategy
-                decimal withdrawal = CalculateWithdrawal(currentWithdrawal, balance, model);
+                // Calculate gross withdrawal needed based on strategy
+                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal grossWithdrawalNeeded = CalculateWithdrawal(currentWithdrawal, totalBalance, model);
                 
-                // Ensure we don't withdraw more than available
-                withdrawal = Math.Min(withdrawal, balance);
+                // Determine withdrawals from each account based on priority strategy
+                (decimal taxableWithdrawal, decimal traditionalWithdrawal, decimal rothWithdrawal) = 
+                    CalculateAccountWithdrawals(grossWithdrawalNeeded, taxableBalance, traditionalBalance, rothBalance, model);
+                
+                // Calculate tax on traditional withdrawals
+                decimal taxOnTraditional = traditionalWithdrawal * (model.TraditionalTaxRate / 100);
+                totalTaxesPaid += taxOnTraditional;
+                
+                // Net withdrawal (what the user receives)
+                decimal netWithdrawal = taxableWithdrawal + traditionalWithdrawal + rothWithdrawal;
                 
                 // Update total withdrawals
-                totalWithdrawals += withdrawal;
+                totalWithdrawals += netWithdrawal;
                 
-                // Calculate investment returns (simplified - assumes withdrawal at year end)
-                decimal investmentGrowth = Math.Max(0, (balance - withdrawal) * (model.InvestmentReturn / 100));
-                totalGrowth += investmentGrowth;
+                // Calculate investment returns for each account type
+                decimal taxableGrowth = Math.Max(0, (taxableBalance - taxableWithdrawal) * (model.InvestmentReturn / 100));
+                decimal traditionalGrowth = Math.Max(0, (traditionalBalance - traditionalWithdrawal) * (model.InvestmentReturn / 100));
+                decimal rothGrowth = Math.Max(0, (rothBalance - rothWithdrawal) * (model.InvestmentReturn / 100));
                 
-                // Update balance
-                balance = Math.Max(0, balance - withdrawal + investmentGrowth);
+                decimal totalYearlyGrowth = taxableGrowth + traditionalGrowth + rothGrowth;
+                totalGrowth += totalYearlyGrowth;
+                
+                // Update balances
+                taxableBalance = Math.Max(0, taxableBalance - taxableWithdrawal + taxableGrowth);
+                traditionalBalance = Math.Max(0, traditionalBalance - traditionalWithdrawal + traditionalGrowth);
+                rothBalance = Math.Max(0, rothBalance - rothWithdrawal + rothGrowth);
+                
+                decimal totalEndingBalance = taxableBalance + traditionalBalance + rothBalance;
                 
                 // For inflation-adjusted, increase withdrawal amount
                 if (model.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
@@ -891,7 +1645,7 @@
                 }
                 
                 // Check if funds depleted
-                if (balance <= 0 && moneyRunsOutAge == 0)
+                if (totalEndingBalance <= 0 && moneyRunsOutAge == 0)
                 {
                     isSustainable = false;
                     moneyRunsOutAge = model.RetirementAge + year;
@@ -899,12 +1653,18 @@
                 }
             }
             
+            decimal finalBalance = taxableBalance + traditionalBalance + rothBalance;
+            
             return new SpendingResults
             {
-                FinalBalance = Math.Round(balance, 2),
+                FinalBalance = Math.Round(finalBalance, 2),
+                TaxableBalance = Math.Round(taxableBalance, 2),
+                TraditionalBalance = Math.Round(traditionalBalance, 2),
+                RothBalance = Math.Round(rothBalance, 2),
                 TotalWithdrawals = Math.Round(totalWithdrawals, 2),
                 TotalGrowth = Math.Round(totalGrowth, 2),
                 TotalPartTimeIncome = Math.Round(totalPartTimeIncome, 2),
+                TotalTaxesPaid = Math.Round(totalTaxesPaid, 2),
                 IsSustainable = isSustainable,
                 MoneyRunsOutAge = moneyRunsOutAge
             };
@@ -913,48 +1673,90 @@
         public List<YearlySpendingBreakdown> GetYearlyBreakdown(SpendingPlanModel model)
         {
             var breakdown = new List<YearlySpendingBreakdown>();
-            decimal balance = model.StartingBalance;
+            
+            // Track individual account balances
+            decimal taxableBalance = model.TaxableBalance;
+            decimal traditionalBalance = model.TraditionalBalance;
+            decimal rothBalance = model.RothBalance;
+            
             decimal currentWithdrawal = model.AnnualWithdrawal;
             
             for (int year = 1; year <= model.PlanYears; year++)
             {
                 int age = model.RetirementAge + year - 1;
                 
+                // Starting balances for this year
+                decimal startingTaxableBalance = taxableBalance;
+                decimal startingTraditionalBalance = traditionalBalance;
+                decimal startingRothBalance = rothBalance;
+                
                 // Add part-time income if in partial retirement phase
                 decimal partTimeIncome = 0;
                 if (model.HasPartialRetirement && age < model.PartialRetirementEndAge)
                 {
                     partTimeIncome = model.PartialRetirementIncome;
-                    balance += partTimeIncome;
+                    taxableBalance += partTimeIncome; // Apply to taxable account
                 }
                 
-                // Calculate withdrawal based on strategy
-                decimal withdrawal = CalculateWithdrawal(currentWithdrawal, balance, model);
+                // Calculate gross withdrawal needed based on strategy
+                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal grossWithdrawalNeeded = CalculateWithdrawal(currentWithdrawal, totalBalance, model);
                 
-                // Ensure we don't withdraw more than available
-                withdrawal = Math.Min(withdrawal, balance);
+                // Determine withdrawals from each account based on priority strategy
+                (decimal taxableWithdrawal, decimal traditionalWithdrawal, decimal rothWithdrawal) = 
+                    CalculateAccountWithdrawals(grossWithdrawalNeeded, taxableBalance, traditionalBalance, rothBalance, model);
                 
-                // Calculate investment returns (simplified - assumes withdrawal at year end)
-                decimal investmentGrowth = Math.Max(0, (balance - withdrawal) * (model.InvestmentReturn / 100));
+                // Calculate tax on traditional withdrawals
+                decimal taxOnTraditional = traditionalWithdrawal * (model.TraditionalTaxRate / 100);
                 
-                // Update balance
-                decimal endBalance = Math.Max(0, balance - withdrawal + investmentGrowth);
+                // Calculate investment returns for each account type
+                decimal taxableGrowth = Math.Max(0, (taxableBalance - taxableWithdrawal) * (model.InvestmentReturn / 100));
+                decimal traditionalGrowth = Math.Max(0, (traditionalBalance - traditionalWithdrawal) * (model.InvestmentReturn / 100));
+                decimal rothGrowth = Math.Max(0, (rothBalance - rothWithdrawal) * (model.InvestmentReturn / 100));
+                
+                // Update balances
+                decimal endingTaxableBalance = Math.Max(0, taxableBalance - taxableWithdrawal + taxableGrowth);
+                decimal endingTraditionalBalance = Math.Max(0, traditionalBalance - traditionalWithdrawal + traditionalGrowth);
+                decimal endingRothBalance = Math.Max(0, rothBalance - rothWithdrawal + rothGrowth);
                 
                 // Add to results
                 breakdown.Add(new YearlySpendingBreakdown
                 {
                     Year = year,
                     Age = age,
-                    StartingBalance = Math.Round(balance, 2),
-                    Withdrawal = Math.Round(withdrawal, 2),
-                    InvestmentGrowth = Math.Round(investmentGrowth, 2),
-                    EndingBalance = Math.Round(endBalance, 2),
+                    
+                    // Starting balances
+                    StartingTaxableBalance = Math.Round(startingTaxableBalance, 2),
+                    StartingTraditionalBalance = Math.Round(startingTraditionalBalance, 2),
+                    StartingRothBalance = Math.Round(startingRothBalance, 2),
+                    
+                    // Withdrawals
+                    TaxableWithdrawal = Math.Round(taxableWithdrawal, 2),
+                    TraditionalWithdrawal = Math.Round(traditionalWithdrawal, 2),
+                    RothWithdrawal = Math.Round(rothWithdrawal, 2),
+                    
+                    // Tax
+                    TaxPaid = Math.Round(taxOnTraditional, 2),
+                    
+                    // Growth
+                    TaxableGrowth = Math.Round(taxableGrowth, 2),
+                    TraditionalGrowth = Math.Round(traditionalGrowth, 2),
+                    RothGrowth = Math.Round(rothGrowth, 2),
+                    
+                    // Ending balances
+                    EndingTaxableBalance = Math.Round(endingTaxableBalance, 2),
+                    EndingTraditionalBalance = Math.Round(endingTraditionalBalance, 2),
+                    EndingRothBalance = Math.Round(endingRothBalance, 2),
+                    
+                    // Other info
                     PartTimeIncome = Math.Round(partTimeIncome, 2),
                     IsPartialRetirement = partTimeIncome > 0
                 });
                 
                 // Update for next year
-                balance = endBalance;
+                taxableBalance = endingTaxableBalance;
+                traditionalBalance = endingTraditionalBalance;
+                rothBalance = endingRothBalance;
                 
                 // For inflation-adjusted, increase withdrawal amount
                 if (model.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
@@ -963,7 +1765,7 @@
                 }
                 
                 // Break if funds depleted
-                if (balance <= 0)
+                if ((taxableBalance + traditionalBalance + rothBalance) <= 0)
                 {
                     break;
                 }
@@ -989,6 +1791,85 @@
                 default:
                     return baseWithdrawal;
             }
+        }
+        
+        // Helper method to determine withdrawals from each account type
+        private (decimal taxable, decimal traditional, decimal roth) CalculateAccountWithdrawals(
+            decimal totalNeeded, decimal taxableBalance, decimal traditionalBalance, decimal rothBalance, SpendingPlanModel model)
+        {
+            decimal taxable = 0;
+            decimal traditional = 0;
+            decimal roth = 0;
+            decimal remaining = totalNeeded;
+            
+            // Calculate total available
+            decimal totalAvailable = taxableBalance + traditionalBalance + rothBalance;
+            
+            // Handle case where withdrawal exceeds total balance
+            if (totalNeeded > totalAvailable)
+            {
+                return (
+                    Math.Min(taxableBalance, taxableBalance / Math.Max(0.0001m, totalAvailable) * totalNeeded),
+                    Math.Min(traditionalBalance, traditionalBalance / Math.Max(0.0001m, totalAvailable) * totalNeeded),
+                    Math.Min(rothBalance, rothBalance / Math.Max(0.0001m, totalAvailable) * totalNeeded)
+                );
+            }
+            
+            switch (model.PriorityStrategy)
+            {
+                case SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized:
+                    // Tax-optimized: Taxable first, then Traditional, then Roth
+                    taxable = Math.Min(remaining, taxableBalance);
+                    remaining -= taxable;
+                    
+                    if (remaining > 0)
+                    {
+                        traditional = Math.Min(remaining, traditionalBalance);
+                        remaining -= traditional;
+                    }
+                    
+                    if (remaining > 0)
+                    {
+                        roth = Math.Min(remaining, rothBalance);
+                    }
+                    break;
+                    
+                case SpendingPlanModel.WithdrawalPriorityStrategy.ProportionalSplit:
+                    // Withdraw proportionally from all accounts
+                    if (totalAvailable > 0)
+                    {
+                        taxable = Math.Min(taxableBalance, totalNeeded * (taxableBalance / totalAvailable));
+                        traditional = Math.Min(traditionalBalance, totalNeeded * (traditionalBalance / totalAvailable));
+                        roth = Math.Min(rothBalance, totalNeeded * (rothBalance / totalAvailable));
+                    }
+                    break;
+                    
+                case SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder:
+                    // Use custom order specified by user
+                    foreach (string accountType in model.WithdrawalOrder)
+                    {
+                        if (remaining <= 0) break;
+                        
+                        if (accountType == "Taxable" && taxableBalance > 0)
+                        {
+                            taxable = Math.Min(remaining, taxableBalance);
+                            remaining -= taxable;
+                        }
+                        else if (accountType == "Traditional" && traditionalBalance > 0)
+                        {
+                            traditional = Math.Min(remaining, traditionalBalance);
+                            remaining -= traditional;
+                        }
+                        else if (accountType == "Roth" && rothBalance > 0)
+                        {
+                            roth = Math.Min(remaining, rothBalance);
+                            remaining -= roth;
+                        }
+                    }
+                    break;
+            }
+            
+            return (taxable, traditional, roth);
         }
     }
 }
