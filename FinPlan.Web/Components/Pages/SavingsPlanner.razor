@@ -378,25 +378,37 @@
                             </div>
                         </div>
 
-                        <h5>Your Retirement Plan Summary</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Current Age:</strong> @calculatorModel.CurrentAge years old</li>
-                            <li><strong>Target Retirement Age:</strong> @calculatorModel.RetirementAge years old</li>
-                            <li><strong>Years to Save:</strong> @calculatorModel.Years years</li>
-                            <li><strong>Initial Taxable Amount:</strong> @calculatorModel.InitialTaxableAmount.ToString("C")</li>
-                            <li><strong>Initial Traditional Amount:</strong> @calculatorModel.InitialTraditionalAmount.ToString("C")</li>
-                            <li><strong>Initial Roth Amount:</strong> @calculatorModel.InitialRothAmount.ToString("C")</li>
-                            <li><strong>Total Initial Amount:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
-                            <li><strong>Monthly Taxable Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
-                            <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
-                            <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
-                            <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
-                            <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
-                            <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
-                            <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
-                            <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
-                            <li><strong>Compounding:</strong> @GetCompoundingText()</li>
-                        </ul>
+                        <div class="card mb-3">
+                            <div class="card-header" style="cursor: pointer;" @onclick="TogglePlanSummary">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-@(isPlanSummaryExpanded ? "chevron-down" : "chevron-right")"></i>
+                                    Your Retirement Plan Summary
+                                </h5>
+                            </div>
+                            @if (isPlanSummaryExpanded)
+                            {
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li><strong>Current Age:</strong> @calculatorModel.CurrentAge years old</li>
+                                        <li><strong>Target Retirement Age:</strong> @calculatorModel.RetirementAge years old</li>
+                                        <li><strong>Years to Save:</strong> @calculatorModel.Years years</li>
+                                        <li><strong>Initial Taxable Amount:</strong> @calculatorModel.InitialTaxableAmount.ToString("C")</li>
+                                        <li><strong>Initial Traditional Amount:</strong> @calculatorModel.InitialTraditionalAmount.ToString("C")</li>
+                                        <li><strong>Initial Roth Amount:</strong> @calculatorModel.InitialRothAmount.ToString("C")</li>
+                                        <li><strong>Total Initial Amount:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
+                                        <li><strong>Monthly Taxable Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
+                                        <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
+                                        <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
+                                        <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
+                                        <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
+                                        <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
+                                        <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
+                                        <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
+                                        <li><strong>Compounding:</strong> @GetCompoundingText()</li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
 
@@ -563,6 +575,7 @@
     private List<YearlyBreakdown> yearlyBreakdown = new();
     private List<IntervalSummary> intervalSummaries = new();
     private HashSet<int> expandedIntervals = new();
+    private bool isPlanSummaryExpanded = true; // Default to expanded
 
     protected override void OnInitialized()
     {
@@ -695,6 +708,12 @@
             Console.WriteLine($"Expanded interval {startYear}"); // Debug line
         }
         Console.WriteLine($"Total expanded intervals: {expandedIntervals.Count}"); // Debug line
+        StateHasChanged(); // Force UI refresh
+    }
+
+    private void TogglePlanSummary()
+    {
+        isPlanSummaryExpanded = !isPlanSummaryExpanded;
         StateHasChanged(); // Force UI refresh
     }
 
