@@ -165,7 +165,7 @@
     
     /* Smaller font size for monetary values in tables */
     .money-value {
-        font-size: 0.75rem;
+        font-size: 0.70rem;
     }
     
     /* More compact table headers */
@@ -641,7 +641,7 @@
                                         {
                                             <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
                                                 <div class="table-responsive">
-                                                <table class="table table-sm">
+                                                <table class="table table-sm retirement-table">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Year/Age</th>
@@ -678,23 +678,23 @@
                                                                             <small class="badge bg-info">Part-time work</small>
                                                                         }
                                                                     </td>
-                                                                    <td>@year.StartingTaxableBalance.ToString("C0")</td>
-                                                                    <td>@year.StartingTraditionalBalance.ToString("C0")</td>
-                                                                    <td>@year.StartingRothBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.StartingTaxableBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.StartingTraditionalBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.StartingRothBalance.ToString("C0")</td>
                                                                     @if (spendingModel.HasPartialRetirement)
                                                                     {
-                                                                        <td>@year.PartTimeIncome.ToString("C0")</td>
+                                                                        <td class="money-value">@year.PartTimeIncome.ToString("C0")</td>
                                                                     }
-                                                                    <td>@year.TaxableWithdrawal.ToString("C0")</td>
-                                                                    <td>@year.TraditionalWithdrawal.ToString("C0")</td>
-                                                                    <td>@year.RothWithdrawal.ToString("C0")</td>
-                                                                    <td>@year.TaxPaid.ToString("C0")</td>
-                                                                    <td>@year.TaxableGrowth.ToString("C0")</td>
-                                                                    <td>@year.TraditionalGrowth.ToString("C0")</td>
-                                                                    <td>@year.RothGrowth.ToString("C0")</td>
-                                                                    <td>@year.EndingTaxableBalance.ToString("C0")</td>
-                                                                    <td>@year.EndingTraditionalBalance.ToString("C0")</td>
-                                                                    <td>@year.EndingRothBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.TaxableWithdrawal.ToString("C0")</td>
+                                                                    <td class="money-value">@year.TraditionalWithdrawal.ToString("C0")</td>
+                                                                    <td class="money-value">@year.RothWithdrawal.ToString("C0")</td>
+                                                                    <td class="money-value">@year.TaxPaid.ToString("C0")</td>
+                                                                    <td class="money-value">@year.TaxableGrowth.ToString("C0")</td>
+                                                                    <td class="money-value">@year.TraditionalGrowth.ToString("C0")</td>
+                                                                    <td class="money-value">@year.RothGrowth.ToString("C0")</td>
+                                                                    <td class="money-value">@year.EndingTaxableBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.EndingTraditionalBalance.ToString("C0")</td>
+                                                                    <td class="money-value">@year.EndingRothBalance.ToString("C0")</td>
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -709,7 +709,7 @@
                             {
                                 <!-- Traditional Year-by-Year View for Short-Term Plans -->
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-striped">
+                                    <table class="table table-sm table-striped retirement-table">
                                         <thead>
                                             <tr>
                                                 <th>Year/Age</th>
@@ -746,23 +746,23 @@
                                                             <small class="badge bg-info">Part-time work</small>
                                                         }
                                                     </td>
-                                                    <td>@year.StartingTaxableBalance.ToString("C0")</td>
-                                                    <td>@year.StartingTraditionalBalance.ToString("C0")</td>
-                                                    <td>@year.StartingRothBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.StartingTaxableBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.StartingTraditionalBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.StartingRothBalance.ToString("C0")</td>
                                                     @if (spendingModel.HasPartialRetirement)
                                                     {
-                                                        <td>@year.PartTimeIncome.ToString("C0")</td>
+                                                        <td class="money-value">@year.PartTimeIncome.ToString("C0")</td>
                                                     }
-                                                    <td>@year.TaxableWithdrawal.ToString("C0")</td>
-                                                    <td>@year.TraditionalWithdrawal.ToString("C0")</td>
-                                                    <td>@year.RothWithdrawal.ToString("C0")</td>
-                                                    <td>@year.TaxPaid.ToString("C0")</td>
-                                                    <td>@year.TaxableGrowth.ToString("C0")</td>
-                                                    <td>@year.TraditionalGrowth.ToString("C0")</td>
-                                                    <td>@year.RothGrowth.ToString("C0")</td>
-                                                    <td>@year.EndingTaxableBalance.ToString("C0")</td>
-                                                    <td>@year.EndingTraditionalBalance.ToString("C0")</td>
-                                                    <td>@year.EndingRothBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.TaxableWithdrawal.ToString("C0")</td>
+                                                    <td class="money-value">@year.TraditionalWithdrawal.ToString("C0")</td>
+                                                    <td class="money-value">@year.RothWithdrawal.ToString("C0")</td>
+                                                    <td class="money-value">@year.TaxPaid.ToString("C0")</td>
+                                                    <td class="money-value">@year.TaxableGrowth.ToString("C0")</td>
+                                                    <td class="money-value">@year.TraditionalGrowth.ToString("C0")</td>
+                                                    <td class="money-value">@year.RothGrowth.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingTaxableBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingTraditionalBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingRothBalance.ToString("C0")</td>
                                                 </tr>
                                             }
                                         </tbody>
