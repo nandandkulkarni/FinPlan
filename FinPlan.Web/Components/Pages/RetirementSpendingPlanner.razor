@@ -206,7 +206,7 @@
                                     <div class="form-floating mb-2">
                                         <input type="number" id="taxableBalance" class="form-control" 
                                                @bind-value="spendingModel.TaxableBalance" @bind-value:event="oninput" />
-                                        <label for="taxableBalance">Taxable</label>
+                                        <label for="taxableBalance">Post-Tax</label>
                                         <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
                                     </div>
                                     <div class="form-text">Brokerage accounts</div>
@@ -305,7 +305,7 @@
                         <div class="mb-3">
                             <label for="priorityStrategy" class="form-label">Account Withdrawal Strategy</label>
                             <select id="priorityStrategy" class="form-control" @bind="spendingModel.PriorityStrategy">
-                                <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized">Tax Optimized (Taxable → Traditional → Roth)</option>
+                                <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized">Tax Optimized (Post-Tax → Traditional → Roth)</option>
                                 <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.ProportionalSplit">Proportional Split (All accounts)</option>
                                 <option value="@SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder">Custom Order</option>
                             </select>
@@ -329,7 +329,7 @@
                                         </div>
                                         <div class="col-10">
                                             <select class="form-control" @bind="firstWithdrawalType" @bind:after="UpdateWithdrawalOrder">
-                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Taxable">Post-Tax Account</option>
                                                 <option value="Traditional">Traditional Account</option>
                                                 <option value="Roth">Roth Account</option>
                                             </select>
@@ -342,7 +342,7 @@
                                         </div>
                                         <div class="col-10">
                                             <select class="form-control" @bind="secondWithdrawalType" @bind:after="UpdateWithdrawalOrder">
-                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Taxable">Post-Tax Account</option>
                                                 <option value="Traditional">Traditional Account</option>
                                                 <option value="Roth">Roth Account</option>
                                             </select>
@@ -355,7 +355,7 @@
                                         </div>
                                         <div class="col-10">
                                             <select class="form-control" @bind="thirdWithdrawalType" @bind:after="UpdateWithdrawalOrder">
-                                                <option value="Taxable">Taxable Account</option>
+                                                <option value="Taxable">Post-Tax Account</option>
                                                 <option value="Traditional">Traditional Account</option>
                                                 <option value="Roth">Roth Account</option>
                                             </select>
@@ -487,7 +487,7 @@
                                 <table class="table mb-0">
                                     <tbody>
                                         <tr>
-                                            <td><strong>Taxable Account:</strong></td>
+                                            <td><strong>Post-Tax Account:</strong></td>
                                             <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
                                         </tr>
                                         <tr>
@@ -563,7 +563,7 @@
                                         <li>
                                             <strong>Starting Balances:</strong>
                                             <div class="row">
-                                                <div class="col-md-4">Taxable: <span class="money-value">@spendingModel.TaxableBalance.ToString("C0")</span></div>
+                                                <div class="col-md-4">Post-Tax: <span class="money-value">@spendingModel.TaxableBalance.ToString("C0")</span></div>
                                                 <div class="col-md-4">Traditional: <span class="money-value">@spendingModel.TraditionalBalance.ToString("C0")</span></div>
                                                 <div class="col-md-4">Roth: <span class="money-value">@spendingModel.RothBalance.ToString("C0")</span></div>
                                             </div>
@@ -645,22 +645,22 @@
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Year/Age</th>
-                                                                <th>Taxable Start</th>
+                                                                <th>Post-Tax Start</th>
                                                                 <th>Traditional Start</th>
                                                                 <th>Roth Start</th>
                                                                 @if (spendingModel.HasPartialRetirement)
                                                                 {
                                                                     <th>Part-time Income</th>
                                                                 }
-                                                                <th>Taxable W/D</th>
+                                                                <th>Post-Tax W/D</th>
                                                                 <th>Traditional W/D</th>
                                                                 <th>Roth W/D</th>
                                                                 <th>Taxes Paid</th>
                                                                 <th>Tax Rate</th>
-                                                                <th>Taxable Growth</th>
+                                                                <th>Post-Tax Growth</th>
                                                                 <th>Traditional Growth</th>
                                                                 <th>Roth Growth</th>
-                                                                <th>Taxable End</th>
+                                                                <th>Post-Tax End</th>
                                                                 <th>Traditional End</th>
                                                                 <th>Roth End</th>
                                                             </tr>
@@ -715,22 +715,22 @@
                                         <thead>
                                             <tr>
                                                 <th>Year/Age</th>
-                                                <th>Taxable Start</th>
+                                                <th>Post-Tax Start</th>
                                                 <th>Traditional Start</th>
                                                 <th>Roth Start</th>
                                                 @if (spendingModel.HasPartialRetirement)
                                                 {
                                                     <th>Part-time Income</th>
                                                 }
-                                                <th>Taxable W/D</th>
+                                                <th>Post-Tax W/D</th>
                                                 <th>Traditional W/D</th>
                                                 <th>Roth W/D</th>
                                                 <th>Taxes Paid</th>
                                                 <th>Tax Rate</th>
-                                                <th>Taxable Growth</th>
+                                                <th>Post-Tax Growth</th>
                                                 <th>Traditional Growth</th>
                                                 <th>Roth Growth</th>
-                                                <th>Taxable End</th>
+                                                <th>Post-Tax End</th>
                                                 <th>Traditional End</th>
                                                 <th>Roth End</th>
                                             </tr>
@@ -933,7 +933,7 @@
         switch (spendingModel.PriorityStrategy)
         {
             case SpendingPlanModel.WithdrawalPriorityStrategy.TaxOptimized:
-                return "Tax-optimized (Taxable → Traditional → Roth)";
+                return "Tax-optimized (Post-Tax → Traditional → Roth)";
             case SpendingPlanModel.WithdrawalPriorityStrategy.ProportionalSplit:
                 return "Proportional from all accounts";
             case SpendingPlanModel.WithdrawalPriorityStrategy.CustomOrder:
