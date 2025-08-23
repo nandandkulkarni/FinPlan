@@ -1038,121 +1038,107 @@
         {
             var breakdown = new List<YearlyBreakdown>();
             
-            if (!model.UseTaxAdvantaged)
+            // Get tax rates based on bracket
+            decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
+            decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
+            
+            // Get income distribution based on type
+            var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) = 
+                GetIncomeDistribution(model.TaxableIncomeType);
+            
+            // Separate balances for three account types
+            decimal taxableBalance = model.InitialTaxableAmount;
+            decimal traditionalBalance = model.InitialTraditionalAmount;
+            decimal rothBalance = model.InitialRothAmount;
+            
+            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+            
+            // Monthly contributions for each account type
+            decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
+            decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
+            decimal monthlyRothContribution = model.MonthlyRothContribution;
+
+            for (int year = 1; year <= model.Years; year++)
             {
-                // Original breakdown calculation
-                decimal totalInitialAmount = model.InitialTaxableAmount + model.InitialTraditionalAmount + model.InitialRothAmount;
-                decimal balance = totalInitialAmount;
-                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-                decimal totalMonthlyContribution = model.MonthlyTaxableContribution + model.MonthlyTraditionalContribution + model.MonthlyRothContribution;
-
-                for (int year = 1; year <= model.Years; year++)
+                // Traditional account growth (tax-deferred)
+                decimal yearlyTraditionalInterest = 0;
+                decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
+                
+                for (int month = 1; month <= 12; month++)
                 {
-                    decimal startBalance = balance;
-                    decimal yearlyInterest = 0;
-
-                    // Calculate month by month for this year
-                    for (int month = 1; month <= 12; month++)
-                    {
-                        decimal monthlyInterest = balance * monthlyRate;
-                        yearlyInterest += monthlyInterest;
-                        balance += monthlyInterest + totalMonthlyContribution;
-                    }
-
-                    breakdown.Add(new YearlyBreakdown
-                    {
-                        Year = year,
-                        Balance = Math.Round(balance, 2),
-                        InterestEarned = Math.Round(yearlyInterest, 2),
-                        ContributionsThisYear = totalMonthlyContribution * 12,
-                        // Add contribution breakdown by account type
-                        TaxableContribution = model.MonthlyTaxableContribution * 12,
-                        TaxDeferredContribution = model.MonthlyTraditionalContribution * 12,
-                        RothContribution = model.MonthlyRothContribution * 12
-                    });
+                    decimal monthlyInterest = traditionalBalance * monthlyRate;
+                    yearlyTraditionalInterest += monthlyInterest;
+                    traditionalBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
-            }
-            else
-            {
-                // Get tax rates based on bracket
-                decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
-                decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
                 
-                // Get income distribution based on type
-                var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) = 
-                    GetIncomeDistribution(model.TaxableIncomeType);
+                // Roth account growth (tax-free)
+                decimal yearlyRothInterest = 0;
+                decimal yearlyRothContribution = monthlyRothContribution * 12;
                 
-                // Tax-advantaged breakdown calculation
-                decimal taxDeferredBalance = model.InitialAmount / 2; // Split initial amount between accounts
-                decimal taxableBalance = model.InitialAmount / 2;
-                
-                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-                decimal monthlyTaxDeferredContribution = model.AnnualTaxDeferredContribution / 12;
-                decimal monthlyTaxableContribution = model.AnnualTaxableContribution / 12;
-
-                for (int year = 1; year <= model.Years; year++)
+                for (int month = 1; month <= 12; month++)
                 {
-                    decimal yearlyTaxDeferredInterest = 0;
-                    decimal yearlyTaxableInterest = 0;
-                    decimal startTaxDeferredBalance = taxDeferredBalance;
-                    decimal startTaxableBalance = taxableBalance;
-
-                    // Calculate month by month for this year
-                    for (int month = 1; month <= 12; month++)
-                    {
-                        // Tax-deferred account growth
-                        decimal monthlyTaxDeferredInterest = taxDeferredBalance * monthlyRate;
-                        yearlyTaxDeferredInterest += monthlyTaxDeferredInterest;
-                        taxDeferredBalance += monthlyTaxDeferredInterest + monthlyTaxDeferredContribution;
-                        
-                        // Taxable account growth
-                        decimal monthlyTaxableInterest = taxableBalance * monthlyRate;
-                        yearlyTaxableInterest += monthlyTaxableInterest;
-                        taxableBalance += monthlyTaxableInterest + monthlyTaxableContribution;
-                    }
-                    
-                    // Break down taxable interest by income type
-                    decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
-                    decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
-                    decimal longTermGains = yearlyTaxableInterest * longTermPercent;
-                    decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
-                    
-                    // Calculate taxes
-                    decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate;
-                    decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
-                    decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
-                    decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
-                    
-                    decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
-                    
-                    // Reduce taxable balance by taxes paid
-                    taxableBalance -= yearlyTaxes;
-
-                    decimal totalBalance = taxDeferredBalance + taxableBalance;
-                    decimal totalYearlyInterest = yearlyTaxDeferredInterest + yearlyTaxableInterest - yearlyTaxes;
-                    decimal totalYearlyContributions = (monthlyTaxDeferredContribution + monthlyTaxableContribution) * 12;
-
-                    breakdown.Add(new YearlyBreakdown
-                    {
-                        Year = year,
-                        Balance = Math.Round(totalBalance, 2),
-                        InterestEarned = Math.Round(totalYearlyInterest, 2),
-                        ContributionsThisYear = totalYearlyContributions,
-                        TaxDeferredBalance = Math.Round(taxDeferredBalance, 2),
-                        TaxableBalance = Math.Round(taxableBalance, 2),
-                        TaxDeferredInterest = Math.Round(yearlyTaxDeferredInterest, 2),
-                        TaxableInterest = Math.Round(yearlyTaxableInterest - yearlyTaxes, 2),
-                        TaxDeferredContribution = Math.Round(monthlyTaxDeferredContribution * 12, 2),
-                        TaxableContribution = Math.Round(monthlyTaxableContribution * 12, 2),
-                        QualifiedDividends = Math.Round(qualifiedDividends, 2),
-                        NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
-                        LongTermGains = Math.Round(longTermGains, 2),
-                        ShortTermGains = Math.Round(shortTermGains, 2),
-                        TaxesPaid = Math.Round(yearlyTaxes, 2)
-                    });
+                    decimal monthlyInterest = rothBalance * monthlyRate;
+                    yearlyRothInterest += monthlyInterest;
+                    rothBalance += monthlyInterest + monthlyRothContribution;
                 }
-            }
+                
+                // Taxable account - with tax drag
+                decimal yearlyTaxableInterest = 0;
+                decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
+                
+                // Calculate yearly interest before taxes
+                for (int month = 1; month <= 12; month++)
+                {
+                    decimal monthlyInterest = taxableBalance * monthlyRate;
+                    yearlyTaxableInterest += monthlyInterest;
+                    taxableBalance += monthlyInterest + monthlyTaxableContribution;
+                }
+                
+                // Break down the interest by income type
+                decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
+                decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
+                decimal longTermGains = yearlyTaxableInterest * longTermPercent;
+                decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
+                
+                // Calculate tax on each type of income
+                decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate; // Qualified dividends taxed as LTCG
+                decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
+                decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
+                decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
+                
+                decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
+                
+                // Reduce the account value by taxes paid
+                taxableBalance -= yearlyTaxes;
+                
+                // Total balance and interest for all accounts
+                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
+                decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
 
+                breakdown.Add(new YearlyBreakdown
+                {
+                    Year = year,
+                    Balance = Math.Round(totalBalance, 2),
+                    InterestEarned = Math.Round(totalYearlyInterest, 2),
+                    ContributionsThisYear = totalYearlyContributions,
+                    TaxableBalance = Math.Round(taxableBalance, 2),
+                    TaxDeferredBalance = Math.Round(traditionalBalance, 2),
+                    RothBalance = Math.Round(rothBalance, 2),
+                    TaxableInterest = Math.Round(yearlyTaxableInterest - yearlyTaxes, 2),
+                    TaxDeferredInterest = Math.Round(yearlyTraditionalInterest, 2),
+                    RothInterest = Math.Round(yearlyRothInterest, 2),
+                    TaxableContribution = Math.Round(yearlyTaxableContribution, 2),
+                    TaxDeferredContribution = Math.Round(yearlyTraditionalContribution, 2),
+                    RothContribution = Math.Round(yearlyRothContribution, 2),
+                    QualifiedDividends = Math.Round(qualifiedDividends, 2),
+                    NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
+                    LongTermGains = Math.Round(longTermGains, 2),
+                    ShortTermGains = Math.Round(shortTermGains, 2),
+                    TaxesPaid = Math.Round(yearlyTaxes, 2)
+                });
+            }
+            
             return breakdown;
         }
     }
