@@ -184,27 +184,36 @@
                         <DataAnnotationsValidator />
                         
                         <div class="mb-3">
-                            <label for="taxableBalance" class="form-label">Taxable Account Balance ($)</label>
-                            <input type="number" id="taxableBalance" class="form-control" 
-                                   @bind-value="spendingModel.TaxableBalance" @bind-value:event="oninput" />
-                            <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
-                            <div class="form-text">Money in brokerage accounts (taxed as you go)</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="traditionalBalance" class="form-label">Traditional Account Balance ($)</label>
-                            <input type="number" id="traditionalBalance" class="form-control" 
-                                   @bind-value="spendingModel.TraditionalBalance" @bind-value:event="oninput" />
-                            <ValidationMessage For="@(() => spendingModel.TraditionalBalance)" class="text-danger" />
-                            <div class="form-text">Money in tax-deferred accounts (401k, Traditional IRA)</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="rothBalance" class="form-label">Roth Account Balance ($)</label>
-                            <input type="number" id="rothBalance" class="form-control" 
-                                   @bind-value="spendingModel.RothBalance" @bind-value:event="oninput" />
-                            <ValidationMessage For="@(() => spendingModel.RothBalance)" class="text-danger" />
-                            <div class="form-text">Money in tax-free accounts (Roth IRA, Roth 401k)</div>
+                            <label class="form-label">Account Balances ($)</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-2">
+                                        <input type="number" id="taxableBalance" class="form-control" 
+                                               @bind-value="spendingModel.TaxableBalance" @bind-value:event="oninput" />
+                                        <label for="taxableBalance">Taxable</label>
+                                        <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
+                                    </div>
+                                    <div class="form-text">Brokerage accounts</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-2">
+                                        <input type="number" id="traditionalBalance" class="form-control" 
+                                               @bind-value="spendingModel.TraditionalBalance" @bind-value:event="oninput" />
+                                        <label for="traditionalBalance">Traditional</label>
+                                        <ValidationMessage For="@(() => spendingModel.TraditionalBalance)" class="text-danger" />
+                                    </div>
+                                    <div class="form-text">401k, Traditional IRA</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-2">
+                                        <input type="number" id="rothBalance" class="form-control" 
+                                               @bind-value="spendingModel.RothBalance" @bind-value:event="oninput" />
+                                        <label for="rothBalance">Roth</label>
+                                        <ValidationMessage For="@(() => spendingModel.RothBalance)" class="text-danger" />
+                                    </div>
+                                    <div class="form-text">Roth IRA, Roth 401k</div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -517,9 +526,14 @@
                         <ul class="list-unstyled">
                             <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
                             <li><strong>Plan Duration:</strong> @spendingModel.PlanYears years (until age @spendingModel.LifeExpectancy)</li>
-                            <li><strong>Starting Taxable Balance:</strong> @spendingModel.TaxableBalance.ToString("C")</li>
-                            <li><strong>Starting Traditional Balance:</strong> @spendingModel.TraditionalBalance.ToString("C")</li>
-                            <li><strong>Starting Roth Balance:</strong> @spendingModel.RothBalance.ToString("C")</li>
+                            <li>
+                                <strong>Starting Balances:</strong>
+                                <div class="row">
+                                    <div class="col-md-4">Taxable: @spendingModel.TaxableBalance.ToString("C")</div>
+                                    <div class="col-md-4">Traditional: @spendingModel.TraditionalBalance.ToString("C")</div>
+                                    <div class="col-md-4">Roth: @spendingModel.RothBalance.ToString("C")</div>
+                                </div>
+                            </li>
                             <li><strong>Traditional Account Tax Rate:</strong> @spendingModel.TraditionalTaxRate%</li>
                             <li><strong>Withdrawal Strategy:</strong> @GetStrategyText()</li>
                             <li><strong>Account Withdrawal Priority:</strong> @GetPriorityStrategyText()</li>
