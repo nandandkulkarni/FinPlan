@@ -1,0 +1,53 @@
+@inject IExcelExportService ExcelService
+@inject IJSRuntime JSRuntime
+@using FinPlan.Web.Services
+@using static FinPlan.Web.Components.Pages.RetirementSpendingPlanner
+
+<button @onclick="ExportToExcel" class="@CssClass">
+    <i class="bi bi-file-excel"></i> @Text
+</button>
+
+@code {
+    [Parameter, EditorRequired] public SpendingResults Results { get; set; } = null!;
+    [Parameter, EditorRequired] public List<YearlySpendingBreakdown> YearlyBreakdown { get; set; } = null!;
+    [Parameter, EditorRequired] public SpendingPlanModel Model { get; set; } = null!;
+    [Parameter] public string Text { get; set; } = "Export to Excel";
+    [Parameter] public string CssClass { get; set; } = "btn btn-success";
+    
+    protected override void OnInitialized()
+    {
+        // Make sure parameters are provided
+        if (Results == null)
+        {
+            throw new ArgumentNullException(nameof(Results), "Results cannot be null");
+        }
+        
+        if (YearlyBreakdown == null)
+        {
+            throw new ArgumentNullException(nameof(YearlyBreakdown), "YearlyBreakdown cannot be null");
+        }
+        
+        if (Model == null)
+        {
+            throw new ArgumentNullException(nameof(Model), "Model cannot be null");
+        }
+    }
+    
+    private async Task ExportToExcel()
+    {
+        try
+        {
+            // Generate Excel file
+            var excelData = ExcelService.GenerateRetirementSpendingExcel(Results, YearlyBreakdown, Model);
+            
+            // Use JSInterop to trigger the file download
+            var fileName = $"Retirement_Spending_Plan_{DateTime.Now:yyyy-MM-dd}.xlsx";
+            await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(excelData));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Excel export error: {ex.Message}");
+            // You could add a more user-friendly error notification here
+        }
+    }
+}
