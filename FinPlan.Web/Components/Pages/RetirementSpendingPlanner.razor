@@ -531,29 +531,40 @@
                             }
                         </div>
 
-                        <h5>Your Spending Plan Summary</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
-                            <li><strong>Plan Duration:</strong> @spendingModel.PlanYears years (until age @spendingModel.LifeExpectancy)</li>
-                            <li>
-                                <strong>Starting Balances:</strong>
-                                <div class="row">
-                                    <div class="col-md-4">Taxable: @spendingModel.TaxableBalance.ToString("C")</div>
-                                    <div class="col-md-4">Traditional: @spendingModel.TraditionalBalance.ToString("C")</div>
-                                    <div class="col-md-4">Roth: @spendingModel.RothBalance.ToString("C")</div>
+                        <div class="card mb-3">
+                            <div class="card-header" role="button" data-bs-toggle="collapse" data-bs-target="#planSummaryCollapse" aria-expanded="false" aria-controls="planSummaryCollapse" style="cursor: pointer;">
+                                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                                    Your Spending Plan Summary
+                                    <i class="bi bi-chevron-down"></i>
+                                </h5>
+                            </div>
+                            <div class="collapse" id="planSummaryCollapse">
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
+                                        <li><strong>Plan Duration:</strong> @spendingModel.PlanYears years (until age @spendingModel.LifeExpectancy)</li>
+                                        <li>
+                                            <strong>Starting Balances:</strong>
+                                            <div class="row">
+                                                <div class="col-md-4">Taxable: @spendingModel.TaxableBalance.ToString("C")</div>
+                                                <div class="col-md-4">Traditional: @spendingModel.TraditionalBalance.ToString("C")</div>
+                                                <div class="col-md-4">Roth: @spendingModel.RothBalance.ToString("C")</div>
+                                            </div>
+                                        </li>
+                                        <li><strong>Traditional Account Tax Rate:</strong> @spendingModel.TraditionalTaxRate%</li>
+                                        <li><strong>Withdrawal Strategy:</strong> @GetStrategyText()</li>
+                                        <li><strong>Account Withdrawal Priority:</strong> @GetPriorityStrategyText()</li>
+                                        @if (hasPartialRetirementChecked)
+                                        {
+                                            <li><strong>Part-time Work:</strong> @spendingModel.PartialRetirementIncome.ToString("C")/year until age @spendingModel.PartialRetirementEndAge</li>
+                                        }
+                                        <li><strong>Investment Return:</strong> @spendingModel.InvestmentReturn% annually</li>
+                                        <li><strong>Inflation Rate:</strong> @spendingModel.InflationRate% annually</li>
+                                        <li><strong>Sustainability:</strong> <span class="@GetSustainabilityClass(results.IsSustainable)">@GetSustainabilityText(results.IsSustainable)</span></li>
+                                    </ul>
                                 </div>
-                            </li>
-                            <li><strong>Traditional Account Tax Rate:</strong> @spendingModel.TraditionalTaxRate%</li>
-                            <li><strong>Withdrawal Strategy:</strong> @GetStrategyText()</li>
-                            <li><strong>Account Withdrawal Priority:</strong> @GetPriorityStrategyText()</li>
-                            @if (hasPartialRetirementChecked)
-                            {
-                                <li><strong>Part-time Work:</strong> @spendingModel.PartialRetirementIncome.ToString("C")/year until age @spendingModel.PartialRetirementEndAge</li>
-                            }
-                            <li><strong>Investment Return:</strong> @spendingModel.InvestmentReturn% annually</li>
-                            <li><strong>Inflation Rate:</strong> @spendingModel.InflationRate% annually</li>
-                            <li><strong>Sustainability:</strong> <span class="@GetSustainabilityClass(results.IsSustainable)">@GetSustainabilityText(results.IsSustainable)</span></li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -617,15 +628,23 @@
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Year/Age</th>
-                                                                <th>Starting Balance</th>
+                                                                <th>Taxable Start</th>
+                                                                <th>Traditional Start</th>
+                                                                <th>Roth Start</th>
                                                                 @if (spendingModel.HasPartialRetirement)
                                                                 {
                                                                     <th>Part-time Income</th>
                                                                 }
-                                                                <th>Withdrawals</th>
-                                                                <th>Taxes</th>
-                                                                <th>Growth</th>
-                                                                <th>Ending Balance</th>
+                                                                <th>Taxable W/D</th>
+                                                                <th>Traditional W/D</th>
+                                                                <th>Roth W/D</th>
+                                                                <th>Taxes Paid</th>
+                                                                <th>Taxable Growth</th>
+                                                                <th>Traditional Growth</th>
+                                                                <th>Roth Growth</th>
+                                                                <th>Taxable End</th>
+                                                                <th>Traditional End</th>
+                                                                <th>Roth End</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -642,87 +661,23 @@
                                                                             <small class="badge bg-info">Part-time work</small>
                                                                         }
                                                                     </td>
-                                                                    <td>
-                                                                        @year.StartingTotalBalance.ToString("C")
-                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                                type="button" 
-                                                                                data-bs-toggle="collapse" 
-                                                                                data-bs-target="#startBalance@(year.Year)" 
-                                                                                aria-expanded="false">
-                                                                            <i class="bi bi-info-circle-fill"></i>
-                                                                        </button>
-                                                                        <div class="collapse" id="startBalance@(year.Year)">
-                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                                <small>
-                                                                                    <div>Taxable: @year.StartingTaxableBalance.ToString("C")</div>
-                                                                                    <div>Traditional: @year.StartingTraditionalBalance.ToString("C")</div>
-                                                                                    <div>Roth: @year.StartingRothBalance.ToString("C")</div>
-                                                                                </small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
+                                                                    <td>@year.StartingTaxableBalance.ToString("C")</td>
+                                                                    <td>@year.StartingTraditionalBalance.ToString("C")</td>
+                                                                    <td>@year.StartingRothBalance.ToString("C")</td>
                                                                     @if (spendingModel.HasPartialRetirement)
                                                                     {
                                                                         <td>@year.PartTimeIncome.ToString("C")</td>
                                                                     }
-                                                                    <td>
-                                                                        @year.TotalWithdrawal.ToString("C")
-                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                                type="button" 
-                                                                                data-bs-toggle="collapse" 
-                                                                                data-bs-target="#withdrawals@(year.Year)" 
-                                                                                aria-expanded="false">
-                                                                            <i class="bi bi-info-circle-fill"></i>
-                                                                        </button>
-                                                                        <div class="collapse" id="withdrawals@(year.Year)">
-                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                                <small>
-                                                                                    <div>Taxable: @year.TaxableWithdrawal.ToString("C")</div>
-                                                                                    <div>Traditional: @year.TraditionalWithdrawal.ToString("C")</div>
-                                                                                    <div>Roth: @year.RothWithdrawal.ToString("C")</div>
-                                                                                </small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
+                                                                    <td>@year.TaxableWithdrawal.ToString("C")</td>
+                                                                    <td>@year.TraditionalWithdrawal.ToString("C")</td>
+                                                                    <td>@year.RothWithdrawal.ToString("C")</td>
                                                                     <td>@year.TaxPaid.ToString("C")</td>
-                                                                    <td>
-                                                                        @year.TotalGrowth.ToString("C")
-                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                                type="button" 
-                                                                                data-bs-toggle="collapse" 
-                                                                                data-bs-target="#growth@(year.Year)" 
-                                                                                aria-expanded="false">
-                                                                            <i class="bi bi-info-circle-fill"></i>
-                                                                        </button>
-                                                                        <div class="collapse" id="growth@(year.Year)">
-                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                                <small>
-                                                                                    <div>Taxable: @year.TaxableGrowth.ToString("C")</div>
-                                                                                    <div>Traditional: @year.TraditionalGrowth.ToString("C")</div>
-                                                                                    <div>Roth: @year.RothGrowth.ToString("C")</div>
-                                                                                </small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        @year.EndingTotalBalance.ToString("C")
-                                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                                type="button" 
-                                                                                data-bs-toggle="collapse" 
-                                                                                data-bs-target="#endBalance@(year.Year)" 
-                                                                                aria-expanded="false">
-                                                                            <i class="bi bi-info-circle-fill"></i>
-                                                                        </button>
-                                                                        <div class="collapse" id="endBalance@(year.Year)">
-                                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                                <small>
-                                                                                    <div>Taxable: @year.EndingTaxableBalance.ToString("C")</div>
-                                                                                    <div>Traditional: @year.EndingTraditionalBalance.ToString("C")</div>
-                                                                                    <div>Roth: @year.EndingRothBalance.ToString("C")</div>
-                                                                                </small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
+                                                                    <td>@year.TaxableGrowth.ToString("C")</td>
+                                                                    <td>@year.TraditionalGrowth.ToString("C")</td>
+                                                                    <td>@year.RothGrowth.ToString("C")</td>
+                                                                    <td>@year.EndingTaxableBalance.ToString("C")</td>
+                                                                    <td>@year.EndingTraditionalBalance.ToString("C")</td>
+                                                                    <td>@year.EndingRothBalance.ToString("C")</td>
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -741,15 +696,23 @@
                                         <thead>
                                             <tr>
                                                 <th>Year/Age</th>
-                                                <th>Starting Balance</th>
+                                                <th>Taxable Start</th>
+                                                <th>Traditional Start</th>
+                                                <th>Roth Start</th>
                                                 @if (spendingModel.HasPartialRetirement)
                                                 {
                                                     <th>Part-time Income</th>
                                                 }
-                                                <th>Withdrawals</th>
-                                                <th>Taxes</th>
-                                                <th>Growth</th>
-                                                <th>Ending Balance</th>
+                                                <th>Taxable W/D</th>
+                                                <th>Traditional W/D</th>
+                                                <th>Roth W/D</th>
+                                                <th>Taxes Paid</th>
+                                                <th>Taxable Growth</th>
+                                                <th>Traditional Growth</th>
+                                                <th>Roth Growth</th>
+                                                <th>Taxable End</th>
+                                                <th>Traditional End</th>
+                                                <th>Roth End</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -766,87 +729,23 @@
                                                             <small class="badge bg-info">Part-time work</small>
                                                         }
                                                     </td>
-                                                    <td>
-                                                        @year.StartingTotalBalance.ToString("C")
-                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                type="button" 
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#startBalance@(year.Year)" 
-                                                                aria-expanded="false">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                        </button>
-                                                        <div class="collapse" id="startBalance@(year.Year)">
-                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                <small>
-                                                                    <div>Taxable: @year.StartingTaxableBalance.ToString("C")</div>
-                                                                    <div>Traditional: @year.StartingTraditionalBalance.ToString("C")</div>
-                                                                    <div>Roth: @year.StartingRothBalance.ToString("C")</div>
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td>@year.StartingTaxableBalance.ToString("C")</td>
+                                                    <td>@year.StartingTraditionalBalance.ToString("C")</td>
+                                                    <td>@year.StartingRothBalance.ToString("C")</td>
                                                     @if (spendingModel.HasPartialRetirement)
                                                     {
                                                         <td>@year.PartTimeIncome.ToString("C")</td>
                                                     }
-                                                    <td>
-                                                        @year.TotalWithdrawal.ToString("C")
-                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                type="button" 
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#withdrawals@(year.Year)" 
-                                                                aria-expanded="false">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                        </button>
-                                                        <div class="collapse" id="withdrawals@(year.Year)">
-                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                <small>
-                                                                    <div>Taxable: @year.TaxableWithdrawal.ToString("C")</div>
-                                                                    <div>Traditional: @year.TraditionalWithdrawal.ToString("C")</div>
-                                                                    <div>Roth: @year.RothWithdrawal.ToString("C")</div>
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td>@year.TaxableWithdrawal.ToString("C")</td>
+                                                    <td>@year.TraditionalWithdrawal.ToString("C")</td>
+                                                    <td>@year.RothWithdrawal.ToString("C")</td>
                                                     <td>@year.TaxPaid.ToString("C")</td>
-                                                    <td>
-                                                        @year.TotalGrowth.ToString("C")
-                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                type="button" 
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#growth@(year.Year)" 
-                                                                aria-expanded="false">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                        </button>
-                                                        <div class="collapse" id="growth@(year.Year)">
-                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                <small>
-                                                                    <div>Taxable: @year.TaxableGrowth.ToString("C")</div>
-                                                                    <div>Traditional: @year.TraditionalGrowth.ToString("C")</div>
-                                                                    <div>Roth: @year.RothGrowth.ToString("C")</div>
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        @year.EndingTotalBalance.ToString("C")
-                                                        <button class="btn btn-sm btn-link text-muted p-0 ms-1" 
-                                                                type="button" 
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#endBalance@(year.Year)" 
-                                                                aria-expanded="false">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                        </button>
-                                                        <div class="collapse" id="endBalance@(year.Year)">
-                                                            <div class="card card-body py-1 px-2 mt-1 bg-light text-dark">
-                                                                <small>
-                                                                    <div>Taxable: @year.EndingTaxableBalance.ToString("C")</div>
-                                                                    <div>Traditional: @year.EndingTraditionalBalance.ToString("C")</div>
-                                                                    <div>Roth: @year.EndingRothBalance.ToString("C")</div>
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td>@year.TaxableGrowth.ToString("C")</td>
+                                                    <td>@year.TraditionalGrowth.ToString("C")</td>
+                                                    <td>@year.RothGrowth.ToString("C")</td>
+                                                    <td>@year.EndingTaxableBalance.ToString("C")</td>
+                                                    <td>@year.EndingTraditionalBalance.ToString("C")</td>
+                                                    <td>@year.EndingRothBalance.ToString("C")</td>
                                                 </tr>
                                             }
                                         </tbody>
