@@ -10,4 +10,8 @@
     <ProjectReference Include="..\FinPlan.ServiceDefaults\FinPlan.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,8 @@
 @page "/savings-planner"
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Web.Components
+@using FinPlan.Web.Services
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @implements IDisposable
 
@@ -297,9 +299,17 @@
             {
                 <div class="card">
                     <div class="card-header @(isDarkTheme ? "" : "bg-success text-white")">
-                        <h3 class="card-title mb-0">
-                            <i class="bi bi-graph-up"></i> Results
-                        </h3>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-graph-up"></i> Results
+                            </h3>
+                            <ExportButton 
+                                Results="@results" 
+                                YearlyBreakdown="@yearlyBreakdown" 
+                                Model="@calculatorModel"
+                                Text="Export to Excel" 
+                                CssClass="@(isDarkTheme ? "btn btn-outline-light btn-sm" : "btn btn-light btn-sm")" />
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
