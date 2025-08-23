@@ -884,7 +884,7 @@
             TraditionalBalance = 500000,
             RothBalance = 250000,
             TraditionalTaxRate = 22.0m,
-            AnnualWithdrawal = 40000,
+            AnnualWithdrawal = 120000,
             InflationRate = 2.5m,
             InvestmentReturn = 5.0m,
             WithdrawalPercentage = 4.0m,
@@ -1408,7 +1408,7 @@
 
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Annual withdrawal must be positive")]
-        public decimal AnnualWithdrawal { get; set; } = 40000;
+        public decimal AnnualWithdrawal { get; set; } = 120000;
 
         [Required]
         [Range(0, 20, ErrorMessage = "Inflation rate must be between 0 and 20%")]
