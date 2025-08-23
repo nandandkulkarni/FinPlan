@@ -532,13 +532,14 @@
                         </div>
 
                         <div class="card mb-3">
-                            <div class="card-header" role="button" data-bs-toggle="collapse" data-bs-target="#planSummaryCollapse" aria-expanded="false" aria-controls="planSummaryCollapse" style="cursor: pointer;">
+                            <div class="card-header" @onclick="ToggleSummary" style="cursor: pointer;">
                                 <h5 class="mb-0 d-flex justify-content-between align-items-center">
                                     Your Spending Plan Summary
-                                    <i class="bi bi-chevron-down"></i>
+                                    <i class="bi @(isSummaryExpanded ? "bi-chevron-up" : "bi-chevron-down")"></i>
                                 </h5>
                             </div>
-                            <div class="collapse" id="planSummaryCollapse">
+                            @if (isSummaryExpanded)
+                            {
                                 <div class="card-body">
                                     <ul class="list-unstyled mb-0">
                                         <li><strong>Retirement Age:</strong> @spendingModel.RetirementAge years old</li>
@@ -563,7 +564,7 @@
                                         <li><strong>Sustainability:</strong> <span class="@GetSustainabilityClass(results.IsSustainable)">@GetSustainabilityText(results.IsSustainable)</span></li>
                                     </ul>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -762,6 +763,7 @@
 
 @code {
     private bool isDarkTheme = false;
+    private bool isSummaryExpanded = false;
     
     // Properties for custom withdrawal order UI
     private string firstWithdrawalType = "Taxable";
@@ -772,6 +774,11 @@
     {
         isDarkTheme = !isDarkTheme;
         Console.WriteLine($"Theme toggled to {(isDarkTheme ? "dark" : "light")} mode");
+    }
+    
+    private void ToggleSummary()
+    {
+        isSummaryExpanded = !isSummaryExpanded;
     }
     
     // Update the withdrawal order based on UI selections
