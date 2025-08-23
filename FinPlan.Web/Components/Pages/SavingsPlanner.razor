@@ -134,23 +134,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Taxable (Post-tax)</label>
-                                        <input type="number" id="initialTaxableAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTaxableAmount"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialTaxableAmount" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <input type="number" id="initialTraditionalAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTraditionalAmount"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialTraditionalAmount" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <input type="number" id="initialRothAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialRothAmount"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="initialRothAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialRothAmount" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -168,23 +165,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTaxableContribution" class="form-label">Taxable (Post-tax)</label>
-                                        <input type="number" id="monthlyTaxableContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTaxableContribution"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control" 
+                                               @bind-value="calculatorModel.MonthlyTaxableContribution" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
-                                        <input type="number" id="monthlyTraditionalContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTraditionalContribution"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control" 
+                                               @bind-value="calculatorModel.MonthlyTraditionalContribution" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
-                                        <input type="number" id="monthlyRothContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyRothContribution"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control" 
+                                               @bind-value="calculatorModel.MonthlyRothContribution" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
