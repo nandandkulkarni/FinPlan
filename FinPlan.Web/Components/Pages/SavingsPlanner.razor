@@ -241,64 +241,32 @@
                         </div>
 
                         <div class="card mb-3">
-                            <div class="card-header bg-info text-white">
-                                <div class="form-check mb-0">
-                                    <input type="checkbox" id="useTaxAdvantaged" class="form-check-input" 
-                                           @bind="calculatorModel.UseTaxAdvantaged" />
-                                    <label for="useTaxAdvantaged" class="form-check-label fw-bold">
-                                        Include tax-advantaged accounts (401k, IRA)
-                                    </label>
+                            <div class="card-header">
+                                <h5 class="mb-0">Investment Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Taxable Account Income Type</label>
+                                        <select class="form-control" @bind="calculatorModel.TaxableIncomeType">
+                                            <option value="@IncomeType.MixedInvestment">Mixed Investment (default mix)</option>
+                                            <option value="@IncomeType.MostlyDividends">Mostly Dividends</option>
+                                            <option value="@IncomeType.MostlyLongTermGains">Mostly Long-Term Capital Gains</option>
+                                            <option value="@IncomeType.MostlyInterest">Mostly Interest/Short-Term Gains</option>
+                                        </select>
+                                        <div class="form-text">This affects how income from taxable investments is taxed annually</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Tax Bracket</label>
+                                        <select class="form-control" @bind="calculatorModel.TaxBracket">
+                                            <option value="@TaxBracket.Low">Low (10-12% ordinary, 0% long-term)</option>
+                                            <option value="@TaxBracket.Medium">Medium (22-24% ordinary, 15% long-term)</option>
+                                            <option value="@TaxBracket.High">High (32-35% ordinary, 20% long-term)</option>
+                                        </select>
+                                        <div class="form-text">Your current federal income tax bracket</div>
+                                    </div>
                                 </div>
                             </div>
-                            @if (calculatorModel.UseTaxAdvantaged)
-                            {
-                                <div class="card-body">
-                                    <div class="alert alert-info">
-                                        <i class="bi bi-info-circle"></i> Tax-deferred accounts (401k, IRA) grow tax-free until withdrawal, 
-                                        while taxable accounts are subject to annual taxes on growth.
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="annualTaxDeferredContribution" class="form-label">Annual 401k/IRA Contribution ($)</label>
-                                            <InputNumber id="annualTaxDeferredContribution" class="form-control" 
-                                                   @bind-Value="calculatorModel.AnnualTaxDeferredContribution" />
-                                            <div class="form-text">Annual contribution to tax-deferred accounts</div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="annualTaxableContribution" class="form-label">Annual Taxable Account Contribution ($)</label>
-                                            <InputNumber id="annualTaxableContribution" class="form-control" 
-                                                   @bind-Value="calculatorModel.AnnualTaxableContribution" />
-                                            <div class="form-text">Annual contribution to taxable investment accounts</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-2">
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Taxable Account Income Type</label>
-                                            <select class="form-control" @bind="calculatorModel.TaxableIncomeType">
-                                                <option value="@IncomeType.MixedInvestment">Mixed Investment (default mix)</option>
-                                                <option value="@IncomeType.MostlyDividends">Mostly Dividends</option>
-                                                <option value="@IncomeType.MostlyLongTermGains">Mostly Long-Term Capital Gains</option>
-                                                <option value="@IncomeType.MostlyInterest">Mostly Interest/Short-Term Gains</option>
-                                            </select>
-                                            <div class="form-text">This affects how income from taxable investments is taxed annually</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Tax Bracket</label>
-                                            <select class="form-control" @bind="calculatorModel.TaxBracket">
-                                                <option value="@TaxBracket.Low">Low (10-12% ordinary, 0% long-term)</option>
-                                                <option value="@TaxBracket.Medium">Medium (22-24% ordinary, 15% long-term)</option>
-                                                <option value="@TaxBracket.High">High (32-35% ordinary, 20% long-term)</option>
-                                            </select>
-                                            <div class="form-text">Your current federal income tax bracket</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100">
@@ -373,49 +341,41 @@
                             You'll contribute <strong>@results.TotalContributions.ToString("C")</strong> over @calculatorModel.Years years, 
                             and compound interest will add <strong>@results.TotalInterestEarned.ToString("C")</strong> more!
                             <br><br>
-                            @if (calculatorModel.UseTaxAdvantaged)
-                            {
-                                <div>
-                                    <strong>Tax-Advantaged Summary:</strong><br>
-                                    <ul class="mb-0">
-                                        <li>Tax-deferred accounts (401k/IRA): <strong>@results.TaxDeferredBalance.ToString("C")</strong></li>
-                                        <li>Taxable investment accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
-                                        <li>Estimated tax advantage benefit: <strong>@results.EstimatedTaxSavings.ToString("C")</strong></li>
-                                    </ul>
-                                    
-                                    <div class="mt-3 mb-0">
-                                        <strong>Income Type Breakdown:</strong>
-                                        <div class="progress mt-1 mb-2" style="height: 20px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 style="width: @(results.QualifiedDividendIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
-                                                 title="Qualified Dividends: @results.QualifiedDividendIncome.ToString("C")">
-                                                Qualified
-                                            </div>
-                                            <div class="progress-bar bg-info" role="progressbar" 
-                                                 style="width: @(results.LongTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
-                                                 title="Long-Term Capital Gains: @results.LongTermCapitalGains.ToString("C")">
-                                                LTCG
-                                            </div>
-                                            <div class="progress-bar bg-warning" role="progressbar" 
-                                                 style="width: @(results.NonQualifiedIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
-                                                 title="Non-Qualified Income: @results.NonQualifiedIncome.ToString("C")">
-                                                Interest
-                                            </div>
-                                            <div class="progress-bar bg-danger" role="progressbar" 
-                                                 style="width: @(results.ShortTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
-                                                 title="Short-Term Capital Gains: @results.ShortTermCapitalGains.ToString("C")">
-                                                STCG
-                                            </div>
+                            <div>
+                                <strong>Account Breakdown:</strong><br>
+                                <ul class="mb-0">
+                                    <li>Traditional (401k/IRA): <strong>@results.TaxDeferredBalance.ToString("C")</strong></li>
+                                    <li>Roth accounts: <strong>@results.RothBalance.ToString("C")</strong></li>
+                                    <li>Taxable accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
+                                </ul>
+                                
+                                <div class="mt-3 mb-0">
+                                    <strong>Income Type Breakdown:</strong>
+                                    <div class="progress mt-1 mb-2" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: @(results.QualifiedDividendIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
+                                             title="Qualified Dividends: @results.QualifiedDividendIncome.ToString("C")">
+                                            Qualified
                                         </div>
-                                        <small>Effective tax rate on taxable investments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: @(results.LongTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
+                                             title="Long-Term Capital Gains: @results.LongTermCapitalGains.ToString("C")">
+                                            LTCG
+                                        </div>
+                                        <div class="progress-bar bg-warning" role="progressbar" 
+                                             style="width: @(results.NonQualifiedIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
+                                             title="Non-Qualified Income: @results.NonQualifiedIncome.ToString("C")">
+                                            Interest
+                                        </div>
+                                        <div class="progress-bar bg-danger" role="progressbar" 
+                                             style="width: @(results.ShortTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
+                                             title="Short-Term Capital Gains: @results.ShortTermCapitalGains.ToString("C")">
+                                            STCG
+                                        </div>
                                     </div>
+                                    <small>Effective tax rate on taxable investments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>
                                 </div>
-                            }
-                            else
-                            {
-                                <small>That's a <strong>@((results.TotalInterestEarned / results.TotalContributions * 100).ToString("F0"))% total growth</strong> over @calculatorModel.Years years 
-                                with @calculatorModel.AnnualGrowthRate% annual returns.</small>
-                            }
+                            </div>
                         </div>
 
                         <h5>Your Retirement Plan Summary</h5>
@@ -427,22 +387,13 @@
                             <li><strong>Initial Traditional Amount:</strong> @calculatorModel.InitialTraditionalAmount.ToString("C")</li>
                             <li><strong>Initial Roth Amount:</strong> @calculatorModel.InitialRothAmount.ToString("C")</li>
                             <li><strong>Total Initial Amount:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
-                            @if (!calculatorModel.UseTaxAdvantaged)
-                            {
-                                <li><strong>Monthly Taxable Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
-                                <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
-                                <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
-                                <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
-                            }
-                            else
-                            {
-                                <li><strong>Monthly Tax-Deferred Savings:</strong> @(calculatorModel.AnnualTaxDeferredContribution / 12).ToString("C")</li>
-                                <li><strong>Monthly Taxable Savings:</strong> @(calculatorModel.AnnualTaxableContribution / 12).ToString("C")</li>
-                                <li><strong>Monthly Total Savings:</strong> @((calculatorModel.AnnualTaxDeferredContribution / 12) + (calculatorModel.AnnualTaxableContribution / 12)).ToString("C")</li>
-                                <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
-                                <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
-                                <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
-                            }
+                            <li><strong>Monthly Taxable Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
+                            <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
+                            <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
+                            <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
+                            <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
+                            <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
+                            <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
                             <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
                             <li><strong>Compounding:</strong> @GetCompoundingText()</li>
                         </ul>
@@ -510,11 +461,10 @@
                                                                 <th>Balance</th>
                                                                 <th>Interest</th>
                                                                 <th>Contributions</th>
-                                                                @if (calculatorModel.UseTaxAdvantaged)
-                                                                {
-                                                                    <th>Tax-Deferred</th>
-                                                                    <th>Taxable</th>
-                                                                }
+                                                                <th>Taxable</th>
+                                                                <th>Traditional</th>
+                                                                <th>Roth</th>
+                                                                <th>Taxes</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -525,12 +475,10 @@
                                                                     <td>@year.Balance.ToString("C")</td>
                                                                     <td class="text-success">@year.InterestEarned.ToString("C")</td>
                                                                     <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
-                                                                    @if (calculatorModel.UseTaxAdvantaged)
-                                                                    {
-                                                                        <td>@year.TaxDeferredBalance.ToString("C")</td>
-                                                                        <td>@year.TaxableBalance.ToString("C")</td>
-                                                                        <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
-                                                                    }
+                                                                    <td>@year.TaxableBalance.ToString("C")</td>
+                                                                    <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                                    <td>@year.RothBalance.ToString("C")</td>
+                                                                    <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -552,18 +500,10 @@
                                                 <th>Balance</th>
                                                 <th>Interest</th>
                                                 <th>Contributions</th>
-                                                @if (calculatorModel.UseTaxAdvantaged)
-                                                {
-                                                    <th>Tax-Deferred</th>
-                                                    <th>Taxable</th>
-                                                    <th>Taxes Paid</th>
-                                                }
-                                                @if (calculatorModel.UseTaxAdvantaged)
-                                                {
-                                                    <th>Tax-Deferred</th>
-                                                    <th>Taxable</th>
-                                                    <th>Taxes Paid</th>
-                                                }
+                                                <th>Taxable</th>
+                                                <th>Traditional</th>
+                                                <th>Roth</th>
+                                                <th>Taxes Paid</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -574,12 +514,10 @@
                                                     <td>@year.Balance.ToString("C")</td>
                                                     <td>@year.InterestEarned.ToString("C")</td>
                                                     <td>@year.ContributionsThisYear.ToString("C")</td>
-                                                    @if (calculatorModel.UseTaxAdvantaged)
-                                                    {
-                                                        <td>@year.TaxDeferredBalance.ToString("C")</td>
-                                                        <td>@year.TaxableBalance.ToString("C")</td>
-                                                        <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
-                                                    }
+                                                    <td>@year.TaxableBalance.ToString("C")</td>
+                                                    <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                    <td>@year.RothBalance.ToString("C")</td>
+                                                    <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -640,9 +578,7 @@
             MonthlyTraditionalContribution = 200,
             MonthlyRothContribution = 100,
             AnnualGrowthRate = 7,
-            UseTaxAdvantaged = false,
-            AnnualTaxDeferredContribution = 6000, // $6,000/year to 401k/IRA
-            AnnualTaxableContribution = 6000,     // $6,000/year to taxable accounts
+            UseTaxAdvantaged = true, // Always true now
             TaxableIncomeType = IncomeType.MixedInvestment,
             TaxBracket = TaxBracket.Medium
         };
@@ -960,163 +896,142 @@
 
         public SavingsResults Calculate(SavingsCalculatorModel model)
         {
-            if (!model.UseTaxAdvantaged)
+            // Get tax rates based on bracket
+            decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
+            decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
+            
+            // Get income distribution based on type
+            var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) = 
+                GetIncomeDistribution(model.TaxableIncomeType);
+            
+            // Separate balances for three account types
+            decimal taxableBalance = model.InitialTaxableAmount;
+            decimal traditionalBalance = model.InitialTraditionalAmount;
+            decimal rothBalance = model.InitialRothAmount;
+            
+            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+            int totalMonths = model.Years * 12;
+            
+            decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
+            decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
+            decimal monthlyRothContribution = model.MonthlyRothContribution;
+            
+            decimal totalTaxableContributions = taxableBalance + (monthlyTaxableContribution * totalMonths);
+            decimal totalTraditionalContributions = traditionalBalance + (monthlyTraditionalContribution * totalMonths);
+            decimal totalRothContributions = rothBalance + (monthlyRothContribution * totalMonths);
+            
+            // Track interest earned by account type
+            decimal taxableInterest = 0;
+            decimal traditionalInterest = 0;
+            decimal rothInterest = 0;
+            
+            // Track total taxes paid and income by type
+            decimal totalQualifiedDividends = 0;
+            decimal totalNonQualifiedIncome = 0;
+            decimal totalLongTermGains = 0;
+            decimal totalShortTermGains = 0;
+            decimal totalTaxesPaid = 0;
+            
+            // Year by year calculation to account for taxes
+            for (int year = 1; year <= model.Years; year++)
             {
-                // Original calculation method for non-tax-advantaged
-                decimal totalInitialAmount = model.InitialTaxableAmount + model.InitialTraditionalAmount + model.InitialRothAmount;
-                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-                int totalMonths = model.Years * 12;
-                decimal totalMonthlyContribution = model.MonthlyTaxableContribution + model.MonthlyTraditionalContribution + model.MonthlyRothContribution;
-                decimal totalContributions = totalInitialAmount + (totalMonthlyContribution * totalMonths);
-
-                // Calculate future value with compound interest and regular contributions
-                decimal futureValue = totalInitialAmount;
+                // Traditional account growth (tax-deferred)
+                decimal yearlyTraditionalInterest = 0;
+                decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
                 
-                // Compound the initial amount
-                futureValue *= (decimal)Math.Pow((double)(1 + monthlyRate), totalMonths);
+                for (int month = 1; month <= 12; month++)
+                {
+                    decimal monthlyInterest = traditionalBalance * monthlyRate;
+                    yearlyTraditionalInterest += monthlyInterest;
+                    traditionalBalance += monthlyInterest + monthlyTraditionalContribution;
+                }
                 
-                // Add future value of monthly contributions (annuity)
-                if (monthlyRate > 0)
+                traditionalInterest += yearlyTraditionalInterest;
+                
+                // Roth account growth (tax-free)
+                decimal yearlyRothInterest = 0;
+                decimal yearlyRothContribution = monthlyRothContribution * 12;
+                
+                for (int month = 1; month <= 12; month++)
                 {
-                    decimal annuityFV = totalMonthlyContribution * 
-                        ((decimal)Math.Pow((double)(1 + monthlyRate), totalMonths) - 1) / monthlyRate;
-                    futureValue += annuityFV;
+                    decimal monthlyInterest = rothBalance * monthlyRate;
+                    yearlyRothInterest += monthlyInterest;
+                    rothBalance += monthlyInterest + monthlyRothContribution;
                 }
-                else
+                
+                rothInterest += yearlyRothInterest;
+                
+                // Taxable account - with tax drag
+                decimal yearlyTaxableInterest = 0;
+                decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
+                
+                // Calculate yearly interest before taxes
+                for (int month = 1; month <= 12; month++)
                 {
-                    futureValue += totalMonthlyContribution * totalMonths;
+                    decimal monthlyInterest = taxableBalance * monthlyRate;
+                    yearlyTaxableInterest += monthlyInterest;
+                    taxableBalance += monthlyInterest + monthlyTaxableContribution;
                 }
-
-                return new SavingsResults
-                {
-                    FinalAmount = Math.Round(futureValue, 2),
-                    TotalContributions = totalContributions,
-                    TotalInterestEarned = Math.Round(futureValue - totalContributions, 2)
-                };
+                
+                // Break down the interest by income type
+                decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
+                decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
+                decimal longTermGains = yearlyTaxableInterest * longTermPercent;
+                decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
+                
+                // Calculate tax on each type of income
+                decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate; // Qualified dividends taxed as LTCG
+                decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
+                decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
+                decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
+                
+                decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
+                
+                // Reduce the account value by taxes paid
+                taxableBalance -= yearlyTaxes;
+                
+                // Accumulate totals
+                totalQualifiedDividends += qualifiedDividends;
+                totalNonQualifiedIncome += nonQualifiedIncome;
+                totalLongTermGains += longTermGains;
+                totalShortTermGains += shortTermGains;
+                totalTaxesPaid += yearlyTaxes;
+                taxableInterest += yearlyTaxableInterest - yearlyTaxes; // Net interest after taxes
             }
-            else
+            
+            // Calculate the effective tax rate on all taxable investment income
+            decimal totalTaxableIncome = totalQualifiedDividends + totalNonQualifiedIncome + 
+                                       totalLongTermGains + totalShortTermGains;
+            decimal effectiveTaxRate = (totalTaxableIncome > 0) ? (totalTaxesPaid / totalTaxableIncome) : 0;
+            
+            // Calculate what growth would have been without tax advantages
+            decimal totalRegularTaxes = (traditionalInterest + rothInterest + totalTaxableIncome) * effectiveTaxRate;
+            decimal estimatedTaxSavings = totalRegularTaxes - totalTaxesPaid;
+            
+            // Total combined values
+            decimal totalFutureValue = traditionalBalance + rothBalance + taxableBalance;
+            decimal totalContributions = totalTaxableContributions + totalTraditionalContributions + totalRothContributions;
+            decimal totalInterestEarned = taxableInterest + traditionalInterest + rothInterest;
+            
+            return new SavingsResults
             {
-                // Get tax rates based on bracket
-                decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
-                decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
-                
-                // Get income distribution based on type
-                var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) = 
-                    GetIncomeDistribution(model.TaxableIncomeType);
-                
-                // Tax-advantaged calculation
-                decimal taxDeferredBalance = model.InitialAmount / 2; // Split initial amount between accounts
-                decimal taxableBalance = model.InitialAmount / 2;
-                
-                decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
-                int totalMonths = model.Years * 12;
-                
-                decimal monthlyTaxDeferredContribution = model.AnnualTaxDeferredContribution / 12;
-                decimal monthlyTaxableContribution = model.AnnualTaxableContribution / 12;
-                
-                decimal totalTaxDeferredContributions = taxDeferredBalance + (monthlyTaxDeferredContribution * totalMonths);
-                decimal totalTaxableContributions = taxableBalance + (monthlyTaxableContribution * totalMonths);
-                
-                // Track total taxes paid and income by type
-                decimal totalQualifiedDividends = 0;
-                decimal totalNonQualifiedIncome = 0;
-                decimal totalLongTermGains = 0;
-                decimal totalShortTermGains = 0;
-                decimal totalTaxesPaid = 0;
-                
-                // Calculate tax-deferred account growth (no annual tax drag)
-                decimal taxDeferredFutureValue = taxDeferredBalance;
-                decimal taxDeferredInterest = 0;
-                
-                // Calculate taxable account with yearly tax impact
-                decimal taxableValue = taxableBalance;
-                decimal taxableInterest = 0;
-                
-                // Year by year calculation to account for taxes
-                for (int year = 1; year <= model.Years; year++)
-                {
-                    // Tax-deferred account - simple compound growth
-                    decimal yearlyTaxDeferredInterest = 0;
-                    decimal yearlyTaxDeferredContribution = monthlyTaxDeferredContribution * 12;
-                    
-                    for (int month = 1; month <= 12; month++)
-                    {
-                        decimal monthlyInterest = taxDeferredFutureValue * monthlyRate;
-                        yearlyTaxDeferredInterest += monthlyInterest;
-                        taxDeferredFutureValue += monthlyInterest + monthlyTaxDeferredContribution;
-                    }
-                    
-                    taxDeferredInterest += yearlyTaxDeferredInterest;
-                    
-                    // Taxable account - with tax drag
-                    decimal yearlyTaxableInterest = 0;
-                    decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
-                    
-                    // Calculate yearly interest before taxes
-                    for (int month = 1; month <= 12; month++)
-                    {
-                        decimal monthlyInterest = taxableValue * monthlyRate;
-                        yearlyTaxableInterest += monthlyInterest;
-                        taxableValue += monthlyInterest + monthlyTaxableContribution;
-                    }
-                    
-                    // Break down the interest by income type
-                    decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
-                    decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
-                    decimal longTermGains = yearlyTaxableInterest * longTermPercent;
-                    decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
-                    
-                    // Calculate tax on each type of income
-                    decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate; // Qualified dividends taxed as LTCG
-                    decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
-                    decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
-                    decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
-                    
-                    decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
-                    
-                    // Reduce the account value by taxes paid
-                    taxableValue -= yearlyTaxes;
-                    
-                    // Accumulate totals
-                    totalQualifiedDividends += qualifiedDividends;
-                    totalNonQualifiedIncome += nonQualifiedIncome;
-                    totalLongTermGains += longTermGains;
-                    totalShortTermGains += shortTermGains;
-                    totalTaxesPaid += yearlyTaxes;
-                    taxableInterest += yearlyTaxableInterest - yearlyTaxes; // Net interest after taxes
-                }
-                
-                // Calculate the effective tax rate on all taxable investment income
-                decimal totalTaxableIncome = totalQualifiedDividends + totalNonQualifiedIncome + 
-                                           totalLongTermGains + totalShortTermGains;
-                decimal effectiveTaxRate = (totalTaxableIncome > 0) ? (totalTaxesPaid / totalTaxableIncome) : 0;
-                
-                // Calculate what growth would have been without tax advantages
-                decimal totalRegularTaxes = (taxDeferredInterest + totalTaxableIncome) * effectiveTaxRate;
-                decimal estimatedTaxSavings = totalRegularTaxes - totalTaxesPaid;
-                
-                // Total combined values
-                decimal totalFutureValue = taxDeferredFutureValue + taxableValue;
-                decimal totalContributions = totalTaxDeferredContributions + totalTaxableContributions;
-                
-                return new SavingsResults
-                {
-                    FinalAmount = Math.Round(totalFutureValue, 2),
-                    TotalContributions = totalContributions,
-                    TotalInterestEarned = Math.Round(taxDeferredInterest + taxableInterest, 2),
-                    TaxDeferredBalance = Math.Round(taxDeferredFutureValue, 2),
-                    TaxableBalance = Math.Round(taxableValue, 2),
-                    TaxDeferredInterestEarned = Math.Round(taxDeferredInterest, 2),
-                    TaxableInterestEarned = Math.Round(taxableInterest, 2),
-                    EstimatedTaxSavings = Math.Round(estimatedTaxSavings, 2),
-                    QualifiedDividendIncome = Math.Round(totalQualifiedDividends, 2),
-                    NonQualifiedIncome = Math.Round(totalNonQualifiedIncome, 2),
-                    LongTermCapitalGains = Math.Round(totalLongTermGains, 2),
-                    ShortTermCapitalGains = Math.Round(totalShortTermGains, 2),
-                    TotalTaxesPaid = Math.Round(totalTaxesPaid, 2),
-                    EffectiveTaxRate = Math.Round(effectiveTaxRate * 100, 2) // As percentage
-                };
-            }
+                FinalAmount = Math.Round(totalFutureValue, 2),
+                TotalContributions = totalContributions,
+                TotalInterestEarned = Math.Round(totalInterestEarned, 2),
+                TaxDeferredBalance = Math.Round(traditionalBalance, 2),
+                RothBalance = Math.Round(rothBalance, 2),
+                TaxableBalance = Math.Round(taxableBalance, 2),
+                TaxDeferredInterestEarned = Math.Round(traditionalInterest, 2),
+                RothInterestEarned = Math.Round(rothInterest, 2),
+                TaxableInterestEarned = Math.Round(taxableInterest, 2),
+                EstimatedTaxSavings = Math.Round(estimatedTaxSavings, 2),
+                QualifiedDividendIncome = Math.Round(totalQualifiedDividends, 2),
+                NonQualifiedIncome = Math.Round(totalNonQualifiedIncome, 2),
+                LongTermCapitalGains = Math.Round(totalLongTermGains, 2),
+                ShortTermCapitalGains = Math.Round(totalShortTermGains, 2),
+                TotalTaxesPaid = Math.Round(totalTaxesPaid, 2),
+                EffectiveTaxRate = Math.Round(effectiveTaxRate * 100, 2) // As percentage
+            };
         }
 
         public List<YearlyBreakdown> GetYearlyBreakdown(SavingsCalculatorModel model)
