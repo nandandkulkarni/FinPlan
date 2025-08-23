@@ -1,5 +1,6 @@
 @page "/savings-planner"
 @using System.ComponentModel.DataAnnotations
+@using FinPlan.Web.Components
 @rendermode InteractiveServer
 
 <PageTitle>Retirement Savings Planner</PageTitle>
@@ -132,19 +133,19 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Taxable (Post-tax)</label>
-                                        <InputNumber id="initialTaxableAmount" class="form-control" 
+                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
                                                     @bind-Value="calculatorModel.InitialTaxableAmount" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <InputNumber id="initialTraditionalAmount" class="form-control" 
+                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control" 
                                                     @bind-Value="calculatorModel.InitialTraditionalAmount" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <InputNumber id="initialRothAmount" class="form-control" 
+                                        <FormattedInputNumber id="initialRothAmount" class="form-control" 
                                                     @bind-Value="calculatorModel.InitialRothAmount" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
@@ -163,19 +164,19 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTaxableContribution" class="form-label">Taxable (Post-tax)</label>
-                                        <InputNumber id="monthlyTaxableContribution" class="form-control" 
+                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control" 
                                                     @bind-Value="calculatorModel.MonthlyTaxableContribution" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
-                                        <InputNumber id="monthlyTraditionalContribution" class="form-control" 
+                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control" 
                                                     @bind-Value="calculatorModel.MonthlyTraditionalContribution" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
-                                        <InputNumber id="monthlyRothContribution" class="form-control" 
+                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control" 
                                                     @bind-Value="calculatorModel.MonthlyRothContribution" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
@@ -193,7 +194,7 @@
                                         <h5 class="mb-0">Annual Growth Rate (%)</h5>
                                     </div>
                                     <div class="card-body">
-                                        <InputNumber id="annualGrowthRate" class="form-control" @bind-Value="calculatorModel.AnnualGrowthRate" step="0.1" />
+                                        <FormattedInputNumber id="annualGrowthRate" class="form-control" @bind-Value="calculatorModel.AnnualGrowthRate" step="0.1" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
                                         <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
                                     </div>

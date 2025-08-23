@@ -1,0 +1,64 @@
+@inherits InputNumber<decimal>
+
+<input @attributes="AdditionalAttributes"
+       class="@CssClass"
+       value="@GetFormattedValue()"
+       @oninput="OnInputHandler"
+       @onblur="OnBlurHandler" />
+
+@code {
+    private string currentValueAsString = string.Empty;
+    
+    protected override void OnParametersSet()
+    {
+        currentValueAsString = FormatValue(CurrentValue);
+        base.OnParametersSet();
+    }
+    
+    private string GetFormattedValue()
+    {
+        return string.IsNullOrEmpty(currentValueAsString) 
+            ? FormatValue(CurrentValue) 
+            : currentValueAsString;
+    }
+    
+    private string FormatValue(decimal value)
+    {
+        return value.ToString("#,##0.##");
+    }
+    
+    private void OnInputHandler(ChangeEventArgs e)
+    {
+        string inputValue = e.Value?.ToString() ?? string.Empty;
+        
+        // Store the raw input for display
+        currentValueAsString = inputValue;
+        
+        // Remove commas for parsing
+        string cleanValue = inputValue.Replace(",", "");
+        
+        if (decimal.TryParse(cleanValue, out decimal parsedValue))
+        {
+            // Update the actual value
+            CurrentValueAsString = parsedValue.ToString();
+        }
+    }
+    
+    private void OnBlurHandler()
+    {
+        // When the field loses focus, format the value properly
+        string cleanValue = currentValueAsString.Replace(",", "");
+        
+        if (decimal.TryParse(cleanValue, out decimal parsedValue))
+        {
+            CurrentValueAsString = parsedValue.ToString();
+            currentValueAsString = FormatValue(parsedValue);
+        }
+        else if (string.IsNullOrWhiteSpace(currentValueAsString))
+        {
+            // Handle empty case
+            CurrentValueAsString = "0";
+            currentValueAsString = "0";
+        }
+    }
+}
