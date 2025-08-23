@@ -434,7 +434,7 @@
                                 }
                             </h5>
                         </div>
-                        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                        <div class="card-body" style="max-height: 700px; overflow-y: auto;">
                             @if (calculatorModel.Years > 10 && intervalSummaries.Any())
                             {
                                 <!-- 5-Year Interval View for Long-Term Plans -->
@@ -628,6 +628,13 @@
             if (calculatorModel.Years > 10)
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
+                
+                // Expand first two intervals by default to show more data without scrolling
+                expandedIntervals.Clear();
+                if (intervalSummaries.Count > 0)
+                    expandedIntervals.Add(intervalSummaries[0].StartYear);
+                if (intervalSummaries.Count > 1)
+                    expandedIntervals.Add(intervalSummaries[1].StartYear);
             }
             
             StateHasChanged(); // Force UI update
