@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Web.Components
 @rendermode InteractiveServer
+@implements IDisposable
 
 <PageTitle>Retirement Savings Planner</PageTitle>
 
@@ -133,20 +134,23 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Taxable (Post-tax)</label>
-                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
-                                                    @bind-Value="calculatorModel.InitialTaxableAmount" />
+                                        <input type="number" id="initialTaxableAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialTaxableAmount"
+                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control" 
-                                                    @bind-Value="calculatorModel.InitialTraditionalAmount" />
+                                        <input type="number" id="initialTraditionalAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialTraditionalAmount"
+                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <FormattedInputNumber id="initialRothAmount" class="form-control" 
-                                                    @bind-Value="calculatorModel.InitialRothAmount" />
+                                        <input type="number" id="initialRothAmount" class="form-control" 
+                                               @bind-value="calculatorModel.InitialRothAmount"
+                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -270,9 +274,17 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="bi bi-calculator"></i> Calculate Savings
-                        </button>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="form-check me-auto">
+                                <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="autoCalculate" />
+                                <label class="form-check-label" for="autoCalculate">
+                                    Auto-calculate (updates immediately as you type)
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg" disabled="@autoCalculate">
+                                <i class="bi bi-calculator"></i> Calculate Savings
+                            </button>
+                        </div>
                     </EditForm>
                 </div>
             </div>
@@ -557,6 +569,8 @@
 
 @code {
     private bool isDarkTheme = false;
+    private bool autoCalculate = false;
+    private System.Timers.Timer? debounceTimer;
     
     // Enums for tax calculations
     public enum IncomeType
@@ -608,7 +622,34 @@
             TaxBracket = TaxBracket.Medium
         };
         
+        // Set up debounce timer
+        debounceTimer = new System.Timers.Timer(500); // 500ms debounce
+        debounceTimer.AutoReset = false;
+        debounceTimer.Elapsed += (sender, args) => 
+        {
+            InvokeAsync(() => 
+            {
+                Calculate();
+            });
+        };
+        
         base.OnInitialized();
+    }
+    
+    public void Dispose()
+    {
+        debounceTimer?.Dispose();
+    }
+    
+    // Add a method to handle input changes
+    private void OnInputChanged()
+    {
+        if (autoCalculate)
+        {
+            // Reset and restart the debounce timer
+            debounceTimer?.Stop();
+            debounceTimer?.Start();
+        }
     }
 
 // Add a custom StateHasChanged method
