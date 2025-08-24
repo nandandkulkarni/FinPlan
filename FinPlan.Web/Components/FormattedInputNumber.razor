@@ -8,15 +8,24 @@
 
 @code {
     private string currentValueAsString = string.Empty;
+    private bool isEditing = false;
     
     protected override void OnParametersSet()
     {
-        currentValueAsString = FormatValue(CurrentValue);
+        // Only format the value if we're not currently editing
+        if (!isEditing)
+        {
+            currentValueAsString = FormatValue(CurrentValue);
+        }
         base.OnParametersSet();
     }
     
     private string GetFormattedValue()
     {
+        if (isEditing)
+        {
+            return currentValueAsString;
+        }
         return string.IsNullOrEmpty(currentValueAsString) 
             ? FormatValue(CurrentValue) 
             : currentValueAsString;
@@ -24,20 +33,52 @@
     
     private string FormatValue(decimal value)
     {
+        // Get the ID from additional attributes to determine which field this is
+        string id = "";
+        if (AdditionalAttributes != null && AdditionalAttributes.TryGetValue("id", out var idObj))
+        {
+            id = idObj?.ToString() ?? "";
+        }
+        
+        // For initial amount and monthly contribution fields, format as integer currency
+        if (id.Contains("initial") || id.Contains("monthly"))
+        {
+            return value.ToString("C0", new System.Globalization.CultureInfo("en-US"));
+        }
+        
+        // For other fields, format with decimal places
         return value.ToString("C", new System.Globalization.CultureInfo("en-US"));
     }
     
     private void OnInputHandler(ChangeEventArgs e)
     {
+        isEditing = true;
         string inputValue = e.Value?.ToString() ?? string.Empty;
         
+        // Get the ID from additional attributes to determine which field this is
+        string id = "";
+        if (AdditionalAttributes != null && AdditionalAttributes.TryGetValue("id", out var idObj))
+        {
+            id = idObj?.ToString() ?? "";
+        }
+        
+        string validInput;
+        
+        // For initial amount and monthly contribution fields, only accept digits (no decimal)
+        if (id.Contains("initial") || id.Contains("monthly"))
+        {
+            validInput = new string(inputValue.Where(char.IsDigit).ToArray());
+        }
+        else
+        {
+            // For other fields, accept digits and optional decimal point
+            validInput = new string(inputValue.Where(c => char.IsDigit(c) || c == '.').ToArray());
+        }
+        
         // Store the raw input for display
-        currentValueAsString = inputValue;
+        currentValueAsString = validInput;
         
-        // Remove currency symbols and commas for parsing
-        string cleanValue = inputValue.Replace("$", "").Replace(",", "");
-        
-        if (decimal.TryParse(cleanValue, out decimal parsedValue))
+        if (decimal.TryParse(validInput, out decimal parsedValue))
         {
             // Update the actual value
             CurrentValueAsString = parsedValue.ToString();
@@ -46,10 +87,10 @@
     
     private void OnBlurHandler()
     {
-        // When the field loses focus, format the value properly
-        string cleanValue = currentValueAsString.Replace("$", "").Replace(",", "");
+        isEditing = false;
         
-        if (decimal.TryParse(cleanValue, out decimal parsedValue))
+        // When the field loses focus, format the value properly
+        if (decimal.TryParse(currentValueAsString, out decimal parsedValue))
         {
             CurrentValueAsString = parsedValue.ToString();
             currentValueAsString = FormatValue(parsedValue);

@@ -109,6 +109,8 @@
     }
 </style>
 
+@inject IJSRuntime JSRuntime
+
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
     <!-- Theme toggle button -->
     <button @onclick="ToggleTheme" class="btn btn-sm theme-toggle @(isDarkTheme ? "btn-light" : "btn-dark")">
@@ -135,10 +137,10 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="initialTaxableAmount" class="form-label">Taxable (Post-tax)</label>
+                                        <label for="initialTaxableAmount" class="form-label">Post Tax(Post-tax)</label>
                                         <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
                                                @bind-value="calculatorModel.InitialTaxableAmount" />
-                                        <small class="form-text">Regular brokerage account</small>
+                                        <small class="form-text">Bank or Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
@@ -166,7 +168,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="monthlyTaxableContribution" class="form-label">Taxable (Post-tax)</label>
+                                        <label for="monthlyTaxableContribution" class="form-label">Post Tax(Post-tax)</label>
                                         <FormattedInputNumber id="monthlyTaxableContribution" class="form-control" 
                                                @bind-value="calculatorModel.MonthlyTaxableContribution" />
                                         <small class="form-text">Regular brokerage account</small>
@@ -256,14 +258,14 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Taxable Account Income Type</label>
+                                        <label class="form-label fw-bold">Post TaxAccount Income Type</label>
                                         <select class="form-control" @bind="calculatorModel.TaxableIncomeType" @bind:after="HandleSelectChange">
                                             <option value="@IncomeType.MixedInvestment">Mixed Investment (default mix)</option>
                                             <option value="@IncomeType.MostlyDividends">Mostly Dividends</option>
                                             <option value="@IncomeType.MostlyLongTermGains">Mostly Long-Term Capital Gains</option>
                                             <option value="@IncomeType.MostlyInterest">Mostly Interest/Short-Term Gains</option>
                                         </select>
-                                        <div class="form-text">This affects how income from taxable investments is taxed annually</div>
+                                        <div class="form-text">This affects how income from Post Taxinvestments is taxed annually</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-bold">Tax Bracket</label>
@@ -379,7 +381,7 @@
                                         <ul class="mb-0">
                                             <li>Traditional (401k/IRA): <strong>@results.TaxDeferredBalance.ToString("C")</strong></li>
                                             <li>Roth accounts: <strong>@results.RothBalance.ToString("C")</strong></li>
-                                            <li>Taxable accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
+                                            <li>Post Tax accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
                                         </ul>
                                         
                                         <div class="mt-3 mb-0">
@@ -406,7 +408,7 @@
                                                     STCG
                                                 </div>
                                             </div>
-                                            <small>Effective tax rate on taxable investments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>
+                                            <small>Effective tax rate on Post Taxinvestments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>
                                         </div>
                                     </div>
                                 </div>
@@ -427,11 +429,11 @@
                                         <li><strong>Current Age:</strong> @calculatorModel.CurrentAge years old</li>
                                         <li><strong>Target Retirement Age:</strong> @calculatorModel.RetirementAge years old</li>
                                         <li><strong>Years to Save:</strong> @calculatorModel.Years years</li>
-                                        <li><strong>Initial Taxable Amount:</strong> @calculatorModel.InitialTaxableAmount.ToString("C")</li>
+                                        <li><strong>Initial Post TaxAmount:</strong> @calculatorModel.InitialTaxableAmount.ToString("C")</li>
                                         <li><strong>Initial Traditional Amount:</strong> @calculatorModel.InitialTraditionalAmount.ToString("C")</li>
                                         <li><strong>Initial Roth Amount:</strong> @calculatorModel.InitialRothAmount.ToString("C")</li>
                                         <li><strong>Total Initial Amount:</strong> @calculatorModel.InitialAmount.ToString("C")</li>
-                                        <li><strong>Monthly Taxable Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
+                                        <li><strong>Monthly Post TaxContribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
                                         <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
                                         <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
                                         <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
@@ -512,6 +514,7 @@
                                                                 <th>Traditional</th>
                                                                 <th>Roth</th>
                                                                 <th>Taxes</th>
+                                                                <th>Tax Rates</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -526,6 +529,11 @@
                                                                     <td>@year.TaxDeferredBalance.ToString("C")</td>
                                                                     <td>@year.RothBalance.ToString("C")</td>
                                                                     <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                                                    <td>
+                                                                        <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">
+                                                                            @GetTaxRatesDisplay(calculatorModel.TaxBracket)
+                                                                        </span>
+                                                                    </td>
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -551,6 +559,8 @@
                                                 <th>Traditional</th>
                                                 <th>Roth</th>
                                                 <th>Taxes Paid</th>
+                                                <th>Tax Rates</th>
+                                                <th>Tax Rates</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -565,6 +575,11 @@
                                                     <td>@year.TaxDeferredBalance.ToString("C")</td>
                                                     <td>@year.RothBalance.ToString("C")</td>
                                                     <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                                    <td>
+                                                        <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">
+                                                            @GetTaxRatesDisplay(calculatorModel.TaxBracket)
+                                                        </span>
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -739,6 +754,39 @@
             _ => "Medium Tax Bracket"
         };
     }
+    
+    private string GetTaxRatesDisplay(TaxBracket bracket)
+    {
+        return bracket switch
+        {
+            TaxBracket.Low => "12% / 0% (Ord/LT)",
+            TaxBracket.Medium => "24% / 15% (Ord/LT)",
+            TaxBracket.High => "35% / 20% (Ord/LT)",
+            _ => "24% / 15% (Ord/LT)"
+        };
+    }
+    
+    private string GetTaxBreakdownTooltip(YearlyBreakdown year, IncomeType incomeType)
+    {
+        var sb = new System.Text.StringBuilder();
+        
+        // Add interest breakdown
+        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividends + year.LongTermGains + year.ShortTermGains;
+        if (totalInterest > 0)
+        {
+            // Ordinary Income (24% rate)
+            decimal ordinaryIncome = year.NonQualifiedIncome + year.ShortTermGains;
+            decimal ordinaryPercent = Math.Round((ordinaryIncome / totalInterest) * 100);
+            sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
+            
+            // Long-term rate income (15% rate)
+            decimal ltRateIncome = year.QualifiedDividends + year.LongTermGains;
+            decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
+            sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
+        }
+        
+        return sb.ToString();
+    }
 
     private List<IntervalSummary> CreateIntervalSummaries(List<YearlyBreakdown> breakdown)
     {
@@ -818,16 +866,16 @@
         public int RetirementAge { get; set; } = 65;
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Initial taxable amount must be positive")]
-        public decimal InitialTaxableAmount { get; set; } = 400;
+        [Range(0, double.MaxValue, ErrorMessage = "Initial Post Taxamount must be positive")]
+        public decimal InitialTaxableAmount { get; set; } = 500000;
         
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Initial traditional amount must be positive")]
-        public decimal InitialTraditionalAmount { get; set; } = 400;
+        public decimal InitialTraditionalAmount { get; set; } = 150000;
         
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Initial Roth amount must be positive")]
-        public decimal InitialRothAmount { get; set; } = 200;
+        public decimal InitialRothAmount { get; set; } = 0;
         
         // Legacy property for backwards compatibility
         public decimal InitialAmount 
@@ -844,16 +892,16 @@
         }
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Monthly taxable contribution must be positive")]
-        public decimal MonthlyTaxableContribution { get; set; } = 200;
+        [Range(0, double.MaxValue, ErrorMessage = "Monthly Post Taxcontribution must be positive")]
+        public decimal MonthlyTaxableContribution { get; set; } = 0;
         
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Monthly traditional contribution must be positive")]
-        public decimal MonthlyTraditionalContribution { get; set; } = 200;
+        public decimal MonthlyTraditionalContribution { get; set; } = 3000;
         
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Monthly Roth contribution must be positive")]
-        public decimal MonthlyRothContribution { get; set; } = 100;
+        public decimal MonthlyRothContribution { get; set; } = 0;
         
         // Legacy property for backwards compatibility
         public decimal MonthlyContribution 
@@ -879,7 +927,7 @@
         [Range(0, double.MaxValue, ErrorMessage = "Tax-deferred contribution must be positive")]
         public decimal AnnualTaxDeferredContribution { get; set; } = 6000;
         
-        [Range(0, double.MaxValue, ErrorMessage = "Taxable contribution must be positive")]
+        [Range(0, double.MaxValue, ErrorMessage = "Post Taxcontribution must be positive")]
         public decimal AnnualTaxableContribution { get; set; } = 6000;
         
         // Advanced tax properties
@@ -1070,7 +1118,7 @@
                 
                 rothInterest += yearlyRothInterest;
                 
-                // Taxable account - with tax drag
+                // Post Taxaccount - with tax drag
                 decimal yearlyTaxableInterest = 0;
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 
@@ -1108,7 +1156,7 @@
                 taxableInterest += yearlyTaxableInterest - yearlyTaxes; // Net interest after taxes
             }
             
-            // Calculate the effective tax rate on all taxable investment income
+            // Calculate the effective tax rate on all Post Taxinvestment income
             decimal totalTaxableIncome = totalQualifiedDividends + totalNonQualifiedIncome + 
                                        totalLongTermGains + totalShortTermGains;
             decimal effectiveTaxRate = (totalTaxableIncome > 0) ? (totalTaxesPaid / totalTaxableIncome) : 0;
@@ -1191,7 +1239,7 @@
                     rothBalance += monthlyInterest + monthlyRothContribution;
                 }
                 
-                // Taxable account - with tax drag
+                // Post Taxaccount - with tax drag
                 decimal yearlyTaxableInterest = 0;
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 
