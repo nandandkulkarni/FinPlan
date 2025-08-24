@@ -24,7 +24,7 @@
     
     private string FormatValue(decimal value)
     {
-        return value.ToString("#,##0.##");
+        return value.ToString("C", new System.Globalization.CultureInfo("en-US"));
     }
     
     private void OnInputHandler(ChangeEventArgs e)
@@ -34,8 +34,8 @@
         // Store the raw input for display
         currentValueAsString = inputValue;
         
-        // Remove commas for parsing
-        string cleanValue = inputValue.Replace(",", "");
+        // Remove currency symbols and commas for parsing
+        string cleanValue = inputValue.Replace("$", "").Replace(",", "");
         
         if (decimal.TryParse(cleanValue, out decimal parsedValue))
         {
@@ -47,7 +47,7 @@
     private void OnBlurHandler()
     {
         // When the field loses focus, format the value properly
-        string cleanValue = currentValueAsString.Replace(",", "");
+        string cleanValue = currentValueAsString.Replace("$", "").Replace(",", "");
         
         if (decimal.TryParse(cleanValue, out decimal parsedValue))
         {
@@ -58,7 +58,7 @@
         {
             // Handle empty case
             CurrentValueAsString = "0";
-            currentValueAsString = "0";
+            currentValueAsString = FormatValue(0);
         }
     }
 }

@@ -1,10 +1,20 @@
 using FinPlan.Web;
 using FinPlan.Web.Components;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
+
+// Set default culture to US to fix currency symbol issues
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("en-US") };
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -48,6 +58,14 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.UseOutputCache();
+
+// Apply request localization for currency formatting
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US"),
+    SupportedCultures = new List<CultureInfo> { new CultureInfo("en-US") },
+    SupportedUICultures = new List<CultureInfo> { new CultureInfo("en-US") }
+});
 
 app.MapStaticAssets();
 
