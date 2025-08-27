@@ -102,7 +102,7 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" FormName="SavingsCalculatorForm">
+                    <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" OnFieldChanged="OnFieldChanged" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
                         <!-- All form fields, cards, and controls from SavingsPlanner.razor -->
                         <!-- ...copy the full form UI here... -->
@@ -290,37 +290,88 @@
     private bool isPlanSummaryExpanded = true;
     private bool isSavingsBreakdownExpanded = true;
 
-    protected override void OnInitialized()
+    // Use a simple key for local storage persistence
+    private string LocalStorageKey => Title switch
     {
-        calculatorModel = new SavingsPlanner.SavingsCalculatorModel
+        "Your Savings" => "FamilySavingsPlanner_yours",
+        "Partner's Savings" => "FamilySavingsPlanner_partner",
+        _ => $"FamilySavingsPlanner_{Title.Replace(" ", "_")}"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            CurrentAge = 30,
-            RetirementAge = 65,
-            InitialTaxableAmount = 400,
-            InitialTraditionalAmount = 400,
-            InitialRothAmount = 200,
-            MonthlyTaxableContribution = 200,
-            MonthlyTraditionalContribution = 200,
-            MonthlyRothContribution = 100,
-            AnnualGrowthRate = 7,
-            UseTaxAdvantaged = true,
-            TaxableIncomeType = SavingsPlanner.IncomeType.MixedInvestment,
-            TaxBracket = SavingsPlanner.TaxBracket.Medium
-        };
+            // Try to load from localStorage (JS interop is allowed here)
+            var savedJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            if (!string.IsNullOrEmpty(savedJson))
+            {
+                try
+                {
+                    calculatorModel = System.Text.Json.JsonSerializer.Deserialize<SavingsPlanner.SavingsCalculatorModel>(savedJson) ?? new SavingsPlanner.SavingsCalculatorModel();
+                }
+                catch { calculatorModel = new SavingsPlanner.SavingsCalculatorModel(); }
+            }
+            else
+            {
+                calculatorModel = new SavingsPlanner.SavingsCalculatorModel
+                {
+                    CurrentAge = 30,
+                    RetirementAge = 65,
+                    InitialTaxableAmount = 400,
+                    InitialTraditionalAmount = 400,
+                    InitialRothAmount = 200,
+                    MonthlyTaxableContribution = 200,
+                    MonthlyTraditionalContribution = 200,
+                    MonthlyRothContribution = 100,
+                    AnnualGrowthRate = 7,
+                    UseTaxAdvantaged = true,
+                    TaxableIncomeType = SavingsPlanner.IncomeType.MixedInvestment,
+                    TaxBracket = SavingsPlanner.TaxBracket.Medium
+                };
+            }
+            await CalculateAsync();
+            StateHasChanged();
+        }
+    }
+    protected override Task OnInitializedAsync()
+    {
         debounceTimer = new System.Timers.Timer(500);
         debounceTimer.AutoReset = false;
         debounceTimer.Elapsed += (sender, args) => { InvokeAsync(() => { Calculate(); }); };
-        base.OnInitialized();
-        Calculate();
+        return Task.CompletedTask;
     }
+
     private void ToggleTheme() => isDarkTheme = !isDarkTheme;
-    private void OnInputChanged() { if (autoCalculate) { debounceTimer?.Stop(); debounceTimer?.Start(); } }
-    private void HandleSelectChange() { if (autoCalculate) { OnInputChanged(); } }
-    private void Calculate() {
+
+    private async void OnInputChanged()
+    {
+        if (autoCalculate) { debounceTimer?.Stop(); debounceTimer?.Start(); }
+        await SaveModelAsync();
+    }
+    private async void HandleSelectChange()
+    {
+        if (autoCalculate) { OnInputChanged(); }
+        await SaveModelAsync();
+    }
+    private async Task OnFieldChanged(EditContext context)
+    {
+        // Save to local storage on any field change
+        var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+    }
+    private async Task SaveModelAsync()
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+    }
+    private async Task CalculateAsync()
+    {
         var calculator = new SavingsPlanner.SavingsCalculationEngine();
         results = calculator.Calculate(calculatorModel);
         yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
-        if (calculatorModel.Years > 10) {
+        if (calculatorModel.Years > 10)
+        {
             intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
             expandedIntervals.Clear();
             if (intervalSummaries.Count > 0) expandedIntervals.Add(intervalSummaries[0].StartYear);
@@ -328,6 +379,7 @@
         }
         StateHasChanged();
     }
+    private void Calculate() { CalculateAsync(); }
     private List<SavingsPlanner.IntervalSummary> CreateIntervalSummaries(List<SavingsPlanner.YearlyBreakdown> breakdown)
     {
         int startingAge = calculatorModel.CurrentAge;
