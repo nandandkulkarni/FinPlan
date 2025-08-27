@@ -1,0 +1,9 @@
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; Write-Host 'Starting FinPlan Application with Excel Export' -ForegroundColor Cyan; dotnet watch run --project FinPlan.Web"
+
+ --urls 'https://localhost:7200;http://localhost:5235'"
+
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; Write-Host 'Starting FinPlan Backend' -ForegroundColor Cyan; dotnet watch run --project FinPlan.ApiService"
+
+
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.ApiService --launch-profile https"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.Web --launch-profile https"

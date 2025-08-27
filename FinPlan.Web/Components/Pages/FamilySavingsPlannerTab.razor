@@ -386,7 +386,7 @@
                 else
                 {
                     var client = HttpClientFactory.CreateClient();
-                    var apiUrl = NavigationManager.BaseUri + $"api/FinPlan/load?userGuid={userGuid}&calculatorType={LocalStorageKey}";
+                    var apiUrl = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={LocalStorageKey}";
                     var savedJson = await client.GetStringAsync(apiUrl);
                     if (!string.IsNullOrEmpty(savedJson))
                     {
@@ -471,7 +471,7 @@
             else
             {
                 var client = HttpClientFactory.CreateClient();
-                var apiUrl = NavigationManager.BaseUri + "api/FinPlan/save";
+                var apiUrl = "https://localhost:7330/api/FinPlan/save";
                 var payload = new {
                     UserGuid = userGuid,
                     CalculatorType = LocalStorageKey,

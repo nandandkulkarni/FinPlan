@@ -1,0 +1,7 @@
+# User Preferences for FinPlan Workspace
+
+- OS: Windows
+- Shell: PowerShell
+- Multi-project start command separator: semicolon (;)
+
+Always use a semicolon between commands when starting multiple projects in the same terminal.

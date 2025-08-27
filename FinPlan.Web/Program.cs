@@ -25,13 +25,6 @@ builder.Services.AddOutputCache();
 // Register the Excel Export Service
 builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
-    });
-
 // Explicitly disable authentication and authorization
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization(options =>
