@@ -7,3 +7,12 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\F
 
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.ApiService --launch-profile https"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.Web --launch-profile https"
+
+
+
+
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.ApiService --launch-profile https" ; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.Web --launch-profile https"
+
+
+
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "$host.UI.RawUI.WindowTitle = 'FinPlan API'; cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.ApiService --launch-profile https"

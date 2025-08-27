@@ -119,6 +119,22 @@
         font-size: 12px;
         z-index: 1000;
     }
+
+    .left-debug-window {
+        position: fixed;
+        top: 80px;
+        left: 10px;
+        width: 260px;
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        z-index: 2000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        max-height: 60vh;
+        overflow-y: auto;
+    }
 </style>
 
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
@@ -137,6 +153,19 @@
             <div>Initial Taxable: @calculatorModel.InitialTaxableAmount</div>
             <div>Last Load Attempt: @lastLoadAttempt</div>
             <div>Load Error: @loadError</div>
+        </div>
+    }
+
+    @if (showLeftDebugWindow)
+    {
+        <div class="left-debug-window">
+            <b>Debug Window</b>
+            <ul style="padding-left: 1em;">
+                @foreach (var entry in DebugEntries.TakeLast(10).Reverse())
+                {
+                    <li>@entry</li>
+                }
+            </ul>
         </div>
     }
 
@@ -167,21 +196,24 @@
                                         <label for="initialTaxableAmount" class="form-label">Post Tax</label>
                                         <input type="number" id="initialTaxableAmount" class="form-control"
                                                @bind="calculatorModel.InitialTaxableAmount"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialTaxableAmount), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialTaxableAmount), e))" />
                                         <small class="form-text">Bank or Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
                                         <input type="number" id="initialTraditionalAmount" class="form-control"
                                                @bind="calculatorModel.InitialTraditionalAmount"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialTraditionalAmount), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialTraditionalAmount), e))" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
                                         <input type="number" id="initialRothAmount" class="form-control"
                                                @bind="calculatorModel.InitialRothAmount"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialRothAmount), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialRothAmount), e))" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -201,21 +233,24 @@
                                         <label for="monthlyTaxableContribution" class="form-label">Post Tax</label>
                                         <input type="number" id="monthlyTaxableContribution" class="form-control"
                                                @bind="calculatorModel.MonthlyTaxableContribution"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyTaxableContribution), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyTaxableContribution), e))" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
                                         <input type="number" id="monthlyTraditionalContribution" class="form-control"
                                                @bind="calculatorModel.MonthlyTraditionalContribution"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyTraditionalContribution), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyTraditionalContribution), e))" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
                                         <input type="number" id="monthlyRothContribution" class="form-control"
                                                @bind="calculatorModel.MonthlyRothContribution"
-                                               @oninput="@(e => OnInputChanged())" />
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyRothContribution), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyRothContribution), e))" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -234,7 +269,8 @@
                                     <div class="card-body">
                                         <input type="number" id="annualGrowthRate" class="form-control"
                                                @bind="calculatorModel.AnnualGrowthRate"
-                                               @oninput="@(e => OnInputChanged())"
+                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.AnnualGrowthRate), e))"
+                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.AnnualGrowthRate), e))"
                                                step="0.1" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
                                         <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
@@ -252,13 +288,15 @@
                                                 <label class="form-label">Current</label>
                                                 <input type="number" class="form-control"
                                                        @bind="calculatorModel.CurrentAge"
-                                                       @oninput="@(e => OnInputChanged())" />
+                                                       @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.CurrentAge), e))"
+                                                       @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.CurrentAge), e))" />
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label">Retirement</label>
                                                 <input type="number" class="form-control"
                                                        @bind="calculatorModel.RetirementAge"
-                                                       @oninput="@(e => OnInputChanged())" />
+                                                       @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.RetirementAge), e))"
+                                                       @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.RetirementAge), e))" />
                                             </div>
                                         </div>
                                         <small class="form-text">Years: @calculatorModel.Years</small>
@@ -306,7 +344,7 @@
     private string userGuid = "";
 
     // Debug variables
-    private bool showDebugInfo = false;
+    private bool showDebugInfo = true; // Always show debug info
     private bool dataLoaded = false;
     private string lastLoadAttempt = "";
     private string loadError = "";
@@ -432,7 +470,7 @@
     }
 
     private void ToggleTheme() => isDarkTheme = !isDarkTheme;
-    private void ToggleDebug() => showDebugInfo = !showDebugInfo;
+    private void ToggleDebug() { /* No-op, always on */ }
 
     private async Task ClearLocalStorage()
     {
@@ -529,4 +567,26 @@
     }
 
     private void Calculate() => CalculateAsync();
+
+    private bool showLeftDebugWindow = true;
+    public static List<string> DebugEntries { get; set; } = new();
+
+    private void AddDebugEntry(string field, string eventType, object? value)
+    {
+        DebugEntries.Add($"[{DateTime.Now:HH:mm:ss}] {field} {eventType}: {value}");
+        StateHasChanged();
+    }
+
+    private async void OnFieldDebugChanged(string field, ChangeEventArgs e)
+    {
+        AddDebugEntry(field, "Changed", e.Value);
+        await SaveModelAsync();
+    }
+
+    private async void OnFieldDebugBlur(string field, FocusEventArgs e)
+    {
+        var value = typeof(TestSavingsModel).GetProperty(field)?.GetValue(calculatorModel);
+        AddDebugEntry(field, "Blur", value);
+        await SaveModelAsync();
+    }
 }

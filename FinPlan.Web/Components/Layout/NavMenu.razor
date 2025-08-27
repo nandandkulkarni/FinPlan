@@ -1,11 +1,33 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FinPlan</a>
+﻿@* ...existing code... *@
+<style>
+    .nav-debug-window {
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        max-height: 180px;
+        overflow-y: auto;
+    }
+</style>
+
+@* Debug window above nav *@
+@if (FinPlan.Web.Components.Pages.FamilySavingsPlannerTab.DebugEntries?.Any() == true)
+{
+    <div class="nav-debug-window">
+        <b>Debug Window</b>
+        <ul style="padding-left: 1em;">
+            @foreach (var entry in FinPlan.Web.Components.Pages.FamilySavingsPlannerTab.DebugEntries.TakeLast(10).Reverse())
+            {
+                <li>@entry</li>
+            }
+        </ul>
     </div>
-</div>
+}
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
+@* ...existing code... *@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
@@ -39,3 +61,4 @@
         </div>
     </nav>
 </div>
+@* ...existing code... *@
