@@ -2,6 +2,9 @@
 @using FinPlan.Web.Components
 @using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <style>
@@ -10,77 +13,110 @@
         background-color: #121212;
         color: #E2E8F0;
     }
-    .dark-theme .card {
-        background-color: #1E1E1E;
-        border-color: #333;
-    }
-    .dark-theme .card-header {
-        background-color: #252525 !important;
-        border-bottom-color: #333;
-        color: #E2E8F0 !important;
-    }
-    .dark-theme .form-control {
-        background-color: #252525;
-        border-color: #333;
-        color: #E2E8F0;
-    }
-    .dark-theme .form-control:focus {
-        background-color: #2D2D2D;
-        box-shadow: 0 0 0 0.25rem rgba(109, 93, 252, 0.25);
-    }
-    .dark-theme .btn-primary {
-        background-color: #6D5DFC;
-        border-color: #6D5DFC;
-    }
-    .dark-theme .btn-primary:hover {
-        background-color: #5A4AE3;
-        border-color: #5A4AE3;
-    }
-    .dark-theme .text-primary {
-        color: #6D5DFC !important;
-    }
-    .dark-theme .text-success {
-        color: #38B2AC !important;
-    }
-    .dark-theme .text-info {
-        color: #4FD1C5 !important;
-    }
-    .dark-theme .text-warning {
-        color: #F6AD55 !important;
-    }
-    .dark-theme .progress-bar.bg-info {
-        background-color: #4FD1C5 !important;
-    }
-    .dark-theme .progress-bar.bg-success {
-        background-color: #38B2AC !important;
-    }
-    .dark-theme .table {
-        color: #E2E8F0;
-    }
-    .dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-    .dark-theme .form-text {
-        color: #A0AEC0;
-    }
-    .dark-theme .interval-summary {
-        background-color: #252525;
-    }
-    .dark-theme .interval-summary:hover {
-        background-color: #2D2D2D;
-    }
-    .dark-theme .card.bg-light {
-        background-color: #252525 !important;
-    }
-    .dark-theme .alert-info {
-        background-color: rgba(79, 209, 197, 0.15);
-        color: #E2E8F0;
-        border-color: rgba(79, 209, 197, 0.4);
-    }
+
+        .dark-theme .card {
+            background-color: #1E1E1E;
+            border-color: #333;
+        }
+
+        .dark-theme .card-header {
+            background-color: #252525 !important;
+            border-bottom-color: #333;
+            color: #E2E8F0 !important;
+        }
+
+        .dark-theme .form-control {
+            background-color: #252525;
+            border-color: #333;
+            color: #E2E8F0;
+        }
+
+            .dark-theme .form-control:focus {
+                background-color: #2D2D2D;
+                box-shadow: 0 0 0 0.25rem rgba(109, 93, 252, 0.25);
+            }
+
+        .dark-theme .btn-primary {
+            background-color: #6D5DFC;
+            border-color: #6D5DFC;
+        }
+
+            .dark-theme .btn-primary:hover {
+                background-color: #5A4AE3;
+                border-color: #5A4AE3;
+            }
+
+        .dark-theme .text-primary {
+            color: #6D5DFC !important;
+        }
+
+        .dark-theme .text-success {
+            color: #38B2AC !important;
+        }
+
+        .dark-theme .text-info {
+            color: #4FD1C5 !important;
+        }
+
+        .dark-theme .text-warning {
+            color: #F6AD55 !important;
+        }
+
+        .dark-theme .progress-bar.bg-info {
+            background-color: #4FD1C5 !important;
+        }
+
+        .dark-theme .progress-bar.bg-success {
+            background-color: #38B2AC !important;
+        }
+
+        .dark-theme .table {
+            color: #E2E8F0;
+        }
+
+        .dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-theme .form-text {
+            color: #A0AEC0;
+        }
+
+        .dark-theme .interval-summary {
+            background-color: #252525;
+        }
+
+            .dark-theme .interval-summary:hover {
+                background-color: #2D2D2D;
+            }
+
+        .dark-theme .card.bg-light {
+            background-color: #252525 !important;
+        }
+
+        .dark-theme .alert-info {
+            background-color: rgba(79, 209, 197, 0.15);
+            color: #E2E8F0;
+            border-color: rgba(79, 209, 197, 0.4);
+        }
+
     .theme-toggle {
         position: absolute;
         top: 10px;
         right: 10px;
+        z-index: 1000;
+    }
+
+    /* Debug info */
+    .debug-info {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 12px;
         z-index: 1000;
     }
 </style>
@@ -90,9 +126,25 @@
         <i class="bi @(isDarkTheme ? "bi-sun" : "bi-moon")"></i>
         @(isDarkTheme ? "Light Mode" : "Dark Mode")
     </button>
+
+    <!-- Debug Info -->
+    @if (showDebugInfo)
+    {
+        <div class="debug-info">
+            <div>LocalStorage Key: @LocalStorageKey</div>
+            <div>Data Loaded: @dataLoaded</div>
+            <div>Current Age: @calculatorModel.CurrentAge</div>
+            <div>Initial Taxable: @calculatorModel.InitialTaxableAmount</div>
+            <div>Last Load Attempt: @lastLoadAttempt</div>
+            <div>Load Error: @loadError</div>
+        </div>
+    }
+
     <div class="row">
         <div class="col-12">
             <h3>@Title</h3>
+            <button @onclick="ToggleDebug" class="btn btn-sm btn-secondary">Toggle Debug</button>
+            <button @onclick="ClearLocalStorage" class="btn btn-sm btn-warning">Clear Saved Data</button>
         </div>
         <div class="col-lg-4 mb-4">
             <div class="card">
@@ -104,8 +156,7 @@
                 <div class="card-body">
                     <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" OnFieldChanged="OnFieldChanged" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
-                        <!-- All form fields, cards, and controls from SavingsPlanner.razor -->
-                        <!-- ...copy the full form UI here... -->
+
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h5 class="mb-0">Initial Amount ($)</h5>
@@ -113,21 +164,24 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="initialTaxableAmount" class="form-label">Post Tax(Post-tax)</label>
-                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTaxableAmount" />
+                                        <label for="initialTaxableAmount" class="form-label">Post Tax</label>
+                                        <input type="number" id="initialTaxableAmount" class="form-control"
+                                               @bind="calculatorModel.InitialTaxableAmount"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">Bank or Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTraditionalAmount" />
+                                        <input type="number" id="initialTraditionalAmount" class="form-control"
+                                               @bind="calculatorModel.InitialTraditionalAmount"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <FormattedInputNumber id="initialRothAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialRothAmount" />
+                                        <input type="number" id="initialRothAmount" class="form-control"
+                                               @bind="calculatorModel.InitialRothAmount"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -136,6 +190,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h5 class="mb-0">Monthly Contributions</h5>
@@ -143,21 +198,24 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="monthlyTaxableContribution" class="form-label">Post Tax(Post-tax)</label>
-                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTaxableContribution" />
+                                        <label for="monthlyTaxableContribution" class="form-label">Post Tax</label>
+                                        <input type="number" id="monthlyTaxableContribution" class="form-control"
+                                               @bind="calculatorModel.MonthlyTaxableContribution"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
-                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTraditionalContribution" />
+                                        <input type="number" id="monthlyTraditionalContribution" class="form-control"
+                                               @bind="calculatorModel.MonthlyTraditionalContribution"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
-                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyRothContribution" />
+                                        <input type="number" id="monthlyRothContribution" class="form-control"
+                                               @bind="calculatorModel.MonthlyRothContribution"
+                                               @oninput="@(e => OnInputChanged())" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -166,6 +224,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="card h-100">
@@ -173,9 +232,9 @@
                                         <h5 class="mb-0">Annual Growth Rate (%)</h5>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" id="annualGrowthRate" class="form-control" 
-                                               @bind-value="calculatorModel.AnnualGrowthRate" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                        <input type="number" id="annualGrowthRate" class="form-control"
+                                               @bind="calculatorModel.AnnualGrowthRate"
+                                               @oninput="@(e => OnInputChanged())"
                                                step="0.1" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
                                         <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
@@ -185,81 +244,38 @@
                             <div class="col-md-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h5 class="mb-0">Compounding Frequency</h5>
+                                        <h5 class="mb-0">Current/Retirement Age</h5>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" id="compoundingFrequency" class="form-control" value="Monthly" readonly />
-                                        <small class="form-text">Interest is compounded monthly</small>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Current</label>
+                                                <input type="number" class="form-control"
+                                                       @bind="calculatorModel.CurrentAge"
+                                                       @oninput="@(e => OnInputChanged())" />
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Retirement</label>
+                                                <input type="number" class="form-control"
+                                                       @bind="calculatorModel.RetirementAge"
+                                                       @oninput="@(e => OnInputChanged())" />
+                                            </div>
+                                        </div>
+                                        <small class="form-text">Years: @calculatorModel.Years</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h5 class="mb-0">Retirement Timeline</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="currentAge" class="form-label">Current Age</label>
-                                        <input type="number" id="currentAge" class="form-control" 
-                                               @bind-value="calculatorModel.CurrentAge" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
-                                        <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="retirementAge" class="form-label">Retirement Age</label>
-                                        <input type="number" id="retirementAge" class="form-control" 
-                                               @bind-value="calculatorModel.RetirementAge" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
-                                        <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
-                                        <small class="form-text">Most people retire between 60-67</small>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="years" class="form-label">Years Until Retirement</label>
-                                        <input type="text" id="years" class="form-control bg-light" value="@calculatorModel.Years" readonly />
-                                        <small class="form-text">Automatically calculated</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h5 class="mb-0">Investment Settings</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Post TaxAccount Income Type</label>
-                                        <select class="form-control" @bind="calculatorModel.TaxableIncomeType" @bind:after="HandleSelectChange">
-                                            <option value="@SavingsPlanner.IncomeType.MixedInvestment">Mixed Investment (default mix)</option>
-                                            <option value="@SavingsPlanner.IncomeType.MostlyDividends">Mostly Dividends</option>
-                                            <option value="@SavingsPlanner.IncomeType.MostlyLongTermGains">Mostly Long-Term Capital Gains</option>
-                                            <option value="@SavingsPlanner.IncomeType.MostlyInterest">Mostly Interest/Short-Term Gains</option>
-                                        </select>
-                                        <div class="form-text">This affects how income from Post Taxinvestments is taxed annually</div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Tax Bracket</label>
-                                        <select class="form-control" @bind="calculatorModel.TaxBracket" @bind:after="HandleSelectChange">
-                                            <option value="@SavingsPlanner.TaxBracket.Low">Low (10-12% ordinary, 0% long-term)</option>
-                                            <option value="@SavingsPlanner.TaxBracket.Medium">Medium (22-24% ordinary, 15% long-term)</option>
-                                            <option value="@SavingsPlanner.TaxBracket.High">High (32-35% ordinary, 20% long-term)</option>
-                                        </select>
-                                        <div class="form-text">Your current federal income tax bracket</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
                         <div class="d-flex align-items-center mb-3">
                             <div class="form-check me-auto">
                                 <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="autoCalculate" />
                                 <label class="form-check-label" for="autoCalculate">
-                                    Auto-calculate (updates immediately as you type)
+                                    Auto-calculate
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg" disabled="@autoCalculate">
-                                <i class="bi bi-calculator"></i> Calculate Savings
+                                <i class="bi bi-calculator"></i> Calculate
                             </button>
                         </div>
                     </EditForm>
@@ -269,9 +285,16 @@
         <div class="col-lg-8">
             @if (results != null)
             {
-                <!-- Results UI copied from SavingsPlanner.razor -->
-                <!-- ...all results cards, breakdowns, tables, etc... -->
-                @* Copy the entire results markup from SavingsPlanner.razor here *@
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Results</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Final Balance: $@results.FinalBalance.ToString("N0")</p>
+                        <p>Total Contributions: $@results.TotalContributions.ToString("N0")</p>
+                        <p>Total Growth: $@results.TotalInterestEarned.ToString("N0")</p>
+                    </div>
+                </div>
             }
         </div>
     </div>
@@ -279,143 +302,231 @@
 
 @code {
     [Parameter] public string Title { get; set; } = "Savings";
+    private bool useLocalStorage = true;
+    private string userGuid = "";
+
+    // Debug variables
+    private bool showDebugInfo = false;
+    private bool dataLoaded = false;
+    private string lastLoadAttempt = "";
+    private string loadError = "";
+
+    // UI state
     private bool isDarkTheme = false;
     private bool autoCalculate = false;
     private System.Timers.Timer? debounceTimer;
-    public SavingsPlanner.SavingsCalculatorModel calculatorModel { get; set; } = new();
-    private SavingsPlanner.SavingsResults? results;
-    private List<SavingsPlanner.YearlyBreakdown> yearlyBreakdown = new();
-    private List<SavingsPlanner.IntervalSummary> intervalSummaries = new();
-    private HashSet<int> expandedIntervals = new();
-    private bool isPlanSummaryExpanded = true;
-    private bool isSavingsBreakdownExpanded = true;
 
-    // Use a simple key for local storage persistence
+    // Simplified calculator model for testing
+    public class TestSavingsModel
+    {
+        public int CurrentAge { get; set; } = 30;
+        public int RetirementAge { get; set; } = 65;
+        public decimal InitialTaxableAmount { get; set; } = 1000;
+        public decimal InitialTraditionalAmount { get; set; } = 500;
+        public decimal InitialRothAmount { get; set; } = 500;
+        public decimal MonthlyTaxableContribution { get; set; } = 200;
+        public decimal MonthlyTraditionalContribution { get; set; } = 200;
+        public decimal MonthlyRothContribution { get; set; } = 100;
+        public decimal AnnualGrowthRate { get; set; } = 7.0m;
+
+        public int Years => Math.Max(0, RetirementAge - CurrentAge);
+    }
+
+    public class TestResults
+    {
+        public decimal FinalBalance { get; set; }
+        public decimal TotalContributions { get; set; }
+        public decimal TotalInterestEarned { get; set; }
+    }
+
+    // Use simplified model for testing
+    public TestSavingsModel calculatorModel { get; set; } = new();
+    private TestResults? results;
+
     private string LocalStorageKey => Title switch
     {
-        "Your Savings" => "FamilySavingsPlanner_yours",
-        "Partner's Savings" => "FamilySavingsPlanner_partner",
-        _ => $"FamilySavingsPlanner_{Title.Replace(" ", "_")}"
+        "Your Savings" => "TestSavings_yours",
+        "Partner's Savings" => "TestSavings_partner",
+        _ => $"TestSavings_{Title.Replace(" ", "_")}"
     };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Try to load from localStorage (JS interop is allowed here)
-            var savedJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
-            if (!string.IsNullOrEmpty(savedJson))
+            // Get or set user GUID cookie (JS interop only allowed here)
+            userGuid = await JSRuntime.InvokeAsync<string>("eval", "(() => { let c=document.cookie.match(/userGuid=([^;]+)/); if(c)return c[1]; let g=crypto.randomUUID(); document.cookie='userGuid='+g+';path=/;max-age=31536000'; return g; })()") ?? Guid.NewGuid().ToString();
+
+            lastLoadAttempt = DateTime.Now.ToString("HH:mm:ss");
+            try
             {
-                try
+                if (useLocalStorage)
                 {
-                    calculatorModel = System.Text.Json.JsonSerializer.Deserialize<SavingsPlanner.SavingsCalculatorModel>(savedJson) ?? new SavingsPlanner.SavingsCalculatorModel();
+                    var savedJson = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", LocalStorageKey);
+                    if (!string.IsNullOrEmpty(savedJson))
+                    {
+                        var loadedModel = System.Text.Json.JsonSerializer.Deserialize<TestSavingsModel>(savedJson);
+                        if (loadedModel != null)
+                        {
+                            calculatorModel = loadedModel;
+                            dataLoaded = true;
+                            loadError = "Success - Data loaded";
+                        }
+                        else
+                        {
+                            loadError = "Deserialization returned null";
+                        }
+                    }
+                    else
+                    {
+                        loadError = "No saved data found";
+                        calculatorModel = new TestSavingsModel();
+                    }
                 }
-                catch { calculatorModel = new SavingsPlanner.SavingsCalculatorModel(); }
-            }
-            else
-            {
-                calculatorModel = new SavingsPlanner.SavingsCalculatorModel
+                else
                 {
-                    CurrentAge = 30,
-                    RetirementAge = 65,
-                    InitialTaxableAmount = 400,
-                    InitialTraditionalAmount = 400,
-                    InitialRothAmount = 200,
-                    MonthlyTaxableContribution = 200,
-                    MonthlyTraditionalContribution = 200,
-                    MonthlyRothContribution = 100,
-                    AnnualGrowthRate = 7,
-                    UseTaxAdvantaged = true,
-                    TaxableIncomeType = SavingsPlanner.IncomeType.MixedInvestment,
-                    TaxBracket = SavingsPlanner.TaxBracket.Medium
-                };
+                    var client = HttpClientFactory.CreateClient();
+                    var apiUrl = NavigationManager.BaseUri + $"api/FinPlan/load?userGuid={userGuid}&calculatorType={LocalStorageKey}";
+                    var savedJson = await client.GetStringAsync(apiUrl);
+                    if (!string.IsNullOrEmpty(savedJson))
+                    {
+                        var loadedModel = System.Text.Json.JsonSerializer.Deserialize<TestSavingsModel>(savedJson);
+                        if (loadedModel != null)
+                        {
+                            calculatorModel = loadedModel;
+                            dataLoaded = true;
+                            loadError = "Success - Data loaded from API";
+                        }
+                        else
+                        {
+                            loadError = "Deserialization returned null (API)";
+                        }
+                    }
+                    else
+                    {
+                        loadError = "No saved data found (API)";
+                        calculatorModel = new TestSavingsModel();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                loadError = $"Exception: {ex.Message}";
+                calculatorModel = new TestSavingsModel();
             }
             await CalculateAsync();
             StateHasChanged();
         }
     }
+
     protected override Task OnInitializedAsync()
     {
         debounceTimer = new System.Timers.Timer(500);
         debounceTimer.AutoReset = false;
-        debounceTimer.Elapsed += (sender, args) => { InvokeAsync(() => { Calculate(); }); };
-        return Task.CompletedTask;
+        debounceTimer.Elapsed += (sender, args) => { InvokeAsync(async () => { await CalculateAsync(); }); };
+
+        // Get UseLocalStorage flag from configuration
+        useLocalStorage = Configuration.GetSection("FinPlanSettings").GetValue<bool>("UseLocalStorage");
+
+        return base.OnInitializedAsync();
     }
 
     private void ToggleTheme() => isDarkTheme = !isDarkTheme;
+    private void ToggleDebug() => showDebugInfo = !showDebugInfo;
 
-    private async void OnInputChanged()
+    private async Task ClearLocalStorage()
     {
-        if (autoCalculate) { debounceTimer?.Stop(); debounceTimer?.Start(); }
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", LocalStorageKey);
+        calculatorModel = new TestSavingsModel();
+        dataLoaded = false;
+        loadError = "Data cleared";
+        StateHasChanged();
+    }
+
+    private async Task OnInputChanged()
+    {
+        if (autoCalculate)
+        {
+            debounceTimer?.Stop();
+            debounceTimer?.Start();
+        }
         await SaveModelAsync();
     }
-    private async void HandleSelectChange()
-    {
-        if (autoCalculate) { OnInputChanged(); }
-        await SaveModelAsync();
-    }
+
     private async Task OnFieldChanged(EditContext context)
     {
-        // Save to local storage on any field change
-        var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        await SaveModelAsync();
     }
+
     private async Task SaveModelAsync()
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
+            if (useLocalStorage)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+                loadError = $"Saved to localStorage: {LocalStorageKey}";
+            }
+            else
+            {
+                var client = HttpClientFactory.CreateClient();
+                var apiUrl = NavigationManager.BaseUri + "api/FinPlan/save";
+                var payload = new {
+                    UserGuid = userGuid,
+                    CalculatorType = LocalStorageKey,
+                    Data = json
+                };
+                var response = await client.PostAsJsonAsync(apiUrl, payload);
+                if (response.IsSuccessStatusCode)
+                {
+                    loadError = $"Saved to API: {apiUrl}";
+                }
+                else
+                {
+                    var errorMsg = await response.Content.ReadAsStringAsync();
+                    loadError = $"API save failed: {response.StatusCode} - {errorMsg}";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = $"Save error: {ex.Message}";
+        }
     }
+
     private async Task CalculateAsync()
     {
-        var calculator = new SavingsPlanner.SavingsCalculationEngine();
-        results = calculator.Calculate(calculatorModel);
-        yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
-        if (calculatorModel.Years > 10)
+        // Simple calculation for testing
+        var years = calculatorModel.Years;
+        var monthlyRate = (double)calculatorModel.AnnualGrowthRate / 100 / 12;
+        var totalMonths = years * 12;
+
+        var initialTotal = calculatorModel.InitialTaxableAmount +
+                          calculatorModel.InitialTraditionalAmount +
+                          calculatorModel.InitialRothAmount;
+
+        var monthlyTotal = calculatorModel.MonthlyTaxableContribution +
+                          calculatorModel.MonthlyTraditionalContribution +
+                          calculatorModel.MonthlyRothContribution;
+
+        // Compound interest calculation
+        var futureValueInitial = (decimal)((double)initialTotal * Math.Pow(1 + monthlyRate, totalMonths));
+        var futureValueContributions = monthlyTotal * (decimal)(Math.Pow(1 + monthlyRate, totalMonths) - 1) / (decimal)monthlyRate;
+
+        var finalBalance = futureValueInitial + futureValueContributions;
+        var totalContributions = initialTotal + (monthlyTotal * years * 12);
+        var totalGrowth = finalBalance - totalContributions;
+
+        results = new TestResults
         {
-            intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
-            expandedIntervals.Clear();
-            if (intervalSummaries.Count > 0) expandedIntervals.Add(intervalSummaries[0].StartYear);
-            if (intervalSummaries.Count > 1) expandedIntervals.Add(intervalSummaries[1].StartYear);
-        }
+            FinalBalance = finalBalance,
+            TotalContributions = totalContributions,
+            TotalInterestEarned = totalGrowth
+        };
+
         StateHasChanged();
     }
-    private void Calculate() { CalculateAsync(); }
-    private List<SavingsPlanner.IntervalSummary> CreateIntervalSummaries(List<SavingsPlanner.YearlyBreakdown> breakdown)
-    {
-        int startingAge = calculatorModel.CurrentAge;
-        int roundedStartAge = (int)Math.Ceiling(startingAge / 5.0) * 5;
-        return breakdown
-            .Select((y, index) => new { Year = y, Age = calculatorModel.CurrentAge + index + 1 })
-            .GroupBy(item => ((item.Age - 1) / 5) * 5 + 5)
-            .Select(g => new SavingsPlanner.IntervalSummary
-            {
-                StartYear = g.First().Year.Year,
-                EndYear = g.Last().Year.Year,
-                StartAge = g.Key - 5,
-                EndAge = Math.Min(g.Key, calculatorModel.RetirementAge),
-                FinalBalance = g.Last().Year.Balance,
-                TotalGrowth = g.Sum(item => item.Year.InterestEarned),
-                TotalContributions = g.Sum(item => item.Year.ContributionsThisYear),
-                YearlyDetails = g.Select(item => item.Year).ToList(),
-                MilestoneAchieved = GetMilestone(g.Last().Year.Balance)
-            })
-            .ToList();
-    }
-    private string GetMilestone(decimal balance)
-    {
-        if (balance >= 1000000) return "?? Millionaire!";
-        if (balance >= 500000) return "?? Half Million!";
-        if (balance >= 250000) return "?? Quarter Million!";
-        if (balance >= 100000) return "?? First $100K!";
-        if (balance >= 50000) return "?? $50K Milestone!";
-        return "";
-    }
-    private void ToggleInterval(int startYear)
-    {
-        if (expandedIntervals.Contains(startYear)) expandedIntervals.Remove(startYear);
-        else expandedIntervals.Add(startYear);
-        StateHasChanged();
-    }
-    private void TogglePlanSummary() { isPlanSummaryExpanded = !isPlanSummaryExpanded; StateHasChanged(); }
-    private void ToggleSavingsBreakdown() { isSavingsBreakdownExpanded = !isSavingsBreakdownExpanded; StateHasChanged(); }
+
+    private void Calculate() => CalculateAsync();
 }
