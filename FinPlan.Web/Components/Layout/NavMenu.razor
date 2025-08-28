@@ -13,20 +13,6 @@
     }
 </style>
 
-@* Debug window above nav *@
-@if (FinPlan.Web.Components.Pages.FamilySavingsPlannerTab.DebugEntries?.Any() == true)
-{
-    <div class="nav-debug-window">
-        <b>Debug Window</b>
-        <ul style="padding-left: 1em;">
-            @foreach (var entry in FinPlan.Web.Components.Pages.FamilySavingsPlannerTab.DebugEntries.TakeLast(10).Reverse())
-            {
-                <li>@entry</li>
-            }
-        </ul>
-    </div>
-}
-
 @* ...existing code... *@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
@@ -51,12 +37,6 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="tabs">
                 <span class="bi bi-table" aria-hidden="true"></span> Data Tabs
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="family-savings">
-                <span class="bi bi-people" aria-hidden="true"></span> Family Savings
             </NavLink>
         </div>
     </nav>
