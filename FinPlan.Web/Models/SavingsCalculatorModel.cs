@@ -4,6 +4,20 @@ namespace FinPlan.Web.Models
 {
     public class SavingsCalculatorModel
     {
+        public void RoundDecimals(int decimals = 2)
+        {
+            InitialTaxableAmount = Math.Round(InitialTaxableAmount, decimals);
+            InitialTraditionalAmount = Math.Round(InitialTraditionalAmount, decimals);
+            InitialRothAmount = Math.Round(InitialRothAmount, decimals);
+            MonthlyTaxableContribution = Math.Round(MonthlyTaxableContribution, decimals);
+            MonthlyTraditionalContribution = Math.Round(MonthlyTraditionalContribution, decimals);
+            MonthlyRothContribution = Math.Round(MonthlyRothContribution, decimals);
+            AnnualGrowthRate = Math.Round(AnnualGrowthRate, decimals);
+            AnnualTaxDeferredContribution = Math.Round(AnnualTaxDeferredContribution, decimals);
+            AnnualTaxableContribution = Math.Round(AnnualTaxableContribution, decimals);
+            // Add other decimal properties as needed
+
+        }
         [Required]
         [Range(18, 100, ErrorMessage = "Please enter your current age (18-100)")]
         public int CurrentAge { get; set; } = 30;

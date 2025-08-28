@@ -955,12 +955,25 @@
     private async Task SaveUserSavingsAsync(string calculatorType)
     {
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
-        var url = $"https://localhost:7330/api/FinPlan/save?userGuid={userGuid}&calculatorType={calculatorType}";
+        var url = $"https://localhost:7330/api/FinPlan/save";
+
         try
         {
+            calculatorModel.RoundDecimals(); // Add this before serialization
+
             calculatorModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
+
+            // Create SaveRequest object
+            var saveRequest = new
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType,
+                Data = System.Text.Json.JsonSerializer.Serialize(calculatorModel)
+            };
+
             AddDebugMessage($"Save: {DateTime.Now:HH:mm:ss}");
-            var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
+
+            var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync(url, content);
 
@@ -968,7 +981,6 @@
             {
                 Console.WriteLine("Data saved successfully.");
                 AddDebugMessage($"Save success: {DateTime.Now:HH:mm:ss}");
-
             }
             else
             {
