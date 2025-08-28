@@ -11,6 +11,16 @@
 <PageTitle>Family Savings Planner</PageTitle>
 
 <style>
+    .tab-active-custom {
+        background-color: #FFD600 !important; /* Bright yellow */
+        color: #222 !important; /* Black text */
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
     /* Dark theme styles */
     .dark-theme {
         background-color: #121212;
@@ -108,6 +118,8 @@
         top: 10px;
         right: 10px;
         z-index: 1000;
+
+
     }
 </style>
 
@@ -123,13 +135,13 @@
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
-            <button class="nav-link @(activeTab == "user" ? "active" : "")"
+            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
                     @onclick="YourTabClick">
                 Your Savings
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link @(activeTab == "product" ? "active" : "")"
+            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")"
                     @onclick="PartnerTabClick">
                 Partner Savings
             </button>
@@ -657,13 +669,15 @@
         };
 
         // Set up debounce timer
-        debounceTimer = new System.Timers.Timer(500); // 500ms debounce
+        debounceTimer = new System.Timers.Timer(100); // 100ms debounce
         debounceTimer.AutoReset = false;
-        debounceTimer.Elapsed += (sender, args) =>
+        debounceTimer.Elapsed += async (sender, args) =>
         {
-            InvokeAsync(() =>
+            await InvokeAsync(async () =>
             {
                 Calculate();
+                var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
+                await SaveUserSavingsAsync(calcType);
             });
         };
 
@@ -906,6 +920,31 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error calling API: {ex.Message}");
+        }
+    }
+
+    private async Task SaveUserSavingsAsync(string calculatorType)
+    {
+        var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
+        var url = $"https://localhost:7330/api/FinPlan/save?userGuid={userGuid}&calculatorType={calculatorType}";
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(calculatorModel);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await Http.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Data saved successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Save failed: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving data: {ex.Message}");
         }
     }
 }
