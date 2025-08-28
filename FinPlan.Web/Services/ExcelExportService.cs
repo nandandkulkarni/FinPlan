@@ -1,6 +1,6 @@
 using ClosedXML.Excel;
 using System.IO;
-using static FinPlan.Web.Components.Pages.SavingsPlanner;
+using FinPlan.Web.Models;
 using static FinPlan.Web.Components.Pages.RetirementSpendingPlanner;
 
 namespace FinPlan.Web.Services

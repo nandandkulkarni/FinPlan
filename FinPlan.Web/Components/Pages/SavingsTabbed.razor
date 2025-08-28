@@ -1,4 +1,4 @@
-@page "/savings-planner"
+﻿@page "/savings-tabbed"
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Web.Components
 @using FinPlan.Web.Services
@@ -7,7 +7,7 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
-<PageTitle>Retirement Savings Planner</PageTitle>
+<PageTitle>Family Savings Planner</PageTitle>
 
 <style>
     /* Dark theme styles */
@@ -16,92 +16,92 @@
         color: #E2E8F0;
     }
 
-    .dark-theme .card {
-        background-color: #1E1E1E;
-        border-color: #333;
-    }
+        .dark-theme .card {
+            background-color: #1E1E1E;
+            border-color: #333;
+        }
 
-    .dark-theme .card-header {
-        background-color: #252525 !important;
-        border-bottom-color: #333;
-        color: #E2E8F0 !important;
-    }
+        .dark-theme .card-header {
+            background-color: #252525 !important;
+            border-bottom-color: #333;
+            color: #E2E8F0 !important;
+        }
 
-    .dark-theme .form-control {
-        background-color: #252525;
-        border-color: #333;
-        color: #E2E8F0;
-    }
+        .dark-theme .form-control {
+            background-color: #252525;
+            border-color: #333;
+            color: #E2E8F0;
+        }
 
-    .dark-theme .form-control:focus {
-        background-color: #2D2D2D;
-        box-shadow: 0 0 0 0.25rem rgba(109, 93, 252, 0.25);
-    }
+            .dark-theme .form-control:focus {
+                background-color: #2D2D2D;
+                box-shadow: 0 0 0 0.25rem rgba(109, 93, 252, 0.25);
+            }
 
-    .dark-theme .btn-primary {
-        background-color: #6D5DFC;
-        border-color: #6D5DFC;
-    }
+        .dark-theme .btn-primary {
+            background-color: #6D5DFC;
+            border-color: #6D5DFC;
+        }
 
-    .dark-theme .btn-primary:hover {
-        background-color: #5A4AE3;
-        border-color: #5A4AE3;
-    }
+            .dark-theme .btn-primary:hover {
+                background-color: #5A4AE3;
+                border-color: #5A4AE3;
+            }
 
-    .dark-theme .text-primary {
-        color: #6D5DFC !important;
-    }
+        .dark-theme .text-primary {
+            color: #6D5DFC !important;
+        }
 
-    .dark-theme .text-success {
-        color: #38B2AC !important;
-    }
+        .dark-theme .text-success {
+            color: #38B2AC !important;
+        }
 
-    .dark-theme .text-info {
-        color: #4FD1C5 !important;
-    }
+        .dark-theme .text-info {
+            color: #4FD1C5 !important;
+        }
 
-    .dark-theme .text-warning {
-        color: #F6AD55 !important;
-    }
+        .dark-theme .text-warning {
+            color: #F6AD55 !important;
+        }
 
-    .dark-theme .progress-bar.bg-info {
-        background-color: #4FD1C5 !important;
-    }
+        .dark-theme .progress-bar.bg-info {
+            background-color: #4FD1C5 !important;
+        }
 
-    .dark-theme .progress-bar.bg-success {
-        background-color: #38B2AC !important;
-    }
+        .dark-theme .progress-bar.bg-success {
+            background-color: #38B2AC !important;
+        }
 
-    .dark-theme .table {
-        color: #E2E8F0;
-    }
+        .dark-theme .table {
+            color: #E2E8F0;
+        }
 
-    .dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
+        .dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
 
-    .dark-theme .form-text {
-        color: #A0AEC0;
-    }
+        .dark-theme .form-text {
+            color: #A0AEC0;
+        }
 
-    .dark-theme .interval-summary {
-        background-color: #252525;
-    }
+        .dark-theme .interval-summary {
+            background-color: #252525;
+        }
 
-    .dark-theme .interval-summary:hover {
-        background-color: #2D2D2D;
-    }
-    
-    .dark-theme .card.bg-light {
-        background-color: #252525 !important;
-    }
-    
-    .dark-theme .alert-info {
-        background-color: rgba(79, 209, 197, 0.15);
-        color: #E2E8F0;
-        border-color: rgba(79, 209, 197, 0.4);
-    }
-    
+            .dark-theme .interval-summary:hover {
+                background-color: #2D2D2D;
+            }
+
+        .dark-theme .card.bg-light {
+            background-color: #252525 !important;
+        }
+
+        .dark-theme .alert-info {
+            background-color: rgba(79, 209, 197, 0.15);
+            color: #E2E8F0;
+            border-color: rgba(79, 209, 197, 0.4);
+        }
+
     .theme-toggle {
         position: absolute;
         top: 10px;
@@ -130,7 +130,7 @@
                 <div class="card-body">
                     <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
-                        
+
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h5 class="mb-0">Initial Amount ($)</h5>
@@ -139,20 +139,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Post Tax(Post-tax)</label>
-                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTaxableAmount" />
+                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control"
+                                                              @bind-value="calculatorModel.InitialTaxableAmount" />
                                         <small class="form-text">Bank or Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialTraditionalAmount" />
+                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control"
+                                                              @bind-value="calculatorModel.InitialTraditionalAmount" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <FormattedInputNumber id="initialRothAmount" class="form-control" 
-                                               @bind-value="calculatorModel.InitialRothAmount" />
+                                        <FormattedInputNumber id="initialRothAmount" class="form-control"
+                                                              @bind-value="calculatorModel.InitialRothAmount" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -170,20 +170,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTaxableContribution" class="form-label">Post Tax(Post-tax)</label>
-                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTaxableContribution" />
+                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control"
+                                                              @bind-value="calculatorModel.MonthlyTaxableContribution" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
-                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyTraditionalContribution" />
+                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control"
+                                                              @bind-value="calculatorModel.MonthlyTraditionalContribution" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
-                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control" 
-                                               @bind-value="calculatorModel.MonthlyRothContribution" />
+                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control"
+                                                              @bind-value="calculatorModel.MonthlyRothContribution" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -200,8 +200,8 @@
                                         <h5 class="mb-0">Annual Growth Rate (%)</h5>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" id="annualGrowthRate" class="form-control" 
-                                               @bind-value="calculatorModel.AnnualGrowthRate" 
+                                        <input type="number" id="annualGrowthRate" class="form-control"
+                                               @bind-value="calculatorModel.AnnualGrowthRate"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
                                                step="0.1" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
@@ -230,15 +230,15 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="currentAge" class="form-label">Current Age</label>
-                                        <input type="number" id="currentAge" class="form-control" 
-                                               @bind-value="calculatorModel.CurrentAge" 
+                                        <input type="number" id="currentAge" class="form-control"
+                                               @bind-value="calculatorModel.CurrentAge"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
                                         <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="retirementAge" class="form-label">Retirement Age</label>
-                                        <input type="number" id="retirementAge" class="form-control" 
-                                               @bind-value="calculatorModel.RetirementAge" 
+                                        <input type="number" id="retirementAge" class="form-control"
+                                               @bind-value="calculatorModel.RetirementAge"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
                                         <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
                                         <small class="form-text">Most people retire between 60-67</small>
@@ -306,12 +306,11 @@
                             <h3 class="card-title mb-0">
                                 <i class="bi bi-graph-up"></i> Results
                             </h3>
-                            <ExportButton 
-                                Results="@results" 
-                                YearlyBreakdown="@yearlyBreakdown" 
-                                Model="@calculatorModel"
-                                Text="Export to Excel" 
-                                CssClass="@(isDarkTheme ? "btn btn-outline-light btn-sm" : "btn btn-light btn-sm")" />
+                            <ExportButton Results="@results"
+                                          YearlyBreakdown="@yearlyBreakdown"
+                                          Model="@calculatorModel"
+                                          Text="Export to Excel"
+                                          CssClass="@(isDarkTheme ? "btn btn-outline-light btn-sm" : "btn btn-light btn-sm")" />
                         </div>
                     </div>
                     <div class="card-body">
@@ -342,7 +341,7 @@
                                         <p class="mb-0">Total Contributions</p>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                             <div class="col-6">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
@@ -354,11 +353,11 @@
                         </div>
 
                         <div class="progress mb-3" style="height: 30px;">
-                            <div class="progress-bar bg-info" role="progressbar" 
+                            <div class="progress-bar bg-info" role="progressbar"
                                  style="width: @(results.TotalContributions / results.FinalAmount * 100)%">
                                 Your Savings
                             </div>
-                            <div class="progress-bar bg-success" role="progressbar" 
+                            <div class="progress-bar bg-success" role="progressbar"
                                  style="width: @(results.TotalInterestEarned / results.FinalAmount * 100)%">
                                 Growth from Interest
                             </div>
@@ -374,7 +373,7 @@
                             @if (isSavingsBreakdownExpanded)
                             {
                                 <div class="card-body">
-                                    You'll contribute <strong>@results.TotalContributions.ToString("C")</strong> over @calculatorModel.Years years, 
+                                    You'll contribute <strong>@results.TotalContributions.ToString("C")</strong> over @calculatorModel.Years years,
                                     and compound interest will add <strong>@results.TotalInterestEarned.ToString("C")</strong> more!
                                     <br><br>
                                     <div>
@@ -384,26 +383,26 @@
                                             <li>Roth accounts: <strong>@results.RothBalance.ToString("C")</strong></li>
                                             <li>Post Tax accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
                                         </ul>
-                                        
+
                                         <div class="mt-3 mb-0">
                                             <strong>Income Type Breakdown:</strong>
                                             <div class="progress mt-1 mb-2" style="height: 20px;">
-                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                <div class="progress-bar bg-success" role="progressbar"
                                                      style="width: @(results.QualifiedDividendIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Qualified Dividends: @results.QualifiedDividendIncome.ToString("C")">
                                                     Qualified
                                                 </div>
-                                                <div class="progress-bar bg-info" role="progressbar" 
+                                                <div class="progress-bar bg-info" role="progressbar"
                                                      style="width: @(results.LongTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Long-Term Capital Gains: @results.LongTermCapitalGains.ToString("C")">
                                                     LTCG
                                                 </div>
-                                                <div class="progress-bar bg-warning" role="progressbar" 
+                                                <div class="progress-bar bg-warning" role="progressbar"
                                                      style="width: @(results.NonQualifiedIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Non-Qualified Income: @results.NonQualifiedIncome.ToString("C")">
                                                     Interest
                                                 </div>
-                                                <div class="progress-bar bg-danger" role="progressbar" 
+                                                <div class="progress-bar bg-danger" role="progressbar"
                                                      style="width: @(results.ShortTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Short-Term Capital Gains: @results.ShortTermCapitalGains.ToString("C")">
                                                     STCG
@@ -458,7 +457,7 @@
                                 <i class="bi bi-graph-up-arrow"></i> Your Age-Based Retirement Journey
                                 @if (calculatorModel.Years > 10)
                                 {
-                                <small class="text-muted ms-2">Click age ranges to see yearly details (@intervalSummaries.Count intervals)</small>
+                                    <small class="text-muted ms-2">Click age ranges to see yearly details (@intervalSummaries.Count intervals)</small>
                                 }
                             </h5>
                         </div>
@@ -471,7 +470,7 @@
                                     var isExpanded = expandedIntervals.Contains(interval.StartYear);
                                     <div class="interval-group mb-3">
                                         <!-- Interval Summary Row -->
-                                        <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")" 
+                                        <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")"
                                              style="cursor: pointer; transition: all 0.2s ease;">
                                             <div class="row align-items-center" @onclick="@(() => ToggleInterval(interval.StartYear))">
                                                 <div class="col-md-3">
@@ -617,6 +616,7 @@
 
     protected override void OnInitialized()
     {
+        // Initialize model with default values
         calculatorModel = new SavingsCalculatorModel
         {
             CurrentAge = 30,
@@ -628,12 +628,13 @@
             MonthlyTraditionalContribution = 200,
             MonthlyRothContribution = 100,
             AnnualGrowthRate = 7,
-            UseTaxAdvantaged = true,
+            UseTaxAdvantaged = true, // Always true now
             TaxableIncomeType = IncomeType.MixedInvestment,
             TaxBracket = TaxBracket.Medium
         };
 
-        debounceTimer = new System.Timers.Timer(500);
+        // Set up debounce timer
+        debounceTimer = new System.Timers.Timer(500); // 500ms debounce
         debounceTimer.AutoReset = false;
         debounceTimer.Elapsed += (sender, args) =>
         {
@@ -644,6 +645,8 @@
         };
 
         base.OnInitialized();
+
+        // Calculate with default values on load
         Calculate();
     }
 
@@ -652,15 +655,18 @@
         debounceTimer?.Dispose();
     }
 
+    // Add a method to handle input changes
     private void OnInputChanged()
     {
         if (autoCalculate)
         {
+            // Reset and restart the debounce timer
             debounceTimer?.Stop();
             debounceTimer?.Start();
         }
     }
 
+    // Method to handle select changes
     private void HandleSelectChange()
     {
         if (autoCalculate)
@@ -669,6 +675,7 @@
         }
     }
 
+    // Add a custom StateHasChanged method
     private void ForceUpdate()
     {
         Console.WriteLine($"[DEBUG] {DateTime.Now:HH:mm:ss.fff} ForceUpdate called - CurrentAge: {calculatorModel.CurrentAge}, RetirementAge: {calculatorModel.RetirementAge}, Years: {calculatorModel.Years}");
@@ -682,9 +689,12 @@
             results = calculator.Calculate(calculatorModel);
             yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
 
+            // Create interval summaries for better UX
             if (calculatorModel.Years > 10)
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
+
+                // Expand first two intervals by default to show more data without scrolling
                 expandedIntervals.Clear();
                 if (intervalSummaries.Count > 0)
                     expandedIntervals.Add(intervalSummaries[0].StartYear);
@@ -692,10 +702,11 @@
                     expandedIntervals.Add(intervalSummaries[1].StartYear);
             }
 
-            StateHasChanged();
+            StateHasChanged(); // Force UI update
         }
         catch (Exception ex)
         {
+            // For debugging - you can remove this later
             Console.WriteLine($"Calculation error: {ex.Message}");
         }
     }
@@ -742,16 +753,22 @@
     private string GetTaxBreakdownTooltip(YearlyBreakdown year, IncomeType incomeType)
     {
         var sb = new System.Text.StringBuilder();
+
+        // Add interest breakdown
         decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividends + year.LongTermGains + year.ShortTermGains;
         if (totalInterest > 0)
         {
+            // Ordinary Income (24% rate)
             decimal ordinaryIncome = year.NonQualifiedIncome + year.ShortTermGains;
             decimal ordinaryPercent = Math.Round((ordinaryIncome / totalInterest) * 100);
             sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
+
+            // Long-term rate income (15% rate)
             decimal ltRateIncome = year.QualifiedDividends + year.LongTermGains;
             decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
             sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
         }
+
         return sb.ToString();
     }
 
@@ -759,6 +776,7 @@
     {
         int startingAge = calculatorModel.CurrentAge;
         int roundedStartAge = (int)Math.Ceiling(startingAge / 5.0) * 5;
+
         return breakdown
             .Select((y, index) => new
             {
