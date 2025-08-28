@@ -3,6 +3,7 @@ SELECT TOP (1000)
     [UserGuid],
     [CalculatorType],
     [Data],
+	LastUpdateDate,
     jsonData.CurrentAge,
     jsonData.RetirementAge,
     jsonData.InitialTaxableAmount,
@@ -25,7 +26,8 @@ WITH (
     MonthlyTraditionalContribution DECIMAL(18,2),
     MonthlyRothContribution DECIMAL(18,2),
     AnnualGrowthRate DECIMAL(5,2),
-    Years INT
+    Years INT,
+	LastUpdateDate DateTime
 ) AS jsonData
 
   --truncate table [dev-glamourre].[finplan].[FinPlan]

@@ -87,6 +87,8 @@ namespace FinPlan.Web.Models
         }
 
         public int CompoundingFrequency { get; set; } = 12;
+
+        public DateTime LastUpdateDate { get; set; }
     }
 
     public enum IncomeType
