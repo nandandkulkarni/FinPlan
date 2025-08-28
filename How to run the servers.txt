@@ -11,7 +11,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\F
 
 
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.ApiService --launch-profile https" ; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet run --project FinPlan.Web --launch-profile https"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet watch run --project FinPlan.ApiService --launch-profile https" ; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Projects\FinPlan'; dotnet watch run --project FinPlan.Web --launch-profile https"
 
 
 

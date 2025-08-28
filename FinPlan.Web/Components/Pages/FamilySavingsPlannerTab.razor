@@ -1,3 +1,41 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using FinPlan.Web.Components
+@using static FinPlan.Web.Components.Pages.SavingsPlanner
+@code {
+    // Use only SavingsPlanner types for all models and engine
+    private SavingsCalculatorModel calculatorModel = new SavingsCalculatorModel();
+    private SavingsResults results = new SavingsResults();
+    private List<YearlyBreakdown> yearlyBreakdown = new List<YearlyBreakdown>();
+    [Parameter] public string Title { get; set; } = "Savings";
+    private bool useLocalStorage = true;
+    private string userGuid = "";
+
+    // Debug variables
+    private bool showDebugInfo = true; // Always show debug info
+    private bool dataLoaded = false;
+    private string lastLoadAttempt = "";
+    private string loadError = "";
+
+    // UI state
+    private bool isDarkTheme = false;
+    private bool autoCalculate = false;
+    private System.Timers.Timer? debounceTimer;
+    private bool isSavingsBreakdownExpanded = true;
+    private bool showLeftDebugWindow = true;
+    public static List<string> DebugEntries { get; set; } = new();
+
+    private bool isPlanSummaryExpanded = true;
+
+    private void ToggleTheme() => isDarkTheme = !isDarkTheme;
+    private void ToggleDebug() { /* No-op, always on */ }
+    private string LocalStorageKey => Title switch
+    {
+        "Your Savings" => "TestSavings_yours",
+        "Partner's Savings" => "TestSavings_partner",
+        _ => $"TestSavings_{Title.Replace(" ", "_")}"
+    };
+}
+
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Web.Components
 @using FinPlan.Web.Services
@@ -185,6 +223,7 @@
                 <div class="card-body">
                     <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" OnFieldChanged="OnFieldChanged" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
+                        <ValidationSummary />
 
                         <div class="card mb-3">
                             <div class="card-header">
@@ -194,26 +233,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Post Tax</label>
-                                        <input type="number" id="initialTaxableAmount" class="form-control"
-                                               @bind="calculatorModel.InitialTaxableAmount"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialTaxableAmount), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialTaxableAmount), e))" />
+                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control"
+                                               @bind-value="calculatorModel.InitialTaxableAmount" />
                                         <small class="form-text">Bank or Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
-                                        <input type="number" id="initialTraditionalAmount" class="form-control"
-                                               @bind="calculatorModel.InitialTraditionalAmount"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialTraditionalAmount), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialTraditionalAmount), e))" />
+                                        <FormattedInputNumber id="initialTraditionalAmount" class="form-control"
+                                               @bind-value="calculatorModel.InitialTraditionalAmount" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
-                                        <input type="number" id="initialRothAmount" class="form-control"
-                                               @bind="calculatorModel.InitialRothAmount"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.InitialRothAmount), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.InitialRothAmount), e))" />
+                                        <FormattedInputNumber id="initialRothAmount" class="form-control"
+                                               @bind-value="calculatorModel.InitialRothAmount" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -231,26 +264,20 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTaxableContribution" class="form-label">Post Tax</label>
-                                        <input type="number" id="monthlyTaxableContribution" class="form-control"
-                                               @bind="calculatorModel.MonthlyTaxableContribution"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyTaxableContribution), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyTaxableContribution), e))" />
+                                        <FormattedInputNumber id="monthlyTaxableContribution" class="form-control"
+                                               @bind-value="calculatorModel.MonthlyTaxableContribution" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
-                                        <input type="number" id="monthlyTraditionalContribution" class="form-control"
-                                               @bind="calculatorModel.MonthlyTraditionalContribution"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyTraditionalContribution), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyTraditionalContribution), e))" />
+                                        <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control"
+                                               @bind-value="calculatorModel.MonthlyTraditionalContribution" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
-                                        <input type="number" id="monthlyRothContribution" class="form-control"
-                                               @bind="calculatorModel.MonthlyRothContribution"
-                                               @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.MonthlyRothContribution), e))"
-                                               @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.MonthlyRothContribution), e))" />
+                                        <FormattedInputNumber id="monthlyRothContribution" class="form-control"
+                                               @bind-value="calculatorModel.MonthlyRothContribution" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -305,6 +332,64 @@
                             </div>
                         </div>
 
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Investment Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="incomeType" class="form-label">Investment Income Type</label>
+                                        <select id="incomeType" class="form-select" @bind="calculatorModel.TaxableIncomeType">
+                                            @foreach (var value in Enum.GetValues(typeof(IncomeType)))
+                                            {
+                                                <option value="@value">@GetIncomeTypeDescription((IncomeType)value)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="taxBracket" class="form-label">Tax Bracket</label>
+                                        <select id="taxBracket" class="form-select" @bind="calculatorModel.TaxBracket">
+                                            @foreach (var value in Enum.GetValues(typeof(TaxBracket)))
+                                            {
+                                                <option value="@value">@GetTaxBracketDescription((TaxBracket)value)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Advanced Account Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="useTaxAdvantaged" @bind="calculatorModel.UseTaxAdvantaged" />
+                                            <label class="form-check-label" for="useTaxAdvantaged">
+                                                Use Tax-Advantaged Accounts
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="annualTaxDeferredContribution" class="form-label">Annual Tax-Deferred Contribution</label>
+                                        <FormattedInputNumber id="annualTaxDeferredContribution" class="form-control"
+                                               @bind-value="calculatorModel.AnnualTaxDeferredContribution" />
+                                        <small class="form-text">401k, Traditional IRA, etc.</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="annualTaxableContribution" class="form-label">Annual Taxable Contribution</label>
+                                        <FormattedInputNumber id="annualTaxableContribution" class="form-control"
+                                               @bind-value="calculatorModel.AnnualTaxableContribution" />
+                                        <small class="form-text">Brokerage, savings, etc.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex align-items-center mb-3">
                             <div class="form-check me-auto">
                                 <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="autoCalculate" />
@@ -328,9 +413,292 @@
                         <h4>Results</h4>
                     </div>
                     <div class="card-body">
-                        <p>Final Balance: $@results.FinalBalance.ToString("N0")</p>
+                        <p>Final Balance: $@results.FinalAmount.ToString("N0")</p>
                         <p>Total Contributions: $@results.TotalContributions.ToString("N0")</p>
                         <p>Total Growth: $@results.TotalInterestEarned.ToString("N0")</p>
+                        <ExportButton Results="results" YearlyBreakdown="yearlyBreakdown" Model="calculatorModel" Text="Export to Excel" CssClass="btn btn-success mt-2" />
+                    </div>
+                </div>
+            }
+
+            @* Breakdown Section: How Your Money Grows *@
+            @if (results != null)
+            {
+                <div class="card mt-3">
+                    <div class="card-header" style="cursor: pointer;" @onclick="ToggleSavingsBreakdown">
+                        <strong>
+                            <i class="bi bi-@(isSavingsBreakdownExpanded ? "chevron-down" : "chevron-right")"></i>
+                            ?? How Your Money Grows
+                        </strong>
+                    </div>
+                    @if (isSavingsBreakdownExpanded)
+                    {
+                        <div class="card-body">
+                            You'll contribute <strong>@results.TotalContributions.ToString("C")</strong> over @calculatorModel.Years years, and compound interest will add <strong>@results.TotalInterestEarned.ToString("C")</strong> more!
+                            <br /><br />
+                            <div>
+                                <strong>Account Breakdown:</strong><br />
+                                <ul class="mb-0">
+                                    <li>Traditional (401k/IRA): <strong>@results.TaxDeferredBalance.ToString("C")</strong></li>
+                                    <li>Roth accounts: <strong>@results.RothBalance.ToString("C")</strong></li>
+                                    <li>Post Tax accounts: <strong>@results.TaxableBalance.ToString("C")</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* Results Section *@
+            @if (results != null)
+            {
+                <div class="card">
+                    <div class="card-header @(isDarkTheme ? "" : "bg-success text-white")">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-graph-up"></i> Results
+                            </h3>
+                            <ExportButton Results="results" YearlyBreakdown="yearlyBreakdown" Model="calculatorModel" Text="Export to Excel" CssClass="btn btn-success mt-2" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-primary">@results.FinalAmount.ToString("C")</h4>
+                                        <p class="mb-0">Final Amount</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
+                                        <p class="mb-0">Interest Earned</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-info">@results.TotalContributions.ToString("C")</h4>
+                                        <p class="mb-0">Total Contributions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-warning">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
+                                        <p class="mb-0">Annual Growth Rate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: @(results.FinalAmount > 0 ? results.TotalContributions / results.FinalAmount * 100 : 0)%">
+                                Your Savings
+                            </div>
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @(results.FinalAmount > 0 ? results.TotalInterestEarned / results.FinalAmount * 100 : 0)%">
+                                Growth from Interest
+                            </div>
+                        </div>
+                        @* Income Type Breakdown Progress Bar *@
+                        <div class="mt-3 mb-0">
+                            <strong>Income Type Breakdown:</strong>
+                            <div class="progress mt-1 mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @(results.TaxableInterestEarned > 0 ? results.QualifiedDividendIncome / results.TaxableInterestEarned * 100 : 0)%" title="Qualified Dividends: @results.QualifiedDividendIncome.ToString("C")">
+                                    Qualified
+                                </div>
+                                <div class="progress-bar bg-info" role="progressbar" style="width: @(results.TaxableInterestEarned > 0 ? results.LongTermCapitalGains / results.TaxableInterestEarned * 100 : 0)%" title="Long-Term Capital Gains: @results.LongTermCapitalGains.ToString("C")">
+                                    LTCG
+                                </div>
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @(results.TaxableInterestEarned > 0 ? results.NonQualifiedIncome / results.TaxableInterestEarned * 100 : 0)%" title="Non-Qualified Income: @results.NonQualifiedIncome.ToString("C")">
+                                    Interest
+                                </div>
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: @(results.TaxableInterestEarned > 0 ? results.ShortTermCapitalGains / results.TaxableInterestEarned * 100 : 0)%" title="Short-Term Capital Gains: @results.ShortTermCapitalGains.ToString("C")">
+                                    STCG
+                                </div>
+                            </div>
+                            <small>Effective tax rate on Post Tax investments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>
+                        </div>
+                        @* Milestone Achievements *@
+                        <div class="mt-3">
+                            <strong>Milestone:</strong>
+                            <span>@GetMilestone(results.FinalAmount)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* Plan Summary Section *@
+            @if (results != null)
+            {
+                <div class="card mb-3">
+                    <div class="card-header" style="cursor: pointer;" @onclick="TogglePlanSummary">
+                        <h5 class="mb-0">
+                            <i class="bi bi-@(isPlanSummaryExpanded ? "chevron-down" : "chevron-right")"></i>
+                            Your Retirement Plan Summary
+                        </h5>
+                    </div>
+                    @if (isPlanSummaryExpanded)
+                    {
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>Current Age:</strong> @calculatorModel.CurrentAge years old</li>
+                                <li><strong>Target Retirement Age:</strong> @calculatorModel.RetirementAge years old</li>
+                                <li><strong>Years to Save:</strong> @calculatorModel.Years years</li>
+                                <li><strong>Initial Post Tax Amount:</strong> @calculatorModel.InitialTaxableAmount.ToString("C")</li>
+                                <li><strong>Initial Traditional Amount:</strong> @calculatorModel.InitialTraditionalAmount.ToString("C")</li>
+                                <li><strong>Initial Roth Amount:</strong> @calculatorModel.InitialRothAmount.ToString("C")</li>
+                                <li><strong>Total Initial Amount:</strong> @(calculatorModel.InitialTaxableAmount + calculatorModel.InitialTraditionalAmount + calculatorModel.InitialRothAmount).ToString("C")</li>
+                                <li><strong>Monthly Post Tax Contribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
+                                <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
+                                <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
+                                <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
+                                <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
+                                <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
+                                <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
+                                <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
+                                <li><strong>Compounding:</strong> Monthly</li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* Year-by-Year Table with Tax Rate Column *@
+            @if (yearlyBreakdown.Any())
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-graph-up-arrow"></i> Your Age-Based Retirement Journey
+                            @if (calculatorModel.Years > 10)
+                            {
+                                <small class="text-muted ms-2">Click age ranges to see yearly details</small>
+                            }
+                        </h5>
+                    </div>
+                    <div class="card-body" style="max-height: 700px; overflow-y: auto;">
+                        @if (calculatorModel.Years > 10)
+                        {
+                            @foreach (var interval in CreateIntervalSummaries(yearlyBreakdown))
+                            {
+                                var isExpanded = expandedIntervals.Contains(interval.StartYear);
+                                <div class="interval-group mb-3">
+                                    <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")" style="cursor: pointer; transition: all 0.2s ease;" @onclick="() => ToggleInterval(interval.StartYear)">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-3">
+                                                <h6 class="mb-1">
+                                                    <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
+                                                    Ages @interval.StartAge-@interval.EndAge
+                                                </h6>
+                                                @if (!string.IsNullOrEmpty(interval.MilestoneAchieved))
+                                                {
+                                                    <small class="text-success fw-bold">@interval.MilestoneAchieved</small>
+                                                }
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>@interval.FinalBalance.ToString("C")</strong>
+                                                <br /><small class="text-muted">Final Balance</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="text-success">+@interval.TotalGrowth.ToString("C")</span>
+                                                <br /><small class="text-muted">Interest Earned</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="text-info">@interval.TotalContributions.ToString("C")</span>
+                                                <br /><small class="text-muted">You Contributed</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (isExpanded)
+                                    {
+                                        <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Year/Age</th>
+                                                            <th>Balance</th>
+                                                            <th>Interest</th>
+                                                            <th>Contributions</th>
+                                                            <th>Taxable</th>
+                                                            <th>Traditional</th>
+                                                            <th>Roth</th>
+                                                            <th>Taxes</th>
+                                                            <th>Tax Rates</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var year in interval.YearlyDetails)
+                                                        {
+                                                            <tr>
+                                                                <td>Year @year.Year (@(calculatorModel.CurrentAge + year.Year))</td>
+                                                                <td>@year.Balance.ToString("C")</td>
+                                                                <td class="text-success">@year.InterestEarned.ToString("C")</td>
+                                                                <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
+                                                                <td>@year.TaxableBalance.ToString("C")</td>
+                                                                <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                                <td>@year.RothBalance.ToString("C")</td>
+                                                                <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                                                <td>
+                                                                    <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">@GetTaxRatesDisplay(calculatorModel.TaxBracket)</span>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Year/Age</th>
+                                            <th>Balance</th>
+                                            <th>Interest</th>
+                                            <th>Contributions</th>
+                                            <th>Taxable</th>
+                                            <th>Traditional</th>
+                                            <th>Roth</th>
+                                            <th>Taxes Paid</th>
+                                            <th>Tax Rates</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var year in yearlyBreakdown)
+                                        {
+                                            <tr>
+                                                <td>Year @year.Year (@(calculatorModel.CurrentAge + year.Year))</td>
+                                                <td>@year.Balance.ToString("C")</td>
+                                                <td>@year.InterestEarned.ToString("C")</td>
+                                                <td>@year.ContributionsThisYear.ToString("C")</td>
+                                                <td>@year.TaxableBalance.ToString("C")</td>
+                                                <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                                <td>@year.RothBalance.ToString("C")</td>
+                                                <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                                <td>
+                                                    <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">
+                                                        @GetTaxRatesDisplay(calculatorModel.TaxBracket)
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -339,143 +707,10 @@
 </div>
 
 @code {
-    [Parameter] public string Title { get; set; } = "Savings";
-    private bool useLocalStorage = true;
-    private string userGuid = "";
-
-    // Debug variables
-    private bool showDebugInfo = true; // Always show debug info
-    private bool dataLoaded = false;
-    private string lastLoadAttempt = "";
-    private string loadError = "";
-
-    // UI state
-    private bool isDarkTheme = false;
-    private bool autoCalculate = false;
-    private System.Timers.Timer? debounceTimer;
-
-    // Simplified calculator model for testing
-    public class TestSavingsModel
-    {
-        public int CurrentAge { get; set; } = 30;
-        public int RetirementAge { get; set; } = 65;
-        public decimal InitialTaxableAmount { get; set; } = 1000;
-        public decimal InitialTraditionalAmount { get; set; } = 500;
-        public decimal InitialRothAmount { get; set; } = 500;
-        public decimal MonthlyTaxableContribution { get; set; } = 200;
-        public decimal MonthlyTraditionalContribution { get; set; } = 200;
-        public decimal MonthlyRothContribution { get; set; } = 100;
-        public decimal AnnualGrowthRate { get; set; } = 7.0m;
-
-        public int Years => Math.Max(0, RetirementAge - CurrentAge);
-    }
-
-    public class TestResults
-    {
-        public decimal FinalBalance { get; set; }
-        public decimal TotalContributions { get; set; }
-        public decimal TotalInterestEarned { get; set; }
-    }
-
-    // Use simplified model for testing
-    public TestSavingsModel calculatorModel { get; set; } = new();
-    private TestResults? results;
-
-    private string LocalStorageKey => Title switch
-    {
-        "Your Savings" => "TestSavings_yours",
-        "Partner's Savings" => "TestSavings_partner",
-        _ => $"TestSavings_{Title.Replace(" ", "_")}"
-    };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Get or set user GUID cookie (JS interop only allowed here)
-            userGuid = await JSRuntime.InvokeAsync<string>("eval", "(() => { let c=document.cookie.match(/userGuid=([^;]+)/); if(c)return c[1]; let g=crypto.randomUUID(); document.cookie='userGuid='+g+';path=/;max-age=31536000'; return g; })()") ?? Guid.NewGuid().ToString();
-
-            lastLoadAttempt = DateTime.Now.ToString("HH:mm:ss");
-            try
-            {
-                if (useLocalStorage)
-                {
-                    var savedJson = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", LocalStorageKey);
-                    if (!string.IsNullOrEmpty(savedJson))
-                    {
-                        var loadedModel = System.Text.Json.JsonSerializer.Deserialize<TestSavingsModel>(savedJson);
-                        if (loadedModel != null)
-                        {
-                            calculatorModel = loadedModel;
-                            dataLoaded = true;
-                            loadError = "Success - Data loaded";
-                        }
-                        else
-                        {
-                            loadError = "Deserialization returned null";
-                        }
-                    }
-                    else
-                    {
-                        loadError = "No saved data found";
-                        calculatorModel = new TestSavingsModel();
-                    }
-                }
-                else
-                {
-                    var client = HttpClientFactory.CreateClient();
-                    var apiUrl = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={LocalStorageKey}";
-                    var savedJson = await client.GetStringAsync(apiUrl);
-                    if (!string.IsNullOrEmpty(savedJson))
-                    {
-                        var loadedModel = System.Text.Json.JsonSerializer.Deserialize<TestSavingsModel>(savedJson);
-                        if (loadedModel != null)
-                        {
-                            calculatorModel = loadedModel;
-                            dataLoaded = true;
-                            loadError = "Success - Data loaded from API";
-                        }
-                        else
-                        {
-                            loadError = "Deserialization returned null (API)";
-                        }
-                    }
-                    else
-                    {
-                        loadError = "No saved data found (API)";
-                        calculatorModel = new TestSavingsModel();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                loadError = $"Exception: {ex.Message}";
-                calculatorModel = new TestSavingsModel();
-            }
-            await CalculateAsync();
-            StateHasChanged();
-        }
-    }
-
-    protected override Task OnInitializedAsync()
-    {
-        debounceTimer = new System.Timers.Timer(500);
-        debounceTimer.AutoReset = false;
-        debounceTimer.Elapsed += (sender, args) => { InvokeAsync(async () => { await CalculateAsync(); }); };
-
-        // Get UseLocalStorage flag from configuration
-        useLocalStorage = Configuration.GetSection("FinPlanSettings").GetValue<bool>("UseLocalStorage");
-
-        return base.OnInitializedAsync();
-    }
-
-    private void ToggleTheme() => isDarkTheme = !isDarkTheme;
-    private void ToggleDebug() { /* No-op, always on */ }
-
     private async Task ClearLocalStorage()
     {
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", LocalStorageKey);
-        calculatorModel = new TestSavingsModel();
+        calculatorModel = new SavingsCalculatorModel();
         dataLoaded = false;
         loadError = "Data cleared";
         StateHasChanged();
@@ -535,41 +770,12 @@
 
     private async Task CalculateAsync()
     {
-        // Simple calculation for testing
-        var years = calculatorModel.Years;
-        var monthlyRate = (double)calculatorModel.AnnualGrowthRate / 100 / 12;
-        var totalMonths = years * 12;
-
-        var initialTotal = calculatorModel.InitialTaxableAmount +
-                          calculatorModel.InitialTraditionalAmount +
-                          calculatorModel.InitialRothAmount;
-
-        var monthlyTotal = calculatorModel.MonthlyTaxableContribution +
-                          calculatorModel.MonthlyTraditionalContribution +
-                          calculatorModel.MonthlyRothContribution;
-
-        // Compound interest calculation
-        var futureValueInitial = (decimal)((double)initialTotal * Math.Pow(1 + monthlyRate, totalMonths));
-        var futureValueContributions = monthlyTotal * (decimal)(Math.Pow(1 + monthlyRate, totalMonths) - 1) / (decimal)monthlyRate;
-
-        var finalBalance = futureValueInitial + futureValueContributions;
-        var totalContributions = initialTotal + (monthlyTotal * years * 12);
-        var totalGrowth = finalBalance - totalContributions;
-
-        results = new TestResults
-        {
-            FinalBalance = finalBalance,
-            TotalContributions = totalContributions,
-            TotalInterestEarned = totalGrowth
-        };
-
+        var calculator = new SavingsCalculationEngine();
+        results = calculator.Calculate(calculatorModel);
+        yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
         StateHasChanged();
     }
-
     private void Calculate() => CalculateAsync();
-
-    private bool showLeftDebugWindow = true;
-    public static List<string> DebugEntries { get; set; } = new();
 
     private void AddDebugEntry(string field, string eventType, object? value)
     {
@@ -585,8 +791,207 @@
 
     private async void OnFieldDebugBlur(string field, FocusEventArgs e)
     {
-        var value = typeof(TestSavingsModel).GetProperty(field)?.GetValue(calculatorModel);
+        var value = typeof(SavingsCalculatorModel).GetProperty(field)?.GetValue(calculatorModel);
         AddDebugEntry(field, "Blur", value);
         await SaveModelAsync();
+    }
+
+    private string GetIncomeTypeDescription(IncomeType incomeType) => incomeType switch
+    {
+        IncomeType.MixedInvestment => "Mixed (Balanced portfolio)",
+        IncomeType.MostlyDividends => "Mostly Dividends (Dividend-focused)",
+        IncomeType.MostlyLongTermGains => "Mostly Long-Term Gains (Buy and hold)",
+        IncomeType.MostlyInterest => "Mostly Interest/Short-Term (Fixed income/active)",
+        _ => "Mixed Investment"
+    };
+    private string GetTaxBracketDescription(TaxBracket bracket) => bracket switch
+    {
+        TaxBracket.Low => "Low (10-12% ordinary, 0% long-term)",
+        TaxBracket.Medium => "Medium (22-24% ordinary, 15% long-term)",
+        TaxBracket.High => "High (32-35% ordinary, 20% long-term)",
+        _ => "Medium Tax Bracket"
+    };
+
+    private string GetTaxRatesDisplay(TaxBracket bracket)
+    {
+        return bracket switch
+        {
+            TaxBracket.Low => "12% / 0% (Ord/LT)",
+            TaxBracket.Medium => "24% / 15% (Ord/LT)",
+            TaxBracket.High => "35% / 20% (Ord/LT)",
+            _ => "24% / 15% (Ord/LT)"
+        };
+    }
+    private string GetTaxBreakdownTooltip(YearlyBreakdown year, IncomeType incomeType)
+    {
+        var sb = new System.Text.StringBuilder();
+        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividends + year.LongTermGains + year.ShortTermGains;
+        if (totalInterest > 0)
+        {
+            decimal ordinaryIncome = year.NonQualifiedIncome + year.ShortTermGains;
+            decimal ordinaryPercent = Math.Round((ordinaryIncome / totalInterest) * 100);
+            sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
+            decimal ltRateIncome = year.QualifiedDividends + year.LongTermGains;
+            decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
+            sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
+        }
+        return sb.ToString();
+    }
+    private string GetMilestone(decimal balance)
+    {
+        if (balance >= 1000000) return "?? Millionaire!";
+        if (balance >= 500000) return "?? Half Million!";
+        if (balance >= 250000) return "?? Quarter Million!";
+        if (balance >= 100000) return "?? First $100K!";
+        if (balance >= 50000) return "?? $50K Milestone!";
+        return "";
+    }
+    private void TogglePlanSummary()
+    {
+        isPlanSummaryExpanded = !isPlanSummaryExpanded;
+        StateHasChanged();
+    }
+
+    // Fix: Add ToggleSavingsBreakdown method to match SavingsPlanner.razor
+    private void ToggleSavingsBreakdown()
+    {
+        isSavingsBreakdownExpanded = !isSavingsBreakdownExpanded;
+        StateHasChanged();
+    }
+}
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">Retirement Timeline</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="currentAge" class="form-label">Current Age</label>
+                <input type="number" id="currentAge" class="form-control"
+                       @bind="calculatorModel.CurrentAge"
+                       @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.CurrentAge), e))"
+                       @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.CurrentAge), e))" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="retirementAge" class="form-label">Retirement Age</label>
+                <input type="number" id="retirementAge" class="form-control"
+                       @bind="calculatorModel.RetirementAge"
+                       @oninput="@(e => OnFieldDebugChanged(nameof(calculatorModel.RetirementAge), e))"
+                       @onblur="@(e => OnFieldDebugBlur(nameof(calculatorModel.RetirementAge), e))" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="yearsUntilRetirement" class="form-label">Years Until Retirement</label>
+                <input type="text" id="yearsUntilRetirement" class="form-control bg-light" value="@calculatorModel.Years" readonly />
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Interval Summaries for Long-Term Plans *@
+@if (yearlyBreakdown.Any() && calculatorModel.Years > 10)
+{
+    @foreach (var interval in CreateIntervalSummaries(yearlyBreakdown))
+    {
+        var isExpanded = expandedIntervals.Contains(interval.StartYear);
+        <div class="interval-group mb-3">
+            <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")" style="cursor: pointer; transition: all 0.2s ease;" @onclick="() => ToggleInterval(interval.StartYear)">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <h6 class="mb-1">
+                            <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
+                            Ages @interval.StartAge-@interval.EndAge
+                        </h6>
+                        @if (!string.IsNullOrEmpty(interval.MilestoneAchieved))
+                        {
+                            <small class="text-success fw-bold">@interval.MilestoneAchieved</small>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        <strong>@interval.FinalBalance.ToString("C")</strong>
+                        <br /><small class="text-muted">Final Balance</small>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="text-success">+@interval.TotalGrowth.ToString("C")</span>
+                        <br /><small class="text-muted">Interest Earned</small>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="text-info">@interval.TotalContributions.ToString("C")</span>
+                        <br /><small class="text-muted">You Contributed</small>
+                    </div>
+                </div>
+            </div>
+            @if (isExpanded)
+            {
+                <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Year/Age</th>
+                                    <th>Balance</th>
+                                    <th>Interest</th>
+                                    <th>Contributions</th>
+                                    <th>Taxable</th>
+                                    <th>Traditional</th>
+                                    <th>Roth</th>
+                                    <th>Taxes</th>
+                                    <th>Tax Rates</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var year in interval.YearlyDetails)
+                                {
+                                    <tr>
+                                        <td>Year @year.Year (@(calculatorModel.CurrentAge + year.Year))</td>
+                                        <td>@year.Balance.ToString("C")</td>
+                                        <td class="text-success">@year.InterestEarned.ToString("C")</td>
+                                        <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
+                                        <td>@year.TaxableBalance.ToString("C")</td>
+                                        <td>@year.TaxDeferredBalance.ToString("C")</td>
+                                        <td>@year.RothBalance.ToString("C")</td>
+                                        <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                        <td>
+                                            <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">@GetTaxRatesDisplay(calculatorModel.TaxBracket)</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+@code {
+    private HashSet<int> expandedIntervals = new();
+    private List<IntervalSummary> CreateIntervalSummaries(List<YearlyBreakdown> breakdown)
+    {
+        int startingAge = calculatorModel.CurrentAge;
+        return breakdown
+            .Select((y, index) => new { Year = y, Age = calculatorModel.CurrentAge + index + 1 })
+            .GroupBy(item => ((item.Age - 1) / 5) * 5 + 5)
+            .Select(g => new IntervalSummary
+            {
+                StartYear = g.First().Year.Year,
+                EndYear = g.Last().Year.Year,
+                StartAge = g.Key - 5,
+                EndAge = Math.Min(g.Key, calculatorModel.RetirementAge),
+                FinalBalance = g.Last().Year.Balance,
+                TotalGrowth = g.Sum(item => item.Year.InterestEarned),
+                TotalContributions = g.Sum(item => item.Year.ContributionsThisYear),
+                YearlyDetails = g.Select(item => item.Year).ToList(),
+                MilestoneAchieved = GetMilestone(g.Last().Year.Balance)
+            })
+            .ToList();
+    }
+    private void ToggleInterval(int startYear)
+    {
+        if (expandedIntervals.Contains(startYear))
+            expandedIntervals.Remove(startYear);
+        else
+            expandedIntervals.Add(startYear);
+        StateHasChanged();
     }
 }
