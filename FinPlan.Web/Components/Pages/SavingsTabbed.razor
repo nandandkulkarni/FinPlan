@@ -4,6 +4,7 @@
 @using FinPlan.Web.Services
 @using FinPlan.Web.Models
 @inject IJSRuntime JSRuntime
+@inject HttpClient Http
 @rendermode InteractiveServer
 @implements IDisposable
 
@@ -119,6 +120,21 @@
         @(isDarkTheme ? "Light Mode" : "Dark Mode")
     </button>
 
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "user" ? "active" : "")"
+                    @onclick="YourTabClick">
+                Your Savings
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "product" ? "active" : "")"
+                    @onclick="PartnerTabClick">
+                Partner Savings
+            </button>
+        </li>
+    </ul>
     <div class="row">
         <div class="col-lg-4 mb-4">
             <div class="card">
@@ -599,11 +615,18 @@
     private bool autoCalculate = false;
     private System.Timers.Timer? debounceTimer;
 
+    private string activeTab = "user";
+    private string userMessage = string.Empty;
+    private string productMessage = string.Empty;
+
+
     private void ToggleTheme()
     {
         isDarkTheme = !isDarkTheme;
         Console.WriteLine($"Theme toggled to {(isDarkTheme ? "dark" : "light")} mode");
     }
+
+  
 
     [SupplyParameterFromForm]
     public SavingsCalculatorModel calculatorModel { get; set; } = new();
@@ -836,5 +859,53 @@
     {
         isSavingsBreakdownExpanded = !isSavingsBreakdownExpanded;
         StateHasChanged();
+    }
+    private async Task YourTabClick()
+    {
+        Console.WriteLine("Your tab clicked");
+        SetActiveTab("your");
+        await LoadUserSavingsAsync("TestSavings_yours");
+    }
+
+    private async Task PartnerTabClick()
+    {
+        Console.WriteLine("Partner tab clicked");
+        SetActiveTab("partner");
+        await LoadUserSavingsAsync("TestSavings_partner");
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        // Clear messages when switching tabs
+        userMessage = string.Empty;
+        productMessage = string.Empty;
+    }
+    private async Task LoadUserSavingsAsync(string calculatorType)
+    {
+        var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
+        var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
+        try
+        {
+            var response = await Http.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"API Response: {json}");
+
+            // Deserialize JSON into SavingsCalculatorModel
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (loadedModel != null)
+            {
+                calculatorModel = loadedModel;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error calling API: {ex.Message}");
+        }
     }
 }
