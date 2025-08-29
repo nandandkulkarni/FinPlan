@@ -5,7 +5,8 @@ namespace FinPlan.Web.Services
     public class DebugMessage
     {
         public DateTime MessageTime { get; set; }
-        public string Message { get; set; } = string.Empty;
+        public string MessageText
+        { get; set; } = string.Empty;
     }
 
     public class DebugMessageService
@@ -27,7 +28,7 @@ namespace FinPlan.Web.Services
                 _messages.Add(new DebugMessage
                 {
                     MessageTime = DateTime.Now,
-                    Message = message
+                    MessageText = message
                 });
                 if (_messages.Count > 10)
                     _messages.RemoveAt(0);

@@ -683,7 +683,7 @@
 
     private void AddDebugMessage(string message)
     {
-        DebugService.AddMessage($"{DateTime.Now:HH:mm:ss} - {message}");
+        DebugService.AddMessage(message);
     }
 
 
@@ -947,8 +947,20 @@
         var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
         try
         {
-            AddDebugMessage($"Loading: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Loading");
             var response = await Http.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Loaded.");
+                AddDebugMessage($"Loaded");
+            }
+            else
+            {
+                AddDebugMessage($"Load Failed");
+                Console.WriteLine($"Load failed: {response.StatusCode}");
+                return;
+            }
+
             var json = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"API Response: {json}");
 
@@ -966,7 +978,7 @@
         }
         catch (Exception ex)
         {
-            AddDebugMessage($"Load Failed: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Load Failed");
             Console.WriteLine($"Error calling API: {ex.Message}");
         }
         finally
@@ -995,7 +1007,7 @@
                 Data = calculatorModel
             };
 
-            AddDebugMessage($"Saving: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Saving");
 
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -1003,18 +1015,18 @@
 
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Data saved successfully.");
-                AddDebugMessage($"Save success: {DateTime.Now:HH:mm:ss}");
+                Console.WriteLine("Saved");
+                AddDebugMessage($"Saved");
             }
             else
             {
-                AddDebugMessage($"Save Failed: {DateTime.Now:HH:mm:ss}");
+                AddDebugMessage($"Save Failed");
                 Console.WriteLine($"Save failed: {response.StatusCode}");
             }
         }
         catch (Exception ex)
         {
-            AddDebugMessage($"Save Failed: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Save Failed");
             Console.WriteLine($"Error saving data: {ex.Message}");
         }
         finally

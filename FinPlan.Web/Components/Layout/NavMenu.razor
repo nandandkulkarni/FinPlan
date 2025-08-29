@@ -22,13 +22,14 @@
         border-radius: 8px 8px 0 0;
         font-size: 0.95em;
         min-width: 200px;
-        max-width:300px;
+        max-width:250px;
         max-height: 660px;
         overflow-y: auto;
         z-index: 9999;
         box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
         padding: 10px 18px;
-        overflow-y: auto
+        overflow-y: auto;
+        font-size: 0.75em;
     }
 </style>
 
@@ -77,8 +78,8 @@
             @foreach (var msg in DebugService.Messages.OrderByDescending(prop => prop.MessageTime))
             {
                 <div>
-                    <span style="font-weight:600;">@msg.MessageTime.TimeOfDay: </span>
-                    <span>@msg.Message</span>
+                    <span>@msg.MessageTime.ToString("HH:mm:ss.ff"): </span>
+                    <span>@msg.MessageText</span>
                 </div>
             }
         </div>
