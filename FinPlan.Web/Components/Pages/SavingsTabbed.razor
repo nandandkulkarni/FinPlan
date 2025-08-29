@@ -303,7 +303,7 @@
                                         <input type="number" id="currentAge" class="form-control"
                                                @bind-value="calculatorModel.CurrentAge"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
-                                               OnBlur="@(() => SaveUserSavingsAsync())" />
+                                               @onblur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -311,7 +311,7 @@
                                         <input type="number" id="retirementAge" class="form-control"
                                                @bind-value="calculatorModel.RetirementAge"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
-                                               OnBlur="@(() => SaveUserSavingsAsync())" />
+                                               @onblur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
                                         <small class="form-text">Most people retire between 60-67</small>
                                     </div>
@@ -513,7 +513,8 @@
                                         <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
                                         <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
                                         <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
-                                        <li><strong>Compounding:</strong> @GetCompoundingText()</li>
+                                        <li><strong>Compounding:</strong> @GetCompoundingText()
+                                        </li>
                                     </ul>
                                 </div>
                             }
@@ -580,7 +581,7 @@
                                                             <tr>
                                                                 <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
                                                                 <th>Balance</th>
-                                                                <th>Interest</th>
+                                                                <th>Growth</th>
                                                                 <th>Contributions</th>
                                                                 <th>Taxable<br />Contrib</th>
                                                                 <th>Taxable<br />Growth</th>
@@ -598,7 +599,21 @@
                                                                 <tr>
                                                                     <td>Year @year.Year (@(calculatorModel.CurrentAge + year.Year))</td>
                                                                     <td>@year.Balance.ToString("C")</td>
-                                                                    <td class="text-success">@year.InterestEarned.ToString("C")</td>
+                                                                    <td class="text-success" style="position:relative;">
+                                                                        <span @onmouseover="() => ShowInterestTooltip(year.Year)" @onmouseout="HideInterestTooltip" style="cursor:pointer;">
+                                                                            @year.InterestEarned.ToString("C")
+                                                                        </span>
+                                                                        @if (interestTooltipYear == year.Year)
+                                                                        {
+                                                                            <div style="position:absolute; left:100%; top:0; background:#fff; color:#222; border:2px solid #6D5DFC; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.18); padding:10px 16px; min-width:260px; z-index:9999; font-size:0.95em; display:flex; align-items:center;">
+                                                                                <strong style="margin-right:10px;">Interest:</strong>
+                                                                                <span style="margin-right:10px; color:#38B2AC;"><b>Taxable @year.TaxableInterest.ToString("C")</b></span>
+                                                                                <span style="margin-right:10px; color:#38B2AC;"><b>Trad @year.TaxDeferredInterest.ToString("C")</b></span>
+                                                                                <span style="margin-right:10px; color:#38B2AC;"><b>Roth @year.RothInterest.ToString("C")</b></span>
+                                                                                <span style="margin-left:10px; color:#38B2AC; font-size:0.92em;">(@GetInterestBreakdownGreen(year))</span>
+                                                                            </div>
+                                                                        }
+                                                                    </td>
                                                                     <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
                                                                     <td>@year.TaxableContribution.ToString("C")</td>
                                                                     <td>@year.TaxableInterest.ToString("C")</td>
@@ -631,7 +646,7 @@
                                             <tr>
                                                 <th>Year/Age</th>
                                                 <th>Balance</th>
-                                                <th>Interest</th>
+                                                <th>Growth</th>
                                                 <th>Contributions</th>
                                                 <th>Taxable</th>
                                                 <th>Traditional</th>
@@ -1050,5 +1065,36 @@
             isLoading = false;
             StateHasChanged();
         }
+    }
+
+    private int? interestTooltipYear = null;
+    private void ShowInterestTooltip(int year)
+    {
+        interestTooltipYear = year;
+        StateHasChanged();
+    }
+    private void HideInterestTooltip()
+    {
+        interestTooltipYear = null;
+        StateHasChanged();
+    }
+    private string GetInterestBreakdown(YearlyBreakdown year)
+    {
+        // Show the numbers that went into InterestEarned (e.g. 3 + 3 + 6)
+        var parts = new List<string>();
+        if (year.QualifiedDividendIncome > 0) parts.Add(year.QualifiedDividendIncome.ToString("N2"));
+        if (year.NonQualifiedIncome > 0) parts.Add(year.NonQualifiedIncome.ToString("N2"));
+        if (year.LongTermGains > 0) parts.Add(year.LongTermGains.ToString("N2"));
+        if (year.ShortTermGains > 0) parts.Add(year.ShortTermGains.ToString("N2"));
+        return string.Join(" + ", parts);
+    }
+    private string GetInterestBreakdownGreen(YearlyBreakdown year)
+    {
+        var parts = new List<string>();
+        if (year.QualifiedDividendIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.QualifiedDividendIncome:N2}</span>");
+        if (year.NonQualifiedIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.NonQualifiedIncome:N2}</span>");
+        if (year.LongTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.LongTermGains:N2}</span>");
+        if (year.ShortTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.ShortTermGains:N2}</span>");
+        return string.Join(" + ", parts);
     }
 }
