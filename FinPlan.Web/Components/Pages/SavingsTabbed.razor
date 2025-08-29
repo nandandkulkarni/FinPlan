@@ -8,6 +8,7 @@
 @inject HttpClient Http
 @rendermode InteractiveServer
 @implements IDisposable
+@inject FinPlan.Web.Services.DebugMessageService DebugService
 
 <PageTitle>Family Savings Planner</PageTitle>
 
@@ -146,16 +147,6 @@
                     @onclick="PartnerTabClick">
                 Partner Savings
             </button>
-        </li>
-        <li class="nav-item ms-3" style="min-width:220px;">
-            <div class="p-2"
-                 style="background-color: #FFD600; color: #222; border-radius: 8px; font-size: 0.95em; min-width:200px; max-height:120px; overflow-y:auto;">
-                <strong>Debug:</strong>
-                @foreach (var msg in debugMessages)
-                {
-                    <div>@msg</div>
-                }
-            </div>
         </li>
     </ul>
     <div class="row">
@@ -652,8 +643,6 @@
     private string userMessage = string.Empty;
     private string productMessage = string.Empty;
 
-    private List<string> debugMessages = new();
-
     private void ToggleTheme()
     {
         isDarkTheme = !isDarkTheme;
@@ -662,9 +651,7 @@
 
     private void AddDebugMessage(string message)
     {
-        debugMessages.Add($"{DateTime.Now:HH:mm:ss} - {message}");
-        if (debugMessages.Count > 10)
-            debugMessages.RemoveAt(0);
+        DebugService.AddMessage($"{DateTime.Now:HH:mm:ss} - {message}");
     }
 
 

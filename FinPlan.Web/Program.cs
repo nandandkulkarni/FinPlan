@@ -25,6 +25,9 @@ builder.Services.AddOutputCache();
 // Register the Excel Export Service
 builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
 
+// Register the DebugMessageService as singleton
+builder.Services.AddSingleton<FinPlan.Web.Services.DebugMessageService>();
+
 // Explicitly disable authentication and authorization
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization(options =>
