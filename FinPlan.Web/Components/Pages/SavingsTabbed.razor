@@ -639,7 +639,7 @@
     private bool autoCalculate = true;
     private System.Timers.Timer? debounceTimer;
 
-    private string activeTab = "user";
+    private string activeTab = "your";
     private string userMessage = string.Empty;
     private string productMessage = string.Empty;
 
@@ -668,6 +668,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        activeTab = "your"; // Ensure "Yours" tab is selected by default
+
         // Set up debounce timer
         debounceTimer = new System.Timers.Timer(100); // 100ms debounce
         debounceTimer.AutoReset = false;
