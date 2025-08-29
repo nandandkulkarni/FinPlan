@@ -123,6 +123,27 @@
 
 
     }
+    .blazor-loading-modal {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.85);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .blazor-loading-content {
+        text-align: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+        padding: 32px 48px;
+        min-width: 220px;
+    }
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
 </style>
 
 @inject IJSRuntime JSRuntime
@@ -634,6 +655,16 @@
     </div>
 </div>
 
+@if (isLoading)
+{
+    <div class="blazor-loading-modal">
+        <div class="blazor-loading-content">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-3 fw-bold">Connecting...</div>
+        </div>
+    </div>
+}
+
 @code {
     private bool isDarkTheme = false;
     private bool autoCalculate = true;
@@ -642,6 +673,7 @@
     private string activeTab = "your";
     private string userMessage = string.Empty;
     private string productMessage = string.Empty;
+    private bool isLoading = false;
 
     private void ToggleTheme()
     {
@@ -909,6 +941,8 @@
     }
     private async Task LoadUserSavingsAsync()
     {
+        isLoading = true;
+        StateHasChanged();
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
         try
@@ -935,10 +969,17 @@
             AddDebugMessage($"Load Failed: {DateTime.Now:HH:mm:ss}");
             Console.WriteLine($"Error calling API: {ex.Message}");
         }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 
     private async Task SaveUserSavingsAsync()
     {
+        isLoading = true;
+        StateHasChanged();
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var url = $"https://localhost:7330/api/FinPlan/save";
 
@@ -975,6 +1016,11 @@
         {
             AddDebugMessage($"Save Failed: {DateTime.Now:HH:mm:ss}");
             Console.WriteLine($"Error saving data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 }
