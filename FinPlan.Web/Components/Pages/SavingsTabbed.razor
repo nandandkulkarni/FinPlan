@@ -151,6 +151,10 @@
         font-size: 0.95em;
         line-height: 1.2;
     }
+
+    .table th, .table td {
+        font-size: 0.85em !important;
+    }
 </style>
 
 @inject IJSRuntime JSRuntime
@@ -578,10 +582,13 @@
                                                                 <th>Balance</th>
                                                                 <th>Interest</th>
                                                                 <th>Contributions</th>
-                                                                <th>Taxable</th>
-                                                                <th>Traditional</th>
-                                                                <th>Roth</th>
-                                                                <th><span style="display:block;">Taxes</span><span style="display:block;">Paid</span></th>
+                                                                <th>Taxable<br />Contrib</th>
+                                                                <th>Taxable<br />Growth</th>
+                                                                <th>Taxes</th>
+                                                                <th>Traditional<br />Contrib</th>
+                                                                <th>Traditional<br />Growth</th>
+                                                                <th>Roth<br />Contrib</th>
+                                                                <th>Roth<br />Growth</th>
                                                                 <th><span style="display:block;">Tax</span><span style="display:block;">Rates</span></th>
                                                             </tr>
                                                         </thead>
@@ -593,10 +600,13 @@
                                                                     <td>@year.Balance.ToString("C")</td>
                                                                     <td class="text-success">@year.InterestEarned.ToString("C")</td>
                                                                     <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
-                                                                    <td>@year.TaxableBalance.ToString("C")</td>
-                                                                    <td>@year.TaxDeferredBalance.ToString("C")</td>
-                                                                    <td>@year.RothBalance.ToString("C")</td>
+                                                                    <td>@year.TaxableContribution.ToString("C")</td>
+                                                                    <td>@year.TaxableInterest.ToString("C")</td>
                                                                     <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                                                                    <td>@year.TaxDeferredContribution.ToString("C")</td>
+                                                                    <td>@year.TaxDeferredInterest.ToString("C")</td>
+                                                                    <td>@year.RothContribution.ToString("C")</td>
+                                                                    <td>@year.RothInterest.ToString("C")</td>
                                                                     <td>
                                                                         <span title="Applied to: @GetTaxBreakdownTooltip(year, calculatorModel.TaxableIncomeType)">
                                                                             @GetTaxRatesDisplay(calculatorModel.TaxBracket)
