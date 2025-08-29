@@ -1,5 +1,6 @@
 ﻿@page "/savings-tabbed"
 @using System.ComponentModel.DataAnnotations
+@using FinPlan.Shared
 @using FinPlan.Web.Components
 @using FinPlan.Web.Services
 @using FinPlan.Web.Models
@@ -177,20 +178,24 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">Post Tax(Post-tax)</label>
-                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control"
-                                                              @bind-value="calculatorModel.InitialTaxableAmount"
-                                                              @bind-value:after="OnInputChanged" />
+                                        <input type="number"
+                                               id="initialTaxableAmount"
+                                               class="form-control"
+                                               @bind="calculatorModel.InitialTaxableAmount"
+                                               @onblur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
                                         <FormattedInputNumber id="initialTraditionalAmount" class="form-control"
-                                                              @bind-value="calculatorModel.InitialTraditionalAmount" />
+                                                              @bind-value="calculatorModel.InitialTraditionalAmount"
+                                                              OnBlur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
                                         <FormattedInputNumber id="initialRothAmount" class="form-control"
-                                                              @bind-value="calculatorModel.InitialRothAmount" />
+                                                              @bind-value="calculatorModel.InitialRothAmount"
+                                                              OnBlur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -691,12 +696,12 @@
         debounceTimer.AutoReset = false;
         debounceTimer.Elapsed += async (sender, args) =>
         {
-            await InvokeAsync(async () =>
-            {
-                Calculate();
-                var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-                await SaveUserSavingsAsync(calcType);
-            });
+            // await InvokeAsync(async () =>
+            // {
+            //     Calculate();
+            //     var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
+            //     await SaveUserSavingsAsync(calcType);
+            // });
         };
 
         base.OnInitialized();
@@ -713,9 +718,9 @@
     // Add a method to handle input changes
     private void OnInputChanged()
     {
-        // Always save on change
-        var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-        _ = SaveUserSavingsAsync(calcType);
+        // // Always save on change
+        // var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
+        // _ = SaveUserSavingsAsync(calcType);
 
         // Only auto-calculate if enabled
         if (autoCalculate)
@@ -728,9 +733,9 @@
     // Method to handle select changes
     private void HandleSelectChange()
     {
-        // Always save on change
-        var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-        _ = SaveUserSavingsAsync(calcType);
+        // // Always save on change
+        // var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
+        // _ = SaveUserSavingsAsync(calcType);
 
         // Only auto-calculate if enabled
         if (autoCalculate)
@@ -928,7 +933,7 @@
         var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
         try
         {
-            AddDebugMessage($"Load: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Loading: {DateTime.Now:HH:mm:ss}");
             var response = await Http.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"API Response: {json}");
@@ -959,19 +964,17 @@
 
         try
         {
-            calculatorModel.RoundDecimals(); // Add this before serialization
-
             calculatorModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
 
             // Create SaveRequest object
-            var saveRequest = new
+            var saveRequest = new SaveRequest()
             {
                 UserGuid = userGuid,
                 CalculatorType = calculatorType,
-                Data = System.Text.Json.JsonSerializer.Serialize(calculatorModel)
+                Data = calculatorModel
             };
 
-            AddDebugMessage($"Save: {DateTime.Now:HH:mm:ss}");
+            AddDebugMessage($"Saving: {DateTime.Now:HH:mm:ss}");
 
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

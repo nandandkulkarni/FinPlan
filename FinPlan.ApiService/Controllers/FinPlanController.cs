@@ -1,6 +1,8 @@
+using FinPlan.ApiService.Data;
+using FinPlan.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FinPlan.ApiService.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinPlan.ApiService.Controllers
 {
@@ -18,8 +20,21 @@ namespace FinPlan.ApiService.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> Save([FromBody] SaveRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.UserGuid) || string.IsNullOrWhiteSpace(request.CalculatorType) || string.IsNullOrWhiteSpace(request.Data))
-                return BadRequest("Missing required fields.");
+            //if (string.IsNullOrWhiteSpace(request.UserGuid) || string.IsNullOrWhiteSpace(request.CalculatorType) || string.IsNullOrWhiteSpace(request.Data))
+            //    return BadRequest("Missing required fields.");
+
+            //// Deserialize, round, and re-serialize
+            //var model = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(request.Data, new System.Text.Json.JsonSerializerOptions
+            //{
+            //    PropertyNameCaseInsensitive = true
+            //});
+            //if (model != null)
+            //{
+            //    model.RoundDecimals();
+            //    request.Data = System.Text.Json.JsonSerializer.Serialize(model);
+            //}
+
+            var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
 
             var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == request.UserGuid && x.CalculatorType == request.CalculatorType);
             if (entity == null)
@@ -29,13 +44,13 @@ namespace FinPlan.ApiService.Controllers
                     Id = Guid.NewGuid(),
                     UserGuid = request.UserGuid,
                     CalculatorType = request.CalculatorType,
-                    Data = request.Data
+                    Data = serializedData
                 };
                 _db.FinPlans.Add(entity);
             }
             else
             {
-                entity.Data = request.Data;
+                entity.Data = serializedData;
                 _db.FinPlans.Update(entity);
             }
             await _db.SaveChangesAsync();
@@ -52,14 +67,15 @@ namespace FinPlan.ApiService.Controllers
             var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.CalculatorType == calculatorType);
             if (entity == null)
                 return NotFound();
+
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             return Ok(entity.Data);
         }
 
-        public class SaveRequest
-        {
-            public string UserGuid { get; set; } = string.Empty;
-            public string CalculatorType { get; set; } = string.Empty;
-            public string Data { get; set; } = string.Empty;
-        }
+  
+
     }
 }

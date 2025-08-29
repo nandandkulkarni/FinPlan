@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinPlan.ApiService", "FinPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinPlan.Web", "FinPlan.Web\FinPlan.Web.csproj", "{7C022054-1963-3A62-9380-901CD310A02F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinPlan.Shared", "FinPlan.Shared\FinPlan.Shared.csproj", "{AA242D38-A757-6C09-1BB0-E71EB5DAE263}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{7C022054-1963-3A62-9380-901CD310A02F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C022054-1963-3A62-9380-901CD310A02F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C022054-1963-3A62-9380-901CD310A02F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA242D38-A757-6C09-1BB0-E71EB5DAE263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA242D38-A757-6C09-1BB0-E71EB5DAE263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA242D38-A757-6C09-1BB0-E71EB5DAE263}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA242D38-A757-6C09-1BB0-E71EB5DAE263}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

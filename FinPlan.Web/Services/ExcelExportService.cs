@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using System.IO;
 using FinPlan.Web.Models;
 using static FinPlan.Web.Components.Pages.RetirementSpendingPlanner;
+using FinPlan.Shared;
 
 namespace FinPlan.Web.Services
 {
