@@ -743,13 +743,13 @@
     private string GetTaxBreakdownTooltip(YearlyBreakdown year, IncomeType incomeType)
     {
         var sb = new System.Text.StringBuilder();
-        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividends + year.LongTermGains + year.ShortTermGains;
+        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividendIncome + year.LongTermGains + year.ShortTermGains;
         if (totalInterest > 0)
         {
             decimal ordinaryIncome = year.NonQualifiedIncome + year.ShortTermGains;
             decimal ordinaryPercent = Math.Round((ordinaryIncome / totalInterest) * 100);
             sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
-            decimal ltRateIncome = year.QualifiedDividends + year.LongTermGains;
+            decimal ltRateIncome = year.QualifiedDividendIncome + year.LongTermGains;
             decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
             sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
         }

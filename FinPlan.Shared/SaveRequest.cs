@@ -36,7 +36,7 @@
         public decimal TaxDeferredContribution { get; set; }
         public decimal TaxableContribution { get; set; }
         public decimal RothContribution { get; set; }
-        public decimal QualifiedDividends { get; set; }
+        public decimal QualifiedDividendIncome { get; set; }
         public decimal NonQualifiedIncome { get; set; }
         public decimal LongTermGains { get; set; }
         public decimal ShortTermGains { get; set; }
@@ -134,7 +134,7 @@
             decimal taxableInterest = 0;
             decimal traditionalInterest = 0;
             decimal rothInterest = 0;
-            decimal totalQualifiedDividends = 0;
+            decimal totalQualifiedDividendIncome = 0;
             decimal totalNonQualifiedIncome = 0;
             decimal totalLongTermGains = 0;
             decimal totalShortTermGains = 0;
@@ -167,24 +167,24 @@
                     yearlyTaxableInterest += monthlyInterest;
                     taxableBalance += monthlyInterest + monthlyTaxableContribution;
                 }
-                decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
+                decimal qualifiedDividendIncome = yearlyTaxableInterest * qualifiedPercent;
                 decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
                 decimal longTermGains = yearlyTaxableInterest * longTermPercent;
                 decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
-                decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate;
+                decimal qualifiedDividendsTax = qualifiedDividendIncome * longTermGainsTaxRate;
                 decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
                 decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
                 decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
                 decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
                 taxableBalance -= yearlyTaxes;
-                totalQualifiedDividends += qualifiedDividends;
+                totalQualifiedDividendIncome += qualifiedDividendIncome;
                 totalNonQualifiedIncome += nonQualifiedIncome;
                 totalLongTermGains += longTermGains;
                 totalShortTermGains += shortTermGains;
                 totalTaxesPaid += yearlyTaxes;
                 taxableInterest += yearlyTaxableInterest - yearlyTaxes;
             }
-            decimal totalTaxableIncome = totalQualifiedDividends + totalNonQualifiedIncome +
+            decimal totalTaxableIncome = totalQualifiedDividendIncome + totalNonQualifiedIncome +
                                        totalLongTermGains + totalShortTermGains;
             decimal effectiveTaxRate = (totalTaxableIncome > 0) ? (totalTaxesPaid / totalTaxableIncome) : 0;
             decimal totalRegularTaxes = (traditionalInterest + rothInterest + totalTaxableIncome) * effectiveTaxRate;
@@ -204,7 +204,7 @@
                 RothInterestEarned = Math.Round(rothInterest, 2),
                 TaxableInterestEarned = Math.Round(taxableInterest, 2),
                 EstimatedTaxSavings = Math.Round(estimatedTaxSavings, 2),
-                QualifiedDividendIncome = Math.Round(totalQualifiedDividends, 2),
+                QualifiedDividendIncome = Math.Round(totalQualifiedDividendIncome, 2),
                 NonQualifiedIncome = Math.Round(totalNonQualifiedIncome, 2),
                 LongTermCapitalGains = Math.Round(totalLongTermGains, 2),
                 ShortTermCapitalGains = Math.Round(totalShortTermGains, 2),
@@ -281,7 +281,7 @@
                     TaxableContribution = Math.Round(yearlyTaxableContribution, 2),
                     TaxDeferredContribution = Math.Round(yearlyTraditionalContribution, 2),
                     RothContribution = Math.Round(yearlyRothContribution, 2),
-                    QualifiedDividends = Math.Round(qualifiedDividends, 2),
+                    QualifiedDividendIncome = Math.Round(qualifiedDividends, 2),
                     NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
                     LongTermGains = Math.Round(longTermGains, 2),
                     ShortTermGains = Math.Round(shortTermGains, 2),

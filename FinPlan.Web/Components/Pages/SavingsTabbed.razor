@@ -144,6 +144,13 @@
         width: 3rem;
         height: 3rem;
     }
+    .table th {
+        white-space: normal !important;
+        word-break: break-word;
+        max-width: 90px;
+        font-size: 0.95em;
+        line-height: 1.2;
+    }
 </style>
 
 @inject IJSRuntime JSRuntime
@@ -567,15 +574,15 @@
                                                     <table class="table table-sm">
                                                         <thead class="table-light">
                                                             <tr>
-                                                                <th>Year/Age</th>
+                                                                <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
                                                                 <th>Balance</th>
                                                                 <th>Interest</th>
                                                                 <th>Contributions</th>
                                                                 <th>Taxable</th>
                                                                 <th>Traditional</th>
                                                                 <th>Roth</th>
-                                                                <th>Taxes</th>
-                                                                <th>Tax Rates</th>
+                                                                <th><span style="display:block;">Taxes</span><span style="display:block;">Paid</span></th>
+                                                                <th><span style="display:block;">Tax</span><span style="display:block;">Rates</span></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -620,8 +627,7 @@
                                                 <th>Traditional</th>
                                                 <th>Roth</th>
                                                 <th>Taxes Paid</th>
-                                                <th>Tax Rates</th>
-                                                <th>Tax Rates</th>
+                                                <th>Tax Rates2</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -834,7 +840,7 @@
         var sb = new System.Text.StringBuilder();
 
         // Add interest breakdown
-        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividends + year.LongTermGains + year.ShortTermGains;
+        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividendIncome   + year.LongTermGains + year.ShortTermGains;
         if (totalInterest > 0)
         {
             // Ordinary Income (24% rate)
@@ -843,7 +849,7 @@
             sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
 
             // Long-term rate income (15% rate)
-            decimal ltRateIncome = year.QualifiedDividends + year.LongTermGains;
+            decimal ltRateIncome = year.QualifiedDividendIncome + year.LongTermGains;
             decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
             sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
         }
