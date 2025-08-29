@@ -182,20 +182,20 @@
                                                id="initialTaxableAmount"
                                                class="form-control"
                                                @bind="calculatorModel.InitialTaxableAmount"
-                                               @onblur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
+                                               @onblur="@(() => SaveUserSavingsAsync())" />
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
                                         <FormattedInputNumber id="initialTraditionalAmount" class="form-control"
                                                               @bind-value="calculatorModel.InitialTraditionalAmount"
-                                                              OnBlur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
                                         <FormattedInputNumber id="initialRothAmount" class="form-control"
                                                               @bind-value="calculatorModel.InitialRothAmount"
-                                                              OnBlur="@(() => SaveUserSavingsAsync(activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours"))" />
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -214,19 +214,22 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTaxableContribution" class="form-label">Post Tax(Post-tax)</label>
                                         <FormattedInputNumber id="monthlyTaxableContribution" class="form-control"
-                                                              @bind-value="calculatorModel.MonthlyTaxableContribution" />
+                                                              @bind-value="calculatorModel.MonthlyTaxableContribution"
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <small class="form-text">Regular brokerage account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
                                         <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control"
-                                                              @bind-value="calculatorModel.MonthlyTraditionalContribution" />
+                                                              @bind-value="calculatorModel.MonthlyTraditionalContribution"
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <small class="form-text">401k, Traditional IRA</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
                                         <FormattedInputNumber id="monthlyRothContribution" class="form-control"
-                                                              @bind-value="calculatorModel.MonthlyRothContribution" />
+                                                              @bind-value="calculatorModel.MonthlyRothContribution"
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
                                 </div>
@@ -246,7 +249,8 @@
                                         <input type="number" id="annualGrowthRate" class="form-control"
                                                @bind-value="calculatorModel.AnnualGrowthRate"
                                                @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
-                                               step="0.1" />
+                                               step="0.1"
+                                               OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
                                         <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
                                     </div>
@@ -275,14 +279,16 @@
                                         <label for="currentAge" class="form-label">Current Age</label>
                                         <input type="number" id="currentAge" class="form-control"
                                                @bind-value="calculatorModel.CurrentAge"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="retirementAge" class="form-label">Retirement Age</label>
                                         <input type="number" id="retirementAge" class="form-control"
                                                @bind-value="calculatorModel.RetirementAge"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               OnBlur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
                                         <small class="form-text">Most people retire between 60-67</small>
                                     </div>
@@ -661,7 +667,7 @@
             debugMessages.RemoveAt(0);
     }
 
-  
+
 
     [SupplyParameterFromForm]
     public SavingsCalculatorModel calculatorModel { get; set; } = new();
@@ -671,6 +677,7 @@
     private HashSet<int> expandedIntervals = new();
     private bool isPlanSummaryExpanded = true; // Default to expanded
     private bool isSavingsBreakdownExpanded = true; // Default to expanded
+    string calculatorType = "TestSavings_yours";
 
     protected override async Task OnInitializedAsync()
     {
@@ -688,7 +695,7 @@
         };
 
         // Load from API and populate model
-        await LoadUserSavingsAsync("TestSavings_yours");
+        await LoadUserSavingsAsync();
         Calculate();
     }
 
@@ -890,16 +897,18 @@
     }
     private async Task YourTabClick()
     {
+        calculatorType = "TestSavings_yours";
         Console.WriteLine("Your tab clicked");
         SetActiveTab("your");
-        await LoadUserSavingsAsync("TestSavings_yours");
+        await LoadUserSavingsAsync();
     }
 
     private async Task PartnerTabClick()
     {
+        calculatorType = "TestSavings_partners";
         Console.WriteLine("Partner tab clicked");
         SetActiveTab("partner");
-        await LoadUserSavingsAsync("TestSavings_partner");
+        await LoadUserSavingsAsync();
     }
 
     private void SetActiveTab(string tab)
@@ -909,7 +918,7 @@
         userMessage = string.Empty;
         productMessage = string.Empty;
     }
-    private async Task LoadUserSavingsAsync(string calculatorType)
+    private async Task LoadUserSavingsAsync()
     {
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
@@ -939,7 +948,7 @@
         }
     }
 
-    private async Task SaveUserSavingsAsync(string calculatorType)
+    private async Task SaveUserSavingsAsync()
     {
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var url = $"https://localhost:7330/api/FinPlan/save";

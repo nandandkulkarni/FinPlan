@@ -3,7 +3,7 @@ SELECT TOP (1000)
     [UserGuid],
     [CalculatorType],
     [Data],
-	LastUpdateDate,
+	--LastUpdateDate,
     jsonData.CurrentAge,
     jsonData.RetirementAge,
     jsonData.InitialTaxableAmount,
@@ -13,7 +13,8 @@ SELECT TOP (1000)
     jsonData.MonthlyTraditionalContribution,
     jsonData.MonthlyRothContribution,
     jsonData.AnnualGrowthRate,
-    jsonData.Years
+    jsonData.Years,
+	jsonData.RetirementAge
 FROM [dev-glamourre].[finplan].[FinPlan]
 CROSS APPLY OPENJSON([Data])
 WITH (
@@ -27,7 +28,8 @@ WITH (
     MonthlyRothContribution DECIMAL(18,2),
     AnnualGrowthRate DECIMAL(5,2),
     Years INT,
-	LastUpdateDate DateTime
+	RetirementAge int
+--	LastUpdateDate DateTime
 ) AS jsonData
 
   --truncate table [dev-glamourre].[finplan].[FinPlan]
