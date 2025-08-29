@@ -84,3 +84,20 @@
         </div>
     </nav>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        DebugService.MessagesChanged += OnMessagesChanged;
+    }
+
+    private void OnMessagesChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DebugService.MessagesChanged -= OnMessagesChanged;
+    }
+}
