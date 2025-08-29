@@ -672,25 +672,8 @@
     private bool isPlanSummaryExpanded = true; // Default to expanded
     private bool isSavingsBreakdownExpanded = true; // Default to expanded
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Initialize model with default values
-        calculatorModel = new SavingsCalculatorModel
-        {
-            CurrentAge = 30,
-            RetirementAge = 65,
-            InitialTaxableAmount = 400,
-            InitialTraditionalAmount = 400,
-            InitialRothAmount = 200,
-            MonthlyTaxableContribution = 200,
-            MonthlyTraditionalContribution = 200,
-            MonthlyRothContribution = 100,
-            AnnualGrowthRate = 7,
-            UseTaxAdvantaged = true, // Always true now
-            TaxableIncomeType = IncomeType.MixedInvestment,
-            TaxBracket = TaxBracket.Medium
-        };
-
         // Set up debounce timer
         debounceTimer = new System.Timers.Timer(100); // 100ms debounce
         debounceTimer.AutoReset = false;
@@ -704,9 +687,8 @@
             // });
         };
 
-        base.OnInitialized();
-
-        // Calculate with default values on load
+        // Load from API and populate model
+        await LoadUserSavingsAsync("TestSavings_yours");
         Calculate();
     }
 
