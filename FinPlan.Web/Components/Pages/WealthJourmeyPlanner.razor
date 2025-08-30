@@ -13,6 +13,7 @@
 @rendermode InteractiveServer
 @implements IDisposable
 @inject FinPlan.Web.Services.DebugMessageService DebugService
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 <PageTitle>Family Savings Planner</PageTitle>
 
@@ -760,9 +761,27 @@
             // });
         };
 
+        // // Get or create user GUID
+        // userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+
         // Load from API and populate model
-        await LoadUserSavingsAsync();
-        Calculate();
+        // await LoadUserSavingsAsync();
+        // Calculate();
+    }
+
+    string userGuid = string.Empty;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            await LoadUserSavingsAsync();
+            Calculate();
+            StateHasChanged(); // Trigger UI update after userGuid is set
+        }
+        // Load from API and populate model
+        // await LoadUserSavingsAsync();
+        // Calculate();
     }
 
     public void Dispose()
@@ -1033,7 +1052,6 @@
     {
         isLoading = true;
         StateHasChanged();
-        var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var apiBaseUrl = GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
         try
@@ -1084,7 +1102,6 @@
     {
         // isLoading = true;
         // StateHasChanged();
-        var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var apiBaseUrl = GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/FinPlan/save";
 

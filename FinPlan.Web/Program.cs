@@ -28,6 +28,9 @@ builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web
 // Register the DebugMessageService as singleton
 builder.Services.AddSingleton<FinPlan.Web.Services.DebugMessageService>();
 
+// Register the UserGuidService as scoped
+builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();
+
 // Explicitly disable authentication and authorization
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization(options =>
