@@ -15,7 +15,7 @@
 @inject FinPlan.Web.Services.DebugMessageService DebugService
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 
-<PageTitle>Family Savings Planner</PageTitle>
+<PageTitle>WealthyFyX - Savings Planner</PageTitle>
 
 <style>
     .tab-active-custom {
@@ -176,13 +176,13 @@
         <li class="nav-item">
             <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
                     @onclick="YourTabClick">
-                Your Savings
+                Your  Savings
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")"
                     @onclick="PartnerTabClick">
-                Partner Savings
+                Partner  Savings
             </button>
         </li>
     </ul>
