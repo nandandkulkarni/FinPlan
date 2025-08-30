@@ -406,7 +406,7 @@
                                                 <div class="progress-bar bg-info" role="progressbar" 
                                                      style="width: @(results.LongTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Long-Term Capital Gains: @results.LongTermCapitalGains.ToString("C")">
-                                                    LTCG
+                                                    Long Term Capital Gains
                                                 </div>
                                                 <div class="progress-bar bg-warning" role="progressbar" 
                                                      style="width: @(results.NonQualifiedIncome / (results.TaxableInterestEarned + 0.0001m) * 100)%"
@@ -416,7 +416,7 @@
                                                 <div class="progress-bar bg-danger" role="progressbar" 
                                                      style="width: @(results.ShortTermCapitalGains / (results.TaxableInterestEarned + 0.0001m) * 100)%"
                                                      title="Short-Term Capital Gains: @results.ShortTermCapitalGains.ToString("C")">
-                                                    STCG
+                                                    Short Term Capital Gains
                                                 </div>
                                             </div>
                                             <small>Effective tax rate on Post Taxinvestments: <strong>@results.EffectiveTaxRate.ToString("F1")%</strong></small>

@@ -44,7 +44,7 @@
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="savings-planner">
+            <NavLink class="nav-link" href="wealth-journey">
                 <span class="bi bi-calculator" aria-hidden="true"></span> Wealth Journey
             </NavLink>
         </div>
@@ -55,24 +55,20 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
+    @*     <div class="nav-item px-3">
             <NavLink class="nav-link" href="tabs">
                 <span class="bi bi-table" aria-hidden="true"></span> Data Tabs
             </NavLink>
-        </div>
+        </div> *@
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="savings-tabbed">
-                <span class="bi bi-columns-gap" aria-hidden="true"></span> Savings Tabbed
-            </NavLink>
-        </div>
-        <div class="nav-debug-window">
+
+ @*        <div class="nav-debug-window">
             <strong>Debug:</strong>
             @foreach (var msg in DebugService.Messages)
             {
                 <div>@msg</div>
             }
-        </div>
+        </div> *@
         <div class="debug-bottom p-2">
             <strong>Debug:</strong>
             @foreach (var msg in DebugService.Messages.OrderByDescending(prop => prop.MessageTime))
