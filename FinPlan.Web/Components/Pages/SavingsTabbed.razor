@@ -971,6 +971,47 @@
         userMessage = string.Empty;
         productMessage = string.Empty;
     }
+    
+    private int? interestTooltipYear = null;
+    private void ShowInterestTooltip(int year)
+    {
+        interestTooltipYear = year;
+        StateHasChanged();
+    }
+    private void HideInterestTooltip()
+    {
+        interestTooltipYear = null;
+        StateHasChanged();
+    }
+    private string GetInterestBreakdown(YearlyBreakdown year)
+    {
+        // Show the numbers that went into InterestEarned (e.g. 3 + 3 + 6)
+        var parts = new List<string>();
+        if (year.QualifiedDividendIncome > 0) parts.Add(year.QualifiedDividendIncome.ToString("N2"));
+        if (year.NonQualifiedIncome > 0) parts.Add(year.NonQualifiedIncome.ToString("N2"));
+        if (year.LongTermGains > 0) parts.Add(year.LongTermGains.ToString("N2"));
+        if (year.ShortTermGains > 0) parts.Add(year.ShortTermGains.ToString("N2"));
+        return string.Join(" + ", parts);
+    }
+    private string GetInterestBreakdownGreen(YearlyBreakdown year)
+    {
+        var parts = new List<string>();
+        if (year.QualifiedDividendIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.QualifiedDividendIncome:N2}</span>");
+        if (year.NonQualifiedIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.NonQualifiedIncome:N2}</span>");
+        if (year.LongTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.LongTermGains:N2}</span>");
+        if (year.ShortTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.ShortTermGains:N2}</span>");
+        return string.Join(" + ", parts);
+    }
+
+    private string GetApiBaseUrl()
+    {
+        #if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+        #else
+            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net"; 
+        #endif
+    }
+
     private async Task LoadUserSavingsAsync()
     {
         isLoading = true;
@@ -1023,8 +1064,8 @@
 
     private async Task SaveUserSavingsAsync()
     {
-        isLoading = true;
-        StateHasChanged();
+        // isLoading = true;
+        // StateHasChanged();
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
         var apiBaseUrl = GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/FinPlan/save";
@@ -1065,48 +1106,36 @@
         }
         finally
         {
-            isLoading = false;
-            StateHasChanged();
+            // isLoading = false;
+            // StateHasChanged();
         }
     }
 
-    private int? interestTooltipYear = null;
-    private void ShowInterestTooltip(int year)
-    {
-        interestTooltipYear = year;
-        StateHasChanged();
-    }
-    private void HideInterestTooltip()
-    {
-        interestTooltipYear = null;
-        StateHasChanged();
-    }
-    private string GetInterestBreakdown(YearlyBreakdown year)
-    {
-        // Show the numbers that went into InterestEarned (e.g. 3 + 3 + 6)
-        var parts = new List<string>();
-        if (year.QualifiedDividendIncome > 0) parts.Add(year.QualifiedDividendIncome.ToString("N2"));
-        if (year.NonQualifiedIncome > 0) parts.Add(year.NonQualifiedIncome.ToString("N2"));
-        if (year.LongTermGains > 0) parts.Add(year.LongTermGains.ToString("N2"));
-        if (year.ShortTermGains > 0) parts.Add(year.ShortTermGains.ToString("N2"));
-        return string.Join(" + ", parts);
-    }
-    private string GetInterestBreakdownGreen(YearlyBreakdown year)
-    {
-        var parts = new List<string>();
-        if (year.QualifiedDividendIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.QualifiedDividendIncome:N2}</span>");
-        if (year.NonQualifiedIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.NonQualifiedIncome:N2}</span>");
-        if (year.LongTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.LongTermGains:N2}</span>");
-        if (year.ShortTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.ShortTermGains:N2}</span>");
-        return string.Join(" + ", parts);
-    }
 
-    private string GetApiBaseUrl()
+    private async Task ExecuteOpWithLoadingMessageIfSlow(Func<Task> operation)
     {
-        #if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-        #else
-            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net"; 
-        #endif
+        bool loadingShown = false;
+        var operationTask = operation();
+        var delayTask = Task.Delay(1000);
+
+        var completedTask = await Task.WhenAny(operationTask, delayTask);
+
+        if (completedTask == delayTask)
+        {
+            isLoading = true;
+            loadingShown = true;
+            StateHasChanged();
+            await operationTask;
+        }
+        else
+        {
+            await operationTask;
+        }
+
+        if (loadingShown)
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 }
