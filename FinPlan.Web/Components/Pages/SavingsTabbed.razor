@@ -954,6 +954,8 @@
         Console.WriteLine("Your tab clicked");
         SetActiveTab("your");
         await LoadUserSavingsAsync();
+        Calculate();
+
     }
 
     private async Task PartnerTabClick()
@@ -962,6 +964,8 @@
         Console.WriteLine("Partner tab clicked");
         SetActiveTab("partner");
         await LoadUserSavingsAsync();
+        Calculate();
+
     }
 
     private void SetActiveTab(string tab)
