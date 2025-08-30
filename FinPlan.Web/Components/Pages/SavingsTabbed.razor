@@ -6,6 +6,7 @@
 @using FinPlan.Web.Models
 @inject IJSRuntime JSRuntime
 @inject HttpClient Http
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 @implements IDisposable
 @inject FinPlan.Web.Services.DebugMessageService DebugService
@@ -975,7 +976,8 @@
         isLoading = true;
         StateHasChanged();
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
-        var url = $"https://localhost:7330/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
         try
         {
             AddDebugMessage($"Loading");
@@ -1024,7 +1026,8 @@
         isLoading = true;
         StateHasChanged();
         var userGuid = "3ed7f97f-b35d-4be7-9611-d17c21d84fcb";
-        var url = $"https://localhost:7330/api/FinPlan/save";
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/FinPlan/save";
 
         try
         {
@@ -1096,5 +1099,14 @@
         if (year.LongTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.LongTermGains:N2}</span>");
         if (year.ShortTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.ShortTermGains:N2}</span>");
         return string.Join(" + ", parts);
+    }
+
+    private string GetApiBaseUrl()
+    {
+        #if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+        #else
+            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net"; 
+        #endif
     }
 }

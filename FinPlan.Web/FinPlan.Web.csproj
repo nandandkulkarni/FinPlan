@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FinPlan.ApiService\FinPlan.ApiService.csproj" />
     <ProjectReference Include="..\FinPlan.ServiceDefaults\FinPlan.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\FinPlan.Shared\FinPlan.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -32,8 +32,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     // Enable Swagger UI in development
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -42,7 +42,7 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty; // Swagger at root
     });
     app.MapOpenApi();
-}
+//}
 
 app.MapDefaultEndpoints();
 app.MapControllers();
