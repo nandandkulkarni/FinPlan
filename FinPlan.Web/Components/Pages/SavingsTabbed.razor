@@ -1,9 +1,12 @@
 ﻿@page "/savings-tabbed"
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Shared
+@using FinPlan.Shared.Enums
+@using FinPlan.Shared.Models
+@using FinPlan.Shared.Services
 @using FinPlan.Web.Components
-@using FinPlan.Web.Services
 @using FinPlan.Web.Models
+@using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
 @inject HttpClient Http
 @inject IConfiguration Configuration
@@ -706,6 +709,7 @@
     private string userMessage = string.Empty;
     private string productMessage = string.Empty;
     private bool isLoading = false;
+    private int reirementDistanceForHiding5YearSummaries = 0;
 
     private void ToggleTheme()
     {
@@ -801,7 +805,7 @@
             yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
 
             // Create interval summaries for better UX
-            if (calculatorModel.Years > 10)
+            if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries)
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
 
@@ -1051,6 +1055,7 @@
             if (loadedModel != null)
             {
                 calculatorModel = loadedModel;
+                autoCalculate = loadedModel.AutoCalculate;
                 StateHasChanged();
             }
         }

@@ -1,9 +1,18 @@
 @page "/savings-planner"
 @using System.ComponentModel.DataAnnotations
 @using FinPlan.Shared
+@using FinPlan.Shared.Enums
+@using FinPlan.Shared.Models
+@using FinPlan.Shared.Services
 @using FinPlan.Web.Components
-@using FinPlan.Web.Services
 @using FinPlan.Web.Models
+@using FinPlan.Web.Services
+
+@using FinPlan.Web.Services
+
+@using FinPlan.Web.Services
+@using FinPlan.Web.Services
+@using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @implements IDisposable
@@ -675,6 +684,7 @@
         Console.WriteLine($"[DEBUG] {DateTime.Now:HH:mm:ss.fff} ForceUpdate called - CurrentAge: {calculatorModel.CurrentAge}, RetirementAge: {calculatorModel.RetirementAge}, Years: {calculatorModel.Years}");
         StateHasChanged();
     }
+    int reirementDistanceForHiding5YearSummaries = 0;
     private void Calculate()
     {
         try
@@ -683,7 +693,7 @@
             results = calculator.Calculate(calculatorModel);
             yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
 
-            if (calculatorModel.Years > 10)
+            if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries)
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
                 expandedIntervals.Clear();

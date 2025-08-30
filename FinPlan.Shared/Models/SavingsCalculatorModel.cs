@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FinPlan.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
-namespace FinPlan.Shared
+namespace FinPlan.Shared.Models
 {
     public class SavingsCalculatorModel
     {
@@ -18,6 +19,8 @@ namespace FinPlan.Shared
             // Add other decimal properties as needed
 
         }
+        public bool AutoCalculate { get; set; } = false;
+
         [Required]
         [Range(18, 100, ErrorMessage = "Please enter your current age (18-100)")]
         public int CurrentAge { get; set; } = 30;
@@ -77,7 +80,6 @@ namespace FinPlan.Shared
         }
 
         [Required]
-        [Range(0, 50, ErrorMessage = "Growth rate must be between 0 and 50%")]
         public decimal AnnualGrowthRate { get; set; } = 7;
 
         public bool UseTaxAdvantaged { get; set; } = false;

@@ -1,82 +1,8 @@
-﻿namespace FinPlan.Shared
+﻿using FinPlan.Shared.Enums;
+using FinPlan.Shared.Models;
+
+namespace FinPlan.Shared.Services
 {
-
-    public class SavingsResults
-    {
-        public decimal FinalAmount { get; set; }
-        public decimal TotalContributions { get; set; }
-        public decimal TotalInterestEarned { get; set; }
-        public decimal TaxDeferredBalance { get; set; }
-        public decimal TaxableBalance { get; set; }
-        public decimal RothBalance { get; set; }
-        public decimal TaxDeferredInterestEarned { get; set; }
-        public decimal TaxableInterestEarned { get; set; }
-        public decimal RothInterestEarned { get; set; }
-        public decimal EstimatedTaxSavings { get; set; }
-        public decimal QualifiedDividendIncome { get; set; }
-        public decimal NonQualifiedIncome { get; set; }
-        public decimal LongTermCapitalGains { get; set; }
-        public decimal ShortTermCapitalGains { get; set; }
-        public decimal TotalTaxesPaid { get; set; }
-        public decimal EffectiveTaxRate { get; set; }
-    }
-
-    public class YearlyBreakdown
-    {
-        public int Year { get; set; }
-        public decimal Balance { get; set; }
-        public decimal InterestEarned { get; set; }
-        public decimal ContributionsThisYear { get; set; }
-        public decimal TaxDeferredBalance { get; set; }
-        public decimal TaxableBalance { get; set; }
-        public decimal RothBalance { get; set; }
-        public decimal TaxDeferredInterest { get; set; }
-        public decimal TaxableInterest { get; set; }
-        public decimal RothInterest { get; set; }
-        public decimal TaxDeferredContribution { get; set; }
-        public decimal TaxableContribution { get; set; }
-        public decimal RothContribution { get; set; }
-        public decimal QualifiedDividendIncome { get; set; }
-        public decimal NonQualifiedIncome { get; set; }
-        public decimal LongTermGains { get; set; }
-        public decimal ShortTermGains { get; set; }
-        public decimal TaxesPaid { get; set; }
-    }
-
-    public class IntervalSummary
-    {
-        public int StartYear { get; set; }
-        public int EndYear { get; set; }
-        public int StartAge { get; set; }
-        public int EndAge { get; set; }
-        public decimal FinalBalance { get; set; }
-        public decimal TotalGrowth { get; set; }
-        public decimal TotalContributions { get; set; }
-        public List<YearlyBreakdown> YearlyDetails { get; set; } = new();
-        public string MilestoneAchieved { get; set; } = "";
-    }
-    public class SaveRequest
-    {
-        public string UserGuid { get; set; } = string.Empty;
-        public string CalculatorType { get; set; } = string.Empty;
-        public SavingsCalculatorModel Data { get; set; } = new();
-    }
-
-    public enum IncomeType
-    {
-        MixedInvestment,
-        MostlyDividends,
-        MostlyLongTermGains,
-        MostlyInterest
-    }
-
-    public enum TaxBracket
-    {
-        Low,
-        Medium,
-        High
-    }
-
     public class SavingsCalculationEngine
     {
         private decimal GetOrdinaryTaxRate(TaxBracket bracket)
@@ -128,9 +54,9 @@
             decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
             decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
             decimal monthlyRothContribution = model.MonthlyRothContribution;
-            decimal totalTaxableContributions = taxableBalance + (monthlyTaxableContribution * totalMonths);
-            decimal totalTraditionalContributions = traditionalBalance + (monthlyTraditionalContribution * totalMonths);
-            decimal totalRothContributions = rothBalance + (monthlyRothContribution * totalMonths);
+            decimal totalTaxableContributions = taxableBalance + monthlyTaxableContribution * totalMonths;
+            decimal totalTraditionalContributions = traditionalBalance + monthlyTraditionalContribution * totalMonths;
+            decimal totalRothContributions = rothBalance + monthlyRothContribution * totalMonths;
             decimal taxableInterest = 0;
             decimal traditionalInterest = 0;
             decimal rothInterest = 0;
@@ -186,7 +112,7 @@
             }
             decimal totalTaxableIncome = totalQualifiedDividendIncome + totalNonQualifiedIncome +
                                        totalLongTermGains + totalShortTermGains;
-            decimal effectiveTaxRate = (totalTaxableIncome > 0) ? (totalTaxesPaid / totalTaxableIncome) : 0;
+            decimal effectiveTaxRate = totalTaxableIncome > 0 ? totalTaxesPaid / totalTaxableIncome : 0;
             decimal totalRegularTaxes = (traditionalInterest + rothInterest + totalTaxableIncome) * effectiveTaxRate;
             decimal estimatedTaxSavings = totalRegularTaxes - totalTaxesPaid;
             decimal totalFutureValue = traditionalBalance + rothBalance + taxableBalance;

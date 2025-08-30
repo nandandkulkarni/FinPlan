@@ -1,5 +1,5 @@
 using FinPlan.ApiService.Data;
-using FinPlan.Shared;
+using FinPlan.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
