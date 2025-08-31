@@ -1,6 +1,6 @@
-namespace FinPlan.Web.Components.Custom
+namespace FinPlan.Web.Services
 {
-    public static class HttpCustomClientProvider
+    public static class HttpCustomClientService
     {
         public const string RetryClient = "RetryClient";
 

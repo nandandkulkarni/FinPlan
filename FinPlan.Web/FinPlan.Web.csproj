@@ -19,4 +19,8 @@
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Custom\" />
+  </ItemGroup>
+
 </Project>

@@ -4,7 +4,7 @@ using Polly;
 using Polly.Extensions.Http;
 using System.Net.Http;
 using System.Net;
-using FinPlan.Web.Components.Custom;
+using FinPlan.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Register an HttpClient with a Polly retry policy for transient failures (and 429 TooManyRequests)
-builder.Services.AddHttpClient(HttpCustomClientProvider.RetryClient)
+builder.Services.AddHttpClient(HttpCustomClientService.RetryClient)
     .AddPolicyHandler(GetRetryPolicy());
 
 // Set default culture to US to fix currency symbol issues

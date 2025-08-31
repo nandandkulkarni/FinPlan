@@ -6,7 +6,6 @@
 @using FinPlan.Shared.Services
 @using FinPlan.Web
 @using FinPlan.Web.Components
-@using FinPlan.Web.Components.Custom
 @using FinPlan.Web.Models
 @using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
@@ -1061,7 +1060,7 @@
         try
         {
             AddDebugMessage($"Loading");
-            var client = HttpCustomClientProvider.CreateRetryClient(HttpClientFactory);
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
@@ -1126,7 +1125,7 @@
 
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var client = HttpCustomClientProvider.CreateRetryClient(HttpClientFactory);
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.PostAsync(url, content);
 
             if (response.IsSuccessStatusCode)
