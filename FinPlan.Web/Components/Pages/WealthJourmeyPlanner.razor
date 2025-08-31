@@ -15,7 +15,7 @@
 @inject FinPlan.Web.Services.DebugMessageService DebugService
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 
-<PageTitle>WealthyFyX - Savings Planner</PageTitle>
+<PageTitle>WealthyFii - Wealth Journey Planner</PageTitle>
 
 <style>
     .tab-active-custom {
@@ -276,7 +276,7 @@
                                     <div class="card-body">
                                           <input type="number" id="currentAge" class="form-control"
                                                @bind-value="calculatorModel.AnnualGrowthRate"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
                                                @onblur="@(() => SaveUserSavingsAsync())" />
 
                  @*                        <FormattedInputNumber id="annualGrowthRate" class="form-control"
@@ -285,7 +285,7 @@
 
                                       @*   <input type="number" id="annualGrowthRate" class="form-control"
                                                @bind-value="calculatorModel.AnnualGrowthRate"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
                                                step="0.1"
                                                OnBlur="@(() => SaveUserSavingsAsync())" /> *@
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
@@ -316,7 +316,7 @@
                                         <label for="currentAge" class="form-label">Current Age</label>
                                         <input type="number" id="currentAge" class="form-control"
                                                @bind-value="calculatorModel.CurrentAge"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
                                                @onblur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
                                     </div>
@@ -324,7 +324,7 @@
                                         <label for="retirementAge" class="form-label">Retirement Age</label>
                                         <input type="number" id="retirementAge" class="form-control"
                                                @bind-value="calculatorModel.RetirementAge"
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
                                                @onblur="@(() => SaveUserSavingsAsync())" />
                                         <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
                                         <small class="form-text">Most people retire between 60-67</small>
@@ -369,12 +369,12 @@
 
                         <div class="d-flex align-items-center mb-3">
                             <div class="form-check me-auto">
-                                <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="autoCalculate" disabled />
+                                @* <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="calculatorModel.AutoCalculate" disabled />
                                 <label class="form-check-label" for="autoCalculate">
                                     Auto-calculate (updates immediately as you type - disabled)
-                                </label>
+                                </label> *@
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg" disabled="@autoCalculate">
+                            <button type="submit" class="btn btn-primary btn-lg" disabled="@calculatorModel.AutoCalculate">
                                 <i class="bi bi-calculator"></i> Calculate Savings
                             </button>
                         </div>
@@ -712,7 +712,6 @@
 
 @code {
     private bool isDarkTheme = false;
-    private bool autoCalculate = true;
     private System.Timers.Timer? debounceTimer;
 
     private string activeTab = "your";
@@ -797,11 +796,11 @@
         // _ = SaveUserSavingsAsync(calcType);
 
         // Only auto-calculate if enabled
-        if (autoCalculate)
-        {
-            debounceTimer?.Stop();
-            debounceTimer?.Start();
-        }
+        // if (autoCalculate)
+        // {
+        //     debounceTimer?.Stop();
+        //     debounceTimer?.Start();
+        // }
     }
 
     // Method to handle select changes
@@ -812,10 +811,10 @@
         // _ = SaveUserSavingsAsync(calcType);
 
         // Only auto-calculate if enabled
-        if (autoCalculate)
-        {
-            OnInputChanged();
-        }
+        // if (autoCalculate)
+        // {
+        //     OnInputChanged();
+        // }
     }
 
     // Add a custom StateHasChanged method
@@ -1082,7 +1081,7 @@
             if (loadedModel != null)
             {
                 calculatorModel = loadedModel;
-                autoCalculate = loadedModel.AutoCalculate;
+               // autoCalculate = loadedModel.AutoCalculate;
                 StateHasChanged();
             }
         }

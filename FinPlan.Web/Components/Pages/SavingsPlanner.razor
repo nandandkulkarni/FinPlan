@@ -17,7 +17,7 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
-<PageTitle>WealthyFyX - Retirement Savings Planner</PageTitle>
+<PageTitle>WealthyFii - Retirement Savings Planner</PageTitle>
 
 <style>
     /* Dark theme styles */
@@ -212,7 +212,7 @@
                                     <div class="card-body">
                                         <input type="number" id="annualGrowthRate" class="form-control" 
                                                @bind-value="calculatorModel.AnnualGrowthRate" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })"
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
                                                step="0.1" />
                                         <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
                                         <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
@@ -242,14 +242,14 @@
                                         <label for="currentAge" class="form-label">Current Age</label>
                                         <input type="number" id="currentAge" class="form-control" 
                                                @bind-value="calculatorModel.CurrentAge" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })" />
                                         <ValidationMessage For="@(() => calculatorModel.CurrentAge)" class="text-danger" />
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="retirementAge" class="form-label">Retirement Age</label>
                                         <input type="number" id="retirementAge" class="form-control" 
                                                @bind-value="calculatorModel.RetirementAge" 
-                                               @oninput="@(e => { if (autoCalculate) OnInputChanged(); })" />
+                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })" />
                                         <ValidationMessage For="@(() => calculatorModel.RetirementAge)" class="text-danger" />
                                         <small class="form-text">Most people retire between 60-67</small>
                                     </div>
@@ -293,12 +293,12 @@
 
                         <div class="d-flex align-items-center mb-3">
                             <div class="form-check me-auto">
-                                <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="autoCalculate" />
+                                <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="calculatorModel.AutoCalculate" />
                                 <label class="form-check-label" for="autoCalculate">
                                     Auto-calculate (updates immediately as you type)
                                 </label>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg" disabled="@autoCalculate">
+                            <button type="submit" class="btn btn-primary btn-lg" disabled="@calculatorModel.AutoCalculate">
                                 <i class="bi bi-calculator"></i> Calculate Savings
                             </button>
                         </div>
@@ -607,7 +607,6 @@
 
 @code {
     private bool isDarkTheme = false;
-    private bool autoCalculate = false;
     private System.Timers.Timer? debounceTimer;
 
     private void ToggleTheme()
@@ -664,19 +663,19 @@
 
     private void OnInputChanged()
     {
-        if (autoCalculate)
-        {
-            debounceTimer?.Stop();
-            debounceTimer?.Start();
-        }
+        // if (autoCalculate)
+        // {
+        //     debounceTimer?.Stop();
+        //     debounceTimer?.Start();
+        // }
     }
 
     private void HandleSelectChange()
     {
-        if (autoCalculate)
-        {
-            OnInputChanged();
-        }
+        // if (autoCalculate)
+        // {
+        //     OnInputChanged();
+        // }
     }
 
     private void ForceUpdate()

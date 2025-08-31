@@ -26,7 +26,7 @@ builder.Services.AddOutputCache();
 builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
 
 // Register the DebugMessageService as singleton
-builder.Services.AddSingleton<FinPlan.Web.Services.DebugMessageService>();
+builder.Services.AddScoped<FinPlan.Web.Services.DebugMessageService>();
 
 // Register the UserGuidService as scoped
 builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();
