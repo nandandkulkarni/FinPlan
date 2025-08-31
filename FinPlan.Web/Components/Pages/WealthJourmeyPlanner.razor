@@ -4,11 +4,13 @@
 @using FinPlan.Shared.Enums
 @using FinPlan.Shared.Models
 @using FinPlan.Shared.Services
+@using FinPlan.Web
 @using FinPlan.Web.Components
+@using FinPlan.Web.Components.Custom
 @using FinPlan.Web.Models
 @using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @rendermode InteractiveServer
 @implements IDisposable
@@ -1059,7 +1061,8 @@
         try
         {
             AddDebugMessage($"Loading");
-            var response = await Http.GetAsync(url);
+            var client = HttpCustomClientProvider.CreateRetryClient(HttpClientFactory);
+            var response = await client.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Loaded.");
@@ -1123,7 +1126,8 @@
 
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await Http.PostAsync(url, content);
+            var client = HttpCustomClientProvider.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync(url, content);
 
             if (response.IsSuccessStatusCode)
             {

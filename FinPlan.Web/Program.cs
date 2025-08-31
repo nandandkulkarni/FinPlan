@@ -1,11 +1,19 @@
-using FinPlan.Web;
 using FinPlan.Web.Components;
 using System.Globalization;
+using Polly;
+using Polly.Extensions.Http;
+using System.Net.Http;
+using System.Net;
+using FinPlan.Web.Components.Custom;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
+
+// Register an HttpClient with a Polly retry policy for transient failures (and 429 TooManyRequests)
+builder.Services.AddHttpClient(HttpCustomClientProvider.RetryClient)
+    .AddPolicyHandler(GetRetryPolicy());
 
 // Set default culture to US to fix currency symbol issues
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -74,3 +82,13 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 app.Run();
+
+// Local helper for creating a Polly retry policy for HttpClient
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    // Retry up to 3 times with exponential backoff for transient HTTP errors and 429 TooManyRequests
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == (HttpStatusCode)429)
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+}
