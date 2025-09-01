@@ -4,6 +4,11 @@ namespace FinPlan.Shared.Models
 {
     public class SpendingPlanModel
     {
+
+        public decimal SocialSecurityMonthlyAmountIndividual { get; set; } = 1000;
+        public decimal SocialSecurityMonthlyAmountYour { get; set; } = 1000;
+        public decimal SocialSecurityMonthlyAmountPartner { get; set; } = 1000;
+
         [Required]
         [Range(50, 100, ErrorMessage = "Retirement age should be between 50-100")]
         public int RetirementAge { get; set; } = 65;
@@ -53,6 +58,29 @@ namespace FinPlan.Shared.Models
 
         [Range(0, double.MaxValue, ErrorMessage = "Part-time income must be positive")]
         public decimal PartialRetirementIncome { get; set; } = 25000; // Default $25,000/year
+
+        public int SocialSecurityStartAgeIndividual { get; set; } = 65;
+
+        // Social Security settings
+        [Range(50, 100, ErrorMessage = "Social Security start age should be between 50-100")]
+        public int SocialSecurityStartAgeYour { get; set; } = 67;
+
+        [Range(50, 100, ErrorMessage = "Social Security start age should be between 50-100")]
+        public int SocialSecurityStartAgePartner { get; set; } = 67;
+
+        // For joint scenarios we allow two start ages (primary & partner)
+        [Range(50, 100, ErrorMessage = "Social Security start age should be between 50-100")]
+        public int SocialSecurityStartAgeJointPrimary { get; set; } = 67;
+
+        [Range(50, 100, ErrorMessage = "Social Security start age should be between 50-100")]
+        public int SocialSecurityStartAgeJointPartner { get; set; } = 67;
+
+        // Estimated monthly benefits (entered by user)
+        [Range(0, double.MaxValue, ErrorMessage = "Monthly amount must be positive")]
+        public decimal SocialSecurityMonthlyYour { get; set; } = 0m;
+
+        [Range(0, double.MaxValue, ErrorMessage = "Monthly amount must be positive")]
+        public decimal SocialSecurityMonthlyPartner { get; set; } = 0m;
 
         // Withdrawal strategies
         public enum WithdrawalStrategy

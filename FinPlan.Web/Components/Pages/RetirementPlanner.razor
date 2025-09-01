@@ -317,7 +317,103 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if (activeTab == "your")
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Your Social Security</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label">Start Age</label>
+                                            <input type="number" class="form-control" min="50" max="100"
+                                                   @bind-value="spendingModel.SocialSecurityStartAgeIndividual" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgeIndividual)" class="text-danger" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Estimated Monthly Benefit ($)</label>
+                                            <input type="number" class="form-control" step="1" min="0"
+                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountIndividual" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountIndividual)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="form-text mt-2">Enter the age you plan to claim and the expected monthly benefit.</div>
+                                </div>
+                            </div>
+                        }
+                        else if (activeTab == "partner")
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Partner Social Security</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label">Start Age</label>
+                                            <input type="number" class="form-control" min="50" max="100"
+                                                   @bind-value="spendingModel.SocialSecurityStartAgeIndividual" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgeIndividual)" class="text-danger" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Estimated Monthly Benefit ($)</label>
+                                            <input type="number" class="form-control" step="1" min="0"
+                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountIndividual" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountIndividual)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="form-text mt-2">Enter the age your partner will claim and their expected monthly benefit.</div>
+                                </div>
+                            </div>
+                        }
+                        else if (activeTab == "joint")
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Your Social Security</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label">Start Age</label>
+                                            <input type="number" class="form-control" min="50" max="100"
+                                                   @bind-value="spendingModel.SocialSecurityStartAgeYour" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgeYour)" class="text-danger" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Estimated Monthly Benefit ($)</label>
+                                            <input type="number" class="form-control" step="1" min="0"
+                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountYour" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountYour)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="form-text mt-2">Enter the age you plan to claim and the expected monthly benefit.</div>
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Partner Social Security</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label">Start Age</label>
+                                            <input type="number" class="form-control" min="50" max="100"
+                                                   @bind-value="spendingModel.SocialSecurityStartAgePartner" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgePartner)" class="text-danger" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Estimated Monthly Benefit ($)</label>
+                                            <input type="number" class="form-control" step="1" min="0"
+                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountPartner" @bind-value:event="oninput" />
+                                            <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountPartner)" class="text-danger" />
+                                        </div>
+                                    </div>
+                                    <div class="form-text mt-2">Enter the age your partner will claim and their expected monthly benefit.</div>
+                                </div>
+                            </div>
+                        }
                         <div class="mb-3">
                             <label for="withdrawalStrategy" class="form-label">Spending Strategy</label>
                             <select id="withdrawalStrategy" class="form-control" @bind="spendingModel.Strategy">
