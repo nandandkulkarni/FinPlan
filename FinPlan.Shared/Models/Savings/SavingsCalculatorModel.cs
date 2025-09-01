@@ -1,7 +1,7 @@
 ﻿using FinPlan.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace FinPlan.Shared.Models
+namespace FinPlan.Shared.Models.Savings
 {
     public class SavingsCalculatorModel
     {

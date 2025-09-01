@@ -1,5 +1,7 @@
 using ClosedXML.Excel;
 using FinPlan.Shared.Models;
+using FinPlan.Shared.Models.Savings;
+using FinPlan.Shared.Models.Spending;
 
 namespace FinPlan.Web.Services
 {

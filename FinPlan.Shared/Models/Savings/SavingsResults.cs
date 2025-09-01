@@ -1,4 +1,4 @@
-﻿namespace FinPlan.Shared.Models
+﻿namespace FinPlan.Shared.Models.Savings
 {
     public class SavingsResults
     {

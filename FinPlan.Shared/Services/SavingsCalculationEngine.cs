@@ -1,5 +1,6 @@
 ﻿using FinPlan.Shared.Enums;
 using FinPlan.Shared.Models;
+using FinPlan.Shared.Models.Savings;
 
 namespace FinPlan.Shared.Services
 {

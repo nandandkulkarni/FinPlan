@@ -1,4 +1,6 @@
-﻿namespace FinPlan.Shared.Models
+﻿using FinPlan.Shared.Models.Spending;
+
+namespace FinPlan.Shared.Models
 {
     public class SpendingIntervalSummary
     {

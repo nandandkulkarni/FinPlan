@@ -6,8 +6,8 @@ namespace FinPlan.Shared.Models
     {
 
         public decimal SocialSecurityMonthlyAmountIndividual { get; set; } = 1000;
-        public decimal SocialSecurityMonthlyAmountYour { get; set; } = 1000;
-        public decimal SocialSecurityMonthlyAmountPartner { get; set; } = 1000;
+        public decimal SocialSecurityMonthlyAmountYour { get; set; } = 5000;
+        public decimal SocialSecurityMonthlyAmountPartner { get; set; } = 3000;
 
         [Required]
         [Range(50, 100, ErrorMessage = "Retirement age should be between 50-100")]

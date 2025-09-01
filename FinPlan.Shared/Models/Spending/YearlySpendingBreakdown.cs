@@ -1,4 +1,4 @@
-﻿namespace FinPlan.Shared.Models
+﻿namespace FinPlan.Shared.Models.Spending
 {
     public class YearlySpendingBreakdown
     {
@@ -42,6 +42,6 @@
 
         // Helper properties
         public bool FundsRemaining => EndingTotalBalance > 0;
-        public decimal WithdrawalRate => StartingTotalBalance > 0 ? (TotalWithdrawal / StartingTotalBalance) * 100 : 0;
+        public decimal WithdrawalRate => StartingTotalBalance > 0 ? TotalWithdrawal / StartingTotalBalance * 100 : 0;
     }
 }

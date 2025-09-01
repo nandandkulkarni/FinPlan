@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\Pages\Archive\SavingsPlanner.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FinPlan.ServiceDefaults\FinPlan.ServiceDefaults.csproj" />
     <ProjectReference Include="..\FinPlan.Shared\FinPlan.Shared.csproj" />
   </ItemGroup>
