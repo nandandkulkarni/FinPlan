@@ -3,22 +3,90 @@
 @using FinPlan.Shared.Enums
 @using System.Text.Json
 @inject FinPlan.Web.Services.DebugMessageService DebugService
+<style>
+
+    .column-group {
+        background-color: #f0f8ff; /* Light blue - Alice Blue */
+        padding: 4px 8px;
+        border: none; /* Remove all default borders */
+    }
+
+        /* First column - left border and rounded left corners */
+        .column-group.first {
+            border-left: 2px solid #4682b4;
+            /* add 3px padding on the left specifically */
+            padding-left: 3px !important;
+        }
+
+        /* Last column - right border and rounded right corners */
+        .column-group.last {
+            border-right: 2px solid #4682b4;
+            /* add 3px padding on the right specifically */
+            padding-right: 3px !important;
+        }
+
+    /* Top borders only on header row */
+    thead .column-group {
+        border-top: 2px solid #4682b4 !important;
+    }
+
+        thead .column-group.first {
+            border-top-left-radius: 6px;
+        }
+
+        thead .column-group.last {
+            border-top-right-radius: 6px;
+        }
+
+    /* Bottom borders on header row and last data row */
+    thead .column-group {
+        border-bottom: 2px solid #4682b4 !important;
+    }
+
+    tbody tr:last-child .column-group {
+        border-bottom: 2px solid #4682b4 !important;
+    }
+
+        tbody tr:last-child .column-group.first {
+            border-bottom-left-radius: 6px;
+        }
+
+        tbody tr:last-child .column-group.last {
+            border-bottom-right-radius: 6px;
+        }
+
+    /* Ensure no other borders appear */
+    tbody tr:not(:last-child) .column-group {
+        border-bottom: none !important;
+    }
+
+    tbody tr .column-group:not(.first) {
+        border-left: none !important;
+    }
+
+    tbody tr .column-group:not(.last) {
+        border-right: none !important;
+    }
+</style>
 
 <div class="table-responsive">
     <table class="table table-sm">
         <thead class="table-light">
             <tr>
                 <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
-                <th>Final EOY <br />Balance</th>
-                <th>Total Yearly <br />Growth</th>
-                <th>Total Yearly <br />Contrib</th>
-                <th>Taxable<br />Contrib</th>
-                <th>Taxable<br />Growth</th>
-                <th>Taxes</th>
-                <th>Traditional<br />Contrib</th>
-                <th>Traditional<br />Growth</th>
-                <th>Roth<br />Contrib</th>
-                <th>Roth<br />Growth</th>
+                <th>EOY <br />Balance</th>
+                <th>EOY <br />Growth</th>
+                <th>EOY <br />Contrib</th>
+
+                <th class="column-group first">Taxable<br />Contrib</th>
+                <th class="column-group">Taxable<br />Growth</th>
+                <th class="column-group last">Taxes</th>
+                
+                <th class="column-group first">Traditional<br />Contrib</th>
+                <th class="column-group last">Traditional<br />Growth</th>
+
+                <th class="column-group first">Roth<br />Contrib</th>
+                <th class="column-group last">Roth<br />Growth</th>
                 <th><span style="display:block;">Tax</span><span style="display:block;">Rates</span></th>
             </tr>
         </thead>
@@ -44,13 +112,16 @@
                         }
                     </td>
                     <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
-                    <td class="col-taxable">@year.TaxableContribution.ToString("C")</td>
-                    <td class="col-taxable">@year.TaxableInterest.ToString("C")</td>
-                    <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
-                    <td>@year.TaxDeferredContribution.ToString("C")</td>
-                    <td>@year.TaxDeferredInterest.ToString("C")</td>
-                    <td>@year.RothContribution.ToString("C")</td>
-                    <td>@year.RothInterest.ToString("C")</td>
+
+                    <td class="column-group first">@year.TaxableContribution.ToString("C")</td>
+                    <td class="column-group">@year.TaxableInterest.ToString("C")</td>
+                    <td class="column-group last">@year.TaxesPaid.ToString("C")</td>
+
+                    <td class ="column-group first">@year.TaxDeferredContribution.ToString("C")</td>
+                    <td class="column-group last">@year.TaxDeferredInterest.ToString("C")</td>
+
+                    <td class ="column-group first">@year.RothContribution.ToString("C")</td>
+                    <td class="column-group last">@year.RothInterest.ToString("C")</td>
                     <td>
                         <span title="Applied to:">
                         </span>
@@ -62,11 +133,12 @@
 </div>
 
 @code {
-        [Parameter] public List<YearlyBreakdown>? YearlyDetails { get; set; }
-        [Parameter] public int CurrentAge { get; set; }
-        [Parameter] public int? InterestTooltipYear { get; set; }
+    [Parameter] public List<YearlyBreakdown>? YearlyDetails { get; set; }
+    [Parameter] public int CurrentAge { get; set; }
+    [Parameter] public int? InterestTooltipYear { get; set; }
     [Parameter] public TaxBracket TaxBracket { get; set; }
-     protected override void OnInitialized()
+
+    protected override void OnInitialized()
     {
         base.OnInitialized();
         var msg = $"YearlyDetailsComponent.OnInitialized - CurrentAge={CurrentAge}, Count={(YearlyDetails?.Count ?? 0)}";
@@ -84,10 +156,7 @@
             var firstSummary = count > 0 ? JsonSerializer.Serialize(YearlyDetails[0], new JsonSerializerOptions { WriteIndented = false }) : "none";
             var msg = $"YearlyDetailsComponent.OnParametersSet - Count={count}, CurrentAge={CurrentAge}, InterestTooltipYear={InterestTooltipYear}, TaxBracket={TaxBracket}, FirstYear={firstSummary}";
 
-            // Console output for quick debug in browser devtools / server logs
             Console.WriteLine(msg);
-
-            // If DebugService is available push message to your app debug UI
             DebugService?.AddMessage(msg);
         }
         catch (Exception ex)
