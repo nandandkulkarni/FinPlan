@@ -1,5 +1,4 @@
 ﻿using FinPlan.Shared.Enums;
-using FinPlan.Shared.Models;
 using FinPlan.Shared.Models.Savings;
 
 namespace FinPlan.Shared.Services
@@ -149,13 +148,14 @@ namespace FinPlan.Shared.Services
                 GetIncomeDistribution(model.TaxableIncomeType);
             decimal taxableBalance = model.InitialTaxableAmount;
             decimal traditionalBalance = model.InitialTraditionalAmount;
-            decimal rothBalance = model.InitialRothAmount;
+           // decimal rothBalance = model.InitialRothAmount;
             decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
             decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
             decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
             decimal monthlyRothContribution = model.MonthlyRothContribution;
             for (int year = 1; year <= model.Years; year++)
             {
+                decimal rothBOYBalance = year == 1 ? model.InitialRothAmount : breakdown[year-2].RothEOYBalance;
                 decimal yearlyTraditionalInterest = 0;
                 decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
                 for (int month = 1; month <= 12; month++)
@@ -164,14 +164,18 @@ namespace FinPlan.Shared.Services
                     yearlyTraditionalInterest += monthlyInterest;
                     traditionalBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
+             
+                //Roth
                 decimal yearlyRothInterest = 0;
                 decimal yearlyRothContribution = monthlyRothContribution * 12;
+                decimal rothEOYBalance = rothBOYBalance;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = rothBalance * monthlyRate;
-                    yearlyRothInterest += monthlyInterest;
-                    rothBalance += monthlyInterest + monthlyRothContribution;
+                    decimal rothMonthlyGrowth = rothEOYBalance * monthlyRate;
+                    yearlyRothInterest += rothMonthlyGrowth;
+                    rothEOYBalance += rothMonthlyGrowth + monthlyRothContribution;
                 }
+                
                 decimal yearlyTaxableInterest = 0;
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 for (int month = 1; month <= 12; month++)
@@ -190,7 +194,7 @@ namespace FinPlan.Shared.Services
                 decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
                 decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
                 taxableBalance -= yearlyTaxes;
-                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal totalBalance = taxableBalance + traditionalBalance + rothEOYBalance;
                 decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
                 decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
                 breakdown.Add(new YearlyBreakdown
@@ -201,7 +205,6 @@ namespace FinPlan.Shared.Services
                     ContributionsThisYear = totalYearlyContributions,
                     TaxableBalance = Math.Round(taxableBalance, 2),
                     TaxDeferredBalance = Math.Round(traditionalBalance, 2),
-                    RothBalance = Math.Round(rothBalance, 2),
                     TaxableInterest = Math.Round(yearlyTaxableInterest - yearlyTaxes, 2),
                     TaxDeferredInterest = Math.Round(yearlyTraditionalInterest, 2),
                     RothInterest = Math.Round(yearlyRothInterest, 2),
@@ -212,7 +215,10 @@ namespace FinPlan.Shared.Services
                     NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
                     LongTermGains = Math.Round(longTermGains, 2),
                     ShortTermGains = Math.Round(shortTermGains, 2),
-                    TaxesPaid = Math.Round(yearlyTaxes, 2)
+                    TaxesPaid = Math.Round(yearlyTaxes, 2),
+
+                    RothEOYBalance = Math.Round(rothEOYBalance, 2),
+                    RothBOYBalance = Math.Round(rothBOYBalance, 2),
                 });
             }
             return breakdown;

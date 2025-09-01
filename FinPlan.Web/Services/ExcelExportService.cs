@@ -445,7 +445,7 @@ namespace FinPlan.Web.Services
                 sheet.Cell(row, 5).Value = year.ContributionsThisYear;
                 sheet.Cell(row, 6).Value = year.TaxableBalance;
                 sheet.Cell(row, 7).Value = year.TaxDeferredBalance;
-                sheet.Cell(row, 8).Value = year.RothBalance;
+                sheet.Cell(row, 8).Value = year.RothEOYBalance;
                 sheet.Cell(row, 9).Value = year.TaxesPaid;
                 
                 // Apply currency formatting

@@ -1,4 +1,4 @@
-﻿namespace FinPlan.Shared.Models
+﻿namespace FinPlan.Shared.Models.Savings
 {
     public class YearlyBreakdown
     {
@@ -8,7 +8,7 @@
         public decimal ContributionsThisYear { get; set; }
         public decimal TaxDeferredBalance { get; set; }
         public decimal TaxableBalance { get; set; }
-        public decimal RothBalance { get; set; }
+        public decimal RothBOYBalance { get; set; }
         public decimal TaxDeferredInterest { get; set; }
         public decimal TaxableInterest { get; set; }
         public decimal RothInterest { get; set; }
@@ -22,12 +22,11 @@
         public decimal TaxesPaid { get; set; }
 
 
-        // End-of-year taxable balance should include starting taxable balance plus contributions and interest, minus taxes paid.
         public decimal TaxableEOYBalance => TaxableBalance + TaxableContribution + TaxableInterest - TaxesPaid;
 
         public decimal TaxDeferredEOYBalance => TaxDeferredBalance + TaxableContribution + TaxDeferredInterest;
 
-        public decimal RothEOYBalance => RothBalance + RothContribution + RothInterest;
+        public decimal RothEOYBalance { get; set; }
 
     }
 }
