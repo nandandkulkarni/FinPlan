@@ -8,7 +8,6 @@
         public decimal ContributionsThisYear { get; set; }
         public decimal TaxDeferredBalance { get; set; }
         public decimal TaxableBalance { get; set; }
-        public decimal RothBOYBalance { get; set; }
         public decimal TaxDeferredInterest { get; set; }
         public decimal TaxableInterest { get; set; }
         public decimal RothInterest { get; set; }
@@ -22,9 +21,14 @@
         public decimal TaxesPaid { get; set; }
 
 
-        public decimal TaxableEOYBalance => TaxableBalance + TaxableContribution + TaxableInterest - TaxesPaid;
+        public decimal TaxableEOYBalance;
 
-        public decimal TaxDeferredEOYBalance => TaxDeferredBalance + TaxableContribution + TaxDeferredInterest;
+        public decimal TaxDeferredEOYBalance;
+
+        public decimal TaxableBOYBalance;
+
+        public decimal TaxDeferredBOYBalance;
+        public decimal RothBOYBalance { get; set; }
 
         public decimal RothEOYBalance { get; set; }
 

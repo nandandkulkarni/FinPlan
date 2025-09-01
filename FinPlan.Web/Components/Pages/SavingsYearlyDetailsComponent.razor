@@ -149,19 +149,21 @@
                 <th class="column-group">EOY <br />Growth</th>
                 <th class="column-group last">EOY <br />Contrib</th>
 
-                <th class="column-group first">Taxable<br />Contrib</th>
+                <th class="column-group first">Taxable<br />BOY Balance</th>
                 <th class="column-group">Taxable<br />Growth</th>
                 <th class="column-group">Taxes<br />Growth</th>
-                <th class="column-group last">EOY Balance</th>
+                <th class="column-group">Taxable<br />BOY Balance</th>
+                <th class="column-group last">Taxable<br />EOY Balance</th>
 
-                <th class="column-group first">Traditional<br />Contrib</th>
+                <th class="column-group first">Traditional<br />BOY Balance</th>
                 <th class="column-group">Traditional<br />Growth</th>
-                <th class="column-group last">EOY Balance</th>
+                <th class="column-group">Traditional<br />BOY Balance</th>
+                <th class="column-group last">Traditional<br />EOY Balance</th>
 
                 <th class="column-group first">Roth<br />BOY Balance</th>
                 <th class="column-group">Roth<br />Contrib</th>
                 <th class="column-group">Roth<br />Growth</th>
-                <th class="column-group last">EOY Balance</th>
+                <th class="column-group last">Roth<br />EOY Balance</th>
 
                 <th><span style="display:block;">Tax</span><span style="display:block;">Rates</span></th>
             </tr>
@@ -189,12 +191,14 @@
                     </td>
                     <td class="column-group last text-info">@year.ContributionsThisYear.ToString("C")</td>
 
-                    <td class="column-group first">@year.TaxableContribution.ToString("C")</td>
+                    <td class="column-group first">@year.TaxableBOYBalance.ToString("C")</td>
+                    <td class="column-group">@year.TaxableContribution.ToString("C")</td>
                     <td class="column-group">@year.TaxableInterest.ToString("C")</td>
                     <td class="column-group">@year.TaxesPaid.ToString("C")</td>
                     <td class="column-group last">@year.TaxableEOYBalance.ToString("C")</td>
 
-                    <td class="column-group first">@year.TaxDeferredContribution.ToString("C")</td>
+                    <td class="column-group first">@year.TaxDeferredBOYBalance.ToString("C")</td>
+                    <td class="column-group">@year.TaxDeferredContribution.ToString("C")</td>
                     <td class="column-group">@year.TaxDeferredInterest.ToString("C")</td>
                     <td class="column-group last">@year.TaxDeferredEOYBalance.ToString("C")</td>
 
@@ -205,6 +209,7 @@
 
                     <td>
                         <span title="Applied to:">
+                            <!-- Optional tax rate info -->
                         </span>
                     </td>
                 </tr>

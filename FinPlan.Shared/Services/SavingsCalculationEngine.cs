@@ -146,16 +146,22 @@ namespace FinPlan.Shared.Services
             decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
             var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) =
                 GetIncomeDistribution(model.TaxableIncomeType);
+
             decimal taxableBalance = model.InitialTaxableAmount;
             decimal traditionalBalance = model.InitialTraditionalAmount;
-           // decimal rothBalance = model.InitialRothAmount;
             decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
             decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
             decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
             decimal monthlyRothContribution = model.MonthlyRothContribution;
+
             for (int year = 1; year <= model.Years; year++)
             {
-                decimal rothBOYBalance = year == 1 ? model.InitialRothAmount : breakdown[year-2].RothEOYBalance;
+                // Beginning-of-Year Balances
+                decimal rothBOYBalance = year == 1 ? model.InitialRothAmount : breakdown[year - 2].RothEOYBalance;
+                decimal taxableBOYBalance = year == 1 ? model.InitialTaxableAmount : breakdown[year - 2].TaxableEOYBalance;
+                decimal taxDeferredBOYBalance = year == 1 ? model.InitialTraditionalAmount : breakdown[year - 2].TaxDeferredEOYBalance;
+
+                // Traditional (Tax-Deferred)
                 decimal yearlyTraditionalInterest = 0;
                 decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
                 for (int month = 1; month <= 12; month++)
@@ -164,8 +170,8 @@ namespace FinPlan.Shared.Services
                     yearlyTraditionalInterest += monthlyInterest;
                     traditionalBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
-             
-                //Roth
+
+                // Roth
                 decimal yearlyRothInterest = 0;
                 decimal yearlyRothContribution = monthlyRothContribution * 12;
                 decimal rothEOYBalance = rothBOYBalance;
@@ -175,7 +181,8 @@ namespace FinPlan.Shared.Services
                     yearlyRothInterest += rothMonthlyGrowth;
                     rothEOYBalance += rothMonthlyGrowth + monthlyRothContribution;
                 }
-                
+
+                // Taxable
                 decimal yearlyTaxableInterest = 0;
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 for (int month = 1; month <= 12; month++)
@@ -184,33 +191,47 @@ namespace FinPlan.Shared.Services
                     yearlyTaxableInterest += monthlyInterest;
                     taxableBalance += monthlyInterest + monthlyTaxableContribution;
                 }
+
+                // Taxes
                 decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
                 decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
                 decimal longTermGains = yearlyTaxableInterest * longTermPercent;
                 decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
+
                 decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate;
                 decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
                 decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
                 decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
+
                 decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
                 taxableBalance -= yearlyTaxes;
+
+                // End-of-Year Balances
+                decimal taxableEOYBalance = taxableBalance;
+                decimal taxDeferredEOYBalance = traditionalBalance;
+
+                // Totals
                 decimal totalBalance = taxableBalance + traditionalBalance + rothEOYBalance;
                 decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
                 decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
+
                 breakdown.Add(new YearlyBreakdown
                 {
                     Year = year,
                     Balance = Math.Round(totalBalance, 2),
                     InterestEarned = Math.Round(totalYearlyInterest, 2),
                     ContributionsThisYear = totalYearlyContributions,
+
                     TaxableBalance = Math.Round(taxableBalance, 2),
                     TaxDeferredBalance = Math.Round(traditionalBalance, 2),
                     TaxableInterest = Math.Round(yearlyTaxableInterest - yearlyTaxes, 2),
                     TaxDeferredInterest = Math.Round(yearlyTraditionalInterest, 2),
                     RothInterest = Math.Round(yearlyRothInterest, 2),
+
                     TaxableContribution = Math.Round(yearlyTaxableContribution, 2),
                     TaxDeferredContribution = Math.Round(yearlyTraditionalContribution, 2),
                     RothContribution = Math.Round(yearlyRothContribution, 2),
+
                     QualifiedDividendIncome = Math.Round(qualifiedDividends, 2),
                     NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
                     LongTermGains = Math.Round(longTermGains, 2),
@@ -219,8 +240,14 @@ namespace FinPlan.Shared.Services
 
                     RothEOYBalance = Math.Round(rothEOYBalance, 2),
                     RothBOYBalance = Math.Round(rothBOYBalance, 2),
+
+                    TaxableEOYBalance = Math.Round(taxableEOYBalance, 2),
+                    TaxDeferredEOYBalance = Math.Round(taxDeferredEOYBalance, 2),
+                    TaxableBOYBalance = Math.Round(taxableBOYBalance, 2),
+                    TaxDeferredBOYBalance = Math.Round(taxDeferredBOYBalance, 2),
                 });
             }
+
             return breakdown;
         }
     }
