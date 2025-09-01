@@ -32,6 +32,15 @@
 
         public decimal RothEOYBalance { get; set; }
 
+        public decimal TotalBOYBalance => TaxableBOYBalance + TraditionalBOYBalance + RothBOYBalance;
+
+
+        public decimal TotalContributions => TaxableContribution + TraditionalContribution + RothContribution;
+        public decimal TotalGrowth => TaxableInterest + Traditionalnterest + RothInterest;
+
+        public decimal TotalTaxesPaid=> TaxesPaid;
+        public decimal TotalEOYBalance => TaxableEOYBalance + TraditionalEOYBalance + RothEOYBalance;
+
     }
 }
 
