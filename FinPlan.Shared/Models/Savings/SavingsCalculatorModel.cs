@@ -40,18 +40,9 @@ namespace FinPlan.Shared.Models.Savings
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Initial Roth amount must be positive")]
         public decimal InitialRothAmount { get; set; } = 0;
-
-        // Legacy property for backwards compatibility
         public decimal InitialAmount
         {
             get => InitialTaxableAmount + InitialTraditionalAmount + InitialRothAmount;
-            //set
-            //{
-            //    decimal portion = value / 3;
-            //    InitialTaxableAmount = portion;
-            //    InitialTraditionalAmount = portion;
-            //    InitialRothAmount = portion;
-            //}
         }
 
         [Required]
@@ -70,13 +61,6 @@ namespace FinPlan.Shared.Models.Savings
         public decimal MonthlyContribution
         {
             get => MonthlyTaxableContribution + MonthlyTraditionalContribution + MonthlyRothContribution;
-            //set
-            //{
-            //    decimal portion = value / 3;
-            //    MonthlyTaxableContribution = portion;
-            //    MonthlyTraditionalContribution = portion;
-            //    MonthlyRothContribution = portion;
-            //}
         }
 
         [Required]

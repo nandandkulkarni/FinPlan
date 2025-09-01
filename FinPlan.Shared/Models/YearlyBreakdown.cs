@@ -25,6 +25,10 @@
         // End-of-year taxable balance should include starting taxable balance plus contributions and interest, minus taxes paid.
         public decimal TaxableEOYBalance => TaxableBalance + TaxableContribution + TaxableInterest - TaxesPaid;
 
+        public decimal TaxDeferredEOYBalance => TaxDeferredBalance + TaxableContribution + TaxDeferredInterest;
+
+        public decimal RothEOYBalance => RothBalance + RothContribution + RothInterest;
+
     }
 }
 
