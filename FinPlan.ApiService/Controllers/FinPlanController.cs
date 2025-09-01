@@ -20,20 +20,6 @@ namespace FinPlan.ApiService.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> Save([FromBody] SaveSavingsRequest request)
         {
-            //if (string.IsNullOrWhiteSpace(request.UserGuid) || string.IsNullOrWhiteSpace(request.CalculatorType) || string.IsNullOrWhiteSpace(request.Data))
-            //    return BadRequest("Missing required fields.");
-
-            //// Deserialize, round, and re-serialize
-            //var model = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(request.Data, new System.Text.Json.JsonSerializerOptions
-            //{
-            //    PropertyNameCaseInsensitive = true
-            //});
-            //if (model != null)
-            //{
-            //    model.RoundDecimals();
-            //    request.Data = System.Text.Json.JsonSerializer.Serialize(model);
-            //}
-
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
 
             var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == request.UserGuid && x.CalculatorType == request.CalculatorType);
