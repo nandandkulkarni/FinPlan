@@ -219,13 +219,19 @@
         <li class="nav-item">
             <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
                     @onclick="YourTabClick">
-                Your  Savings
+                Your Retirement
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")"
                     @onclick="PartnerTabClick">
-                Partner  Savings
+                Partner Retirement
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "joint" ? "tab-active-custom" : "")"
+                    @onclick="JointTabClick">
+                Joint Retirement
             </button>
         </li>
     </ul>
@@ -859,7 +865,15 @@
         await Calculate();
 
     }
+    private async Task JointTabClick()
+    {
+        calculatorType = "Withdrawals_joint";
+        Console.WriteLine("Joint tab clicked");
+        SetActiveTab("joint");
+        await LoadUserRetirementAsync();
+        await Calculate();
 
+    }
     private void ToggleTheme()
     {
         isDarkTheme = !isDarkTheme;
