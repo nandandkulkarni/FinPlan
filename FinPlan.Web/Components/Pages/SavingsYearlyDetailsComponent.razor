@@ -1,0 +1,99 @@
+﻿@using FinPlan.Shared.Models
+@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Enums
+@using System.Text.Json
+@inject FinPlan.Web.Services.DebugMessageService DebugService
+
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead class="table-light">
+            <tr>
+                <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
+                <th>Final EOY <br />Balance</th>
+                <th>Total Yearly <br />Growth</th>
+                <th>Total Yearly <br />Contrib</th>
+                <th>Taxable<br />Contrib</th>
+                <th>Taxable<br />Growth</th>
+                <th>Taxes</th>
+                <th>Traditional<br />Contrib</th>
+                <th>Traditional<br />Growth</th>
+                <th>Roth<br />Contrib</th>
+                <th>Roth<br />Growth</th>
+                <th><span style="display:block;">Tax</span><span style="display:block;">Rates</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var year in YearlyDetails)
+            {
+                <tr>
+                    <td>Year @year.Year (@(CurrentAge + year.Year))</td>
+                    <td>@year.Balance.ToString("C")</td>
+                    <td class="text-success" style="position:relative;">
+                        <span style="cursor:pointer;">
+                            @year.InterestEarned.ToString("C")
+                        </span>
+
+                        @if (InterestTooltipYear == year.Year)
+                        {
+                            <div style="position:absolute; left:100%; top:0; background:#fff; color:#222; border:2px solid #6D5DFC; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.18); padding:10px 16px; min-width:260px; z-index:9999; font-size:0.95em; display:flex; align-items:center;">
+                                <strong style="margin-right:10px;">Interest:</strong>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Taxable @year.TaxableInterest.ToString("C")</b></span>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Trad @year.TaxDeferredInterest.ToString("C")</b></span>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Roth @year.RothInterest.ToString("C")</b></span>
+                            </div>
+                        }
+                    </td>
+                    <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
+                    <td class="col-taxable">@year.TaxableContribution.ToString("C")</td>
+                    <td class="col-taxable">@year.TaxableInterest.ToString("C")</td>
+                    <td class="text-danger">@year.TaxesPaid.ToString("C")</td>
+                    <td>@year.TaxDeferredContribution.ToString("C")</td>
+                    <td>@year.TaxDeferredInterest.ToString("C")</td>
+                    <td>@year.RothContribution.ToString("C")</td>
+                    <td>@year.RothInterest.ToString("C")</td>
+                    <td>
+                        <span title="Applied to:">
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+        [Parameter] public List<YearlyBreakdown>? YearlyDetails { get; set; }
+        [Parameter] public int CurrentAge { get; set; }
+        [Parameter] public int? InterestTooltipYear { get; set; }
+    [Parameter] public TaxBracket TaxBracket { get; set; }
+     protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        var msg = $"YearlyDetailsComponent.OnInitialized - CurrentAge={CurrentAge}, Count={(YearlyDetails?.Count ?? 0)}";
+        Console.WriteLine(msg);
+        DebugService?.AddMessage(msg);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        try
+        {
+            var count = YearlyDetails?.Count ?? 0;
+            var firstSummary = count > 0 ? JsonSerializer.Serialize(YearlyDetails[0], new JsonSerializerOptions { WriteIndented = false }) : "none";
+            var msg = $"YearlyDetailsComponent.OnParametersSet - Count={count}, CurrentAge={CurrentAge}, InterestTooltipYear={InterestTooltipYear}, TaxBracket={TaxBracket}, FirstYear={firstSummary}";
+
+            // Console output for quick debug in browser devtools / server logs
+            Console.WriteLine(msg);
+
+            // If DebugService is available push message to your app debug UI
+            DebugService?.AddMessage(msg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"YearlyDetailsComponent.OnParametersSet debug failed: {ex.Message}");
+            DebugService?.AddMessage($"YearlyDetailsComponent debug error: {ex.Message}");
+        }
+    }
+}
