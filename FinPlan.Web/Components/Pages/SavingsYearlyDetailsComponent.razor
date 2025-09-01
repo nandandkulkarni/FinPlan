@@ -69,20 +69,91 @@
     }
 </style>
 
+@using FinPlan.Shared.Models
+@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Enums
+@using System.Text.Json
+@inject FinPlan.Web.Services.DebugMessageService DebugService
+<style>
+
+    .column-group {
+        background-color: #f0f8ff; /* Light blue - Alice Blue */
+        padding: 4px 8px;
+        border: none; /* Remove all default borders */
+    }
+
+        /* First column - left border and rounded left corners */
+        .column-group.first {
+            border-left: 2px solid #4682b4;
+            /* add 3px padding on the left specifically */
+            padding-left: 3px !important;
+        }
+
+        /* Last column - right border and rounded right corners */
+        .column-group.last {
+            border-right: 2px solid #4682b4;
+            /* add 3px padding on the right specifically */
+            padding-right: 3px !important;
+        }
+
+    /* Top borders only on header row */
+    thead .column-group {
+        border-top: 2px solid #4682b4 !important;
+    }
+
+        thead .column-group.first {
+            border-top-left-radius: 6px;
+        }
+
+        thead .column-group.last {
+            border-top-right-radius: 6px;
+        }
+
+    /* Bottom borders on header row and last data row */
+    thead .column-group {
+        border-bottom: 2px solid #4682b4 !important;
+    }
+
+    tbody tr:last-child .column-group {
+        border-bottom: 2px solid #4682b4 !important;
+    }
+
+        tbody tr:last-child .column-group.first {
+            border-bottom-left-radius: 6px;
+        }
+
+        tbody tr:last-child .column-group.last {
+            border-bottom-right-radius: 6px;
+        }
+
+    /* Ensure no other borders appear */
+    tbody tr:not(:last-child) .column-group {
+        border-bottom: none !important;
+    }
+
+    tbody tr .column-group:not(.first) {
+        border-left: none !important;
+    }
+
+    tbody tr .column-group:not(.last) {
+        border-right: none !important;
+    }
+</style>
+
 <div class="table-responsive">
     <table class="table table-sm">
         <thead class="table-light">
             <tr>
-                <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
-                <th>EOY <br />Balance</th>
-                <th>EOY <br />Growth</th>
-                <th>EOY <br />Contrib</th>
+                <th>Year<br />Age</th>
+                <th class="column-group first">EOY <br />Balance</th>
+                <th class="column-group">EOY <br />Growth</th>
+                <th class="column-group last">EOY <br />Contrib</th>
 
                 <th class="column-group first">Taxable<br />Contrib</th>
                 <th class="column-group">Taxable<br />Growth</th>
                 <th class="column-group">Taxes<br />Growth</th>
                 <th class="column-group last">EOY Balance</th>
-                
+
                 <th class="column-group first">Traditional<br />Contrib</th>
                 <th class="column-group last">Traditional<br />Growth</th>
 
@@ -96,8 +167,8 @@
             {
                 <tr>
                     <td>Year @year.Year (@(CurrentAge + year.Year))</td>
-                    <td>@year.Balance.ToString("C")</td>
-                    <td class="text-success" style="position:relative;">
+                    <td class="column-group first">@year.Balance.ToString("C")</td>
+                    <td class="column-group text-success" style="position:relative;">
                         <span style="cursor:pointer;">
                             @year.InterestEarned.ToString("C")
                         </span>
@@ -112,17 +183,17 @@
                             </div>
                         }
                     </td>
-                    <td class="text-info">@year.ContributionsThisYear.ToString("C")</td>
+                    <td class="column-group last text-info">@year.ContributionsThisYear.ToString("C")</td>
 
                     <td class="column-group first">@year.TaxableContribution.ToString("C")</td>
                     <td class="column-group">@year.TaxableInterest.ToString("C")</td>
                     <td class="column-group">@year.TaxesPaid.ToString("C")</td>
                     <td class="column-group last">@year.TaxableEOYBalance.ToString("C")</td>
 
-                    <td class ="column-group first">@year.TaxDeferredContribution.ToString("C")</td>
+                    <td class="column-group first">@year.TaxDeferredContribution.ToString("C")</td>
                     <td class="column-group last">@year.TaxDeferredInterest.ToString("C")</td>
 
-                    <td class ="column-group first">@year.RothContribution.ToString("C")</td>
+                    <td class="column-group first">@year.RothContribution.ToString("C")</td>
                     <td class="column-group last">@year.RothInterest.ToString("C")</td>
                     <td>
                         <span title="Applied to:">
