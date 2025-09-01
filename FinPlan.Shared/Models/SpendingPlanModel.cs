@@ -83,5 +83,7 @@ namespace FinPlan.Shared.Models
 
         // Years the plan needs to cover
         public int PlanYears => Math.Max(0, LifeExpectancy - RetirementAge);
+        public DateTime LastUpdateDate { get; set; }
+
     }
 }

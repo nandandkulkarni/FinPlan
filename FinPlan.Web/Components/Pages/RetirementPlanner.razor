@@ -13,6 +13,21 @@
 @using ClosedXML.Excel
 @using FinPlan.Web.Services
 @rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using FinPlan.Shared
+@using FinPlan.Shared.Enums
+@using FinPlan.Shared.Models
+@using FinPlan.Shared.Services
+@using FinPlan.Web
+@using FinPlan.Web.Components
+@using FinPlan.Web.Models
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@implements IDisposable
+@inject FinPlan.Web.Services.DebugMessageService DebugService
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+
 
 <PageTitle>Retirement Spending Planner</PageTitle>
 
@@ -825,13 +840,13 @@
     private string thirdWithdrawalType = "Roth";
     private string calculatorType = "Withdrawals_yours"; // Default to "Your" tab
     private string activeTab = "your"; // Track active tab for UI highlighting
-     private async Task YourTabClick()
+    private async Task YourTabClick()
     {
         calculatorType = "Withdrawals_yours";
         Console.WriteLine("Your tab clicked");
         SetActiveTab("your");
-       // await LoadUserSavingsAsync();
-        Calculate();
+        await LoadUserRetirementAsync();
+        await Calculate();
 
     }
 
@@ -840,8 +855,8 @@
         calculatorType = "Withdrawals_partners";
         Console.WriteLine("Partner tab clicked");
         SetActiveTab("partner");
-       // await LoadUserSavingsAsync();
-        Calculate();
+        await LoadUserRetirementAsync();
+        await Calculate();
 
     }
 
@@ -854,9 +869,6 @@
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
-        // Clear messages when switching tabs
-        // userMessage = string.Empty;
-        // productMessage = string.Empty;
     }
     private void ToggleSummary()
     {
@@ -864,7 +876,7 @@
     }
 
     // Update the withdrawal order based on UI selections
-    private void UpdateWithdrawalOrder()
+    private async Task UpdateWithdrawalOrder()
     {
         // Ensure no duplicates by checking if user selected the same account type multiple times
         var uniqueTypes = new HashSet<string> { firstWithdrawalType, secondWithdrawalType, thirdWithdrawalType };
@@ -905,7 +917,7 @@
         spendingModel.WithdrawalOrder = new[] { firstWithdrawalType, secondWithdrawalType, thirdWithdrawalType };
 
         // Recalculate results with the new withdrawal order
-        Calculate();
+        await Calculate();
     }
 
     [SupplyParameterFromForm]
@@ -952,7 +964,7 @@
         base.OnInitialized();
     }
 
-    private void Calculate()
+    private async Task Calculate()
     {
         try
         {
@@ -965,7 +977,7 @@
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
             }
-
+            await SaveUserRetirementAsync();
             StateHasChanged(); // Force UI update
         }
         catch (Exception ex)
@@ -1428,5 +1440,151 @@
         StateHasChanged(); // Force UI refresh
     }
 
-   
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
+    string userGuid = string.Empty;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            await LoadUserRetirementAsync();
+            await Calculate();
+            StateHasChanged(); // Trigger UI update after userGuid is set
+        }
+    }
+
+    private bool isLoading = false;
+    private void AddDebugMessage(string message)
+    {
+        DebugService.AddMessage(message);
+    }
+
+    private async Task LoadUserRetirementAsync()
+    {
+        isLoading = true;
+        StateHasChanged();
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calculatorType}";
+        try
+        {
+            AddDebugMessage($"Loading");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Loaded.");
+                AddDebugMessage($"Loaded");
+            }
+            else
+            {
+                AddDebugMessage($"Load Failed");
+                Console.WriteLine($"Load failed: {response.StatusCode}");
+                return;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"API Response: {json}");
+
+            // Deserialize JSON into SavingsCalculatorModel
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(json, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (loadedModel != null)
+            {
+                spendingModel = loadedModel;
+                // autoCalculate = loadedModel.AutoCalculate;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugMessage($"Load Failed");
+            Console.WriteLine($"Error calling API: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    private System.Timers.Timer? debounceTimer;
+
+    public void Dispose()
+    {
+        debounceTimer?.Dispose();
+        saveSemaphore?.Dispose();
+    }
+
+    // Semaphore to prevent re-entrant/parallel saves
+    private readonly System.Threading.SemaphoreSlim saveSemaphore = new System.Threading.SemaphoreSlim(1, 1);
+
+    private async Task SaveUserRetirementAsync()
+    {
+        // If a save is already in progress, skip this duplicate call
+        if (!saveSemaphore.Wait(0))
+        {
+            AddDebugMessage($"Skip Dupl. Save");
+            Console.WriteLine("Save already in progress; skipping duplicate save.");
+            return;
+        }
+
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/Retirement/save";
+
+            spendingModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
+
+            // Create SaveRequest object
+            var saveRequest = new SaveSpendingRequest()
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType,
+                Data = spendingModel
+            };
+
+            AddDebugMessage($"Saving");
+
+            var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Saved");
+                AddDebugMessage($"Saved");
+            }
+            else
+            {
+                AddDebugMessage($"Save Failed");
+                Console.WriteLine($"Save failed: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugMessage($"Save Failed");
+            Console.WriteLine($"Error saving data: {ex.Message}");
+        }
+        finally
+        {
+            try { saveSemaphore.Release(); } catch { }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        activeTab = "your"; // Ensure "Yours" tab is selected by default
+
+    }
 }

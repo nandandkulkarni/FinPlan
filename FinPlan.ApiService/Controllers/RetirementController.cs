@@ -8,10 +8,10 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FinPlanController : ControllerBase
+    public class RetirementController : ControllerBase
     {
         private readonly FinPlanDbContext _db;
-        public FinPlanController(FinPlanDbContext db)
+        public RetirementController(FinPlanDbContext db)
         {
             _db = db;
         }
@@ -68,7 +68,7 @@ namespace FinPlan.ApiService.Controllers
             if (entity == null)
                 return NotFound();
 
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
