@@ -122,6 +122,11 @@
             border-color: rgba(79, 209, 197, 0.4);
         }
 
+        .dark-theme .col-taxable {
+            background-color: #2a2a2a; /* dark theme highlight */
+            color: #E2E8F0;
+        }
+
     .theme-toggle {
         position: absolute;
         top: 10px;
@@ -161,6 +166,11 @@
 
     .table th, .table td {
         font-size: 0.85em !important;
+    }
+    .col-taxable {
+        background-color: #f5f7fa; /* light theme highlight */
+        border-radius: 6px;
+        padding: 4px 8px;
     }
 </style>
 
@@ -599,9 +609,9 @@
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th><span style="display:block;">Year</span><span style="display:block;">Age</span></th>
-                                                                <th>Balance</th>
-                                                                <th>Growth</th>
-                                                                <th>Contributions</th>
+                                                                <th>Final EOY <br />Balance</th>
+                                                                <th>Total Yearly <br />Growth</th>
+                                                                <th>Total Yearly <br />Contrib</th>
                                                                 <th>Taxable<br />Contrib</th>
                                                                 <th>Taxable<br />Growth</th>
                                                                 <th>Taxes</th>
