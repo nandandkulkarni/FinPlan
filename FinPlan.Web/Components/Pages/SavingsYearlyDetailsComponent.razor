@@ -80,7 +80,8 @@
 
                 <th class="column-group first">Taxable<br />Contrib</th>
                 <th class="column-group">Taxable<br />Growth</th>
-                <th class="column-group last">Taxes</th>
+                <th class="column-group">Taxes<br />Growth</th>
+                <th class="column-group last">EOY Balance</th>
                 
                 <th class="column-group first">Traditional<br />Contrib</th>
                 <th class="column-group last">Traditional<br />Growth</th>
@@ -115,7 +116,8 @@
 
                     <td class="column-group first">@year.TaxableContribution.ToString("C")</td>
                     <td class="column-group">@year.TaxableInterest.ToString("C")</td>
-                    <td class="column-group last">@year.TaxesPaid.ToString("C")</td>
+                    <td class="column-group">@year.TaxesPaid.ToString("C")</td>
+                    <td class="column-group last">@year.TaxableEOYBalance.ToString("C")</td>
 
                     <td class ="column-group first">@year.TaxDeferredContribution.ToString("C")</td>
                     <td class="column-group last">@year.TaxDeferredInterest.ToString("C")</td>

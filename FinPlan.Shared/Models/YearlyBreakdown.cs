@@ -20,6 +20,11 @@
         public decimal LongTermGains { get; set; }
         public decimal ShortTermGains { get; set; }
         public decimal TaxesPaid { get; set; }
-    }
 
+
+        // End-of-year taxable balance should include starting taxable balance plus contributions and interest, minus taxes paid.
+        public decimal TaxableEOYBalance => TaxableBalance + TaxableContribution + TaxableInterest - TaxesPaid;
+
+    }
 }
+
