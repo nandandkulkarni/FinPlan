@@ -176,7 +176,7 @@ namespace FinPlan.Shared.Services
                 decimal traditionalEOYBalance = traditionalBOYBalance;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = traditionalBOYBalance * monthlyRate;
+                    decimal monthlyInterest = traditionalEOYBalance * monthlyRate;
                     yearlyTraditionalInterest += monthlyInterest;
                     traditionalEOYBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
