@@ -176,9 +176,16 @@ namespace FinPlan.Shared.Services
                     EndingTraditionalBalance = Math.Round(endingTraditionalBalance, 2),
                     EndingRothBalance = Math.Round(endingRothBalance, 2),
 
+                    //Social Security
+                    EndingSocialSecurityBalanceYour = model.SocialSecurityMonthlyAmountYour,
+                    EndingSocialSecurityBalancePartner = model.SocialSecurityMonthlyAmountPartner,
+                    EndingSocialSecurityBalanceJoint = model.SocialSecurityMonthlyAmountYour + model.SocialSecurityMonthlyAmountPartner,
+                    EndingSocialSecurityBalanceIndividual = model.SocialSecurityMonthlyAmountIndividual,
+
                     // Other info
                     PartTimeIncome = Math.Round(partTimeIncome, 2),
                     IsPartialRetirement = partTimeIncome > 0
+
                 });
 
                 // Update for next year

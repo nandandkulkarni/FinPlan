@@ -21,10 +21,17 @@
         public decimal TaxPaid { get; set; }
 
         // Growth by account type
+
+        public int SocialSecurityIncomeYour { get; set; }
+        public int SocialSecurityIncomePartner { get; set; }
+
+        public int SocialSecurityIncomeJoint { get; set; }
+
         public decimal TaxableGrowth { get; set; }
         public decimal TraditionalGrowth { get; set; }
         public decimal RothGrowth { get; set; }
         public decimal TotalGrowth => TaxableGrowth + TraditionalGrowth + RothGrowth;
+
 
         // Ending balances by account type
         public decimal EndingTaxableBalance { get; set; }
@@ -43,5 +50,10 @@
         // Helper properties
         public bool FundsRemaining => EndingTotalBalance > 0;
         public decimal WithdrawalRate => StartingTotalBalance > 0 ? TotalWithdrawal / StartingTotalBalance * 100 : 0;
+
+        public decimal EndingSocialSecurityBalanceYour { get; internal set; }
+        public decimal EndingSocialSecurityBalancePartner { get; internal set; }
+        public decimal EndingSocialSecurityBalanceJoint { get; internal set; }
+        public decimal EndingSocialSecurityBalanceIndividual { get; internal set; }
     }
 }

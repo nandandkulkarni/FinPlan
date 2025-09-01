@@ -1,6 +1,6 @@
 ﻿namespace FinPlan.Shared.Models.Savings
 {
-    public class SaveSavingsRequest
+    public class PersistSavingsRequest
     {
         public string UserGuid { get; set; } = string.Empty;
         public string CalculatorType { get; set; } = string.Empty;

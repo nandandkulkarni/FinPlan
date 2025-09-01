@@ -1115,7 +1115,7 @@
             calculatorModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
 
             // Create SaveRequest object
-            var saveRequest = new SaveSavingsRequest()
+            var saveRequest = new PersistSavingsRequest()
             {
                 UserGuid = userGuid,
                 CalculatorType = calculatorType,

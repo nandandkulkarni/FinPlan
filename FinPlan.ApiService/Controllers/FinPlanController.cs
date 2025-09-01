@@ -18,7 +18,7 @@ namespace FinPlan.ApiService.Controllers
 
         // Save calculator data
         [HttpPost("save")]
-        public async Task<IActionResult> Save([FromBody] SaveSavingsRequest request)
+        public async Task<IActionResult> Save([FromBody] PersistSavingsRequest request)
         {
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
 

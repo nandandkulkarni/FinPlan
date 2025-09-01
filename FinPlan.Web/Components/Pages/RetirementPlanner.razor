@@ -798,13 +798,17 @@
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Year/Age</th>
+                                                                <th>Your SS</th>
+                                                                <th>Partner SS</th>
+                                                                <th>Joint SS</th>
                                                                 <th>Post-Tax Start</th>
                                                                 <th>Traditional Start</th>
                                                                 <th>Roth Start</th>
-                                                                @if (spendingModel.HasPartialRetirement)
+                                                               @*  @if (spendingModel.HasPartialRetirement)
                                                                 {
                                                                     <th>Part-time Income</th>
-                                                                }
+                                                                } *@
+                                                              
                                                                 <th>Post-Tax W/D</th>
                                                                 <th>Traditional W/D</th>
                                                                 <th>Roth W/D</th>
@@ -827,11 +831,14 @@
                                                                 <tr class="@rowClass">
                                                                     <td>
                                                                         Year @year.Year (Age @year.Age)
-                                                                        @if (year.IsPartialRetirement)
+                                                                        @* @if (year.IsPartialRetirement)
                                                                         {
                                                                             <small class="badge bg-info">Part-time work</small>
-                                                                        }
+                                                                        } *@
                                                                     </td>
+                                                                    <td class="money-value">@year.EndingSocialSecurityBalanceYour.ToString("C0")</td>
+                                                                    <td class="money-value">@year.EndingSocialSecurityBalancePartner.ToString("C0")</td>
+                                                                    <td class="money-value">@year.EndingSocialSecurityBalanceJoint.ToString("C0")</td>
                                                                     <td class="money-value">@year.StartingTaxableBalance.ToString("C0")</td>
                                                                     <td class="money-value">@year.StartingTraditionalBalance.ToString("C0")</td>
                                                                     <td class="money-value">@year.StartingRothBalance.ToString("C0")</td>
@@ -1658,7 +1665,7 @@
             spendingModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
 
             // Create SaveRequest object
-            var saveRequest = new SaveSpendingRequest()
+            var saveRequest = new PersistSpendingRequest()
             {
                 UserGuid = userGuid,
                 CalculatorType = calculatorType,
