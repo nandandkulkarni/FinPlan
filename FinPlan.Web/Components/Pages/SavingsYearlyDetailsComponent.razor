@@ -173,39 +173,39 @@
             {
                 <tr>
                     <td>Year @year.Year (@(CurrentAge + year.Year))</td>
-                    <td class="column-group first">@year.Balance.ToString("C")</td>
+                    <td class="column-group first">@year.Balance.ToString("C0")</td>
                     <td class="column-group text-success" style="position:relative;">
                         <span style="cursor:pointer;">
-                            @year.InterestEarned.ToString("C")
+                            @year.InterestEarned.ToString("C0")
                         </span>
 
                         @if (InterestTooltipYear == year.Year)
                         {
                             <div style="position:absolute; left:100%; top:0; background:#fff; color:#222; border:2px solid #6D5DFC; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.18); padding:10px 16px; min-width:260px; z-index:9999; font-size:0.95em; display:flex; align-items:center;">
                                 <strong style="margin-right:10px;">Interest:</strong>
-                                <span style="margin-right:10px; color:#38B2AC;"><b>Taxable @year.TaxableInterest.ToString("C")</b></span>
-                                <span style="margin-right:10px; color:#38B2AC;"><b>Trad @year.Traditionalnterest.ToString("C")</b></span>
-                                <span style="margin-right:10px; color:#38B2AC;"><b>Roth @year.RothInterest.ToString("C")</b></span>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Taxable @year.TaxableInterest.ToString("C0")</b></span>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Trad @year.Traditionalnterest.ToString("C0")</b></span>
+                                <span style="margin-right:10px; color:#38B2AC;"><b>Roth @year.RothInterest.ToString("C0")</b></span>
                             </div>
                         }
                     </td>
-                    <td class="column-group last text-info">@year.ContributionsThisYear.ToString("C")</td>
+                    <td class="column-group last text-info">@year.ContributionsThisYear.ToString("C0")</td>
 
-                    <td class="column-group first">@year.TaxableBOYBalance.ToString("C")</td>
-                    <td class="column-group">@year.TaxableContribution.ToString("C")</td>
-                    <td class="column-group">@year.TaxableInterest.ToString("C")</td>
-                    <td class="column-group">@year.TaxesPaid.ToString("C")</td>
-                    <td class="column-group last">@year.TaxableEOYBalance.ToString("C")</td>
+                    <td class="column-group first">@year.TaxableBOYBalance.ToString("C0")</td>
+                    <td class="column-group">@year.TaxableContribution.ToString("C0")</td>
+                    <td class="column-group">@year.TaxableInterest.ToString("C0")</td>
+                    <td class="column-group">@year.TaxesPaid.ToString("C0")</td>
+                    <td class="column-group last">@year.TaxableEOYBalance.ToString("C0")</td>
 
-                    <td class="column-group first">@year.TraditionalBOYBalance.ToString("C")</td>
-                    <td class="column-group">@year.TraditionalContribution.ToString("C")</td>
-                    <td class="column-group">@year.Traditionalnterest.ToString("C")</td>
-                    <td class="column-group last">@year.TraditionalEOYBalance.ToString("C")</td>
+                    <td class="column-group first">@year.TraditionalBOYBalance.ToString("C0")</td>
+                    <td class="column-group">@year.TraditionalContribution.ToString("C0")</td>
+                    <td class="column-group">@year.Traditionalnterest.ToString("C0")</td>
+                    <td class="column-group last">@year.TraditionalEOYBalance.ToString("C0")</td>
 
-                    <td class="column-group first">@year.RothBOYBalance.ToString("C")</td>
-                    <td class="column-group">@year.RothContribution.ToString("C")</td>
-                    <td class="column-group">@year.RothInterest.ToString("C")</td>
-                    <td class="column-group last">@year.RothEOYBalance.ToString("C")</td>
+                    <td class="column-group first">@year.RothBOYBalance.ToString("C0")</td>
+                    <td class="column-group">@year.RothContribution.ToString("C0")</td>
+                    <td class="column-group">@year.RothInterest.ToString("C0")</td>
+                    <td class="column-group last">@year.RothEOYBalance.ToString("C0")</td>
 
                     <td>
                         <span title="Applied to:">
