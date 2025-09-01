@@ -202,27 +202,27 @@
 
                         <div class="card mb-3">
                             <div class="card-header">
-                                <h5 class="mb-0">Initial Amount ($)</h5>
+                                <h5 class="mb-0">Current Savins ($)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="initialTaxableAmount" class="form-label">Post Tax(Post-tax)</label>
-                                        <input type="number"
-                                               id="initialTaxableAmount"
-                                               class="form-control"
-                                               @bind="calculatorModel.InitialTaxableAmount"
-                                               @onblur="@(() => SaveUserSavingsAsync())" />
+                                        <label for="initialTaxableAmount" class="form-label">
+                                            Brokerage/Savings <small class="text-muted" style="font-size:0.85em;">(from post-tax source)</small>
+                                        </label>                                        <FormattedInputNumber id="initialTaxableAmount" class="form-control"
+                                                              @bind-value="calculatorModel.InitialTaxableAmount"
+                                                              OnBlur="@(() => SaveUserSavingsAsync())" />
+                                        <small class="form-text">Regular brokerage/savings account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="initialTraditionalAmount" class="form-label">Traditional (Pre-tax)</label>
+                                        <label for="initialTraditionalAmount" class="form-label">Traditional <small class="text-muted" style="font-size:0.85em;">(from pre-tax source)</small></label>
                                         <FormattedInputNumber id="initialTraditionalAmount" class="form-control"
                                                               @bind-value="calculatorModel.InitialTraditionalAmount"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" />
-                                        <small class="form-text">401k, Traditional IRA</small>
+                                        <small class="form-text">401k, Traditional IRA (include employer)</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="initialRothAmount" class="form-label">Roth (Post-tax)</label>
+                                        <label for="initialRothAmount" class="form-label">Roth <small class="text-muted" style="font-size:0.85em;">(from post-tax source)</small></label>
                                         <FormattedInputNumber id="initialRothAmount" class="form-control"
                                                               @bind-value="calculatorModel.InitialRothAmount"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" />
@@ -237,7 +237,7 @@
 
                         <div class="card mb-3">
                             <div class="card-header">
-                                <h5 class="mb-0">Monthly Contributions</h5>
+                                <h5 class="mb-0">Monthly Contributions ($)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -246,14 +246,14 @@
                                         <FormattedInputNumber id="monthlyTaxableContribution" class="form-control"
                                                               @bind-value="calculatorModel.MonthlyTaxableContribution"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" />
-                                        <small class="form-text">Regular brokerage account</small>
+                                        <small class="form-text">Regular brokerage/savings account</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyTraditionalContribution" class="form-label">Traditional (Pre-tax)</label>
                                         <FormattedInputNumber id="monthlyTraditionalContribution" class="form-control"
                                                               @bind-value="calculatorModel.MonthlyTraditionalContribution"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" />
-                                        <small class="form-text">401k, Traditional IRA</small>
+                                        <small class="form-text">401k, Traditional IRA (include Employer)</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="monthlyRothContribution" class="form-label">Roth (Post-tax)</label>
