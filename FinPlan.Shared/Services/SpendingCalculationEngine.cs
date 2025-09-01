@@ -16,7 +16,7 @@ namespace FinPlan.Shared.Services
             decimal taxableBalance = model.TaxableBalance;
             decimal traditionalBalance = model.TraditionalBalance;
             decimal rothBalance = model.RothBalance;
-
+            decimal totalSocialSecurityIncome = 0;
             decimal currentWithdrawal = model.AnnualWithdrawal;
             bool isSustainable = true;
             int moneyRunsOutAge = 0;
@@ -33,6 +33,12 @@ namespace FinPlan.Shared.Services
                     totalPartTimeIncome += model.PartialRetirementIncome;
                 }
 
+                //Calculate social security income
+                decimal totalSocialSecurityIncomeYour = model.SocialSecurityMonthlyAmountYour * 12;
+                decimal totalSocialSecurityIncomePartner = model.SocialSecurityMonthlyAmountPartner * 12;
+                decimal totalSocialSecurityIncomeJoint = totalSocialSecurityIncomeYour + totalSocialSecurityIncomePartner;
+                taxableBalance += totalSocialSecurityIncomeJoint; // Apply social security to taxable account
+
                 // Calculate gross withdrawal needed based on strategy
                 decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
                 decimal grossWithdrawalNeeded = CalculateWithdrawal(currentWithdrawal, totalBalance, model);
@@ -47,6 +53,8 @@ namespace FinPlan.Shared.Services
 
                 // Net withdrawal (what the user receives)
                 decimal netWithdrawal = taxableWithdrawal + traditionalWithdrawal + rothWithdrawal;
+
+                totalSocialSecurityIncome += model.SocialSecurityMonthlyAmountPartner + model.SocialSecurityMonthlyAmountYour;
 
                 // Update total withdrawals
                 totalWithdrawals += netWithdrawal;
@@ -64,7 +72,7 @@ namespace FinPlan.Shared.Services
                 traditionalBalance = Math.Max(0, traditionalBalance - traditionalWithdrawal + traditionalGrowth);
                 rothBalance = Math.Max(0, rothBalance - rothWithdrawal + rothGrowth);
 
-                decimal totalEndingBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal totalEndingBalance = taxableBalance + traditionalBalance + rothBalance+ totalSocialSecurityIncome;
 
                 // For inflation-adjusted, increase withdrawal amount
                 if (model.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
@@ -92,6 +100,7 @@ namespace FinPlan.Shared.Services
                 TotalWithdrawals = Math.Round(totalWithdrawals, 2),
                 TotalGrowth = Math.Round(totalGrowth, 2),
                 TotalPartTimeIncome = Math.Round(totalPartTimeIncome, 2),
+                TotalSocialSecurityIncome = Math.Round(totalSocialSecurityIncome, 2),
                 TotalTaxesPaid = Math.Round(totalTaxesPaid, 2),
                 IsSustainable = isSustainable,
                 MoneyRunsOutAge = moneyRunsOutAge
@@ -118,6 +127,11 @@ namespace FinPlan.Shared.Services
                 decimal startingTraditionalBalance = traditionalBalance;
                 decimal startingRothBalance = rothBalance;
 
+                //Calculate social security income
+                decimal totalSocialSecurityIncomeYour = model.SocialSecurityMonthlyAmountYour * 12;
+                decimal totalSocialSecurityIncomePartner = model.SocialSecurityMonthlyAmountPartner * 12;
+                decimal totalSocialSecurityIncomeJoint = totalSocialSecurityIncomeYour + totalSocialSecurityIncomePartner;
+
                 // Add part-time income if in partial retirement phase
                 decimal partTimeIncome = 0;
                 if (model.HasPartialRetirement && age < model.PartialRetirementEndAge)
@@ -126,8 +140,10 @@ namespace FinPlan.Shared.Services
                     taxableBalance += partTimeIncome; // Apply to taxable account
                 }
 
+                taxableBalance += totalSocialSecurityIncomeJoint; // Apply social security to taxable account
+
                 // Calculate gross withdrawal needed based on strategy
-                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance;
+                decimal totalBalance = taxableBalance + traditionalBalance + rothBalance + totalSocialSecurityIncomeJoint;
                 decimal grossWithdrawalNeeded = CalculateWithdrawal(currentWithdrawal, totalBalance, model);
 
                 // Determine withdrawals from each account based on priority strategy
@@ -146,6 +162,9 @@ namespace FinPlan.Shared.Services
                 decimal endingTaxableBalance = Math.Max(0, taxableBalance - taxableWithdrawal + taxableGrowth);
                 decimal endingTraditionalBalance = Math.Max(0, traditionalBalance - traditionalWithdrawal + traditionalGrowth);
                 decimal endingRothBalance = Math.Max(0, rothBalance - rothWithdrawal + rothGrowth);
+
+            
+
 
                 // Add to results
                 breakdown.Add(new YearlySpendingBreakdown
@@ -177,10 +196,9 @@ namespace FinPlan.Shared.Services
                     EndingRothBalance = Math.Round(endingRothBalance, 2),
 
                     //Social Security
-                    EndingSocialSecurityBalanceYour = model.SocialSecurityMonthlyAmountYour,
-                    EndingSocialSecurityBalancePartner = model.SocialSecurityMonthlyAmountPartner,
-                    EndingSocialSecurityBalanceJoint = model.SocialSecurityMonthlyAmountYour + model.SocialSecurityMonthlyAmountPartner,
-                    EndingSocialSecurityBalanceIndividual = model.SocialSecurityMonthlyAmountIndividual,
+                    EndingSocialSecurityBalanceYour = totalSocialSecurityIncomeYour,
+                    EndingSocialSecurityBalancePartner = totalSocialSecurityIncomePartner,
+                    EndingSocialSecurityBalanceJoint = totalSocialSecurityIncomeJoint,
 
                     // Other info
                     PartTimeIncome = Math.Round(partTimeIncome, 2),

@@ -5,7 +5,9 @@ namespace FinPlan.Shared.Models
     public class SpendingPlanModel
     {
         public string ModelMemberType { get; set; }
-        public decimal SocialSecurityMonthlyAmountIndividual { get; set; } = 1000;
+
+        public decimal SocialSecurityMonthlyAmountIndividual { get; set; } = 5000;
+        
         public decimal SocialSecurityMonthlyAmountYour { get; set; } = 5000;
         public decimal SocialSecurityMonthlyAmountPartner { get; set; } = 3000;
 
