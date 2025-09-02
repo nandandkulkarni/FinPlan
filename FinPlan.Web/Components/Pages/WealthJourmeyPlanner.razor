@@ -547,7 +547,7 @@
                                         <li><strong>Monthly Post TaxContribution:</strong> @calculatorModel.MonthlyTaxableContribution.ToString("C")</li>
                                         <li><strong>Monthly Traditional Contribution:</strong> @calculatorModel.MonthlyTraditionalContribution.ToString("C")</li>
                                         <li><strong>Monthly Roth Contribution:</strong> @calculatorModel.MonthlyRothContribution.ToString("C")</li>
-                                        <li><strong>Total Monthly Contribution:</strong> @(calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C")</li>
+                                        <li><strong>Total Monthly Contribution:</strong> @((calculatorModel.MonthlyTaxableContribution + calculatorModel.MonthlyTraditionalContribution + calculatorModel.MonthlyRothContribution).ToString("C"))</li>
                                         <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
                                         <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
                                         <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
