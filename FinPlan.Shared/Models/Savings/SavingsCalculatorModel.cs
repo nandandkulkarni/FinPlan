@@ -66,6 +66,16 @@ namespace FinPlan.Shared.Models.Savings
         [Required]
         public decimal AnnualGrowthRate { get; set; } = 7;
 
+        // New: per-account growth rates (annual %). Default to previous AnnualGrowthRate for compatibility.
+        [Required]
+        public decimal AnnualGrowthRateTaxable { get; set; } = 7;
+
+        [Required]
+        public decimal AnnualGrowthRateTraditional { get; set; } = 7;
+
+        [Required]
+        public decimal AnnualGrowthRateRoth { get; set; } = 7;
+
         public bool UseTaxAdvantaged { get; set; } = false;
 
         [Range(0, double.MaxValue, ErrorMessage = "Tax-deferred contribution must be positive")]
