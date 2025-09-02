@@ -40,6 +40,76 @@ namespace FinPlan.Shared.Services
             };
         }
 
+        public SavingsResults Calculate2(SavingsCalculatorModel model)
+        {
+            var yearlyBreakdown = GetYearlyBreakdown(model);
+
+            decimal totalContributions = 0;
+            decimal totalInterestEarned = 0;
+            decimal totalTaxableContributions = 0;
+            decimal totalTraditionalContributions = 0;
+            decimal totalRothContributions = 0;
+            decimal totalTaxableInterest = 0;
+            decimal totalTraditionalInterest = 0;
+            decimal totalRothInterest = 0;
+            decimal totalQualifiedDividendIncome = 0;
+            decimal totalNonQualifiedIncome = 0;
+            decimal totalLongTermGains = 0;
+            decimal totalShortTermGains = 0;
+            decimal totalTaxesPaid = 0;
+
+            foreach (var yearData in yearlyBreakdown)
+            {
+                totalTaxableContributions += yearData.TaxableContribution;
+                totalTraditionalContributions += yearData.TraditionalContribution;
+                totalRothContributions += yearData.RothContribution;
+                totalTaxableInterest += yearData.TaxableInterest;
+                totalTraditionalInterest += yearData.Traditionalnterest;
+                totalRothInterest += yearData.RothInterest;
+                totalQualifiedDividendIncome += yearData.QualifiedDividendIncome;
+                totalNonQualifiedIncome += yearData.NonQualifiedIncome;
+                totalLongTermGains += yearData.LongTermGains;
+                totalShortTermGains += yearData.ShortTermGains;
+                totalTaxesPaid += yearData.TaxesPaid;
+            }
+
+            totalTaxableContributions += model.InitialTaxableAmount;
+            totalTraditionalContributions += model.InitialTraditionalAmount;
+            totalRothContributions += model.InitialRothAmount;
+            totalContributions = totalTaxableContributions + totalTraditionalContributions + totalRothContributions;
+            totalInterestEarned = totalTaxableInterest + totalTraditionalInterest + totalRothInterest;
+
+            decimal totalTaxableIncome = totalQualifiedDividendIncome + totalNonQualifiedIncome + totalLongTermGains + totalShortTermGains;
+            decimal effectiveTaxRate = totalTaxableIncome > 0 ? totalTaxesPaid / totalTaxableIncome : 0;
+            decimal totalRegularTaxes = (totalTraditionalInterest + totalRothInterest + totalTaxableIncome) * effectiveTaxRate;
+            decimal estimatedTaxSavings = totalRegularTaxes - totalTaxesPaid;
+
+            var lastYear = yearlyBreakdown.LastOrDefault();
+            decimal finalAount = 0;
+            if (lastYear != null)
+            {
+                finalAount = lastYear.RothEOYBalance + lastYear.TaxableEOYBalance + lastYear.TraditionalEOYBalance;
+            }
+
+            return new SavingsResults
+            {
+                FinalAmount = Math.Round(finalAount, 2),
+                TotalContributions = totalContributions,
+                TotalInterestEarned = Math.Round(totalInterestEarned, 2),
+                TaxDeferredBalance = Math.Round(lastYear.TraditionalEOYBalance, 2),
+                RothBalance = Math.Round(lastYear.RothEOYBalance, 2),
+                TaxDeferredInterestEarned = Math.Round(totalTraditionalInterest, 2),
+                RothInterestEarned = Math.Round(totalRothInterest, 2),
+                TaxableInterestEarned = Math.Round(totalTaxableInterest, 2),
+                EstimatedTaxSavings = Math.Round(estimatedTaxSavings, 2),
+                QualifiedDividendIncome = Math.Round(totalQualifiedDividendIncome, 2),
+                NonQualifiedIncome = Math.Round(totalNonQualifiedIncome, 2),
+                LongTermCapitalGains = Math.Round(totalLongTermGains, 2),
+                ShortTermCapitalGains = Math.Round(totalShortTermGains, 2),
+                TotalTaxesPaid = Math.Round(totalTaxesPaid, 2),
+                EffectiveTaxRate = Math.Round(effectiveTaxRate * 100, 2)
+            };
+        }
         public SavingsResults Calculate(SavingsCalculatorModel model)
         {
             decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
