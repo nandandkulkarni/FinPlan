@@ -289,9 +289,9 @@ namespace FinPlan.Shared.Services
                 breakdown.Add(new YearlyBreakdown
                 {
                     Year = year,
-                    Balance = Math.Round(totalBalance, 2),
-                    InterestEarned = Math.Round(totalYearlyInterest, 2),
-                    ContributionsThisYear = totalYearlyContributions,
+                    //Balance = Math.Round(totalBalance, 2),
+                    //InterestEarned = Math.Round(totalYearlyInterest, 2),
+                    //ContributionsThisYear = totalYearlyContributions,
 
                     TaxableBOYBalance = Math.Round(taxableBOYBalance, 2),
                     TaxableContribution = Math.Round(yearlyTaxableContribution, 2),

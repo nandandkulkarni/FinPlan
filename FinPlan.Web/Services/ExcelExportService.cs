@@ -440,26 +440,26 @@ namespace FinPlan.Web.Services
             {
                 sheet.Cell(row, 1).Value = year.Year;
                 sheet.Cell(row, 2).Value = model.CurrentAge + year.Year;
-                sheet.Cell(row, 3).Value = year.Balance;
-                sheet.Cell(row, 4).Value = year.InterestEarned;
-                sheet.Cell(row, 5).Value = year.ContributionsThisYear;
-                sheet.Cell(row, 6).Value = year.TaxableBalance;
-                sheet.Cell(row, 7).Value = year.TaxDeferredBalance;
+                //sheet.Cell(row, 3).Value = year.Balance;
+                //sheet.Cell(row, 4).Value = year.InterestEarned;
+                //sheet.Cell(row, 5).Value = year.ContributionsThisYear;
+                //sheet.Cell(row, 6).Value = year.TaxableBalance;
+                //sheet.Cell(row, 7).Value = year.TaxDeferredBalance;
                 sheet.Cell(row, 8).Value = year.RothEOYBalance;
                 sheet.Cell(row, 9).Value = year.TaxesPaid;
                 
-                // Apply currency formatting
-                sheet.Range($"C{row}:I{row}").Style.NumberFormat.Format = "$#,##0.00";
+                //// Apply currency formatting
+                //sheet.Range($"C{row}:I{row}").Style.NumberFormat.Format = "$#,##0.00";
                 
-                // Apply conditional formatting (highlight milestones)
-                if (year.Balance >= 1000000)
-                {
-                    sheet.Range($"A{row}:I{row}").Style.Fill.SetBackgroundColor(XLColor.LightGreen);
-                }
-                else if (year.Balance >= 500000)
-                {
-                    sheet.Range($"A{row}:I{row}").Style.Fill.SetBackgroundColor(XLColor.LightYellow);
-                }
+                //// Apply conditional formatting (highlight milestones)
+                //if (year.Balance >= 1000000)
+                //{
+                //    sheet.Range($"A{row}:I{row}").Style.Fill.SetBackgroundColor(XLColor.LightGreen);
+                //}
+                //else if (year.Balance >= 500000)
+                //{
+                //    sheet.Range($"A{row}:I{row}").Style.Fill.SetBackgroundColor(XLColor.LightYellow);
+                //}
                 
                 row++;
             }

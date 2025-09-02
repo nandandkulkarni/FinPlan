@@ -3,11 +3,10 @@
     public class YearlyBreakdown
     {
         public int Year { get; set; }
-        public decimal Balance { get; set; }
-        public decimal InterestEarned { get; set; }
-        public decimal ContributionsThisYear { get; set; }
-        public decimal TaxDeferredBalance { get; set; }
-        public decimal TaxableBalance { get; set; }
+        //public decimal InterestEarned { get; set; }
+        ////public decimal ContributionsThisYear { get; set; }
+        //public decimal TaxDeferredBalance { get; set; }
+        //public decimal TaxableBalance { get; set; }
         public decimal Traditionalnterest { get; set; }
         public decimal TaxableInterest { get; set; }
         public decimal RothInterest { get; set; }

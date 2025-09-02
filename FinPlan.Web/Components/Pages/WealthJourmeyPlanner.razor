@@ -322,7 +322,7 @@
                                     </div>
                                     <div class="card-body">
                                         <input type="text" id="compoundingFrequency" class="form-control" value="Monthly" readonly />
-                                        <small class="form-text">Interest is compounded monthly</small>
+                                        <small class="form-text">Growth/Interest compounded monthly</small>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +435,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
-                                        <p class="mb-0">Interest Earned</p>
+                                        <p class="mb-0">Growth</p>
                                     </div>
                                 </div>
                             </div>
@@ -575,55 +575,52 @@
                             </h5>
                         </div>
                         <div class="card-body" style="max-height: 700px; overflow-y: auto;">
-                            @if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries && intervalSummaries.Any())
+
+                            @foreach (var interval in intervalSummaries)
                             {
-                                <!-- 5-Year Interval View for Long-Term Plans -->
-                                @foreach (var interval in intervalSummaries)
-                                {
-                                    var isExpanded = expandedIntervals.Contains(interval.StartYear);
-                                    <div class="interval-group mb-3">
-                                        <!-- Interval Summary Row -->
-                                        <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")"
-                                             style="cursor: pointer; transition: all 0.2s ease;">
-                                            <div class="row align-items-center" @onclick="@(() => ToggleInterval(interval.StartYear))">
-                                                <div class="col-md-3">
-                                                    <h6 class="mb-1">
-                                                        <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
-                                                        Ages @interval.StartAge-@interval.EndAge
-                                                    </h6>
-                                                    @if (!string.IsNullOrEmpty(interval.MilestoneAchieved))
-                                                    {
-                                                        <small class="text-success fw-bold">@interval.MilestoneAchieved</small>
-                                                    }
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <strong>@interval.FinalBalance.ToString("C")</strong>
-                                                    <br><small class="text-muted">Final Balance</small>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <span class="text-success">+@interval.TotalGrowth.ToString("C")</span>
-                                                    <br><small class="text-muted">Interest Earned</small>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <span class="text-info">@interval.TotalContributions.ToString("C")</span>
-                                                    <br><small class="text-muted">You Contributed</small>
-                                                </div>
+                                var isExpanded = expandedIntervals.Contains(interval.StartYear);
+                                <div class="interval-group mb-3">
+                                    <!-- Interval Summary Row -->
+                                    <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")"
+                                         style="cursor: pointer; transition: all 0.2s ease;">
+                                        <div class="row align-items-center" @onclick="@(() => ToggleInterval(interval.StartYear))">
+                                            <div class="col-md-3">
+                                                <h6 class="mb-1">
+                                                    <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
+                                                    Ages @interval.StartAge-@interval.EndAge
+                                                </h6>
+                                                @if (!string.IsNullOrEmpty(interval.MilestoneAchieved))
+                                                {
+                                                    <small class="text-success fw-bold">@interval.MilestoneAchieved</small>
+                                                }
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>@interval.FinalBalance.ToString("C")</strong>
+                                                <br /><small class="text-muted">Final Balance</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="text-success">+@interval.TotalGrowth.ToString("C")</span>
+                                                <br /><small class="text-muted">Growth</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="text-info">@interval.TotalContributions.ToString("C")</span>
+                                                <br /><small class="text-muted">You Contributed</small>
                                             </div>
                                         </div>
-
-                                        <!-- Expanded Yearly Details -->
-                                        @if (isExpanded)
-                                        {
-                                            <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
-                                                <SavingsYearlyDetailsComponent YearlyDetails="interval.YearlyDetails"
-                                                                        CurrentAge="calculatorModel.CurrentAge"
-                                                                        InterestTooltipYear="interestTooltipYear"
-                                                                        TaxBracket="calculatorModel.TaxBracket" />
-                                            </div>
-                                        }
-                                        <!-- End Expanded Yearly Details-->
                                     </div>
-                                }
+
+                                    <!-- Expanded Yearly Details -->
+                                    @if (isExpanded)
+                                    {
+                                        <div class="yearly-details mt-2 ms-3 border-start border-primary ps-3">
+                                            <SavingsYearlyDetailsComponent YearlyDetails="interval.YearlyDetails"
+                                                                           CurrentAge="calculatorModel.CurrentAge"
+                                                                           InterestTooltipYear="interestTooltipYear"
+                                                                           TaxBracket="calculatorModel.TaxBracket" />
+                                        </div>
+                                    }
+                                    <!-- End Expanded Yearly Details-->
+                                </div>
                             }
                         </div>
                     </div>
@@ -849,8 +846,8 @@
 
     private List<IntervalSummary> CreateIntervalSummaries(List<YearlyBreakdown> breakdown)
     {
-        int startingAge = calculatorModel.CurrentAge;
-        int roundedStartAge = (int)Math.Ceiling(startingAge / 5.0) * 5;
+        if (breakdown == null || !breakdown.Any())
+            return new List<IntervalSummary>();
 
         return breakdown
             .Select((y, index) => new
@@ -859,17 +856,25 @@
                 Age = calculatorModel.CurrentAge + index + 1
             })
             .GroupBy(item => ((item.Age - 1) / 5) * 5 + 5)
-            .Select(g => new IntervalSummary
+            .Select(g =>
             {
-                StartYear = g.First().Year.Year,
-                EndYear = g.Last().Year.Year,
-                StartAge = g.Key - 5,
-                EndAge = Math.Min(g.Key, calculatorModel.RetirementAge),
-                FinalBalance = g.Last().Year.Balance,
-                TotalGrowth = g.Sum(item => item.Year.InterestEarned),
-                TotalContributions = g.Sum(item => item.Year.ContributionsThisYear),
-                YearlyDetails = g.Select(item => item.Year).ToList(),
-                MilestoneAchieved = GetMilestone(g.Last().Year.Balance)
+                var first = g.First().Year;
+                var last = g.Last().Year;
+
+                return new IntervalSummary
+                {
+                    StartYear = first.Year,
+                    EndYear = last.Year,
+                    StartAge = g.Key - 5,
+                    EndAge = Math.Min(g.Key, calculatorModel.RetirementAge),
+                    // Use last-year values (not the sum) so the summary reflects the last year of the interval
+                    FinalBalance = last.TotalEOYBalance,
+                    // Use sums across the interval for totals
+                    TotalGrowth = g.Sum(item => item.Year.TotalGrowth),
+                    TotalContributions = g.Sum(item => item.Year.TotalContributions),
+                    YearlyDetails = g.Select(item => item.Year).ToList(),
+                    MilestoneAchieved = GetMilestone(last.TotalEOYBalance)
+                };
             })
             .ToList();
     }
