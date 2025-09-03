@@ -19,10 +19,16 @@ namespace FinPlan.Shared.Models.LivingCosts
 
     public enum RetirementAdjustOptionDto
     {
-        Same,
-        AdjustForInflation,
-        Remove,
-        CustomPercentage
+    Same,
+    AdjustForInflation,
+    CustomPercentage,
+    Manual
+    }
+
+    public enum InflationSourceDto
+    {
+        UseGlobal,
+        Custom
     }
 
     public class CostItemDto
@@ -32,7 +38,9 @@ namespace FinPlan.Shared.Models.LivingCosts
         public decimal CurrentValue { get; set; }
         public RetirementAdjustOptionDto AdjustOption { get; set; } = RetirementAdjustOptionDto.Same;
         public decimal? PerItemInflationPercent { get; set; }
+    public InflationSourceDto PerItemInflationSource { get; set; } = InflationSourceDto.UseGlobal;
         public decimal CustomPercentage { get; set; } = 100m;
+    public decimal? ManualRetirementValue { get; set; }
         public bool IncludeInRetirement { get; set; } = true;
     }
 }
