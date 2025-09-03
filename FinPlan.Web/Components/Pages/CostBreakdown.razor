@@ -138,7 +138,7 @@
                                 <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
                             </td>
                             <td style="width:80px;">
-                                <button class="btn btn-sm btn-danger" @onclick="() => RemoveItem(idx)">Remove</button>
+                                <button class="btn btn-sm btn-danger" title="Remove" aria-label="Remove" @onclick="() => RemoveItem(idx)">−</button>
                             </td>
                         </tr>
                     }
