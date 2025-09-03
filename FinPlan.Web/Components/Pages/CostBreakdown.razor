@@ -4,6 +4,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 <h3>Cost Breakdown</h3>
 
@@ -47,7 +48,6 @@
                 <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
             </div>
             <div>
-                <button class="btn btn-sm btn-outline-primary me-2" @onclick="SaveToApi">Save</button>
                 <button class="btn btn-sm btn-outline-secondary" @onclick="LoadFromApi">Load</button>
             </div>
         </div>
@@ -114,14 +114,14 @@
                         <tr>
                             <td>
                                 <div>
-                                    <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" />
+                                            <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
                                 </div>
                             </td>
                             <td style="width:140px;">
-                                <InputNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" />
+                                <InputNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" @onblur="ScheduleAutosave" />
                             </td>
                             <td style="width:220px;">
-                                <select class="form-select form-select-sm" @bind="item.AdjustOption">
+                                <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
                                     @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
                                     {
                                         if (opt.ToString() == "Remove") continue; // hide Remove from UI
@@ -131,7 +131,7 @@
                                 @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
                                 {
                                     <div class="input-group input-group-sm mt-1">
-                                        <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" />
+                                        <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
                                         <span class="input-group-text">%</span>
                                     </div>
                                 }
@@ -147,14 +147,14 @@
                                 @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
                                 {
                                     <div class="d-flex gap-2 align-items-center">
-                                        <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource">
+                                        <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
                                             <option value="@FinPlan.Web.Components.Models.InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
                                             <option value="@FinPlan.Web.Components.Models.InflationSource.Custom">Custom</option>
                                         </select>
                                         @if (item.PerItemInflationSource == FinPlan.Web.Components.Models.InflationSource.Custom)
                                         {
                                             <div class="input-group input-group-sm" style="width:120px;">
-                                                <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" />
+                                                <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
                                                 <span class="input-group-text">%</span>
                                             </div>
                                         }
@@ -162,7 +162,7 @@
                                 }
                             </td>
                             <td style="width:60px; vertical-align:middle; text-align:center;">
-                                <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" />
+                                <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" @oninput="ScheduleAutosave" />
                             </td>
                             <td style="width:180px; vertical-align:middle;">
                                 <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
@@ -273,6 +273,46 @@
         var baseUrl = Configuration["ApiBaseUrl"];
         if (!string.IsNullOrWhiteSpace(baseUrl)) return baseUrl.TrimEnd('/');
         return "https://localhost:7330";
+    }
+
+    private System.Timers.Timer? autosaveTimer;
+    private readonly object autosaveLock = new object();
+    private int autosaveDelayMs = 800; // debounce
+
+    private void ScheduleAutosave()
+    {
+        lock (autosaveLock)
+        {
+            if (autosaveTimer == null)
+            {
+                autosaveTimer = new System.Timers.Timer(autosaveDelayMs);
+                autosaveTimer.AutoReset = false;
+                autosaveTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        await InvokeAsync(async () => await SaveToApi());
+                    }
+                    catch { }
+                };
+            }
+            else
+            {
+                autosaveTimer.Stop();
+                autosaveTimer.Interval = autosaveDelayMs;
+            }
+
+            autosaveTimer.Start();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (autosaveTimer != null)
+        {
+            autosaveTimer.Dispose();
+            autosaveTimer = null;
+        }
     }
 
     private async Task SaveToApi()
@@ -427,5 +467,20 @@
     {
         base.OnInitialized();
         SelectedAddCategory = Categories.FirstOrDefault() ?? NewCategorySentinel;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            }
+            catch { }
+
+            await LoadFromApi();
+            StateHasChanged();
+        }
     }
 }
