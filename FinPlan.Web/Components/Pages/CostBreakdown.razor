@@ -13,7 +13,17 @@
 <EditForm Model="this">
     <div class="mb-3 d-flex align-items-end justify-content-between">
         <div class="d-flex align-items-center">
-            <div class="me-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label class="form-label">Years to retirement</label>
+                    <InputNumber class="form-control form-control-sm" @bind-Value="YearsToRetirement" />
+                </div>
+                <div class="col-auto">
+                    <label class="form-label">Inflation rate (%)</label>
+                    <InputNumber class="form-control form-control-sm" @bind-Value="InflationRate" />
+                </div>
+            </div>
+            @* <div class="me-3">
                 <label class="form-label small mb-1">Add to category</label>
                 <select class="form-select form-select-sm" @bind="SelectedAddCategory">
                     @foreach (var cat in Categories)
@@ -22,9 +32,9 @@
                     }
                     <option value="@NewCategorySentinel">+ New category...</option>
                 </select>
-            </div>
+            </div> *@
 
-            @if (SelectedAddCategory == NewCategorySentinel)
+            @* @if (SelectedAddCategory == NewCategorySentinel)
             {
                 <div class="me-3">
                     <label class="form-label small mb-1">New category name</label>
@@ -38,7 +48,7 @@
                     <button class="btn btn-sm btn-primary me-2" @onclick="AddRow">Add Row</button>
                     <button class="btn btn-sm btn-secondary" @onclick="ResetToDefaults">Load Standard Defaults</button>
                 </div>
-            </div>
+            </div> *@
         </div>
 
         <div class="text-end">
@@ -56,6 +66,7 @@
     <table class="table table-sm">
         <thead>
             <tr>
+                <th style="width:40px;"></th>
                 <th>Heading</th>
                 <th style="width:140px;">Current Value</th>
                 <th>Retirement Adjust</th>
@@ -86,10 +97,16 @@
                 var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
 
                 <tr class="table-active">
+                    <td style="width:40px; vertical-align:middle;">
+                        <button class="btn btn-sm btn-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">🗑</button>
+                    </td>
                     <td>
                         <div class="d-flex align-items-center">
                             <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
                                 @(IsCollapsed(groupKey) ? "▶" : "▼")
+                            </button>
+                            <button class="btn btn-success btn-sm me-2 p-0" title="Add item" @onclick="() => AddItemToCategory(groupKey)">
+                                +
                             </button>
                             <input class="form-control form-control-sm fw-bold" value="@groupKey" @onchange="(ChangeEventArgs e) => UpdateGroupCategory(groupKey, e.Value?.ToString() ?? string.Empty)" />
                         </div>
@@ -112,6 +129,9 @@
                     {
                         var idx = Items.IndexOf(item);
                         <tr>
+                            <td style="width:40px; vertical-align:middle;">
+                                <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
+                            </td>
                             <td>
                                 <div>
                                             <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
@@ -167,9 +187,7 @@
                             <td style="width:180px; vertical-align:middle;">
                                 <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
                             </td>
-                            <td style="width:80px;">
-                                <button class="btn btn-sm btn-danger" title="Remove" aria-label="Remove" @onclick="() => RemoveItem(idx)">−</button>
-                            </td>
+                            
                         </tr>
                     }
                 }
@@ -177,7 +195,7 @@
         </tbody>
     </table>
 
-    <div class="mb-2 d-flex align-items-center g-2">
+    @* <div class="mb-2 d-flex align-items-center g-2">
         <div class="me-2">
             <label class="form-label small mb-1">Add to category</label>
             <select class="form-select form-select-sm" @bind="SelectedAddCategory">
@@ -204,9 +222,9 @@
                 <button class="btn btn-sm btn-secondary" @onclick="ResetToDefaults">Load Standard Defaults</button>
             </div>
         </div>
-    </div>
+    </div> *@
 
-    <div class="row g-2 align-items-center">
+    @* <div class="row g-2 align-items-center">
         <div class="col-auto">
             <label class="form-label">Years to retirement</label>
             <InputNumber class="form-control form-control-sm" @bind-Value="YearsToRetirement" />
@@ -215,7 +233,8 @@
             <label class="form-label">Inflation rate (%)</label>
             <InputNumber class="form-control form-control-sm" @bind-Value="InflationRate" />
         </div>
-    </div>
+        </div> 
+    *@
 </EditForm>
 
 @code {
@@ -245,7 +264,15 @@
         if (index >= 0 && index < Items.Count)
         {
             Items.RemoveAt(index);
+            ScheduleAutosave();
         }
+    }
+
+    private void RemoveCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category)) return;
+        Items.RemoveAll(i => (i.Category ?? string.Empty) == category);
+        ScheduleAutosave();
     }
 
     private void ResetToDefaults()
@@ -442,6 +469,24 @@
     }
 
     private HashSet<string> collapsed = new HashSet<string>();
+
+    private void AddItemToCategory(string category)
+    {
+        var cat = category ?? string.Empty;
+        var newItem = new CostItem
+        {
+            Category = cat,
+            Subcategory = "<new item - edit me>",
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Same,
+            IncludeInRetirement = true
+        };
+
+        // insert at end of that category's block (just add; rendering sorts by Subcategory)
+        Items.Add(newItem);
+        StateHasChanged();
+        ScheduleAutosave();
+    }
 
     private void ToggleCollapse(string category)
     {
