@@ -7,6 +7,17 @@
 @inject IJSRuntime JSRuntime
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 <style>
+    .tab-active-custom {
+        background-color: #FFD600 !important; /* Bright yellow */
+        color: #222 !important; /* Black text */
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
     /* softer danger button (light tint + muted text) */
     .btn-soft-danger {
         background-color: rgba(220, 53, 69, 0.08);
@@ -65,6 +76,27 @@
 
 <p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
 
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
+                @onclick="YourTabClick">
+            Retirement Plan-A
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")"
+                @onclick="PartnerTabClick">
+            Retirement Plan-B
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "joint" ? "tab-active-custom" : "")"
+                @onclick="JointTabClick">
+            Retirement Plan-C
+        </button>
+    </li>
+</ul>   
 <EditForm Model="this">
 
     <div class="text-start">
@@ -249,6 +281,36 @@
     private int YearsToRetirement { get; set; } = 20;
     private decimal InflationRate { get; set; } = 2.5m;
 
+    private string activeTab = "your"; // Track active tab for UI highlighting
+    private async Task YourTabClick()
+    {
+        calculatorType = "CostOflivingyours";
+        Console.WriteLine("Your tab clicked");
+        SetActiveTab("your");
+        await LoadFromApi();
+
+    }
+
+    private async Task PartnerTabClick()
+    {
+        calculatorType = "CostOflivingpartners";
+        Console.WriteLine("Partner tab clicked");
+        SetActiveTab("partner");
+        await LoadFromApi();
+
+    }
+    private async Task JointTabClick()
+    {
+        calculatorType = "CostOflivingjoint";
+        Console.WriteLine("Joint tab clicked");
+        SetActiveTab("joint");
+        await LoadFromApi();
+
+    }
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
     private void AddRow()
     {
         var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
@@ -337,7 +399,7 @@
     }
 
     private string userGuid = Guid.NewGuid().ToString();
-    private string calculatorType = "CostBreakdown";
+    private string calculatorType = "CostBreakdown_Your";
 
     private string GetApiBaseUrl()
     {
@@ -574,7 +636,8 @@
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
             }
             catch { }
-
+            calculatorType = "CostOflivingyours";
+                    
             await LoadFromApi();
             StateHasChanged();
         }
