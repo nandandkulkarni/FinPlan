@@ -11,18 +11,6 @@
 <p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
 
 <EditForm Model="this">
-    <div class="mb-3 d-flex align-items-end justify-content-between">
-        <div class="d-flex align-items-center">
-            <div class="row g-2 align-items-center"></div>
-                <div class="col-auto"></div>
-                    <label class="form-label">Years to retirement</label>
-                    <InputNumber class="form-control form-control-sm" @bind-Value="YearsToRetirement" />
-                </div>
-                <div class="col-auto">
-                    <label class="form-label">Inflation rate (%)</label>
-                    <InputNumber class="form-control form-control-sm" @bind-Value="InflationRate" />
-                </div>
-            </div>
             @* <div class="me-3">
                 <label class="form-label small mb-1">Add to category</label>
                 <select class="form-select form-select-sm" @bind="SelectedAddCategory">
@@ -77,9 +65,10 @@
             </tr>
             <tr class="table-secondary">
                 <td></td>
+                <td></td>
                 <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
                 <td></td>
-                <td style="vertical-align:middle;" class="text-muted">@FormatDecimal(InflationRate)%</td>
+                <td></td>
                 <td></td>
                 <td style="vertical-align:middle;" class="fw-bold text-primary">@FormatCurrency(TotalRetirement)</td>
                 <td></td>
