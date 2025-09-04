@@ -5,13 +5,50 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
+<style>
+    /* softer danger button (light tint + muted text) */
+    .btn-soft-danger {
+        background-color: rgba(220, 53, 69, 0.08);
+        color: #b02a37;
+        border: 1px solid rgba(176, 42, 55, 0.10);
+        padding: 0.18rem 0.36rem;
+    }
 
+        .btn-soft-danger:hover,
+        .btn-soft-danger:focus {
+            background-color: rgba(220, 53, 69, 0.12);
+            color: #8a1f2a;
+            text-decoration: none;
+        }
+
+    /* completely subtle text-only control */
+    .btn-subtle {
+        background: transparent;
+        border: none;
+        color: rgba(176, 42, 55, 0.85);
+        padding: 0.12rem 0.25rem;
+        opacity: 0.9;
+    }
+
+        .btn-subtle:hover,
+        .btn-subtle:focus {
+            opacity: 1;
+            color: #b02a37;
+            text-decoration: none;
+        }
+
+    /* small icon sizing / subtle opacity */
+    .icon-muted {
+        font-size: 0.95rem;
+        opacity: 0.85;
+    }
+</style>
 <h3>Cost Breakdown</h3>
 
 <p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
 
 <EditForm Model="this">
-            @* <div class="me-3">
+    @* <div class="me-3">
                 <label class="form-label small mb-1">Add to category</label>
                 <select class="form-select form-select-sm" @bind="SelectedAddCategory">
                     @foreach (var cat in Categories)
@@ -22,7 +59,7 @@
                 </select>
             </div> *@
 
-            @* @if (SelectedAddCategory == NewCategorySentinel)
+    @* @if (SelectedAddCategory == NewCategorySentinel)
             {
                 <div class="me-3">
                     <label class="form-label small mb-1">New category name</label>
@@ -37,18 +74,18 @@
                     <button class="btn btn-sm btn-secondary" @onclick="ResetToDefaults">Load Standard Defaults</button>
                 </div>
             </div> *@
-        @* </div> *@
+    @* </div> *@
 
-<div class="text-start">
-    <label class="mb-1 small">Years to retirement / Inflation</label>
-    <div class="d-flex mb-1">
-        <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
-        <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
-    </div>
-    @* <div>
+    <div class="text-start">
+        <label class="mb-1 small">Years to retirement / Inflation</label>
+        <div class="d-flex mb-1">
+            <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
+            <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
+        </div>
+        @* <div>
         <button class="btn btn-sm btn-outline-secondary" @onclick="LoadFromApi">Load Standard</button>
     </div> *@
-</div>
+    </div>
     @* </div> *@
 
     <table class="table table-sm">
@@ -87,7 +124,12 @@
 
                 <tr class="table-active">
                     <td style="width:40px; vertical-align:middle;">
-                        <button class="btn btn-sm btn-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">🗑</button>
+                        <!-- soft trash: less aggressive than btn-danger -->
+                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">
+                            <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                        </button>
+
+                        @* <button class="btn btn-sm btn-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">🗑</button> *@
                     </td>
                     <td>
                         <div class="d-flex align-items-center">
@@ -104,9 +146,12 @@
                         <div class="fw-bold">@FormatCurrency(groupCurrentTotal)</div>
                     </td>
                     <td></td>
-                    <td style="width:60px;"><!-- included count placeholder --></td>
+                    <td style="width:160px;"></td>
+                    <td style="width:60px; vertical-align:middle; text-align:center;">
+                        <div class="small">@group.Count(i => i.IncludeInRetirement)</div>
+                    </td>
                     <td style="width:180px; vertical-align:middle;">
-                        @* <div class="fw-bold text-primary">@FormatCurrency(groupRetirementTotal)</div> *@
+                        <div class="fw-bold text-primary">@FormatCurrency(groupRetirementTotal)</div>
                     </td>
                     <td></td>
                 </tr>
@@ -119,11 +164,15 @@
                         var idx = Items.IndexOf(item);
                         <tr>
                             <td style="width:40px; vertical-align:middle;">
-                                <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
-                            </td>
+                                <!-- subtle minus button: text-only and muted -->
+                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">
+                                    <span class="icon-muted">−</span>
+                                </button>
+@*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
+ *@                            </td>
                             <td>
                                 <div>
-                                            <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
+                                    <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
                                 </div>
                             </td>
                             <td style="width:140px;">
@@ -134,7 +183,7 @@
                                     @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
                                     {
                                         if (opt.ToString() == "Remove") continue; // hide Remove from UI
-                                        <option value="@opt">@opt</option>
+                                                                                  <option value="@opt">@opt</option>
                                     }
                                 </select>
                                 @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
@@ -176,7 +225,7 @@
                             <td style="width:180px; vertical-align:middle;">
                                 <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
                             </td>
-                            
+
                         </tr>
                     }
                 }
@@ -349,7 +398,7 @@
                         Category = i.Category,
                         Subcategory = i.Subcategory,
                         CurrentValue = i.CurrentValue,
-                        AdjustOption = (RetirementAdjustOption) i.AdjustOption,
+                        AdjustOption = (RetirementAdjustOption)i.AdjustOption,
                         PerItemInflationPercent = i.PerItemInflationPercent,
                         PerItemInflationSource = i.PerItemInflationSource == InflationSource.Custom ? InflationSource.Custom : InflationSource.UseGlobal,
                         CustomPercentage = i.CustomPercentage,
@@ -430,7 +479,7 @@
                     StateHasChanged();
                 }
             }
-            else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 // no saved data, load defaults
                 Items = StandardCostCategories.GetDefaults();
