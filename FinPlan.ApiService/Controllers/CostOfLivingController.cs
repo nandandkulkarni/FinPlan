@@ -1,9 +1,9 @@
 using FinPlan.ApiService.Data;
-using FinPlan.Shared.Models;
+using FinPlan.Shared.Models.LivingCosts;
+using FinPlan.Shared.Models.Savings;
 using FinPlan.Shared.Models.Spending;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json;
 
@@ -11,10 +11,10 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RetirementController : ControllerBase
+    public class CostOfLivingController : ControllerBase
     {
         private readonly FinPlanDbContext _db;
-        public RetirementController(FinPlanDbContext db)
+        public CostOfLivingController(FinPlanDbContext db)
         {
             _db = db;
         }
@@ -33,10 +33,10 @@ namespace FinPlan.ApiService.Controllers
             if (string.IsNullOrWhiteSpace(body))
                 return BadRequest("Empty request body.");
 
-            PersistSpendingRequest? request = null;
+            PersistCostOfLivingRequest? request = null;
             try
             {
-                request = JsonSerializer.Deserialize<PersistSpendingRequest>(body, new JsonSerializerOptions
+                request = JsonSerializer.Deserialize<PersistCostOfLivingRequest>(body, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -48,7 +48,7 @@ namespace FinPlan.ApiService.Controllers
             }
 
             if (request == null)
-                return BadRequest("Request could not be deserialized to PersistSpendingRequest.");
+                return BadRequest("Request could not be deserialized to PersistCostOfLivingRequest.");
 
             // Proceed as before
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
@@ -74,6 +74,7 @@ namespace FinPlan.ApiService.Controllers
             return Ok();
         }
 
+        // Load calculator data
         [HttpGet("load")]
         public async Task<IActionResult> Load([FromQuery] string userGuid, [FromQuery] string calculatorType)
         {
@@ -84,14 +85,14 @@ namespace FinPlan.ApiService.Controllers
             if (entity == null)
                 return NotFound();
 
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
             return Ok(entity.Data);
         }
 
-  
+
 
     }
 }

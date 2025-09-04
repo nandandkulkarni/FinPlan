@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Models\CostItem.cs" />
+    <Compile Remove="Components\Models\InflationSource.cs" />
+    <Compile Remove="Components\Models\RetirementAdjustOption.cs" />
+    <Compile Remove="Components\Models\StandardCostCategories.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Components\Pages\Archive\RetirementSpendingPlanner.razor" />
     <Content Remove="Components\Pages\Archive\SavingsPlanner.razor" />
   </ItemGroup>
@@ -27,6 +34,7 @@
   <ItemGroup>
     <Folder Include="Components\Components\" />
     <Folder Include="Components\Custom\" />
+    <Folder Include="Components\Models\" />
     <Folder Include="Models\" />
   </ItemGroup>
 

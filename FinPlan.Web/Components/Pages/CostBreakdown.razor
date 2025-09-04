@@ -1,5 +1,5 @@
 @page "/living-cost"
-@using FinPlan.Web.Components.Models
+@using FinPlan.Shared.Models.LivingCosts
 @using Microsoft.AspNetCore.Components.Forms
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
@@ -148,10 +148,10 @@
                                 {
                                     <div class="d-flex gap-2 align-items-center">
                                         <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
-                                            <option value="@FinPlan.Web.Components.Models.InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
-                                            <option value="@FinPlan.Web.Components.Models.InflationSource.Custom">Custom</option>
+                                            <option value="@InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
+                                            <option value="@InflationSource.Custom">Custom</option>
                                         </select>
-                                        @if (item.PerItemInflationSource == FinPlan.Web.Components.Models.InflationSource.Custom)
+                                        @if (item.PerItemInflationSource == InflationSource.Custom)
                                         {
                                             <div class="input-group input-group-sm" style="width:120px;">
                                                 <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
@@ -219,7 +219,7 @@
 </EditForm>
 
 @code {
-    private List<CostItem> Items { get; set; } = StandardCostCategories.GetDefaults();
+    private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
     private int YearsToRetirement { get; set; } = 20;
     private decimal InflationRate { get; set; } = 2.5m;
@@ -318,24 +318,24 @@
     private async Task SaveToApi()
     {
         var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/FinPlan/save";
+        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
 
         try
         {
-            var dto = new FinPlan.Shared.Models.LivingCosts.PersistCostBreakdownRequest
+            var dto = new PersistCostOfLivingRequest
             {
                 UserGuid = userGuid,
                 CalculatorType = calculatorType,
-                Data = new FinPlan.Shared.Models.LivingCosts.PersistCostBreakdownData
+                Data = new CostBreakdownData
                 {
-                    Items = Items.Select(i => new FinPlan.Shared.Models.LivingCosts.CostItemDto
+                    Items = Items.Select(i => new CostItem
                     {
                         Category = i.Category,
                         Subcategory = i.Subcategory,
                         CurrentValue = i.CurrentValue,
-                        AdjustOption = (FinPlan.Shared.Models.LivingCosts.RetirementAdjustOptionDto) i.AdjustOption,
+                        AdjustOption = (RetirementAdjustOption) i.AdjustOption,
                         PerItemInflationPercent = i.PerItemInflationPercent,
-                        PerItemInflationSource = i.PerItemInflationSource == FinPlan.Web.Components.Models.InflationSource.Custom ? FinPlan.Shared.Models.LivingCosts.InflationSourceDto.Custom : FinPlan.Shared.Models.LivingCosts.InflationSourceDto.UseGlobal,
+                        PerItemInflationSource = i.PerItemInflationSource == InflationSource.Custom ? InflationSource.Custom : InflationSource.UseGlobal,
                         CustomPercentage = i.CustomPercentage,
                         ManualRetirementValue = i.ManualRetirementValue,
                         IncludeInRetirement = i.IncludeInRetirement
@@ -369,7 +369,7 @@
     private async Task LoadFromApi()
     {
         var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calculatorType)}";
+        var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calculatorType)}";
 
         try
         {
@@ -378,28 +378,28 @@
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                // API returns stored JSON; try deserialize into PersistCostBreakdownData first
                 try
                 {
-                    var data = System.Text.Json.JsonSerializer.Deserialize<FinPlan.Shared.Models.LivingCosts.PersistCostBreakdownData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CostBreakdownData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (data != null)
                     {
-                        Items = data.Items.Select(d => new FinPlan.Web.Components.Models.CostItem
-                        {
-                            Category = d.Category,
-                            Subcategory = d.Subcategory,
-                            CurrentValue = d.CurrentValue,
-                            AdjustOption = (FinPlan.Web.Components.Models.RetirementAdjustOption) d.AdjustOption,
-                            PerItemInflationPercent = d.PerItemInflationPercent,
-                            PerItemInflationSource = (d.PerItemInflationSource == FinPlan.Shared.Models.LivingCosts.InflationSourceDto.Custom) ? FinPlan.Web.Components.Models.InflationSource.Custom : FinPlan.Web.Components.Models.InflationSource.UseGlobal,
-                            CustomPercentage = d.CustomPercentage,
-                            ManualRetirementValue = d.ManualRetirementValue,
-                            IncludeInRetirement = d.IncludeInRetirement
-                        }).ToList();
+                        Items = data.Items ?? new List<CostItem>();
+                        // Items = data.Items.Select(d => new CostItem
+                        // {
+                        //     Category = d.Category,
+                        //     Subcategory = d.Subcategory,
+                        //     CurrentValue = d.CurrentValue,
+                        //     AdjustOption = (RetirementAdjustOption) d.AdjustOption,
+                        //     PerItemInflationPercent = d.PerItemInflationPercent,
+                        //     PerItemInflationSource = (d.PerItemInflationSource == InflationSource.Custom) ? InflationSource.Custom : InflationSource.UseGlobal,
+                        //     CustomPercentage = d.CustomPercentage,
+                        //     ManualRetirementValue = d.ManualRetirementValue,
+                        //     IncludeInRetirement = d.IncludeInRetirement
+                        // }).ToList();
 
-                        collapsed = new HashSet<string>(data.CollapsedCategories ?? new List<string>());
-                        YearsToRetirement = data.YearsToRetirement;
-                        InflationRate = data.InflationRate;
+                        // collapsed = new HashSet<string>(data.CollapsedCategories ?? new List<string>());
+                        // YearsToRetirement = data.YearsToRetirement;
+                        // InflationRate = data.InflationRate;
                         StateHasChanged();
                         return;
                     }
@@ -407,12 +407,18 @@
                 catch { }
 
                 // Fallback: try deserialize into raw list of items
-                var loaded = System.Text.Json.JsonSerializer.Deserialize<List<FinPlan.Web.Components.Models.CostItem>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var loaded = System.Text.Json.JsonSerializer.Deserialize<List<CostItem>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (loaded != null)
                 {
                     Items = loaded;
                     StateHasChanged();
                 }
+            }
+            else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // no saved data, load defaults
+                Items = StandardCostCategories.GetDefaults();
+                StateHasChanged();
             }
             else
             {
