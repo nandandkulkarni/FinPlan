@@ -39,16 +39,16 @@
             </div> *@
         @* </div> *@
 
-        <div class="text-end">
-            <div class="mb-1 small">Years to retirement / Inflation</div>
-            <div class="d-flex mb-1">
-                <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
-                <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
-            </div>
-            <div>
-                <button class="btn btn-sm btn-outline-secondary" @onclick="LoadFromApi">Load</button>
-            </div>
-        </div>
+<div class="text-start">
+    <label class="mb-1 small">Years to retirement / Inflation</label>
+    <div class="d-flex mb-1">
+        <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
+        <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
+    </div>
+    @* <div>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="LoadFromApi">Load Standard</button>
+    </div> *@
+</div>
     @* </div> *@
 
     <table class="table table-sm">
