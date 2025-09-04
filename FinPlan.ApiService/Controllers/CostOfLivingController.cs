@@ -1,7 +1,6 @@
 using FinPlan.ApiService.Data;
 using FinPlan.Shared.Models.LivingCosts;
 using FinPlan.Shared.Models.Savings;
-using FinPlan.Shared.Models.Spending;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
@@ -85,13 +84,40 @@ namespace FinPlan.ApiService.Controllers
             if (entity == null)
                 return NotFound();
 
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            // Return the stored JSON payload directly
             return Ok(entity.Data);
         }
 
+        // Return list of saved calculatorType keys for the user that start with CostBreakdown-
+        [HttpGet("tabs")]
+        public async Task<IActionResult> Tabs([FromQuery] string userGuid)
+        {
+            if (string.IsNullOrWhiteSpace(userGuid))
+                return BadRequest("Missing userGuid.");
+
+            var list = await _db.FinPlans
+                .Where(x => x.UserGuid == userGuid && x.CalculatorType.StartsWith("CostBreakdown-"))
+                .Select(x => x.CalculatorType)
+                .ToListAsync();
+
+            return Ok(list);
+        }
+
+        // Delete a saved tab (calculator entry)
+        [HttpDelete("tabs")]
+        public async Task<IActionResult> DeleteTab([FromQuery] string userGuid, [FromQuery] string calculatorType)
+        {
+            if (string.IsNullOrWhiteSpace(userGuid) || string.IsNullOrWhiteSpace(calculatorType))
+                return BadRequest("Missing required fields.");
+
+            var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.CalculatorType == calculatorType);
+            if (entity == null)
+                return NotFound();
+
+            _db.FinPlans.Remove(entity);
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
 
 
     }
