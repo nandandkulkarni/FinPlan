@@ -22,7 +22,7 @@
         border-radius: 8px 8px 0 0;
         font-size: 0.95em;
         min-width: 200px;
-        max-width:250px;
+        max-width: 250px;
         max-height: 660px;
         overflow-y: auto;
         z-index: 9999;
@@ -31,6 +31,22 @@
         overflow-y: auto;
         font-size: 0.75em;
     }
+
+    /* small discrete toggle styling */
+    .debug-toggle-btn {
+        background: transparent;
+        border: none;
+        color: inherit;
+        padding: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .debug-toggle-btn .bi {
+            font-size: 1.05rem;
+        }
 </style>
 
 
@@ -61,34 +77,48 @@
             </NavLink>
         </div>
 
-    @*     <div class="nav-item px-3">
+        @*     <div class="nav-item px-3">
             <NavLink class="nav-link" href="tabs">
                 <span class="bi bi-table" aria-hidden="true"></span> Data Tabs
             </NavLink>
         </div> *@
 
 
- @*        <div class="nav-debug-window">
+        @*        <div class="nav-debug-window">
             <strong>Debug:</strong>
             @foreach (var msg in DebugService.Messages)
             {
                 <div>@msg</div>
             }
         </div> *@
-        <div class="debug-bottom p-2">
-            <strong>Debug:</strong>
-            @foreach (var msg in DebugService.Messages.OrderByDescending(prop => prop.MessageTime))
-            {
-                <div>
-                    <span>@msg.MessageTime.ToString("HH:mm:ss.ff"): </span>
-                    <span>@msg.MessageText</span>
-                </div>
-            }
+
+        <!-- Discrete debug toggle (hidden by default) -->
+        <div class="nav-item px-3">
+            <button class="debug-toggle-btn nav-link" title="Toggle debug window" @onclick="ToggleDebug" aria-pressed="@ShowDebug.ToString().ToLower()">
+                <span class="bi @(ShowDebug ? "bi-bug-fill" : "bi-bug")" aria-hidden="true"></span>
+                <span class="d-none d-md-inline" style="font-size:0.85rem">Debug</span>
+            </button>
         </div>
+
+        @if (ShowDebug)
+        {
+            <div class="debug-bottom p-2">
+                <strong>Debug:</strong>
+                @foreach (var msg in DebugService.Messages.OrderByDescending(prop => prop.MessageTime))
+                {
+                    <div>
+                        <span>@msg.MessageTime.ToString("HH:mm:ss.ff"): </span>
+                        <span>@msg.MessageText</span>
+                    </div>
+                }
+            </div>
+        }
     </nav>
 </div>
 
 @code {
+    private bool ShowDebug { get; set; } = false; // hidden by default
+
     protected override void OnInitialized()
     {
         DebugService.MessagesChanged += OnMessagesChanged;
@@ -97,6 +127,11 @@
     private void OnMessagesChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleDebug()
+    {
+        ShowDebug = !ShowDebug;
     }
 
     public void Dispose()
