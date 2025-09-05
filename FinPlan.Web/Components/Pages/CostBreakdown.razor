@@ -81,24 +81,34 @@
     @foreach (var t in Tabs)
     {
         <li class="nav-item d-flex align-items-center me-1">
-            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
-                    @onclick="() => OnTabClick(t)">
-                <div class="d-flex align-items-center">
-                    <span class="me-2">@GetTabLabel(t)</span>
-                    @if (t != "your" && t != "partner" && t != "joint")
-                    {
-                        <!-- show header editable for dynamic tabs -->
-                        <input class="form-control form-control-sm ms-2" style="width:140px;" @bind="TabHeaders[t]" @onblur="() => SaveTabHeader(t)" />
-                        <button class="btn btn-sm btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
-                            <span class="bi bi-trash-fill"></span>
-                        </button>
-                    }
-                </div>
+            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" @onclick="() => OnTabClick(t)">
+                @GetTabLabel(t)
             </button>
+
+            <!-- Edit / header input and delete controls placed outside the tab button -->
+            @if (IsEditing(t))
+            {
+                <div class="d-flex align-items-center ms-2">
+                    <input class="form-control form-control-sm" style="width:160px;" @bind="TabHeaders[t]" @onkeydown="(KeyboardEventArgs e) => HandleHeaderKey(e, t)" />
+                    <button class="btn btn-sm btn-primary ms-2" @onclick="() => SaveTabHeader(t)">Save</button>
+                    <button class="btn btn-sm btn-secondary ms-1" @onclick="() => CancelEdit(t)">Cancel</button>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center ms-2">
+                    <button class="btn btn-link btn-sm p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)">
+                        <span class="bi bi-pencil-square"></span>
+                    </button>
+                    <button class="btn btn-sm btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
+                        <span class="bi bi-trash-fill"></span>
+                    </button>
+                </div>
+            }
         </li>
     }
     <li class="nav-item">
-        <button class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab">+
+        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@isAddingTab">+
         </button>
     </li>
 </ul>   
@@ -286,68 +296,217 @@
     private int YearsToRetirement { get; set; } = 20;
     private decimal InflationRate { get; set; } = 2.5m;
 
-    private string activeTab = "your"; // Track active tab for UI highlighting
+    // Only dynamic tabs; start with a single default plan (plan-a)
+    private string activeTab = "plan-a"; // Track active tab for UI highlighting
 
     private List<string> dynamicTabs = new List<string>();
-    private IEnumerable<string> Tabs => new[] { "your", "partner", "joint" }.Concat(dynamicTabs);
+    private IEnumerable<string> Tabs => dynamicTabs;
 
     private Dictionary<string,string> TabHeaders = new Dictionary<string,string>();
 
     private string GetTabLabel(string tab)
     {
-        return tab switch
+        if (TabHeaders.ContainsKey(tab) && !string.IsNullOrWhiteSpace(TabHeaders[tab])) return TabHeaders[tab];
+        // fallback: convert id to nicer label
+        if (string.Equals(tab, "plan-a", StringComparison.OrdinalIgnoreCase)) return "Plan-A";
+        return tab;
+    }
+
+    private HashSet<string> editingTabs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsEditing(string tab) => editingTabs.Contains(tab);
+    private void ToggleEdit(string tab)
+    {
+        if (editingTabs.Contains(tab)) editingTabs.Remove(tab);
+        else
         {
-            "your" => "Retirement Plan-A",
-            "partner" => "Retirement Plan-B",
-            "joint" => "Retirement Plan-C",
-            _ => (TabHeaders.ContainsKey(tab) && !string.IsNullOrWhiteSpace(TabHeaders[tab])) ? TabHeaders[tab] : tab
-        };
+            if (!TabHeaders.ContainsKey(tab)) TabHeaders[tab] = GetTabLabel(tab);
+            editingTabs.Add(tab);
+        }
+    }
+
+    private void CancelEdit(string tab)
+    {
+        if (TabHeaders.ContainsKey(tab) == false)
+            TabHeaders[tab] = GetTabLabel(tab);
+        editingTabs.Remove(tab);
+    }
+
+    private void HandleHeaderKey(KeyboardEventArgs e, string tab)
+    {
+        if (e.Key == "Enter")
+        {
+            _ = SaveTabHeader(tab);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit(tab);
+        }
+    }
+
+    private string MapTabToCalculatorType(string tab)
+    {
+        // All tabs map to CostBreakdown-{tabId}
+        return $"CostBreakdown-{tab}";
     }
 
     private async Task SaveTabHeader(string tab)
     {
-        // update server-side save for this tab's header
-        var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
-
-        var dto = new PersistCostOfLivingRequest
-        {
-            UserGuid = userGuid,
-            CalculatorType = $"CostBreakdown-{tab}",
-            Data = new CostBreakdownData
-            {
-                Header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : string.Empty,
-                Items = Items,
-                YearsToRetirement = YearsToRetirement,
-                InflationRate = InflationRate,
-                CollapsedCategories = collapsed.ToList()
-            }
-        };
-
+        // Load existing data so we don't overwrite items when updating header
         try
         {
+            var calcType = MapTabToCalculatorType(tab);
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var loadUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+            CostBreakdownData? data = null;
+
+            try
+            {
+                var resp = await client.GetAsync(loadUrl);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var j = await resp.Content.ReadAsStringAsync();
+                    data = System.Text.Json.JsonSerializer.Deserialize<CostBreakdownData>(j, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+            }
+            catch { }
+
+            if (data == null)
+            {
+                // No existing saved data - use defaults
+                data = new CostBreakdownData
+                {
+                    Items = StandardCostCategories.GetDefaults(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate,
+                    CollapsedCategories = collapsed.ToList()
+                };
+            }
+
+            data.Header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : GetTabLabel(tab);
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calcType,
+                Data = data
+            };
+
             var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            await client.PostAsync(url, content);
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var saveResp = await client.PostAsync(saveUrl, content);
+            if (saveResp.IsSuccessStatusCode)
+            {
+                editingTabs.Remove(tab);
+                await LoadTabsAsync();
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save header failed: {saveResp.StatusCode}");
+            }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving header: {ex.Message}");
+        }
+    }
+
+    private bool isAddingTab = false;
+
+    private static string NumberToLetters(int number)
+    {
+        // Convert 1 -> A, 26 -> Z, 27 -> AA, etc.
+        var sb = new System.Text.StringBuilder();
+        while (number > 0)
+        {
+            number--; // 1-based
+            int rem = number % 26;
+            sb.Insert(0, (char)('A' + rem));
+            number = number / 26;
+        }
+        return sb.ToString();
     }
 
     private async Task AddNewTab()
     {
-        var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}";
-        dynamicTabs.Add(newTab);
-        TabHeaders[newTab] = newTab;
+        if (isAddingTab) return; // guard re-entrancy
+        isAddingTab = true;
+        try
+        {
+            // determine header based on total tabs + 1 converted to letters
+            // use Tabs (which includes built-in and existing dynamic tabs)
+            int totalTabs = Tabs.Count();
+            int candidateIndex = totalTabs + 1; // add 1 to the count
 
-        // do an initial save to register this tab on server
-        await SaveTabHeader(newTab);
+            // ensure TabHeaders has default Plan-A if not present
+            if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
 
-        // reload tabs from server to ensure persistence and canonical ordering
-        await LoadTabsAsync();
+            var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
 
-        await OnTabClick(newTab);
-        StateHasChanged();
+            string headerName;
+            do
+            {
+                var letters = NumberToLetters(candidateIndex);
+                headerName = $"Plan-{letters}";
+                candidateIndex++;
+            } while (existingNames.Contains(headerName));
+
+            var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}"; // keep id as before
+
+            // prepare initial data using standard defaults and the new header
+            var initialData = new CostBreakdownData
+            {
+                Header = headerName,
+                Items = StandardCostCategories.GetDefaults(),
+                YearsToRetirement = YearsToRetirement,
+                InflationRate = InflationRate,
+                CollapsedCategories = collapsed.ToList()
+            };
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = $"CostBreakdown-{newTab}",
+                Data = initialData
+            };
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var resp = await client.PostAsync(saveUrl, content);
+            if (resp.IsSuccessStatusCode)
+            {
+                // reload canonical tabs and headers
+                await LoadTabsAsync();
+
+                // ensure local map
+                TabHeaders[newTab] = headerName;
+
+                // add to dynamicTabs if not present
+                if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
+
+                // select new tab
+                await OnTabClick(newTab);
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
+        }
+        finally
+        {
+            isAddingTab = false;
+        }
     }
 
     private async Task ConfirmDeleteTab(string tab)
@@ -365,8 +524,9 @@
     {
         try
         {
+            var calcType = MapTabToCalculatorType(tab);
             var apiBaseUrl = GetApiBaseUrl();
-            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString($"CostBreakdown-{tab}")}";
+            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.DeleteAsync(url);
             if (response.IsSuccessStatusCode)
@@ -375,20 +535,14 @@
                 dynamicTabs.Remove(tab);
                 if (TabHeaders.ContainsKey(tab)) TabHeaders.Remove(tab);
 
-                // reload tabs from server to be safe
+                // reload tabs
                 await LoadTabsAsync();
 
                 // if deleted tab was active, switch to first available
                 if (activeTab == tab)
                 {
                     activeTab = Tabs.First();
-                    calculatorType = activeTab switch
-                    {
-                        "your" => "CostOflivingyours",
-                        "partner" => "CostOflivingpartners",
-                        "joint" => "CostOflivingjoint",
-                        _ => $"CostBreakdown-{activeTab}"
-                    };
+                    calculatorType = MapTabToCalculatorType(activeTab);
                     await LoadFromApi();
                 }
 
@@ -421,6 +575,9 @@
                 {
                     dynamicTabs = list.Select(s => s.StartsWith("CostBreakdown-") ? s.Substring("CostBreakdown-".Length) : s).ToList();
 
+                    // ensure headers dictionary has defaults for built-in tabs
+                    if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+
                     // load headers for each dynamic tab
                     foreach (var t in dynamicTabs)
                     {
@@ -447,222 +604,7 @@
         catch { }
     }
 
-    // Common tab click handler
-    private async Task OnTabClick(string tab)
-    {
-        if (activeTab == tab) return; // prevent reload if already active
-
-        activeTab = tab;
-        calculatorType = tab switch
-        {
-            "your" => "CostOflivingyours",
-            "partner" => "CostOflivingpartners",
-            "joint" => "CostOflivingjoint",
-            _ => $"CostBreakdown-{tab}" // for dynamic tabs
-        };
-
-        await LoadFromApi();
-    }
-
-    private void AddRow()
-    {
-        var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
-
-        var newItem = new CostItem { Category = category, Subcategory = "", CurrentValue = 0m };
-        Items.Add(newItem);
-
-        // if we added a new category, refresh categories list and select it
-        if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
-        {
-            RefreshCategories();
-            SelectedAddCategory = NewCategoryName;
-            NewCategoryName = string.Empty;
-        }
-    }
-
-    // AddCategory creates a new empty category (adds a placeholder item) and selects it
-    private void AddCategory()
-    {
-        var newCat = (NewCategoryName ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(newCat)) return;
-
-        // don't add duplicate category header - if exists, just select it
-        if (Categories.Contains(newCat))
-        {
-            SelectedAddCategory = newCat;
-            NewCategoryName = string.Empty;
-            return;
-        }
-
-        var newItem = new CostItem
-        {
-            Category = newCat,
-            Subcategory = "<new item - edit me>",
-            CurrentValue = 0m,
-            AdjustOption = RetirementAdjustOption.Same,
-            IncludeInRetirement = true
-        };
-
-        Items.Add(newItem);
-        RefreshCategories();
-        SelectedAddCategory = newCat;
-        NewCategoryName = string.Empty;
-        StateHasChanged();
-        ScheduleAutosave();
-    }
-
-    private void HandleAddCategoryKey(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            AddCategory();
-        }
-    }
-
-    private void RemoveItem(int index)
-    {
-        if (index >= 0 && index < Items.Count)
-        {
-            Items.RemoveAt(index);
-            ScheduleAutosave();
-        }
-    }
-
-    private void RemoveCategory(string category)
-    {
-        if (string.IsNullOrEmpty(category)) return;
-        Items.RemoveAll(i => (i.Category ?? string.Empty) == category);
-        ScheduleAutosave();
-    }
-
-    private void ResetToDefaults()
-    {
-        Items = StandardCostCategories.GetDefaults();
-    }
-
-    private string NewCategorySentinel { get; } = "__new__";
-    private List<string> Categories => Items.Select(i => i.Category ?? string.Empty).Distinct().OrderBy(c => c).ToList();
-    private string SelectedAddCategory { get; set; }
-    private string NewCategoryName { get; set; } = string.Empty;
-
-    private void RefreshCategories()
-    {
-        // no-op; Categories getter reads from Items so UI will update
-        InvokeAsync(StateHasChanged);
-    }
-
-    private string userGuid = Guid.NewGuid().ToString();
-    private string calculatorType = "CostBreakdown_Your";
-
-    private string GetApiBaseUrl()
-    {
-        // follow existing pattern: try configuration then fallback to hardcoded localhost
-        var baseUrl = Configuration["ApiBaseUrl"];
-        if (!string.IsNullOrWhiteSpace(baseUrl)) return baseUrl.TrimEnd('/');
-        return "https://localhost:7330";
-    }
-
-    private System.Timers.Timer? autosaveTimer;
-    private readonly object autosaveLock = new object();
-    private int autosaveDelayMs = 800; // debounce
-
-    private void ScheduleAutosave()
-    {
-        lock (autosaveLock)
-        {
-            if (autosaveTimer == null)
-            {
-                autosaveTimer = new System.Timers.Timer(autosaveDelayMs);
-                autosaveTimer.AutoReset = false;
-                autosaveTimer.Elapsed += async (_, __) =>
-                {
-                    try
-                    {
-                        await InvokeAsync(async () => await SaveToApi());
-                    }
-                    catch { }
-                };
-            }
-            else
-            {
-                autosaveTimer.Stop();
-                autosaveTimer.Interval = autosaveDelayMs;
-            }
-
-            autosaveTimer.Start();
-        }
-    }
-
-    public void Dispose()
-    {
-        if (autosaveTimer != null)
-        {
-            autosaveTimer.Dispose();
-            autosaveTimer = null;
-        }
-    }
-
-    private async Task SaveToApi()
-    {
-        var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
-
-        try
-        {
-            // include header when saving dynamic tabs
-            string headerToSave = string.Empty;
-            const string prefix = "CostBreakdown-";
-            if (!string.IsNullOrEmpty(calculatorType) && calculatorType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                var tabId = calculatorType.Substring(prefix.Length);
-                if (TabHeaders != null && TabHeaders.ContainsKey(tabId)) headerToSave = TabHeaders[tabId];
-            }
-
-            var dto = new PersistCostOfLivingRequest
-            {
-                UserGuid = userGuid,
-                CalculatorType = calculatorType,
-                Data = new CostBreakdownData
-                {
-                    Header = headerToSave,
-                    Items = Items.Select(i => new CostItem
-                    {
-                        Category = i.Category,
-                        Subcategory = i.Subcategory,
-                        CurrentValue = i.CurrentValue,
-                        AdjustOption = (RetirementAdjustOption)i.AdjustOption,
-                        PerItemInflationPercent = i.PerItemInflationPercent,
-                        PerItemInflationSource = i.PerItemInflationSource == InflationSource.Custom ? InflationSource.Custom : InflationSource.UseGlobal,
-                        CustomPercentage = i.CustomPercentage,
-                        ManualRetirementValue = i.ManualRetirementValue,
-                        IncludeInRetirement = i.IncludeInRetirement
-                    }).ToList(),
-                    CollapsedCategories = collapsed.ToList(),
-                    YearsToRetirement = YearsToRetirement,
-                    InflationRate = InflationRate
-                }
-            };
-
-            var json = System.Text.Json.JsonSerializer.Serialize(dto);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.PostAsync(url, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await JSRuntime.InvokeVoidAsync("console.log", "Saved cost breakdown");
-            }
-            else
-            {
-                await JSRuntime.InvokeVoidAsync("console.error", $"Save failed: {response.StatusCode}");
-            }
-        }
-        catch (Exception ex)
-        {
-            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving: {ex.Message}");
-        }
-    }
-
+    // when loading tab data, pick up header if present
     private async Task LoadFromApi()
     {
         var apiBaseUrl = GetApiBaseUrl();
@@ -681,22 +623,13 @@
                     if (data != null)
                     {
                         Items = data.Items ?? new List<CostItem>();
-                        // Items = data.Items.Select(d => new CostItem
-                        // {
-                        //     Category = d.Category,
-                        //     Subcategory = d.Subcategory,
-                        //     CurrentValue = d.CurrentValue,
-                        //     AdjustOption = (RetirementAdjustOption) d.AdjustOption,
-                        //     PerItemInflationPercent = d.PerItemInflationPercent,
-                        //     PerItemInflationSource = (d.PerItemInflationSource == InflationSource.Custom) ? InflationSource.Custom : InflationSource.UseGlobal,
-                        //     CustomPercentage = d.CustomPercentage,
-                        //     ManualRetirementValue = d.ManualRetirementValue,
-                        //     IncludeInRetirement = d.IncludeInRetirement
-                        // }).ToList();
 
-                        // collapsed = new HashSet<string>(data.CollapsedCategories ?? new List<string>());
-                        // YearsToRetirement = data.YearsToRetirement;
-                        // InflationRate = data.InflationRate;
+                        // set header mapping for current activeTab
+                        if (!string.IsNullOrWhiteSpace(activeTab))
+                        {
+                            TabHeaders[activeTab] = data.Header ?? GetTabLabel(activeTab);
+                        }
+
                         StateHasChanged();
                         return;
                     }
@@ -784,6 +717,146 @@
         return value.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture);
     }
 
+    // Missing fields and helper methods restored
+    private string NewCategorySentinel { get; } = "__new__";
+    private string SelectedAddCategory { get; set; } = string.Empty;
+    private string NewCategoryName { get; set; } = string.Empty;
+
+    private List<string> Categories => Items.Select(i => i.Category ?? string.Empty).Distinct().OrderBy(c => c).ToList();
+
+    private void RefreshCategories()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void AddCategory()
+    {
+        var newCat = (NewCategoryName ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(newCat)) return;
+        if (Categories.Contains(newCat))
+        {
+            SelectedAddCategory = newCat;
+            NewCategoryName = string.Empty;
+            return;
+        }
+
+        var newItem = new CostItem
+        {
+            Category = newCat,
+            Subcategory = "<new item - edit me>",
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Same,
+            IncludeInRetirement = true
+        };
+
+        Items.Add(newItem);
+        RefreshCategories();
+        SelectedAddCategory = newCat;
+        NewCategoryName = string.Empty;
+        StateHasChanged();
+        ScheduleAutosave();
+    }
+
+    private void AddRow()
+    {
+        var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
+        var newItem = new CostItem { Category = category, Subcategory = "", CurrentValue = 0m };
+        Items.Add(newItem);
+        if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
+        {
+            RefreshCategories();
+            SelectedAddCategory = NewCategoryName;
+            NewCategoryName = string.Empty;
+        }
+        ScheduleAutosave();
+    }
+
+    private void RemoveItem(int index)
+    {
+        if (index >= 0 && index < Items.Count)
+        {
+            Items.RemoveAt(index);
+            ScheduleAutosave();
+        }
+    }
+
+    private void RemoveCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category)) return;
+        Items.RemoveAll(i => (i.Category ?? string.Empty) == category);
+        ScheduleAutosave();
+    }
+
+    // user & calculatorType fields and API helpers
+    private string userGuid = Guid.NewGuid().ToString();
+    private string calculatorType = "CostBreakdown_Your";
+
+    private string GetApiBaseUrl()
+    {
+        var baseUrl = Configuration["ApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(baseUrl)) return baseUrl.TrimEnd('/');
+        return "https://localhost:7330";
+    }
+
+    private async Task SaveToApi()
+    {
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
+
+        try
+        {
+            string headerToSave = string.Empty;
+            const string prefix = "CostBreakdown-";
+            if (!string.IsNullOrEmpty(calculatorType) && calculatorType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var tabId = calculatorType.Substring(prefix.Length);
+                if (TabHeaders != null && TabHeaders.ContainsKey(tabId)) headerToSave = TabHeaders[tabId];
+            }
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType,
+                Data = new CostBreakdownData
+                {
+                    Header = headerToSave,
+                    Items = Items.Select(i => new CostItem
+                    {
+                        Category = i.Category,
+                        Subcategory = i.Subcategory,
+                        CurrentValue = i.CurrentValue,
+                        AdjustOption = i.AdjustOption,
+                        PerItemInflationPercent = i.PerItemInflationPercent,
+                        PerItemInflationSource = i.PerItemInflationSource,
+                        CustomPercentage = i.CustomPercentage,
+                        ManualRetirementValue = i.ManualRetirementValue,
+                        IncludeInRetirement = i.IncludeInRetirement
+                    }).ToList(),
+                    CollapsedCategories = collapsed.ToList(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate
+                }
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync(url, content);
+            if (response.IsSuccessStatusCode)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "Saved cost breakdown");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save failed: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving: {ex.Message}");
+        }
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -800,25 +873,67 @@
             }
             catch { }
 
-            // load dynamic tabs first so we can set proper active tab/calculatorType
             await LoadTabsAsync();
 
-            // ensure activeTab is valid
-            if (!Tabs.Contains(activeTab))
-            {
-                activeTab = Tabs.First();
-            }
+            if (!Tabs.Contains(activeTab)) activeTab = Tabs.First();
 
-            calculatorType = activeTab switch
-            {
-                "your" => "CostOflivingyours",
-                "partner" => "CostOflivingpartners",
-                "joint" => "CostOflivingjoint",
-                _ => activeTab
-            };
+            calculatorType = MapTabToCalculatorType(activeTab);
 
             await LoadFromApi();
             StateHasChanged();
         }
+    }
+
+    private System.Timers.Timer? autosaveTimer;
+    private readonly object autosaveLock = new object();
+    private int autosaveDelayMs = 800; // debounce
+
+    private void ScheduleAutosave()
+    {
+        lock (autosaveLock)
+        {
+            if (autosaveTimer == null)
+            {
+                autosaveTimer = new System.Timers.Timer(autosaveDelayMs);
+                autosaveTimer.AutoReset = false;
+                autosaveTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        await InvokeAsync(async () => await SaveToApi());
+                    }
+                    catch { }
+                };
+            }
+            else
+            {
+                autosaveTimer.Stop();
+                autosaveTimer.Interval = autosaveDelayMs;
+            }
+
+            autosaveTimer.Start();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (autosaveTimer != null)
+        {
+            autosaveTimer.Dispose();
+            autosaveTimer = null;
+        }
+    }
+
+    private void HandleAddCategoryKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddCategory();
+    }
+
+    private async Task OnTabClick(string tab)
+    {
+        if (activeTab == tab) return;
+        activeTab = tab;
+        calculatorType = MapTabToCalculatorType(tab);
+        await LoadFromApi();
     }
 }
