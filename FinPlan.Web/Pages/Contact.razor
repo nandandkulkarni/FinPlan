@@ -1,0 +1,49 @@
+@page "/contact"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+<h2>Contact</h2>
+<p>
+    You can reach us by email at <a href="mailto:support@finplan.example">support@finplan.example</a>.
+</p>
+<p>Or send a message using the form below and we'll respond as soon as possible.</p>
+
+<EditForm Model="contactModel" OnValidSubmit="Submit">
+    <div class="mb-2">
+        <label class="form-label">Name</label>
+        <InputText class="form-control" @bind-Value="contactModel.Name" />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="contactModel.Email" />
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Message</label>
+        <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
+    </div>
+    <button class="btn btn-primary" type="submit">Send</button>
+</EditForm>
+
+@if (sent)
+{
+    <div class="alert alert-success mt-2">Thanks — your message has been sent.</div>
+}
+
+@code {
+    private ContactModel contactModel = new();
+    private bool sent = false;
+
+    private Task Submit()
+    {
+        // For now, just mark sent. In a real app we'd POST to an API or send an email.
+        sent = true;
+        return Task.CompletedTask;
+    }
+
+    private class ContactModel
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Message { get; set; }
+    }
+}
