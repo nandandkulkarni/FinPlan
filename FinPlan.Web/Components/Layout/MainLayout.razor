@@ -10,9 +10,27 @@
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
+        <!-- Top ad banner reserved spot (responsive) -->
+        <div class="ad-banner-placeholder" aria-hidden="true" title="Ad banner placeholder">
+            <div class="ad-placeholder">Top banner ad</div>
+        </div>
+
+        <div class="content-rail d-flex">
+            <article class="content px-4">
+                @Body
+            </article>
+
+            <!-- Right rail for desktop ads; hidden on small screens -->
+            <aside class="right-rail d-none d-lg-block">
+                <div class="ad-sidebar-placeholder ad-placeholder" aria-hidden="true" title="Right rail ad">Right rail ad</div>
+            </aside>
+        </div>
+
+        <!-- Mobile sticky bottom ad (hidden on large screens) -->
+        <div class="mobile-sticky-ad d-lg-none" aria-hidden="true">
+            <div class="ad-placeholder small">Mobile sticky ad</div>
+        </div>
+
     </main>
 </div>
 
