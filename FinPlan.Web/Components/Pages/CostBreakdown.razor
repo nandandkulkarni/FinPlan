@@ -18,12 +18,93 @@
         transition: background 0.2s, color 0.2s;
     }
 
+    /* non-active tabs: stronger outline on top and sides to separate from content */
+    .nav-tabs .nav-item {
+        margin-right: 6px; /* small gap between tabs */
+    }
+
+    /* Make non-active entire tab (li) light blue and include text + buttons */
+    .nav-tabs .nav-item:not(.tab-item-active) {
+        background: #e7f4ff; /* very light blue */
+        border-radius: 8px 8px 0 0;
+        padding: 3px 6px;
+    }
+
+    /* ensure link and action buttons inside non-active li use blue styling */
+    .nav-tabs .nav-item:not(.tab-item-active) .nav-link,
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn {
+        background: transparent;
+        color: #0b5ed7; /* bootstrap primary blue */
+        border-color: transparent;
+    }
+
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn.btn-soft-danger {
+        /* danger button on blue background: subtle red outline */
+        background-color: rgba(220,53,69,0.06);
+        color: #b02a37;
+        border: 1px solid rgba(176,42,55,0.08);
+    }
+
+    .nav-tabs .nav-item:not(.tab-item-active) .nav-link:hover,
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn:hover {
+        background: rgba(11,94,215,0.06);
+        color: #073d9a;
+    }
+
+    .nav-tabs .nav-link:not(.tab-active-custom) {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.16);
+        border-bottom: 1px solid rgba(0,0,0,0.10);
+        border-radius: 8px 8px 0 0;
+        color: rgba(0,0,0,0.8);
+        padding-top: .35rem;
+        padding-bottom: .35rem;
+        margin-bottom: -1px; /* keep tabs flush with content */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        z-index: 1;
+        transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+    }
+
+    .nav-tabs .nav-link:not(.tab-active-custom):hover {
+        background: #f8f9fa;
+        color: rgba(0,0,0,0.95);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* active li highlight should wrap both label and action buttons */
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tab-item-active .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: #222 !important;
+        font-weight: 600;
+        padding: 0.18rem 0.4rem;
+    }
+
+    /* smaller action buttons inside tabs */
+    .tab-action-btn {
+        padding: 0.12rem 0.28rem;
+        font-size: 0.72rem;
+        line-height: 1;
+        border-radius: 5px;
+    }
+
+    .tab-action-btn .bi { font-size: 0.95rem; }
+
     /* softer danger button (light tint + muted text) */
     .btn-soft-danger {
         background-color: rgba(220, 53, 69, 0.08);
         color: #b02a37;
         border: 1px solid rgba(176, 42, 55, 0.10);
-        padding: 0.18rem 0.36rem;
+        padding: 0.14rem 0.28rem;
     }
 
         .btn-soft-danger:hover,
@@ -38,7 +119,7 @@
         background: transparent;
         border: none;
         color: rgba(176, 42, 55, 0.85);
-        padding: 0.12rem 0.25rem;
+        padding: 0.08rem 0.18rem;
         opacity: 0.9;
     }
 
@@ -71,6 +152,35 @@
         min-width: 260px;
         max-width: 420px;
     }
+
+    /* loading overlay styles */
+    .blazor-loading-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.7);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .blazor-loading-content {
+        text-align: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+        padding: 20px 28px;
+        min-width: 200px;
+    }
+
+    .blazor-loading-content .spinner-border {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
 </style>
 <h3>Cost Breakdown</h3>
 
@@ -80,27 +190,28 @@
 <ul class="nav nav-tabs mb-3">
     @foreach (var t in Tabs)
     {
-        <li class="nav-item d-flex align-items-center me-1">
+        // add active class on li so highlight can wrap both label and actions
+        <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")">
             <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" @onclick="() => OnTabClick(t)">
                 @GetTabLabel(t)
             </button>
 
-            <!-- Edit / header input and delete controls placed outside the tab button -->
+            <!-- Edit / header input and delete controls placed outside the tab button but inside the li so highlight wraps them -->
             @if (IsEditing(t))
             {
                 <div class="d-flex align-items-center ms-2">
                     <input class="form-control form-control-sm" style="width:160px;" @bind="TabHeaders[t]" @onkeydown="(KeyboardEventArgs e) => HandleHeaderKey(e, t)" />
-                    <button class="btn btn-sm btn-primary ms-2" @onclick="() => SaveTabHeader(t)">Save</button>
-                    <button class="btn btn-sm btn-secondary ms-1" @onclick="() => CancelEdit(t)">Cancel</button>
+                    <button class="btn tab-action-btn btn-primary ms-2" @onclick="() => SaveTabHeader(t)">Save</button>
+                    <button class="btn tab-action-btn btn-secondary ms-1" @onclick="() => CancelEdit(t)">Cancel</button>
                 </div>
             }
             else
             {
                 <div class="d-flex align-items-center ms-2">
-                    <button class="btn btn-link btn-sm p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)">
+                    <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)">
                         <span class="bi bi-pencil-square"></span>
                     </button>
-                    <button class="btn btn-sm btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
+                    <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
                         <span class="bi bi-trash-fill"></span>
                     </button>
                 </div>
@@ -190,7 +301,7 @@
                     <td>
                         <div class="d-flex align-items-center">
                             <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
-                                @(IsCollapsed(groupKey) ? "▶" : "▼")
+                                @(IsCollapsed(groupKey) ? "►" : "▼")
                             </button>
                             <button class="btn btn-success btn-sm me-2 p-0" title="Add item" @onclick="() => AddItemToCategory(groupKey)">
                                 +
@@ -290,11 +401,24 @@
     </table>
 </EditForm>
 
+@* Loading overlay shown while initial API calls are in progress *@
+@if (isLoading)
+{
+    <div class="blazor-loading-modal">
+        <div class="blazor-loading-content">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2 fw-bold">Loading...</div>
+        </div>
+    </div>
+}
+
 @code {
     private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
     private int YearsToRetirement { get; set; } = 20;
     private decimal InflationRate { get; set; } = 2.5m;
+
+    private bool isLoading = false;
 
     // Only dynamic tabs; start with a single default plan (plan-a)
     private string activeTab = "plan-a"; // Track active tab for UI highlighting
@@ -867,20 +991,31 @@
     {
         if (firstRender)
         {
+            // show loading indicator while we fetch user data and tabs
+            isLoading = true;
+            StateHasChanged();
+
             try
             {
-                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                try
+                {
+                    userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                }
+                catch { }
+
+                await LoadTabsAsync();
+
+                if (!Tabs.Contains(activeTab)) activeTab = Tabs.First();
+
+                calculatorType = MapTabToCalculatorType(activeTab);
+
+                await LoadFromApi();
             }
-            catch { }
-
-            await LoadTabsAsync();
-
-            if (!Tabs.Contains(activeTab)) activeTab = Tabs.First();
-
-            calculatorType = MapTabToCalculatorType(activeTab);
-
-            await LoadFromApi();
-            StateHasChanged();
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
         }
     }
 
