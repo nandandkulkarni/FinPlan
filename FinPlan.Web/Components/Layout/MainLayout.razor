@@ -50,49 +50,82 @@
     // Consent logic: show banner if no consent cookie exists
     (function(){
         const consentKey = 'finplan_consent_v1';
+
         function showBanner() {
-            document.getElementById('consent-banner').style.display = 'block';
+            const el = document.getElementById('consent-banner');
+            if (!el) return;
+            el.style.display = 'block';
             // initialise checkbox states from stored consent
             const existing = window.cookieHandlerExtension.GetConsentObject(consentKey);
             if (existing) {
-                document.getElementById('consent-analytics').checked = !!existing.analytics;
-                document.getElementById('consent-ads').checked = !!existing.personalizedAds;
+                const a = document.getElementById('consent-analytics');
+                const p = document.getElementById('consent-ads');
+                if (a) a.checked = !!existing.analytics;
+                if (p) p.checked = !!existing.personalizedAds;
             } else {
-                // default: analytics allowed, ads personalization off
-                document.getElementById('consent-analytics').checked = true;
-                document.getElementById('consent-ads').checked = false;
+                const a = document.getElementById('consent-analytics');
+                const p = document.getElementById('consent-ads');
+                if (a) a.checked = true; // default analytics allowed
+                if (p) p.checked = false; // default ads off
             }
         }
 
         function saveConsent() {
+            const aEl = document.getElementById('consent-analytics');
+            const pEl = document.getElementById('consent-ads');
             const obj = {
-                analytics: document.getElementById('consent-analytics').checked,
-                personalizedAds: document.getElementById('consent-ads').checked,
+                analytics: !!(aEl && aEl.checked),
+                personalizedAds: !!(pEl && pEl.checked),
                 timestamp: new Date().toISOString()
             };
             window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
             window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
-            document.getElementById('consent-banner').style.display = 'none';
+            const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
         }
 
         function declineAll() {
             const obj = { analytics: false, personalizedAds: false, timestamp: new Date().toISOString() };
             window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
             window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
-            document.getElementById('consent-banner').style.display = 'none';
+            const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
         }
 
-        // When DOM ready, check consent cookie
-        document.addEventListener('DOMContentLoaded', function(){
-            try {
-                window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
-                const has = window.cookieHandlerExtension.GetConsentObject(consentKey);
-                if (!has) showBanner();
-            } catch (e) { console.error(e); }
+        // Wait for the layout DOM to be available (handles Blazor render replacing DOM)
+        function initWhenReady() {
+            let attempts = 0;
+            const maxAttempts = 50; // ~5s
+            const interval = setInterval(() => {
+                attempts++;
+                const banner = document.getElementById('consent-banner');
+                const accept = document.getElementById('consent-accept');
+                const decline = document.getElementById('consent-decline');
+                if (banner && accept && decline) {
+                    clearInterval(interval);
 
-            document.getElementById('consent-accept').addEventListener('click', saveConsent);
-            document.getElementById('consent-decline').addEventListener('click', declineAll);
-        });
+                    // Attach listeners (avoid duplicate attachments)
+                    accept.removeEventListener('click', saveConsent);
+                    decline.removeEventListener('click', declineAll);
+                    accept.addEventListener('click', saveConsent);
+                    decline.addEventListener('click', declineAll);
+
+                    // Apply stored consent to window flags
+                    try { window.cookieHandlerExtension.ApplyConsentToWindow(consentKey); } catch(e) { console.error(e); }
+
+                    const has = window.cookieHandlerExtension.GetConsentObject(consentKey);
+                    if (!has) {
+                        // slight delay so layout paint is visible and it doesn't flash due to re-render
+                        setTimeout(() => showBanner(), 80);
+                    }
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        // Start init after a short tick to allow Blazor to render
+        setTimeout(initWhenReady, 50);
 
     })();
 </script>
