@@ -11,23 +11,27 @@
         </div>
 
         <!-- Top ad banner reserved spot (responsive) -->
-        <div class="ad-banner-placeholder" aria-hidden="true" title="Ad banner placeholder">
+        <div class="ad-banner-placeholder" data-ad-type="banner" aria-hidden="true" title="Ad banner placeholder">
             <div class="ad-placeholder">Top banner ad</div>
         </div>
 
         <div class="content-rail d-flex">
             <article class="content px-4">
                 @Body
+
+                <!-- example in-content native ad placeholder (between sections) -->
+                <div class="ad-inline-placeholder" data-ad-type="native" aria-hidden="true">In-content native ad</div>
+
             </article>
 
             <!-- Right rail for desktop ads; hidden on small screens -->
             <aside class="right-rail d-none d-lg-block">
-                <div class="ad-sidebar-placeholder ad-placeholder" aria-hidden="true" title="Right rail ad">Right rail ad</div>
+                <div class="ad-sidebar-placeholder ad-placeholder" data-ad-type="sidebar" aria-hidden="true" title="Right rail ad">Right rail ad</div>
             </aside>
         </div>
 
         <!-- Mobile sticky bottom ad (hidden on large screens) -->
-        <div class="mobile-sticky-ad d-lg-none" aria-hidden="true">
+        <div class="mobile-sticky-ad d-lg-none" aria-hidden="true" data-ad-type="mobile-sticky">
             <div class="ad-placeholder small">Mobile sticky ad</div>
         </div>
 
@@ -64,6 +68,7 @@
     <a class="dismiss">🗙</a>
 </div>
 
+<script src="/js/adLoader.js"></script>
 <script>
     // Consent logic: show banner if no consent cookie exists
     (function(){
@@ -99,6 +104,9 @@
             window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
             window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
             const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
+
+            // Initialize ads now that consent stored
+            if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
         }
 
         function declineAll() {
@@ -106,6 +114,9 @@
             window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
             window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
             const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
+
+            // Still init adLoader so non-personalized placeholders load
+            if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
         }
 
         // Wait for the layout DOM to be available (handles Blazor render replacing DOM)
@@ -133,6 +144,9 @@
                     if (!has) {
                         // slight delay so layout paint is visible and it doesn't flash due to re-render
                         setTimeout(() => showBanner(), 80);
+                    } else {
+                        // If consent already present, initialize ad loader immediately
+                        if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
                     }
                 }
 
