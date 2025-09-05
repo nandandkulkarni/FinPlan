@@ -181,6 +181,28 @@
         height: 2.25rem;
     }
 
+    /* table scroll container: keep top controls outside and make table body scrollable */
+    .table-container {
+        max-height: calc(100vh - 360px); /* leave room for headers/top controls */
+        overflow-y: auto;
+        position: relative;
+        border: 1px solid transparent; /* keeps layout stable */
+    }
+
+    /* make thead rows sticky so column headers stay visible while scrolling */
+    .table-container thead th {
+        position: sticky;
+        z-index: 3;
+        background: #fff; /* ensure header covers scrolled rows */
+    }
+
+    /* if there are two header rows, offset the second under the first */
+    .table-container thead tr:nth-child(1) th { top: 0; }
+    .table-container thead tr:nth-child(2) th { top: 38px; z-index:2; background: #f8f9fa; }
+
+    /* ensure table layout doesn't collapse when scrolling */
+    .table-container table { margin-bottom: 0; }
+
 </style>
 <h3>Cost Breakdown</h3>
 
@@ -255,8 +277,9 @@
         </div>
     </div>
 
-    <table class="table table-sm">
-        <thead>
+    <div class="table-container">
+        <table class="table table-sm">
+         <thead>
             <tr>
                 <th style="width:40px;"></th>
                 <th>Heading</th>
@@ -398,7 +421,8 @@
                 }
             }
         </tbody>
-    </table>
+        </table>
+    </div>
 </EditForm>
 
 @* Loading overlay shown while initial API calls are in progress *@
