@@ -320,7 +320,7 @@
                             <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                         </button>
                     </td>
-                    <td>1.
+                    <td>
                             <!--1-->
                         <div class="d-flex align-items-center">
                             <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
@@ -362,7 +362,7 @@
                                 </button>
 @*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
  *@                            </td>
-                            <td style="width:120px; vertical-align:middle;">
+                            <td style="width:120px; vertical-align:top;">
                                 <InputSelect class="form-select form-select-sm" @bind-Value="item.Frequency" @onchange="() => ScheduleAutosave()">
                                     @foreach (var f in Enum.GetValues(typeof(FinPlan.Shared.Models.LivingCosts.Frequency)).Cast<FinPlan.Shared.Models.LivingCosts.Frequency>())
                                     {
@@ -378,7 +378,7 @@
                             <td style="width:140px;">
                                 <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
                             </td>
-                            <td style="width:140px; vertical-align:middle; text-align:right;">
+                            <td style="width:140px; vertical-align:top; text-align:right;">
                                 <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
                             </td>
                             <td style="width:220px;">
