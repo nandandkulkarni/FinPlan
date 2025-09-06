@@ -5,11 +5,22 @@ namespace FinPlan.Shared.Models.LivingCosts
 
 {
 
+    public enum Frequency
+    {
+        Monthly = 0,
+        Yearly = 1,
+        Quarterly = 2,
+        BiWeekly = 3,
+        Weekly = 4
+    }
+
     public class CostItem
     {
         public string Category { get; set; } = string.Empty;
         public string Subcategory { get; set; } = string.Empty;
         public decimal CurrentValue { get; set; }
+        // How CurrentValue is expressed (monthly, yearly, etc.)
+        public Frequency Frequency { get; set; } = Frequency.Monthly;
         public RetirementAdjustOption AdjustOption { get; set; } = RetirementAdjustOption.Same;
         // Optional per-item inflation percent (e.g., 2.5 for 2.5%). If null, use global inflation.
         public decimal? PerItemInflationPercent { get; set; }
@@ -20,6 +31,22 @@ namespace FinPlan.Shared.Models.LivingCosts
         // For Manual option: specify the retirement monthly amount directly
         public decimal? ManualRetirementValue { get; set; }
         public bool IncludeInRetirement { get; set; } = true;
+
+        // Convert CurrentValue (expressed in the configured Frequency) to a per-month amount
+        public decimal GetMonthlyEquivalent()
+        {
+            var amount = CurrentValue;
+            decimal perMonth = Frequency switch
+            {
+                Frequency.Monthly => amount,
+                Frequency.Yearly => amount / 12m,
+                Frequency.Quarterly => amount / 3m,
+                Frequency.BiWeekly => amount * 26m / 12m,
+                Frequency.Weekly => amount * 52m / 12m,
+                _ => amount
+            };
+            return Math.Round(perMonth, 2);
+        }
 
         public decimal GetRetirementValue(int yearsToRetirement, decimal inflationRate)
         {
@@ -36,14 +63,17 @@ namespace FinPlan.Shared.Models.LivingCosts
                 effectiveInflation = inflationRate;
             }
 
+            // Use the monthly-equivalent as the base for retirement projections
+            var baseMonthly = GetMonthlyEquivalent();
+
             return AdjustOption switch
             {
-                RetirementAdjustOption.Same => CurrentValue,
+                RetirementAdjustOption.Same => Math.Round(baseMonthly, 2),
                 RetirementAdjustOption.AdjustForInflation =>
-                    CalculateInflationAdjusted(CurrentValue, yearsToRetirement, effectiveInflation),
-                RetirementAdjustOption.CustomPercentage => Math.Round(CurrentValue * (CustomPercentage / 100m), 2),
-                RetirementAdjustOption.Manual => ManualRetirementValue.HasValue ? Math.Round(ManualRetirementValue.Value, 2) : CurrentValue,
-                _ => CurrentValue,
+                    CalculateInflationAdjusted(baseMonthly, yearsToRetirement, effectiveInflation),
+                RetirementAdjustOption.CustomPercentage => Math.Round(baseMonthly * (CustomPercentage / 100m), 2),
+                RetirementAdjustOption.Manual => ManualRetirementValue.HasValue ? Math.Round(ManualRetirementValue.Value, 2) : Math.Round(baseMonthly, 2),
+                _ => Math.Round(baseMonthly, 2),
             };
         }
 

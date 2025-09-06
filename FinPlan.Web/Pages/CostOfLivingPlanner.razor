@@ -279,8 +279,10 @@
          <thead>
             <tr>
                 <th style="width:40px;"></th>
-                <th>Heading</th>
+                <th style="width:120px;">Freq</th>
                 <th style="width:140px;">Current Value</th>
+                <th style="width:140px;">Per Month</th>
+                <th>Heading</th>
                 <th>Retirement Adjust</th>
                 <th style="width:160px;">Inflation</th>
                 <th style="width:60px;">Incl.</th>
@@ -291,6 +293,8 @@
                 <td></td>
                 <td></td>
                 <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
+                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalPerMonth)</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -357,6 +361,14 @@
                                 </button>
 @*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
  *@                            </td>
+                            <td style="width:120px; vertical-align:middle;">
+                                <InputSelect class="form-select form-select-sm" @bind-Value="item.Frequency" @onchange="() => ScheduleAutosave()">
+                                    @foreach (var f in Enum.GetValues(typeof(FinPlan.Shared.Models.LivingCosts.Frequency)).Cast<FinPlan.Shared.Models.LivingCosts.Frequency>())
+                                    {
+                                        <option value="@f">@f.ToString()</option>
+                                    }
+                                </InputSelect>
+                            </td>
                             <td>
                                 <div>
                                     <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
@@ -364,6 +376,9 @@
                             </td>
                             <td style="width:140px;">
                                 <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
+                            </td>
+                            <td style="width:140px; vertical-align:middle; text-align:right;">
+                                <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
                             </td>
                             <td style="width:220px;">
                                 <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
@@ -974,6 +989,8 @@
     }
 
     private decimal TotalCurrent => Math.Round(Items.Sum(i => i.CurrentValue), 2);
+
+    private decimal TotalPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent()), 2);
 
     private decimal TotalRetirement => Math.Round(Items.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate)), 2);
 

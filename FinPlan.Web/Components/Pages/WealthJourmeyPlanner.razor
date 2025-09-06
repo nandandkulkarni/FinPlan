@@ -229,11 +229,7 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="initialTaxableAmount" class="form-label">
                                             Brokerage/Savings <small class="text-muted" style="font-size:0.85em;">(from post-tax source)</small>
-                                        </label>                                        
-                                        @* <FormattedInputNumber id="initialTaxableAmount" class="form-control"
-                                                                                                              @bind-value="calculatorModel.InitialTaxableAmount"
-                                                                                                              OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-
+                                        </label>
                                         <FormattedNumber class="form-control" @bind-Value="calculatorModel.InitialTaxableAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
                                                                                                               
                                         <small class="form-text">Regular brokerage/savings account</small>
