@@ -2,6 +2,8 @@
 @using FinPlan.Shared.Models.LivingCosts
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
@@ -43,12 +45,6 @@
         background-color: rgba(220,53,69,0.06);
         color: #b02a37;
         border: 1px solid rgba(176,42,55,0.08);
-    }
-
-    .nav-tabs .nav-item:not(.tab-item-active) .nav-link:hover,
-    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn:hover {
-        background: rgba(11,94,215,0.06);
-        color: #073d9a;
     }
 
     .nav-tabs .nav-link:not(.tab-active-custom) {

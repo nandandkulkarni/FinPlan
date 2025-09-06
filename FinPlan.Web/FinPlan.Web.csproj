@@ -17,6 +17,7 @@
     <Content Remove="Components\Pages\Archive\RetirementSpendingPlanner.razor" />
     <Content Remove="Components\Pages\Archive\SavingsPlanner.razor" />
     <Content Remove="Components\Pages\CostBreakdown.razor" />
+    <Content Remove="Components\Pages\CostOfLiving.razor" />
     <Content Remove="Components\Pages\FamilySavingsPlannerTab.razor" />
     <Content Remove="Components\Pages\SavingsYearlyDetailsComponent.razor" />
   </ItemGroup>
