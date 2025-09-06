@@ -276,31 +276,30 @@
 
     <div class="table-container">
         <table class="table table-sm">
-         <thead>
+        <thead>
             <tr>
-                <th style="width:40px;">0.</th>
-                <th style="width:120px;">1. Frequency<br/>Units</th>
-                <th style="width:140px;">2. Category</th>
-                <th style="width:140px;">3. $Per <br />Unit</th>
-                <th style="width:140px;">4. $Per <br />Month</th>
-                    <th>5. Retirement <br />Adjust</th>
-                <th>Retirement Adjust</th>
+                <th style="width:40px;">&nbsp;</th>
+                <th style="width:120px;">Frequency<br/>Units</th>
+                <th style="width:140px;">Category / Subcategory</th>
+                <th style="width:140px;">$Per Unit</th>
+                <th style="width:140px;">$Per Month</th>
+                <th style="width:220px;">Retirement Adjust</th>
                 <th style="width:160px;">Inflation</th>
                 <th style="width:60px;">Incl.</th>
                 <th style="width:180px;">Retirement Value</th>
-                <th></th>
             </tr>
+
+            <!-- Totals row: values aligned under the appropriate numeric columns -->
             <tr class="table-secondary">
-                <td>0</td>
-                <td>1</td>
-                <td style="vertical-align:middle;" class="fw-bold">2-@FormatCurrency(TotalCurrent)</td>
-                <td style="vertical-align:middle;" class="fw-bold">3-@FormatCurrency(TotalPerMonth)</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-                <td style="vertical-align:middle;" class="fw-bold text-primary">8 @FormatCurrency(TotalRetirement)</td>
-                <td>9</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
+                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalPerMonth)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="vertical-align:middle;" class="fw-bold text-primary">@FormatCurrency(TotalRetirement)</td>
             </tr>
         </thead>
         <tbody>
