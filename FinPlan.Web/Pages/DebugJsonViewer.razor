@@ -1,0 +1,332 @@
+﻿@page "/debug/json-viewer"
+@using System.Text.Json
+@using Microsoft.JSInterop
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+@inject IWebHostEnvironment Env
+
+<h3>FinPlan JSON viewer (development only)</h3>
+
+@if (!Env.IsDevelopment())
+{
+    <div class="alert alert-warning">
+        This debug viewer is only available in the Development environment.
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-sm btn-outline-primary me-2" @onclick="LoadListAsync" disabled="@isLoading">Refresh</button>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="CollapseAll">Collapse all</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    }
+
+    @if (groups?.Any() == true)
+    {
+        @foreach (var g in groups.OrderBy(g => g.UserGuid))
+        {
+            <div class="card mb-2">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Guild / User:</strong> @g.UserGuid
+                        <span class="text-muted ms-2">(@g.Items.Count() items)</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => ToggleGroup(g.UserGuid)">
+                            @(expandedGroups.Contains(g.UserGuid) ? "Collapse" : "Expand")
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" @onclick="() => CopyUserGuid(g.UserGuid)">Copy GUID</button>
+                    </div>
+                </div>
+                @if (expandedGroups.Contains(g.UserGuid))
+                {
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var row in g.Items.OrderBy(i => i.CalculatorType))
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">@row.CalculatorType</div>
+                                        <div class="small text-muted">Id: @row.Id &nbsp; Length: @row.Length</div>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => ShowJson(row.Id)">View JSON</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => DownloadJson(row.Id, row.CalculatorType)">Download</button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-muted">No entries found (or the API returned none).</div>
+    }
+
+    @* Modal for showing JSON *@
+    @if (showJsonModal)
+    {
+        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">JSON Viewer</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseJsonModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <strong>Id:</strong> @selectedId
+                        </div>
+                        <div id="jsoneditorContainer" style="height:65vh; background:#0f1724; color:#e6edf3; padding:12px; border-radius:6px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-secondary" @onclick="CloseJsonModal">Close</button>
+                        <button class="btn btn-sm btn-outline-primary" @onclick="CopyJson">Copy JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@* include jsoneditor via CDN for richer tree viewer *@
+<script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.3/dist/jsoneditor.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.3/dist/jsoneditor.min.css" rel="stylesheet" />
+
+@code {
+    private record FinPlanRow(Guid Id, string UserGuid, string CalculatorType, int Length);
+
+    private class Grouped
+    {
+        public string UserGuid { get; set; } = string.Empty;
+        public List<FinPlanRow> Items { get; set; } = new();
+    }
+
+    private List<Grouped>? groups;
+    private HashSet<string> expandedGroups = new();
+    private bool isLoading = false;
+
+    // JSON modal state
+    private bool showJsonModal = false;
+    private Guid selectedId;
+    private string selectedJson = string.Empty;
+    private IJSObjectReference? jsonEditorModule;
+    private bool jsonEditorInitialized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Env.IsDevelopment())
+        {
+            await LoadListAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Load a minimal JS helper for initializing jsoneditor
+                var helperJs = @"window.__fp_jsonhelper = {
+                    createEditor: function (containerId, json) {
+                        try {
+                            const container = document.getElementById(containerId);
+                            if (!container) return null;
+                            container.innerHTML = '';
+                            const options = { mode: 'view', onError: function (err) { console.error(err); } };
+                            const editor = new JSONEditor(container, options);
+                            editor.set(json);
+                            return true;
+                        } catch (e) { console.error(e); return null; }
+                    },
+                    setJson: function (containerId, json) {
+                        try { const container = document.getElementById(containerId); if (!container) return; if (container.__jsoneditor) { container.__jsoneditor.set(json); } else { const options = { mode:'view' }; const editor = new JSONEditor(container, options); editor.set(json); container.__jsoneditor = editor; } } catch (e) { console.error(e); }
+                    }
+                };";
+
+                await JSRuntime.InvokeVoidAsync("eval", helperJs);
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
+
+    private HttpClient CreateClient()
+    {
+        // Use the shared named retry HttpClient if available, otherwise fallback to a plain client
+        try
+        {
+            return FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+        }
+        catch
+        {
+            try { return HttpClientFactory.CreateClient(); } catch { return new HttpClient(); }
+        }
+    }
+
+    private async Task LoadListAsync()
+    {
+        isLoading = true;
+        groups = new List<Grouped>();
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(15);
+            var url = $"{apiBaseUrl}/api/Debug/finplans";
+            var resp = await client.GetAsync(url);
+            if (resp.IsSuccessStatusCode)
+            {
+                var json = await resp.Content.ReadAsStringAsync();
+                var list = JsonSerializer.Deserialize<List<FinPlanRow>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (list != null)
+                {
+                    groups = list
+                        .GroupBy(x => x.UserGuid ?? string.Empty)
+                        .Select(g => new Grouped { UserGuid = g.Key ?? string.Empty, Items = g.ToList() })
+                        .ToList();
+                }
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Debug API returned {resp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error loading debug list: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleGroup(string userGuid)
+    {
+        if (expandedGroups.Contains(userGuid)) expandedGroups.Remove(userGuid);
+        else expandedGroups.Add(userGuid);
+    }
+
+    private void CollapseAll()
+    {
+        expandedGroups.Clear();
+    }
+
+    private async Task ShowJson(Guid id)
+    {
+        selectedJson = string.Empty;
+        selectedId = id;
+        showJsonModal = true;
+        StateHasChanged();
+
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(20);
+            var url = $"{apiBaseUrl}/api/Debug/finplans/{id}";
+            var resp = await client.GetAsync(url);
+            if (resp.IsSuccessStatusCode)
+            {
+                var raw = await resp.Content.ReadAsStringAsync();
+                // Try parse JSON first
+                try
+                {
+                    using var doc = JsonDocument.Parse(raw);
+                    selectedJson = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+
+                    // initialize jsoneditor view via JS helper
+                    await JSRuntime.InvokeVoidAsync("__fp_jsonhelper.setJson", "jsoneditorContainer", selectedJson);
+                }
+                catch
+                {
+                    // Not valid JSON? show raw in editor as string
+                    selectedJson = raw;
+                    await JSRuntime.InvokeVoidAsync("__fp_jsonhelper.setJson", "jsoneditorContainer", raw);
+                }
+            }
+            else
+            {
+                selectedJson = $"Failed to load JSON: {resp.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            selectedJson = $"Error loading JSON: {ex.Message}";
+        }
+
+        StateHasChanged();
+    }
+
+    private void CloseJsonModal()
+    {
+        showJsonModal = false;
+        selectedJson = string.Empty;
+    }
+
+    private async Task CopyJson()
+    {
+        if (!string.IsNullOrEmpty(selectedJson))
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", selectedJson);
+        }
+    }
+
+    private async Task CopyUserGuid(string userGuid)
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", userGuid);
+    }
+
+    private async Task DownloadJson(Guid id, string calcType)
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = CreateClient();
+            var url = $"{apiBaseUrl}/api/Debug/finplans/{id}";
+            var resp = await client.GetAsync(url);
+            if (resp.IsSuccessStatusCode)
+            {
+                var raw = await resp.Content.ReadAsStringAsync();
+                var bytes = System.Text.Encoding.UTF8.GetBytes(raw);
+                var base64 = Convert.ToBase64String(bytes);
+                var filename = $"{calcType}_{id}.json";
+                await JSRuntime.InvokeVoidAsync("saveAsFile", filename, base64);
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Download failed: {resp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Download error: {ex.Message}");
+        }
+    }
+}
