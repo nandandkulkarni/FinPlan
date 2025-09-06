@@ -436,6 +436,29 @@
     </div>
 }
 
+@* Timeout / retry modal *@
+@if (showTimeoutModal)
+{
+    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request timed out</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="DismissTimeoutModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small">@timeoutMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" @onclick="DismissTimeoutModal">Dismiss</button>
+                    <button class="btn btn-primary btn-sm" @onclick="RetryOperation">Retry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
@@ -763,6 +786,8 @@
             var apiBaseUrl = GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}";
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            // reduce timeout for this non-critical call so UI can proceed if API is slow
+            try { client.Timeout = TimeSpan.FromSeconds(10); } catch { }
             var response = await client.GetAsync(url);
             Log($"LoadTabsAsync: tabs call returned {(int)response.StatusCode}");
             if (response.IsSuccessStatusCode)
@@ -806,9 +831,22 @@
                 }
             }
         }
+        catch (OperationCanceledException oce)
+        {
+            // Timeout or cancellation - continue with defaults
+            LogError($"LoadTabsAsync timeout/cancelled: {oce.Message}");
+            dynamicTabs = new List<string>();
+            if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+            // Show modal to allow retry
+            ShowTimeout(OperationType.LoadTabs, "Loading tabs timed out. You can retry.");
+        }
         catch (Exception ex)
         {
             LogError($"LoadTabsAsync exception: {ex.Message}");
+            // ensure we have at least the default tab so UI remains usable
+            dynamicTabs = new List<string>();
+            if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+            ShowTimeout(OperationType.LoadTabs, $"Loading tabs failed: {ex.Message}");
         }
     }
 
@@ -822,6 +860,8 @@
         try
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            // shorter timeout to avoid long blocking during initial render
+            try { client.Timeout = TimeSpan.FromSeconds(12); } catch { }
             var response = await client.GetAsync(url);
             Log($"LoadFromApi: call returned {(int)response.StatusCode}");
             if (response.IsSuccessStatusCode)
@@ -872,10 +912,19 @@
                 LogError($"LoadFromApi failed status: {response.StatusCode}");
             }
         }
+        catch (OperationCanceledException oce)
+        {
+            LogError($"LoadFromApi timeout/cancelled: {oce.Message}");
+            // fallback to defaults so UI remains usable
+            Items = StandardCostCategories.GetDefaults();
+            StateHasChanged();
+            ShowTimeout(OperationType.LoadFromApi, "Loading calculator data timed out. You can retry.");
+        }
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("console.error", $"Error loading: {ex.Message}");
             LogError($"LoadFromApi exception: {ex.Message}");
+            ShowTimeout(OperationType.LoadFromApi, $"Loading data failed: {ex.Message}");
         }
     }
 
@@ -1010,11 +1059,13 @@
     private string userGuid = Guid.NewGuid().ToString();
     private string calculatorType = "CostOfLiving_Your";
 
-    private string GetApiBaseUrl()
+     private string GetApiBaseUrl()
     {
-        var baseUrl = Configuration["ApiBaseUrl"];
-        if (!string.IsNullOrWhiteSpace(baseUrl)) return baseUrl.TrimEnd('/');
-        return "https://localhost:7330";
+#if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
     }
 
     private async Task SaveToApi()
@@ -1184,5 +1235,61 @@
         activeTab = tab;
         calculatorType = MapTabToCalculatorType(tab);
         await LoadFromApi();
+    }
+
+    private enum OperationType { None, LoadTabs, LoadFromApi }
+    private bool showTimeoutModal = false;
+    private string timeoutMessage = string.Empty;
+    private OperationType failedOperation = OperationType.None;
+
+    private void ShowTimeout(OperationType op, string message)
+    {
+        failedOperation = op;
+        timeoutMessage = message;
+        showTimeoutModal = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void DismissTimeoutModal()
+    {
+        showTimeoutModal = false;
+        failedOperation = OperationType.None;
+        timeoutMessage = string.Empty;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RetryOperation()
+    {
+        showTimeoutModal = false;
+        var op = failedOperation;
+        failedOperation = OperationType.None;
+        timeoutMessage = string.Empty;
+        // Refresh UI
+        StateHasChanged();
+
+        try
+        {
+            if (op == OperationType.LoadTabs)
+            {
+                Log("User triggered retry: LoadTabsAsync");
+                await LoadTabsAsync();
+                // if tabs loaded and activeTab missing, ensure selection
+                if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "plan-a";
+                calculatorType = MapTabToCalculatorType(activeTab);
+                // After reloading tabs, try loading data for the active tab
+                await LoadFromApi();
+            }
+            else if (op == OperationType.LoadFromApi)
+            {
+                Log("User triggered retry: LoadFromApi");
+                await LoadFromApi();
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"RetryOperation failed: {ex.Message}");
+            // Show modal again with updated message
+            ShowTimeout(op, $"Retry failed: {ex.Message}");
+        }
     }
 }
