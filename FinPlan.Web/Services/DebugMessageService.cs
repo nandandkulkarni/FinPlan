@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace FinPlan.Web.Services
 {
@@ -13,8 +14,14 @@ namespace FinPlan.Web.Services
     {
         private readonly List<DebugMessage> _messages = new();
         private readonly object _lock = new();
+        private readonly ILogger<DebugMessageService> _logger;
 
         public event Action? MessagesChanged;
+
+        public DebugMessageService(ILogger<DebugMessageService> logger)
+        {
+            _logger = logger;
+        }
 
         public IReadOnlyList<DebugMessage> Messages
         {
@@ -25,13 +32,16 @@ namespace FinPlan.Web.Services
         {
             lock (_lock)
             {
-                _messages.Add(new DebugMessage
+                var dm = new DebugMessage
                 {
                     MessageTime = DateTime.Now,
                     MessageText = message
-                });
-                if (_messages.Count > 10)
+                };
+                _messages.Add(dm);
+                if (_messages.Count > 100)
                     _messages.RemoveAt(0);
+
+                try { _logger.LogInformation("DebugMessage added: {MessageTime} {MessageText}", dm.MessageTime, dm.MessageText); } catch { }
             }
             MessagesChanged?.Invoke();
         }
@@ -42,6 +52,7 @@ namespace FinPlan.Web.Services
             {
                 _messages.Clear();
             }
+            try { _logger.LogInformation("DebugMessageService cleared messages"); } catch { }
             MessagesChanged?.Invoke();
         }
     }

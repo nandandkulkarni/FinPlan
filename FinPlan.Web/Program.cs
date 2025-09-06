@@ -35,6 +35,8 @@ builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web
 
 // Register the DebugMessageService as singleton
 builder.Services.AddScoped<FinPlan.Web.Services.DebugMessageService>();
+// Ensure ILogger injected for DebugMessageService
+builder.Services.AddLogging();
 
 // Register the UserGuidService as scoped
 builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();

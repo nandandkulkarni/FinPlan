@@ -60,6 +60,21 @@ h1:focus {
     background: linear-gradient(135deg, #1b6ec2 0%, #006bb7 100%);
 }
 
+/* About page hero */
+.about-hero {
+    background: linear-gradient(135deg, #1b6ec2 0%, #005fa0 100%);
+    padding: 2rem 1.5rem;
+}
+
+.about-hero .lead {
+    color: rgba(255,255,255,0.95);
+    font-size: 1.15rem;
+}
+
+.about-cta .btn {
+    min-width: 160px;
+}
+
 .card {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     border: 1px solid rgba(0, 0, 0, 0.125);

@@ -1,6 +1,6 @@
 namespace FinPlan.Shared.Models.LivingCosts
 {
-    public class CostBreakdownData
+    public class CostOfLivingData
     {
         public List<CostItem> Items { get; set; } = new List<CostItem>();
         public List<string> CollapsedCategories { get; set; } = new List<string>();

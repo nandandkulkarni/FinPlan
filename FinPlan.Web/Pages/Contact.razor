@@ -2,32 +2,44 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
 
-<h2>Contact</h2>
-<p>
-    You can reach us by email at <a href="mailto:support@finplan.example">support@finplan.example</a>.
-</p>
-<p>Or send a message using the form below and we'll respond as soon as possible.</p>
+<div class="about-hero jumbotron text-white p-4 rounded mb-4">
+    <div class="container">
+        <h1 class="display-5">Contact FinPlan</h1>
+        <p class="lead">Questions, feedback or contributions — we'd love to hear from you. Use the form below or email us directly.</p>
+        <p class="about-cta">
+            <a class="btn btn-primary btn-lg me-2" href="mailto:support@finplan.example" role="button">Email Support</a>
+            <a class="btn btn-outline-light btn-lg" href="/" role="button">Explore Calculators</a>
+        </p>
+    </div>
+</div>
 
-<EditForm Model="contactModel" OnValidSubmit="Submit">
-    <div class="mb-2">
-        <label class="form-label">Name</label>
-        <InputText class="form-control" @bind-Value="contactModel.Name" />
-    </div>
-    <div class="mb-2">
-        <label class="form-label">Email</label>
-        <InputText class="form-control" @bind-Value="contactModel.Email" />
-    </div>
-    <div class="mb-2">
-        <label class="form-label">Message</label>
-        <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
-    </div>
-    <button class="btn btn-primary" type="submit">Send</button>
-</EditForm>
+<div class="card p-3 mb-4">
+    <div class="card-body">
+        <h4>Send us a message</h4>
+        <p class="text-muted">We aim to respond within a few business days.</p>
 
-@if (sent)
-{
-    <div class="alert alert-success mt-2">Thanks � your message has been sent.</div>
-}
+        <EditForm Model="contactModel" OnValidSubmit="Submit">
+            <div class="mb-2">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" @bind-Value="contactModel.Name" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Email</label>
+                <InputText class="form-control" @bind-Value="contactModel.Email" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Message</label>
+                <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
+            </div>
+            <button class="btn btn-primary" type="submit">Send</button>
+        </EditForm>
+
+        @if (sent)
+        {
+            <div class="alert alert-success mt-2">Thanks — your message has been sent.</div>
+        }
+    </div>
+</div>
 
 @code {
     private ContactModel contactModel = new();

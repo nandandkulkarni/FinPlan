@@ -3,10 +3,15 @@ let lastClickX = 0;
 let lastClickY = 0;
 
 // Track clicks to get coordinates
-document.addEventListener('click', function(event) {
-    lastClickX = event.clientX;
-    lastClickY = event.clientY;
-});
+// Use defensive guards in case document or addEventListener is unavailable
+if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('click', function(event) {
+        try {
+            lastClickX = event.clientX || 0;
+            lastClickY = event.clientY || 0;
+        } catch (e) { /* ignore */ }
+    });
+}
 
 // Function to get last click coordinates
 function getLastClickCoordinates() {

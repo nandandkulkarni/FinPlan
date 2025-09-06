@@ -132,10 +132,32 @@
                     clearInterval(interval);
 
                     // Attach listeners (avoid duplicate attachments)
-                    accept.removeEventListener('click', saveConsent);
-                    decline.removeEventListener('click', declineAll);
-                    accept.addEventListener('click', saveConsent);
-                    decline.addEventListener('click', declineAll);
+                    try {
+                        if (accept && typeof accept.addEventListener === 'function') {
+                            try { accept.removeEventListener('click', saveConsent); } catch(e) { /* ignore */ }
+                            accept.addEventListener('click', saveConsent);
+                        }
+                        if (decline && typeof decline.addEventListener === 'function') {
+                            try { decline.removeEventListener('click', declineAll); } catch(e) { /* ignore */ }
+                            decline.addEventListener('click', declineAll);
+                        }
+                    } catch (handlerEx) { console.error('Consent handlers attach failed', handlerEx); }
+
+                    // wire blazor error UI controls safely
+                    try {
+                        const reloadLink = document.querySelector('#blazor-error-ui .reload');
+                        const dismissLink = document.querySelector('#blazor-error-ui .dismiss');
+                        if (reloadLink && typeof reloadLink.addEventListener === 'function') {
+                            reloadLink.removeEventListener('click', window.__fp_reload_handler__);
+                            window.__fp_reload_handler__ = function(ev) { ev.preventDefault(); try { window.location.reload(); } catch(e) { console.error(e); } };
+                            reloadLink.addEventListener('click', window.__fp_reload_handler__);
+                        }
+                        if (dismissLink && typeof dismissLink.addEventListener === 'function') {
+                            dismissLink.removeEventListener('click', window.__fp_dismiss_handler__);
+                            window.__fp_dismiss_handler__ = function(ev) { ev.preventDefault(); var ui = document.getElementById('blazor-error-ui'); if (ui) ui.style.display = 'none'; };
+                            dismissLink.addEventListener('click', window.__fp_dismiss_handler__);
+                        }
+                    } catch (e) { console.error('blazor-error-ui handlers', e); }
 
                     // Apply stored consent to window flags
                     try { window.cookieHandlerExtension.ApplyConsentToWindow(consentKey); } catch(e) { console.error(e); }
@@ -159,5 +181,32 @@
         // Start init after a short tick to allow Blazor to render
         setTimeout(initWhenReady, 50);
 
+    })();
+</script>
+
+<!-- Global JS error capture to help troubleshooting -->
+<script>
+    (function(){
+        if (!window.fpDebug) window.fpDebug = {};
+
+        window.addEventListener('error', function (e) {
+            try {
+                console.error('Global error:', e.message, e.filename + ':' + e.lineno, e.error ? e.error.stack : null);
+            } catch (ex) { /* ignore */ }
+        });
+
+        window.addEventListener('unhandledrejection', function (e) {
+            try {
+                console.error('Unhandled Promise rejection:', e.reason);
+            } catch (ex) { /* ignore */ }
+        });
+
+        // helper to log from C# via JSRuntime
+        window.fpDebug.log = function () {
+            try { console.log.apply(console, arguments); } catch (e) { }
+        };
+        window.fpDebug.error = function () {
+            try { console.error.apply(console, arguments); } catch (e) { }
+        };
     })();
 </script>

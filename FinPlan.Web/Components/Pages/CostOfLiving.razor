@@ -1,0 +1,1188 @@
+@page "/living-cost"
+@using FinPlan.Shared.Models.LivingCosts
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+<style>
+    .tab-active-custom {
+        background-color: #FFD600 !important; /* Bright yellow */
+        color: #222 !important; /* Black text */
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    /* non-active tabs: stronger outline on top and sides to separate from content */
+    .nav-tabs .nav-item {
+        margin-right: 6px; /* small gap between tabs */
+    }
+
+    /* Make non-active entire tab (li) light blue and include text + buttons */
+    .nav-tabs .nav-item:not(.tab-item-active) {
+        background: #e7f4ff; /* very light blue */
+        border-radius: 8px 8px 0 0;
+        padding: 3px 6px;
+    }
+
+    /* ensure link and action buttons inside non-active li use blue styling */
+    .nav-tabs .nav-item:not(.tab-item-active) .nav-link,
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn {
+        background: transparent;
+        color: #0b5ed7; /* bootstrap primary blue */
+        border-color: transparent;
+    }
+
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn.btn-soft-danger {
+        /* danger button on blue background: subtle red outline */
+        background-color: rgba(220,53,69,0.06);
+        color: #b02a37;
+        border: 1px solid rgba(176,42,55,0.08);
+    }
+
+    .nav-tabs .nav-item:not(.tab-item-active) .nav-link:hover,
+    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn:hover {
+        background: rgba(11,94,215,0.06);
+        color: #073d9a;
+    }
+
+    .nav-tabs .nav-link:not(.tab-active-custom) {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.16);
+        border-bottom: 1px solid rgba(0,0,0,0.10);
+        border-radius: 8px 8px 0 0;
+        color: rgba(0,0,0,0.8);
+        padding-top: .35rem;
+        padding-bottom: .35rem;
+        margin-bottom: -1px; /* keep tabs flush with content */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        z-index: 1;
+        transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+    }
+
+    .nav-tabs .nav-link:not(.tab-active-custom):hover {
+        background: #f8f9fa;
+        color: rgba(0,0,0,0.95);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* active li highlight should wrap both label and action buttons */
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tab-item-active .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: #222 !important;
+        font-weight: 600;
+        padding: 0.18rem 0.4rem;
+    }
+
+    /* smaller action buttons inside tabs */
+    .tab-action-btn {
+        padding: 0.12rem 0.28rem;
+        font-size: 0.72rem;
+        line-height: 1;
+        border-radius: 5px;
+    }
+
+    .tab-action-btn .bi { font-size: 0.95rem; }
+
+    /* softer danger button (light tint + muted text) */
+    .btn-soft-danger {
+        background-color: rgba(220, 53, 69, 0.08);
+        color: #b02a37;
+        border: 1px solid rgba(176, 42, 55, 0.10);
+        padding: 0.14rem 0.28rem;
+    }
+
+        .btn-soft-danger:hover,
+        .btn-soft-danger:focus {
+            background-color: rgba(220, 53, 69, 0.12);
+            color: #8a1f2a;
+            text-decoration: none;
+        }
+
+    /* completely subtle text-only control */
+    .btn-subtle {
+        background: transparent;
+        border: none;
+        color: rgba(176, 42, 55, 0.85);
+        padding: 0.08rem 0.18rem;
+        opacity: 0.9;
+    }
+
+        .btn-subtle:hover,
+        .btn-subtle:focus {
+            opacity: 1;
+            color: #b02a37;
+            text-decoration: none;
+        }
+
+    /* small icon sizing / subtle opacity */
+    .icon-muted {
+        font-size: 0.95rem;
+        opacity: 0.85;
+    }
+
+    /* add-category area */
+    .add-category-bar {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 10px;
+        border-radius: 6px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .add-category-input {
+        min-width: 260px;
+        max-width: 420px;
+    }
+
+    /* loading overlay styles */
+    .blazor-loading-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.7);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .blazor-loading-content {
+        text-align: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+        padding: 20px 28px;
+        min-width: 200px;
+    }
+
+    .blazor-loading-content .spinner-border {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    /* table scroll container: keep top controls outside and make table body scrollable */
+    .table-container {
+        max-height: calc(100vh - 360px); /* leave room for headers/top controls */
+        overflow-y: auto;
+        position: relative;
+        border: 1px solid transparent; /* keeps layout stable */
+    }
+
+    /* make thead rows sticky so column headers stay visible while scrolling */
+    .table-container thead th {
+        position: sticky;
+        z-index: 3;
+        background: #fff; /* ensure header covers scrolled rows */
+    }
+
+    /* if there are two header rows, offset the second under the first */
+    .table-container thead tr:nth-child(1) th { top: 0; }
+    .table-container thead tr:nth-child(2) th { top: 38px; z-index:2; background: #f8f9fa; }
+
+    /* ensure table layout doesn't collapse when scrolling */
+    .table-container table { margin-bottom: 0; }
+
+</style>
+<h3>Cost of Living</h3>
+
+<p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-3">
+    @foreach (var t in Tabs)
+    {
+        // add active class on li so highlight can wrap both label and actions
+        <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")">
+            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" @onclick="() => OnTabClick(t)">
+                @GetTabLabel(t)
+            </button>
+
+            <!-- Edit / header input and delete controls placed outside the tab button but inside the li so highlight wraps them -->
+            @if (IsEditing(t))
+            {
+                <div class="d-flex align-items-center ms-2">
+                    <input class="form-control form-control-sm" style="width:160px;" @bind="TabHeaders[t]" @onkeydown="(KeyboardEventArgs e) => HandleHeaderKey(e, t)" />
+                    <button class="btn tab-action-btn btn-primary ms-2" @onclick="() => SaveTabHeader(t)">Save</button>
+                    <button class="btn tab-action-btn btn-secondary ms-1" @onclick="() => CancelEdit(t)">Cancel</button>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center ms-2">
+                    <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)">
+                        <span class="bi bi-pencil-square"></span>
+                    </button>
+                    <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
+                        <span class="bi bi-trash-fill"></span>
+                    </button>
+                </div>
+            }
+        </li>
+    }
+    <li class="nav-item">
+        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@isAddingTab">+
+        </button>
+    </li>
+</ul>   
+<EditForm Model="this">
+
+    <div class="text-start">
+        <label class="mb-1 small">Years to retirement / Inflation</label>
+        <div class="d-flex mb-1">
+            <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
+            <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
+        </div>
+    </div>
+
+    <!-- Add category / quick add controls -->
+    <div class="add-category-bar">
+        <div class="d-flex align-items-center add-category-input">
+            <input class="form-control form-control-sm" placeholder="New category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKey" />
+            <button class="btn btn-primary btn-sm ms-2" type="button" @onclick="AddCategory">Add Category</button>
+        </div>
+
+        <div class="text-muted small ms-2">or</div>
+
+        <div class="d-flex align-items-center">
+            <label class="small me-2 mb-0">Add item to:</label>
+            <InputSelect TValue="string" class="form-select form-select-sm" style="width:220px;" @bind-Value="SelectedAddCategory">
+                @foreach (var c in Categories)
+                {
+                    <option value="@c">@c</option>
+                }
+                <option value="@NewCategorySentinel">-- New category --</option>
+            </InputSelect>
+            <button class="btn btn-success btn-sm ms-2" @onclick="AddRow">Add item</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-sm">
+         <thead>
+            <tr>
+                <th style="width:40px;"></th>
+                <th>Heading</th>
+                <th style="width:140px;">Current Value</th>
+                <th>Retirement Adjust</th>
+                <th style="width:160px;">Inflation</th>
+                <th style="width:60px;">Incl.</th>
+                <th style="width:180px;">Retirement Value</th>
+                <th></th>
+            </tr>
+            <tr class="table-secondary">
+                <td></td>
+                <td></td>
+                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="vertical-align:middle;" class="fw-bold text-primary">@FormatCurrency(TotalRetirement)</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var groups = Items.GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
+            }
+
+            @foreach (var group in groups)
+            {
+                var groupKey = group.Key ?? string.Empty;
+                var groupCurrentTotal = group.Sum(i => i.CurrentValue);
+                var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
+
+                <tr class="table-active">
+                    <td style="width:40px; vertical-align:middle;">
+                        <!-- soft trash: less aggressive than btn-danger -->
+                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">
+                            <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                        </button>
+
+                        @* <button class="btn btn-sm btn-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">🗑</button> *@
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
+                                @(IsCollapsed(groupKey) ? "►" : "▼")
+                            </button>
+                            <button class="btn btn-success btn-sm me-2 p-0" title="Add item" @onclick="() => AddItemToCategory(groupKey)">
+                                +
+                            </button>
+                            <input class="form-control form-control-sm fw-bold" value="@groupKey" @onchange="(ChangeEventArgs e) => UpdateGroupCategory(groupKey, e.Value?.ToString() ?? string.Empty)" />
+                        </div>
+                    </td>
+                    <td style="width:140px; vertical-align:middle;">
+                        <div class="fw-bold">@FormatCurrency(groupCurrentTotal)</div>
+                    </td>
+                    <td></td>
+                    <td style="width:160px;"></td>
+                    <td style="width:60px; vertical-align:middle; text-align:center;">
+                        <div class="small">@group.Count(i => i.IncludeInRetirement)</div>
+                    </td>
+                    <td style="width:180px; vertical-align:middle;">
+                        <div class="fw-bold text-primary">@FormatCurrency(groupRetirementTotal)</div>
+                    </td>
+                    <td></td>
+                </tr>
+
+                @if (!IsCollapsed(groupKey))
+                {
+                    var sortedItems = group.OrderBy(i => i.Subcategory ?? string.Empty);
+                    @foreach (var item in sortedItems)
+                    {
+                        var idx = Items.IndexOf(item);
+                        <tr>
+                            <td style="width:40px; vertical-align:middle;">
+                                <!-- subtle minus button: text-only and muted -->
+                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">
+                                    <span class="icon-muted">−</span>
+                                </button>
+@*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
+ *@                            </td>
+                            <td>
+                                <div>
+                                    <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
+                                </div>
+                            </td>
+                            <td style="width:140px;">
+                                <InputNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" @onblur="ScheduleAutosave" />
+                            </td>
+                            <td style="width:220px;">
+                                <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
+                                    @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
+                                    {
+                                        if (opt.ToString() == "Remove") continue; // hide Remove from UI
+                                                                                  <option value="@opt">@opt</option>
+                                    }
+                                </select>
+                                @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                {
+                                    <div class="input-group input-group-sm mt-1">
+                                        <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                }
+                                @if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                {
+                                    <div class="input-group input-group-sm mt-1" style="width:180px;">
+                                        <input class="form-control text-success" type="number" step="0.01" min="0" @bind="item.ManualRetirementValue" />
+                                        <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
+                                    </div>
+                                }
+                            </td>
+                            <td style="width:160px; vertical-align:middle;">
+                                @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
+                                {
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
+                                            <option value="@InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
+                                            <option value="@InflationSource.Custom">Custom</option>
+                                        </select>
+                                        @if (item.PerItemInflationSource == InflationSource.Custom)
+                                        {
+                                            <div class="input-group input-group-sm" style="width:120px;">
+                                                <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </td>
+                            <td style="width:60px; vertical-align:middle; text-align:center;">
+                                <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" @oninput="ScheduleAutosave" />
+                            </td>
+                            <td style="width:180px; vertical-align:middle;">
+                                <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
+                            </td>
+
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@* Loading overlay shown while initial API calls are in progress *@
+@if (isLoading)
+{
+    <div class="blazor-loading-modal">
+        <div class="blazor-loading-content">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2 fw-bold">Loading...</div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
+
+    private int YearsToRetirement { get; set; } = 20;
+    private decimal InflationRate { get; set; } = 2.5m;
+
+    private bool isLoading = false;
+
+    // Only dynamic tabs; start with a single default plan (plan-a)
+    private string activeTab = "plan-a"; // Track active tab for UI highlighting
+
+    private List<string> dynamicTabs = new List<string>();
+    // Always include the built-in "plan-a" tab first so UI shows a default tab when no dynamic tabs exist.
+    private IEnumerable<string> Tabs
+    {
+        get
+        {
+            // Ensure TabHeaders has default for built-in tab
+            if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+
+            // Return plan-a first, then any dynamic tabs (excluding duplicates)
+            var result = new List<string> { "plan-a" };
+            foreach (var t in dynamicTabs)
+            {
+                if (!string.Equals(t, "plan-a", StringComparison.OrdinalIgnoreCase) && !result.Contains(t)) result.Add(t);
+            }
+            return result;
+        }
+    }
+
+    private Dictionary<string,string> TabHeaders = new Dictionary<string,string>();
+
+    // Lightweight fpDebug helpers - non-blocking
+    private void Log(string message)
+    {
+        try { _ = JSRuntime.InvokeVoidAsync("fpDebug.log", $"CostOfLiving: {message}"); } catch { }
+    }
+    private void LogError(string message)
+    {
+        try { _ = JSRuntime.InvokeVoidAsync("fpDebug.error", $"CostOfLiving ERROR: {message}"); } catch { }
+    }
+
+    private string GetTabLabel(string tab)
+    {
+        if (TabHeaders.ContainsKey(tab) && !string.IsNullOrWhiteSpace(TabHeaders[tab])) return TabHeaders[tab];
+        // fallback: convert id to nicer label
+        if (string.Equals(tab, "plan-a", StringComparison.OrdinalIgnoreCase)) return "Plan-A";
+        return tab;
+    }
+
+    private HashSet<string> editingTabs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsEditing(string tab) => editingTabs.Contains(tab);
+    private void ToggleEdit(string tab)
+    {
+        if (editingTabs.Contains(tab)) editingTabs.Remove(tab);
+        else
+        {
+            if (!TabHeaders.ContainsKey(tab)) TabHeaders[tab] = GetTabLabel(tab);
+            editingTabs.Add(tab);
+        }
+    }
+
+    private void CancelEdit(string tab)
+    {
+        if (TabHeaders.ContainsKey(tab) == false)
+            TabHeaders[tab] = GetTabLabel(tab);
+        editingTabs.Remove(tab);
+    }
+
+    private void HandleHeaderKey(KeyboardEventArgs e, string tab)
+    {
+        if (e.Key == "Enter")
+        {
+            _ = SaveTabHeader(tab);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit(tab);
+        }
+    }
+
+    private string MapTabToCalculatorType(string tab)
+    {
+        // All tabs map to CostOfLiving-{tabId}
+        return $"CostOfLiving-{tab}";
+    }
+
+    private async Task SaveTabHeader(string tab)
+    {
+        Log($"SaveTabHeader start: {tab}");
+        // Load existing data so we don't overwrite items when updating header
+        try
+        {
+            var calcType = MapTabToCalculatorType(tab);
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var loadUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+            CostOfLivingData? data = null;
+
+            try
+            {
+                var resp = await client.GetAsync(loadUrl);
+                Log($"SaveTabHeader: load call returned {(int)resp.StatusCode}");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var j = await resp.Content.ReadAsStringAsync();
+                    data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(j, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+            }
+            catch (Exception exLoad)
+            {
+                LogError($"SaveTabHeader load error: {exLoad.Message}");
+            }
+
+            if (data == null)
+            {
+                // No existing saved data - use defaults
+                data = new CostOfLivingData
+                {
+                    Items = StandardCostCategories.GetDefaults(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate,
+                    CollapsedCategories = collapsed.ToList()
+                };
+            }
+
+            data.Header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : GetTabLabel(tab);
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calcType,
+                Data = data
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var saveResp = await client.PostAsync(saveUrl, content);
+            Log($"SaveTabHeader: save returned {(int)saveResp.StatusCode}");
+            if (saveResp.IsSuccessStatusCode)
+            {
+                editingTabs.Remove(tab);
+                await LoadTabsAsync();
+                StateHasChanged();
+                Log($"SaveTabHeader success: {tab}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save header failed: {saveResp.StatusCode}");
+                LogError($"SaveTabHeader failed status: {saveResp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving header: {ex.Message}");
+            LogError($"SaveTabHeader exception: {ex.Message}");
+        }
+    }
+
+    private bool isAddingTab = false;
+
+    private static string NumberToLetters(int number)
+    {
+        // Convert 1 -> A, 26 -> Z, 27 -> AA, etc.
+        var sb = new System.Text.StringBuilder();
+        while (number > 0)
+        {
+            number--; // 1-based
+            int rem = number % 26;
+            sb.Insert(0, (char)('A' + rem));
+            number = number / 26;
+        }
+        return sb.ToString();
+    }
+
+    private async Task AddNewTab()
+    {
+        Log("AddNewTab start");
+        if (isAddingTab) return; // guard re-entrancy
+        isAddingTab = true;
+        try
+        {
+            // determine header based on total tabs + 1 converted to letters
+            // use Tabs (which includes built-in and existing dynamic tabs)
+            int totalTabs = Tabs.Count();
+            int candidateIndex = totalTabs + 1; // add 1 to the count
+
+            // ensure TabHeaders has default Plan-A if not present
+            if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+
+            var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
+
+            string headerName;
+            do
+            {
+                var letters = NumberToLetters(candidateIndex);
+                headerName = $"Plan-{letters}";
+                candidateIndex++;
+            } while (existingNames.Contains(headerName));
+
+            var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}"; // keep id as before
+
+            // prepare initial data using standard defaults and the new header
+            var initialData = new CostOfLivingData
+            {
+                Header = headerName,
+                Items = StandardCostCategories.GetDefaults(),
+                YearsToRetirement = YearsToRetirement,
+                InflationRate = InflationRate,
+                CollapsedCategories = collapsed.ToList()
+            };
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = $"CostOfLiving-{newTab}",
+                Data = initialData
+            };
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var resp = await client.PostAsync(saveUrl, content);
+            Log($"AddNewTab: save returned {(int)resp.StatusCode}");
+            if (resp.IsSuccessStatusCode)
+            {
+                // reload canonical tabs and headers
+                await LoadTabsAsync();
+
+                // ensure local map
+                TabHeaders[newTab] = headerName;
+
+                // add to dynamicTabs if not present
+                if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
+
+                // select new tab
+                await OnTabClick(newTab);
+                StateHasChanged();
+                Log($"AddNewTab success: {newTab} / {headerName}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
+                LogError($"AddNewTab failed status: {resp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
+            LogError($"AddNewTab exception: {ex.Message}");
+        }
+        finally
+        {
+            isAddingTab = false;
+        }
+    }
+
+    private async Task ConfirmDeleteTab(string tab)
+    {
+        try
+        {
+            var header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : tab;
+            var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Delete tab '{header}'? This will remove saved data.");
+            if (ok) await DeleteTab(tab);
+        }
+        catch (Exception ex)
+        {
+            LogError($"ConfirmDeleteTab exception: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTab(string tab)
+    {
+        Log($"DeleteTab start: {tab}");
+        try
+        {
+            var calcType = MapTabToCalculatorType(tab);
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.DeleteAsync(url);
+            Log($"DeleteTab: delete returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                // remove locally
+                dynamicTabs.Remove(tab);
+                if (TabHeaders.ContainsKey(tab)) TabHeaders.Remove(tab);
+
+                // reload tabs
+                await LoadTabsAsync();
+
+                // if deleted tab was active, switch to first available
+                if (activeTab == tab)
+                {
+                    activeTab = Tabs.FirstOrDefault() ?? "plan-a";
+                    calculatorType = MapTabToCalculatorType(activeTab);
+                    await LoadFromApi();
+                }
+
+                StateHasChanged();
+                Log($"DeleteTab success: {tab}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Delete failed: {response.StatusCode}");
+                LogError($"DeleteTab failed status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error deleting tab: {ex.Message}");
+            LogError($"DeleteTab exception: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTabsAsync()
+    {
+        Log("LoadTabsAsync start");
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.GetAsync(url);
+            Log($"LoadTabsAsync: tabs call returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (list != null)
+                {
+                    dynamicTabs = list.Select(s => s.StartsWith("CostOfLiving-") ? s.Substring("CostOfLiving-".Length) : s).ToList();
+
+                    // ensure headers dictionary has defaults for built-in tabs
+                    if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+
+                    // load headers for each dynamic tab
+                    foreach (var t in dynamicTabs)
+                    {
+                        var dataUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString($"CostOfLiving-{t}")}";
+                        var resp = await client.GetAsync(dataUrl);
+                        Log($"LoadTabsAsync: load header for {t} returned {(int)resp.StatusCode}");
+                        if (resp.IsSuccessStatusCode)
+                        {
+                            var j = await resp.Content.ReadAsStringAsync();
+                            try
+                            {
+                                var d = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(j, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                                if (d != null) TabHeaders[t] = d.Header ?? t;
+                            }
+                            catch (Exception ex)
+                            {
+                                TabHeaders[t] = t;
+                                LogError($"LoadTabsAsync header parse failed for {t}: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            TabHeaders[t] = t;
+                        }
+                    }
+
+                    Log($"LoadTabsAsync success: {dynamicTabs.Count} tabs");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"LoadTabsAsync exception: {ex.Message}");
+        }
+    }
+
+    // when loading tab data, pick up header if present
+    private async Task LoadFromApi()
+    {
+        Log($"LoadFromApi start: {calculatorType}");
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calculatorType)}";
+
+        try
+        {
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.GetAsync(url);
+            Log($"LoadFromApi: call returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (data != null)
+                    {
+                        Items = data.Items ?? new List<CostItem>();
+
+                        // set header mapping for current activeTab
+                        if (!string.IsNullOrWhiteSpace(activeTab))
+                        {
+                            TabHeaders[activeTab] = data.Header ?? GetTabLabel(activeTab);
+                        }
+
+                        StateHasChanged();
+                        Log($"LoadFromApi success: items={Items.Count}");
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError($"LoadFromApi parse error: {ex.Message}");
+                }
+
+                // Fallback: try deserialize into raw list of items
+                var loaded = System.Text.Json.JsonSerializer.Deserialize<List<CostItem>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (loaded != null)
+                {
+                    Items = loaded;
+                    StateHasChanged();
+                    Log($"LoadFromApi fallback list loaded: items={Items.Count}");
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // no saved data, load defaults
+                Items = StandardCostCategories.GetDefaults();
+                StateHasChanged();
+                Log("LoadFromApi: not found - using defaults");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Load failed: {response.StatusCode}");
+                LogError($"LoadFromApi failed status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error loading: {ex.Message}");
+            LogError($"LoadFromApi exception: {ex.Message}");
+        }
+    }
+
+    private void UpdateGroupCategory(string oldCategory, string newCategory)
+    {
+        if (oldCategory == newCategory) return;
+
+        foreach (var it in Items.Where(i => (i.Category ?? string.Empty) == (oldCategory ?? string.Empty)))
+        {
+            it.Category = newCategory;
+        }
+    }
+
+    private HashSet<string> collapsed = new HashSet<string>();
+
+    private void AddItemToCategory(string category)
+    {
+        Log($"AddItemToCategory: {category}");
+        var cat = category ?? string.Empty;
+        var newItem = new CostItem
+        {
+            Category = cat,
+            Subcategory = "<new item - edit me>",
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Same,
+            IncludeInRetirement = true
+        };
+
+        // insert at end of that category's block (just add; rendering sorts by Subcategory)
+        Items.Add(newItem);
+        StateHasChanged();
+        ScheduleAutosave();
+    }
+
+    private void ToggleCollapse(string category)
+    {
+        var key = category ?? string.Empty;
+        if (collapsed.Contains(key)) collapsed.Remove(key);
+        else collapsed.Add(key);
+    }
+
+    private bool IsCollapsed(string category)
+    {
+        return collapsed.Contains(category ?? string.Empty);
+    }
+
+    private decimal TotalCurrent => Math.Round(Items.Sum(i => i.CurrentValue), 2);
+
+    private decimal TotalRetirement => Math.Round(Items.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate)), 2);
+
+    private static string FormatCurrency(decimal value)
+    {
+        return string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C0}", value);
+    }
+
+    private string FormatDecimal(decimal value)
+    {
+        return value.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture);
+    }
+
+    // Missing fields and helper methods restored
+    private string NewCategorySentinel { get; } = "__new__";
+    private string SelectedAddCategory { get; set; } = string.Empty;
+    private string NewCategoryName { get; set; } = string.Empty;
+
+    private List<string> Categories => Items.Select(i => i.Category ?? string.Empty).Distinct().OrderBy(c => c).ToList();
+
+    private void RefreshCategories()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void AddCategory()
+    {
+        var newCat = (NewCategoryName ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(newCat)) return;
+        if (Categories.Contains(newCat))
+        {
+            SelectedAddCategory = newCat;
+            NewCategoryName = string.Empty;
+            return;
+        }
+
+        var newItem = new CostItem
+        {
+            Category = newCat,
+            Subcategory = "<new item - edit me>",
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Same,
+            IncludeInRetirement = true
+        };
+
+        Items.Add(newItem);
+        RefreshCategories();
+        SelectedAddCategory = newCat;
+        NewCategoryName = string.Empty;
+        StateHasChanged();
+        ScheduleAutosave();
+    }
+
+    private void AddRow()
+    {
+        var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
+        var newItem = new CostItem { Category = category, Subcategory = "", CurrentValue = 0m };
+        Items.Add(newItem);
+        if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
+        {
+            RefreshCategories();
+            SelectedAddCategory = NewCategoryName;
+            NewCategoryName = string.Empty;
+        }
+        ScheduleAutosave();
+    }
+
+    private void RemoveItem(int index)
+    {
+        if (index >= 0 && index < Items.Count)
+        {
+            Items.RemoveAt(index);
+            ScheduleAutosave();
+        }
+    }
+
+    private void RemoveCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category)) return;
+        Items.RemoveAll(i => (i.Category ?? string.Empty) == category);
+        ScheduleAutosave();
+    }
+
+    // user & calculatorType fields and API helpers
+    private string userGuid = Guid.NewGuid().ToString();
+    private string calculatorType = "CostOfLiving_Your";
+
+    private string GetApiBaseUrl()
+    {
+        var baseUrl = Configuration["ApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(baseUrl)) return baseUrl.TrimEnd('/');
+        return "https://localhost:7330";
+    }
+
+    private async Task SaveToApi()
+    {
+        Log("SaveToApi start");
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
+
+        try
+        {
+            string headerToSave = string.Empty;
+            const string prefix = "CostOfLiving-";
+            if (!string.IsNullOrEmpty(calculatorType) && calculatorType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var tabId = calculatorType.Substring(prefix.Length);
+                if (TabHeaders != null && TabHeaders.ContainsKey(tabId)) headerToSave = TabHeaders[tabId];
+            }
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType,
+                Data = new CostOfLivingData
+                {
+                    Header = headerToSave,
+                    Items = Items.Select(i => new CostItem
+                    {
+                        Category = i.Category,
+                        Subcategory = i.Subcategory,
+                        CurrentValue = i.CurrentValue,
+                        AdjustOption = i.AdjustOption,
+                        PerItemInflationPercent = i.PerItemInflationPercent,
+                        PerItemInflationSource = i.PerItemInflationSource,
+                        CustomPercentage = i.CustomPercentage,
+                        ManualRetirementValue = i.ManualRetirementValue,
+                        IncludeInRetirement = i.IncludeInRetirement
+                    }).ToList(),
+                    CollapsedCategories = collapsed.ToList(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate
+                }
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync(url, content);
+            Log($"SaveToApi: save returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "Saved Cost of Living");
+                Log("SaveToApi success");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save failed: {response.StatusCode}");
+                LogError($"SaveToApi failed status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving: {ex.Message}");
+            LogError($"SaveToApi exception: {ex.Message}");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SelectedAddCategory = Categories.FirstOrDefault() ?? NewCategorySentinel;
+        Log("OnInitialized");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Log("OnAfterRenderAsync firstRender start");
+            // show loading indicator while we fetch user data and tabs
+            isLoading = true;
+            StateHasChanged();
+
+            try
+            {
+                try
+                {
+                    userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                    Log($"OnAfterRenderAsync got userGuid: {userGuid}");
+                }
+                catch (Exception exGet) { LogError($"UserGuidService.GetOrCreateUserGuidAsync failed: {exGet.Message}"); }
+
+                await LoadTabsAsync();
+
+                if (!Tabs.Contains(activeTab))
+                {
+                    // If there are no dynamic tabs returned, keep the existing activeTab (default "plan-a").
+                    // Otherwise select the first available tab safely.
+                    activeTab = Tabs.FirstOrDefault() ?? activeTab ?? "plan-a";
+                }
+
+                calculatorType = MapTabToCalculatorType(activeTab);
+
+                await LoadFromApi();
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+                Log("OnAfterRenderAsync firstRender end");
+            }
+        }
+    }
+
+    private System.Timers.Timer? autosaveTimer;
+    private readonly object autosaveLock = new object();
+    private int autosaveDelayMs = 800; // debounce
+
+    private void ScheduleAutosave()
+    {
+        Log("ScheduleAutosave called");
+        lock (autosaveLock)
+        {
+            if (autosaveTimer == null)
+            {
+                autosaveTimer = new System.Timers.Timer(autosaveDelayMs);
+                autosaveTimer.AutoReset = false;
+                autosaveTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        await InvokeAsync(async () => await SaveToApi());
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"autosave timer handler exception: {ex.Message}");
+                    }
+                };
+            }
+            else
+            {
+                autosaveTimer.Stop();
+                autosaveTimer.Interval = autosaveDelayMs;
+            }
+
+            autosaveTimer.Start();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (autosaveTimer != null)
+        {
+            autosaveTimer.Dispose();
+            autosaveTimer = null;
+        }
+    }
+
+    private void HandleAddCategoryKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddCategory();
+    }
+
+    private async Task OnTabClick(string tab)
+    {
+        if (activeTab == tab) return;
+        Log($"OnTabClick: switching to {tab}");
+        activeTab = tab;
+        calculatorType = MapTabToCalculatorType(tab);
+        await LoadFromApi();
+    }
+}

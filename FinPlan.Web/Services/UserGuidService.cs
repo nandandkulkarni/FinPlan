@@ -1,10 +1,21 @@
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace FinPlan.Web.Services
 {
     public class UserGuidService
     {
+        private readonly IJSRuntime _jsRuntime;
+        private readonly ILogger<UserGuidService> _logger;
+        private const string CookieName = "userGuid1";
+        private const int CookieDays = 1825; // 5 years
+
+        public UserGuidService(IJSRuntime jsRuntime, ILogger<UserGuidService> logger)
+        {
+            _jsRuntime = jsRuntime;
+            _logger = logger;
+        }
 
         public string UserGuid
         {
@@ -12,15 +23,6 @@ namespace FinPlan.Web.Services
             {
                 return GetOrCreateUserGuidAsync().GetAwaiter().GetResult();
             }
-        }
-
-
-        private readonly IJSRuntime _jsRuntime;
-        private const string CookieName = "userGuid1";
-        private const int CookieDays = 1825; // 5 years
-        public UserGuidService(IJSRuntime jsRuntime)
-        {
-            _jsRuntime = jsRuntime;
         }
 
         /// <summary>
@@ -38,28 +40,29 @@ namespace FinPlan.Web.Services
                 if(string.IsNullOrEmpty(userGuid))
                 {
                     userGuid = Guid.NewGuid().ToString();
-                }   
+                    _logger.LogInformation("Generated new userGuid: {UserGuid}", userGuid);
+                }
+                else
+                {
+                    _logger.LogInformation("Retrieved userGuid from cookie: {UserGuid}", userGuid);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine("Error retrieving cookie");
+                _logger.LogError(ex, "Error retrieving cookie");
                 // Ignore JS interop errors and use a new GUID
+                userGuid = Guid.NewGuid().ToString();
             }
             try
             {
                 await _jsRuntime.InvokeVoidAsync("cookieHandlerExtension.SetCookie", CookieName, userGuid, CookieDays);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine("Error setting cookie");
+                _logger.LogError(ex, "Error setting cookie");
                 // Ignore JS interop errors
             }
-            //var userGuid = await _jsRuntime.InvokeAsync<string>("cookieHandlerExtension.GetCookie", CookieName);
-            //if (string.IsNullOrEmpty(userGuid))
-            //{
-            //    userGuid = Guid.NewGuid().ToString();
-            //    await _jsRuntime.InvokeVoidAsync("cookieHandlerExtension.SetCookie", CookieName, userGuid, CookieDays);
-            //}
+
             return userGuid;
         }
     }

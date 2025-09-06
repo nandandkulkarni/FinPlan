@@ -88,7 +88,7 @@ namespace FinPlan.ApiService.Controllers
             return Ok(entity.Data);
         }
 
-        // Return list of saved calculatorType keys for the user that start with CostBreakdown-
+        // Return list of saved calculatorType keys for the user that start with CostOfLiving-
         [HttpGet("tabs")]
         public async Task<IActionResult> Tabs([FromQuery] string userGuid)
         {
@@ -96,7 +96,7 @@ namespace FinPlan.ApiService.Controllers
                 return BadRequest("Missing userGuid.");
 
             var list = await _db.FinPlans
-                .Where(x => x.UserGuid == userGuid && x.CalculatorType.StartsWith("CostBreakdown-"))
+                .Where(x => x.UserGuid == userGuid && x.CalculatorType.StartsWith("CostOfLiving-"))
                 .Select(x => x.CalculatorType)
                 .ToListAsync();
 
