@@ -1,4 +1,6 @@
-﻿@inject FinPlan.Web.Services.DebugMessageService DebugService
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject FinPlan.Web.Services.DebugMessageService DebugService
 @inject IWebHostEnvironment Env
 
 <style>
@@ -112,6 +114,26 @@
             </NavLink>
         </div>
 
+        <!-- Authentication links -->
+        <div class="nav-item px-3 mt-3">
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <div class="nav-link">
+                    <span class="bi bi-person-circle" aria-hidden="true"></span>
+                    @User.Identity.Name
+                </div>
+                <div class="nav-link" style="cursor:pointer;" @onclick="SignOut">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Sign out
+                </div>
+            }
+            else
+            {
+                <div class="nav-link" style="cursor:pointer;" @onclick="SignInWithGoogle">
+                    <span class="bi bi-google" aria-hidden="true"></span> Sign in (Google)
+                </div>
+            }
+        </div>
+
 
         <!-- Discrete debug toggle (hidden by default) -->
         <div class="nav-item px-3">
@@ -158,5 +180,41 @@
     public void Dispose()
     {
         DebugService.MessagesChanged -= OnMessagesChanged;
+    }
+    
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+    private ClaimsPrincipal? User { get; set; }
+
+    [Inject]
+    private NavigationManager? Navigation { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (authenticationStateTask is not null)
+        {
+            var authState = await authenticationStateTask;
+            User = authState.User;
+        }
+        await base.OnParametersSetAsync();
+    }
+
+    private void SignInWithGoogle()
+    {
+        // Navigate to a server endpoint that will trigger the Google challenge
+        if (Navigation is not null)
+        {
+            Navigation.NavigateTo("/signin-google", forceLoad: true);
+        }
+    }
+
+    private void SignOut()
+    {
+        // Navigate to a server endpoint that will sign the user out
+        if (Navigation is not null)
+        {
+            Navigation.NavigateTo("/signout", forceLoad: true);
+        }
     }
 }

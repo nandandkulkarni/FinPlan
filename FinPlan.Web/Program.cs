@@ -1,4 +1,6 @@
 using FinPlan.Web.Components;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using System.Globalization;
 using Polly;
 using Polly.Extensions.Http;
@@ -41,11 +43,30 @@ builder.Services.AddLogging();
 // Register the UserGuidService as scoped
 builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();
 
-// Explicitly disable authentication and authorization
-builder.Services.AddAuthentication();
+// Configure authentication and Google SSO (client id/secret in appsettings.json)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme;
+})
+    .AddCookie(options =>
+    {
+        // Ensure correlation cookies survive the external redirect during OAuth handshake
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    })
+    .AddGoogle(options =>
+    {
+        // These values should be set in appsettings.json under "Authentication:Google"
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        // Best practice: set the callback path if you host under a sub-path
+        // options.CallbackPath = "/signin-google";
+    });
+
 builder.Services.AddAuthorization(options =>
 {
-    // Clear any policies that might be forcing authentication
+    // No global fallback policy; individual pages/components can require auth
     options.FallbackPolicy = null;
 });
 
@@ -82,6 +103,19 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapDefaultEndpoints();
+
+// Lightweight endpoints to trigger the external auth challenge and sign-out
+app.MapGet("/signin-google", async (HttpContext httpContext) =>
+{
+    // Challenge the Google authentication scheme
+    await httpContext.ChallengeAsync(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme);
+});
+
+app.MapGet("/signout", async (HttpContext httpContext) =>
+{
+    await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+    httpContext.Response.Redirect("/");
+});
 
 app.Run();
 

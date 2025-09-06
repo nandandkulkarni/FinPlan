@@ -278,11 +278,12 @@
         <table class="table table-sm">
          <thead>
             <tr>
-                <th style="width:40px;"></th>
-                <th style="width:120px;">Freq</th>
-                <th style="width:140px;">Current Value</th>
-                <th style="width:140px;">Per Month</th>
-                <th>Heading</th>
+                <th style="width:40px;">0.</th>
+                <th style="width:120px;">1. Frequency<br/>Units</th>
+                <th style="width:140px;">2. Category</th>
+                <th style="width:140px;">3. $Per <br />Unit</th>
+                <th style="width:140px;">4. $Per <br />Month</th>
+                    <th>5. Retirement <br />Adjust</th>
                 <th>Retirement Adjust</th>
                 <th style="width:160px;">Inflation</th>
                 <th style="width:60px;">Incl.</th>
@@ -290,16 +291,16 @@
                 <th></th>
             </tr>
             <tr class="table-secondary">
-                <td></td>
-                <td></td>
-                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
-                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalPerMonth)</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style="vertical-align:middle;" class="fw-bold text-primary">@FormatCurrency(TotalRetirement)</td>
-                <td></td>
+                <td>0</td>
+                <td>1</td>
+                <td style="vertical-align:middle;" class="fw-bold">2-@FormatCurrency(TotalCurrent)</td>
+                <td style="vertical-align:middle;" class="fw-bold">3-@FormatCurrency(TotalPerMonth)</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td style="vertical-align:middle;" class="fw-bold text-primary">8 @FormatCurrency(TotalRetirement)</td>
+                <td>9</td>
             </tr>
         </thead>
         <tbody>
@@ -315,14 +316,13 @@
 
                 <tr class="table-active">
                     <td style="width:40px; vertical-align:middle;">
-                        <!-- soft trash: less aggressive than btn-danger -->
+                        <!--0-->
                         <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">
                             <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                         </button>
-
-                        @* <button class="btn btn-sm btn-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">🗑</button> *@
                     </td>
-                    <td>
+                    <td>1.
+                            <!--1-->
                         <div class="d-flex align-items-center">
                             <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
                                 @(IsCollapsed(groupKey) ? "►" : "▼")
@@ -334,7 +334,9 @@
                         </div>
                     </td>
                     <td style="width:140px; vertical-align:middle;">
-                        <div class="fw-bold">@FormatCurrency(groupCurrentTotal)</div>
+                            <!--2-->
+
+                        <div class="fw-bold">2-@FormatCurrency(groupCurrentTotal)</div>
                     </td>
                     <td></td>
                     <td style="width:160px;"></td>
