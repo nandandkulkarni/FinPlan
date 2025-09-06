@@ -1,0 +1,64 @@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@namespace FinPlan.Web.Components
+@inherits InputBase<decimal?>
+
+<input @attributes="AdditionalAttributes" class="@CssClass" value="@CurrentValueAsString" @oninput="OnInput" @onblur="OnBlur" />
+
+@code {
+    [Parameter]
+    public int Decimals { get; set; } = 2;
+
+    private string FormatString => $"N{Decimals}";
+
+    protected override bool TryParseValueFromString(string? value, out decimal? result, out string validationErrorMessage)
+    {
+        validationErrorMessage = string.Empty;
+        result = null;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            result = null;
+            return true;
+        }
+
+        var ns = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
+        var cleaned = value.Replace(ns.NumberGroupSeparator, string.Empty)
+                           .Replace(ns.CurrencySymbol, string.Empty)
+                           .Trim();
+
+        if (decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CurrentCulture, out var dec))
+        {
+            result = dec;
+            return true;
+        }
+
+        validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not a valid number.";
+        return false;
+    }
+
+    protected override string FormatValueAsString(decimal? value)
+    {
+        if (!value.HasValue) return string.Empty;
+        return value.Value.ToString(FormatString, System.Globalization.CultureInfo.CurrentCulture);
+    }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        var s = e?.Value?.ToString() ?? string.Empty;
+        if (TryParseValueFromString(s, out var parsed, out _))
+        {
+            CurrentValue = parsed;
+        }
+        else
+        {
+            CurrentValueAsString = s;
+        }
+        await Task.CompletedTask;
+    }
+
+    private void OnBlur(FocusEventArgs _)
+    {
+        CurrentValueAsString = FormatValueAsString(CurrentValue);
+    }
+}

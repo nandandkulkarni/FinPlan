@@ -1,0 +1,23 @@
+{
+  "userGuid": "test-user-123",
+  "calculatorType": "CostOfLiving-test",
+  "data": {
+    "header": "Test",
+    "yearsToRetirement": 12,
+    "inflationRate": 3.75,
+    "collapsedCategories": [],
+    "items": [
+      {
+        "category": "Housing",
+        "subcategory": "Rent",
+        "currentValue": 1200,
+        "adjustOption": 0,
+        "perItemInflationPercent": 0,
+        "perItemInflationSource": 0,
+        "customPercentage": 0.0,
+        "manualRetirementValue": 0.0,
+        "includeInRetirement": true
+      }
+    ]
+  }
+}

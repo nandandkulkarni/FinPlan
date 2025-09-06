@@ -1,5 +1,6 @@
 @page "/living-cost"
 @using FinPlan.Shared.Models.LivingCosts
+@using FinPlan.Web.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
@@ -246,8 +247,8 @@
     <div class="text-start">
         <label class="mb-1 small">Years to retirement / Inflation</label>
         <div class="d-flex mb-1">
-            <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" />
-            <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" />
+               <InputNumber class="form-control form-control-sm me-2" style="width:80px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+               <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
         </div>
     </div>
 
@@ -362,7 +363,7 @@
                                 </div>
                             </td>
                             <td style="width:140px;">
-                                <InputNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" @onblur="ScheduleAutosave" />
+                                <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
                             </td>
                             <td style="width:220px;">
                                 <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
@@ -381,10 +382,10 @@
                                 }
                                 @if (item.AdjustOption == RetirementAdjustOption.Manual)
                                 {
-                                    <div class="input-group input-group-sm mt-1" style="width:180px;">
-                                        <input class="form-control text-success" type="number" step="0.01" min="0" @bind="item.ManualRetirementValue" />
-                                        <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
-                                    </div>
+                                        <div class="input-group input-group-sm mt-1" style="width:180px;">
+                                            <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
+                                            <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
+                                        </div>
                                 }
                             </td>
                             <td style="width:160px; vertical-align:middle;">
@@ -868,6 +869,11 @@
                     var data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (data != null)
                     {
+                        // restore top-level settings
+                        YearsToRetirement = data.YearsToRetirement;
+                        InflationRate = data.InflationRate;
+                        collapsed = new HashSet<string>(data.CollapsedCategories ?? new List<string>());
+
                         Items = data.Items ?? new List<CostItem>();
 
                         // set header mapping for current activeTab
@@ -1222,6 +1228,14 @@
     private void HandleAddCategoryKey(KeyboardEventArgs e)
     {
         if (e.Key == "Enter") AddCategory();
+    }
+
+    private void HandleNumericKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ScheduleAutosave();
+        }
     }
 
     private async Task OnTabClick(string tab)
