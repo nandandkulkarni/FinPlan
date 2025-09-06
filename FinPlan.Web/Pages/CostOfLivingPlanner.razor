@@ -133,7 +133,7 @@
         opacity: 0.85;
     }
 
-    /* add-category area */
+    /* add-category area: keep everything on a single line; allow horizontal scroll on very small viewports */
     .add-category-bar {
         background: #f8f9fa;
         border: 1px solid #e9ecef;
@@ -143,11 +143,31 @@
         gap: 8px;
         align-items: center;
         margin-bottom: 12px;
+        flex-wrap: nowrap; /* force single line */
+        overflow-x: auto; /* allow scrolling when viewport is too narrow */
+        -webkit-overflow-scrolling: touch;
     }
 
+    /* input group: prefer to stretch but never wrap */
     .add-category-input {
+        min-width: 420px; /* comfortable width to keep button on same line */
+        max-width: 1200px;
+        flex: 0 0 auto; /* don't shrink below min-width */
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* make the inner input flexible within the group */
+    .add-category-input > .form-control {
+        flex: 1 1 auto;
         min-width: 260px;
-        max-width: 420px;
+    }
+
+    /* Keep other controls from shrinking too small */
+    .add-category-bar .form-select,
+    .add-category-bar .btn {
+        flex: 0 0 auto;
     }
 
     /* loading overlay styles */
