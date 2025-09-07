@@ -3,7 +3,6 @@
 @using Microsoft.AspNetCore.Components.Web
 @namespace FinPlan.Web.Components
 @inherits InputBase<decimal?>
-
 <input @attributes="AdditionalAttributes" class="@CssClass" value="@CurrentValueAsString" @oninput="OnInput" @onblur="OnBlur" />
 
 @code {

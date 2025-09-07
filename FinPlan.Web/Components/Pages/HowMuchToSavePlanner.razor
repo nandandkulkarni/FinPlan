@@ -1,6 +1,7 @@
 ﻿@page "/howmuch-to-save-per-month"
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
 
 <h3>Retirement Savings Back‑Calculator</h3>
 
@@ -186,94 +187,102 @@
         TotalInitialMonthly = 0m;
     }
 
-    void Calculate()
+    private async Task Calculate()
     {
-        HasCalculated = false;
-        BucketResults.Clear();
-        TotalInitialMonthly = 0m;
-
-        if (RetirementAge <= CurrentAge || TargetAmount <= 0)
+        try
         {
-            HasCalculated = true;
-            return;
-        }
+            HasCalculated = false;
+            BucketResults.Clear();
+            TotalInitialMonthly = 0m;
 
-        YearsUntilRetirement = RetirementAge - CurrentAge;
-        Months = YearsUntilRetirement * 12;
-        n = Months;
-        MonthlyRate = (AnnualReturnPercent / 100m) / 12m;
+            if (RetirementAge <= CurrentAge || TargetAmount <= 0)
+            {
+                HasCalculated = true;
+                return;
+            }
 
-        // identify included buckets
-        var included = new List<string>();
-        if (IncludePostTax) included.Add("Post‑tax");
-        if (IncludeTraditional) included.Add("Traditional");
-        if (IncludeRoth) included.Add("Roth");
+            YearsUntilRetirement = RetirementAge - CurrentAge;
+            Months = YearsUntilRetirement * 12;
+            n = Months;
+            MonthlyRate = (AnnualReturnPercent / 100m) / 12m;
 
-        if (!included.Any())
-        {
-            HasCalculated = true;
-            return;
-        }
+            // identify included buckets
+            var included = new List<string>();
+            if (IncludePostTax) included.Add("Post‑tax");
+            if (IncludeTraditional) included.Add("Traditional");
+            if (IncludeRoth) included.Add("Roth");
 
-        // allocation percents
-        var alloc = new Dictionary<string, decimal>();
-        if (AllocationMode == AllocationModes.Equal)
-        {
-            var equal = 1m / included.Count;
-            foreach (var k in included) alloc[k] = equal;
-        }
-        else
-        {
-            // custom: use provided percents but ignore unchecked buckets
-            var sum = 0m;
-            if (IncludePostTax) sum += PostTaxPct;
-            if (IncludeTraditional) sum += TraditionalPct;
-            if (IncludeRoth) sum += RothPct;
-            if (sum <= 0) // fallback to equal
+            if (!included.Any())
+            {
+                HasCalculated = true;
+                return;
+            }
+
+            // allocation percents
+            var alloc = new Dictionary<string, decimal>();
+            if (AllocationMode == AllocationModes.Equal)
             {
                 var equal = 1m / included.Count;
                 foreach (var k in included) alloc[k] = equal;
             }
             else
             {
-                if (IncludePostTax) alloc["Post‑tax"] = PostTaxPct / sum;
-                if (IncludeTraditional) alloc["Traditional"] = TraditionalPct / sum;
-                if (IncludeRoth) alloc["Roth"] = RothPct / sum;
+                // custom: use provided percents but ignore unchecked buckets
+                var sum = 0m;
+                if (IncludePostTax) sum += PostTaxPct;
+                if (IncludeTraditional) sum += TraditionalPct;
+                if (IncludeRoth) sum += RothPct;
+                if (sum <= 0) // fallback to equal
+                {
+                    var equal = 1m / included.Count;
+                    foreach (var k in included) alloc[k] = equal;
+                }
+                else
+                {
+                    if (IncludePostTax) alloc["Post‑tax"] = PostTaxPct / sum;
+                    if (IncludeTraditional) alloc["Traditional"] = TraditionalPct / sum;
+                    if (IncludeRoth) alloc["Roth"] = RothPct / sum;
+                }
             }
-        }
 
-        // compute per bucket
-        var buckets = new[]
-        {
-            new { Name = "Post‑tax", Included = IncludePostTax, AnnualGrowth = PostTaxGrowthPercent },
-            new { Name = "Traditional", Included = IncludeTraditional, AnnualGrowth = TraditionalGrowthPercent },
-            new { Name = "Roth", Included = IncludeRoth, AnnualGrowth = RothGrowthPercent }
-        };
-
-        foreach (var b in buckets)
-        {
-            var br = new BucketResult { Name = b.Name, Included = b.Included, AnnualGrowthPercent = b.AnnualGrowth / 100m };
-            if (!b.Included)
+            // compute per bucket
+            var buckets = new[]
             {
+                new { Name = "Post‑tax", Included = IncludePostTax, AnnualGrowth = PostTaxGrowthPercent },
+                new { Name = "Traditional", Included = IncludeTraditional, AnnualGrowth = TraditionalGrowthPercent },
+                new { Name = "Roth", Included = IncludeRoth, AnnualGrowth = RothGrowthPercent }
+            };
+
+            foreach (var b in buckets)
+            {
+                var br = new BucketResult { Name = b.Name, Included = b.Included, AnnualGrowthPercent = b.AnnualGrowth / 100m };
+                if (!b.Included)
+                {
+                    BucketResults.Add(br);
+                    continue;
+                }
+
+                var allocPct = alloc.ContainsKey(b.Name) ? alloc[b.Name] : 0m;
+                br.AllocationPercent = allocPct;
+                var requiredFuture = TargetAmount * allocPct;
+
+                // compute initial monthly PMT for growing annuity (payments at start of month)
+                var gm = AnnualToMonthlyGrowth(b.AnnualGrowth / 100m);
+                br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
+                // compute projected FV to verify
+                br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+
+                TotalInitialMonthly += br.InitialMonthly;
                 BucketResults.Add(br);
-                continue;
             }
 
-            var allocPct = alloc.ContainsKey(b.Name) ? alloc[b.Name] : 0m;
-            br.AllocationPercent = allocPct;
-            var requiredFuture = TargetAmount * allocPct;
-
-            // compute initial monthly PMT for growing annuity (payments at start of month)
-            var gm = AnnualToMonthlyGrowth(b.AnnualGrowth / 100m);
-            br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
-            // compute projected FV to verify
-            br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
-
-            TotalInitialMonthly += br.InitialMonthly;
-            BucketResults.Add(br);
+            HasCalculated = true;
+            await InvokeAsync(StateHasChanged);
         }
-
-        HasCalculated = true;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Calculate error: {ex}");
+        }
     }
 
     // convert annual growth rate to equivalent monthly growth

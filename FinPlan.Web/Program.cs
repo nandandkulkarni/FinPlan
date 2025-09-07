@@ -66,7 +66,7 @@ builder.Services.AddAuthentication(options =>
         // Keep returned tokens available if needed
         options.SaveTokens = true;
         // Best practice: set the callback path if you host under a sub-path
-        // options.CallbackPath = "/signin-google";
+        options.CallbackPath = "/signin-google";
     });
 
 builder.Services.AddAuthorization(options =>
