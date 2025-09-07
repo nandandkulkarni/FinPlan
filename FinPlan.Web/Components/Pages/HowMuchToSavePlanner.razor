@@ -124,6 +124,59 @@
                 </tr>
             </tbody>
         </table>
+
+        <h5 class="mt-4">Yearly Projection Grid</h5>
+        <p>
+            Detailed projection of each bucket's growth, principal, and estimated taxes (for taxable bucket) over time.
+        </p>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Age</th>
+                    <th colspan="4" class="text-center">Post‑tax</th>
+                    <th colspan="4" class="text-center">Traditional</th>
+                    <th colspan="4" class="text-center">Roth</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Principal</th>
+                    <th>Growth</th>
+                    <th>Taxes</th>
+                    <th>Ending Balance</th>
+                    <th>Principal</th>
+                    <th>Growth</th>
+                    <th>Taxes</th>
+                    <th>Ending Balance</th>
+                    <th>Principal</th>
+                    <th>Growth</th>
+                    <th>Taxes</th>
+                    <th>Ending Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in YearlyGrid)
+                {
+                    <tr>
+                        <td>@r.Year</td>
+                        <td>@r.Age</td>
+                        <td class="text-end">@r.PostTaxPrincipal</td>
+                        <td class="text-end">@r.PostTaxGrowth</td>
+                        <td class="text-end">@r.PostTaxTaxes</td>
+                        <td class="text-end">@r.PostTaxBalance</td>
+                        <td class="text-end">@r.TraditionalPrincipal</td>
+                        <td class="text-end">@r.TraditionalGrowth</td>
+                        <td class="text-end">0</td>
+                        <td class="text-end">@r.TraditionalBalance</td>
+                        <td class="text-end">@r.RothPrincipal</td>
+                        <td class="text-end">@r.RothGrowth</td>
+                        <td class="text-end">0</td>
+                        <td class="text-end">@r.RothBalance</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 }
 
@@ -170,6 +223,38 @@
         public decimal ProjectedFV { get; set; }
     }
 
+    // Yearly grid row combining all three buckets
+    class YearlyGridRow
+    {
+        public int Year { get; set; }
+        public int Age { get; set; }
+
+        public decimal PostTaxPrincipal { get; set; }
+        public decimal PostTaxGrowth { get; set; }
+        public decimal PostTaxTaxes { get; set; }
+        public decimal PostTaxBalance { get; set; }
+
+        public decimal TraditionalPrincipal { get; set; }
+        public decimal TraditionalGrowth { get; set; }
+        public decimal TraditionalTaxes { get; set; }
+        public decimal TraditionalBalance { get; set; }
+
+        public decimal RothPrincipal { get; set; }
+        public decimal RothGrowth { get; set; }
+        public decimal RothTaxes { get; set; }
+        public decimal RothBalance { get; set; }
+
+        public decimal TotalEndOfYear => PostTaxBalance + TraditionalBalance + RothBalance;
+    }
+
+    List<YearlyGridRow> YearlyGrid = new();
+
+    // Tax assumptions used for taxable bucket (simple approximation)
+    const decimal DEFAULT_ORDINARY_TAX = 0.24m;
+    const decimal DEFAULT_LTG_TAX = 0.15m;
+    // Default income distribution (MixedInvestment) used to split taxable interest
+    readonly (decimal q, decimal nonq, decimal lt, decimal st) DEFAULT_INCOME_DISTRIBUTION = (0.25m, 0.25m, 0.40m, 0.10m);
+
     void Reset()
     {
         CurrentAge = 35;
@@ -185,6 +270,7 @@
         HasCalculated = false;
         BucketResults.Clear();
         TotalInitialMonthly = 0m;
+        YearlyGrid.Clear();
     }
 
     private async Task Calculate()
@@ -194,6 +280,7 @@
             HasCalculated = false;
             BucketResults.Clear();
             TotalInitialMonthly = 0m;
+            YearlyGrid.Clear();
 
             if (RetirementAge <= CurrentAge || TargetAmount <= 0)
             {
@@ -276,12 +363,113 @@
                 BucketResults.Add(br);
             }
 
+            // Build yearly grid by simulating each bucket's payments and growth
+            BuildYearlyGrid();
+
             HasCalculated = true;
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Calculate error: {ex}");
+        }
+    }
+
+    private void BuildYearlyGrid()
+    {
+        if (BucketResults == null || !BucketResults.Any()) return;
+
+        // For each bucket prepare simulation state
+        var post = BucketResults.FirstOrDefault(x => x.Name == "Post‑tax");
+        var trad = BucketResults.FirstOrDefault(x => x.Name == "Traditional");
+        var roth = BucketResults.FirstOrDefault(x => x.Name == "Roth");
+
+        decimal postBal = 0m, tradBal = 0m, rothBal = 0m;
+        decimal postPmt0 = post?.InitialMonthly ?? 0m;
+        decimal tradPmt0 = trad?.InitialMonthly ?? 0m;
+        decimal rothPmt0 = roth?.InitialMonthly ?? 0m;
+        decimal postGm = AnnualToMonthlyGrowth((post?.AnnualGrowthPercent ?? 0m));
+        decimal tradGm = AnnualToMonthlyGrowth((trad?.AnnualGrowthPercent ?? 0m));
+        decimal rothGm = AnnualToMonthlyGrowth((roth?.AnnualGrowthPercent ?? 0m));
+
+        int totalMonths = n;
+        int monthIndex = 0; // 0-based
+
+        for (int year = 1; year <= YearsUntilRetirement; year++)
+        {
+            var row = new YearlyGridRow { Year = year, Age = CurrentAge + year };
+            decimal postYearPrincipal = 0m, postYearGrowth = 0m, postYearTaxes = 0m;
+            decimal tradYearPrincipal = 0m, tradYearGrowth = 0m, tradYearTaxes = 0m;
+            decimal rothYearPrincipal = 0m, rothYearGrowth = 0m, rothYearTaxes = 0m;
+
+            for (int m = 1; m <= 12 && monthIndex < totalMonths; m++, monthIndex++)
+            {
+                int mAbs = monthIndex; // 0-based month count
+                // payment grows by gm per month: pmt = pmt0 * (1+gm)^mAbs
+                if (post != null && post.Included)
+                {
+                    var p = postPmt0 * DecimalPow(1m + postGm, mAbs);
+                    postYearPrincipal += p;
+                    // deposit at start of month
+                    postBal += p;
+                    // interest
+                    var i = postBal * MonthlyRate;
+                    postYearGrowth += i;
+                    postBal += i;
+                }
+
+                if (trad != null && trad.Included)
+                {
+                    var p = tradPmt0 * DecimalPow(1m + tradGm, mAbs);
+                    tradYearPrincipal += p;
+                    tradBal += p;
+                    var i = tradBal * MonthlyRate;
+                    tradYearGrowth += i;
+                    tradBal += i;
+                }
+
+                if (roth != null && roth.Included)
+                {
+                    var p = rothPmt0 * DecimalPow(1m + rothGm, mAbs);
+                    rothYearPrincipal += p;
+                    rothBal += p;
+                    var i = rothBal * MonthlyRate;
+                    rothYearGrowth += i;
+                    rothBal += i;
+                }
+            }
+
+            // Taxes for taxable (post-tax) bucket - approximate using default distribution and tax rates
+            if (post != null && post.Included)
+            {
+                var dist = DEFAULT_INCOME_DISTRIBUTION;
+                var qual = postYearGrowth * dist.q;
+                var nonq = postYearGrowth * dist.nonq;
+                var lt = postYearGrowth * dist.lt;
+                var st = postYearGrowth * dist.st;
+                var taxes = qual * DEFAULT_LTG_TAX + (nonq + st) * DEFAULT_ORDINARY_TAX + lt * DEFAULT_LTG_TAX;
+                postYearTaxes = taxes;
+                postBal -= taxes;
+            }
+
+            // traditional and roth taxes assumed zero during accumulation
+
+            row.PostTaxPrincipal = Math.Round(postYearPrincipal, 2);
+            row.PostTaxGrowth = Math.Round(postYearGrowth, 2);
+            row.PostTaxTaxes = Math.Round(postYearTaxes, 2);
+            row.PostTaxBalance = Math.Round(postBal, 2);
+
+            row.TraditionalPrincipal = Math.Round(tradYearPrincipal, 2);
+            row.TraditionalGrowth = Math.Round(tradYearGrowth, 2);
+            row.TraditionalTaxes = 0m;
+            row.TraditionalBalance = Math.Round(tradBal, 2);
+
+            row.RothPrincipal = Math.Round(rothYearPrincipal, 2);
+            row.RothGrowth = Math.Round(rothYearGrowth, 2);
+            row.RothTaxes = 0m;
+            row.RothBalance = Math.Round(rothBal, 2);
+
+            YearlyGrid.Add(row);
         }
     }
 

@@ -58,8 +58,8 @@ builder.Services.AddAuthentication(options =>
     .AddGoogle(options =>
     {
         // These values should be set in appsettings.json under "Authentication:Google"
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId ="297835179012-6id1n8sjsk1orho8m65ju8bje173k52e.apps.googleusercontent.com";// builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = "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";//builder.Configuration["Authentication:Google:ClientSecret"];
         // Ensure correlation cookie works across the external redirect
         options.CorrelationCookie.SameSite = SameSiteMode.None;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;

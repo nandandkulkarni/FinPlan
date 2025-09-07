@@ -584,8 +584,9 @@
                                 <div class="interval-group mb-3">
                                     <!-- Interval Summary Row -->
                                     <div class="interval-summary p-3 border rounded @(isExpanded ? "border-primary" : "")"
-                                         style="cursor: pointer; transition: all 0.2s ease;">
-                                        <div class="row align-items-center" @onclick="@(() => ToggleInterval(interval.StartYear))">
+                                         style="cursor: pointer; transition: all 0.2s ease;"
+                                         @onclick="@(() => ToggleInterval(interval.StartYear))">
+                                        <div class="row align-items-center">
                                             <div class="col-md-3">
                                                 <h6 class="mb-1">
                                                     <i class="bi bi-@(isExpanded ? "chevron-down" : "chevron-right")"></i>
@@ -647,6 +648,7 @@
 }
 
 @code {
+    // State
     private bool isDarkTheme = false;
     private System.Timers.Timer? debounceTimer;
 
@@ -656,6 +658,16 @@
     private bool isLoading = false;
     private int reirementDistanceForHiding5YearSummaries = 0;
 
+    [SupplyParameterFromForm]
+    public SavingsCalculatorModel calculatorModel { get; set; } = new();
+    private SavingsResults? results;
+    private List<YearlyBreakdown> yearlyBreakdown = new();
+    private List<IntervalSummary> intervalSummaries = new();
+    private HashSet<int> expandedIntervals = new();
+    private bool isPlanSummaryExpanded = true;
+    private bool isSavingsBreakdownExpanded = true;
+    string calculatorType = "TestSavings_yours";
+
     private void ToggleTheme()
     {
         isDarkTheme = !isDarkTheme;
@@ -664,44 +676,15 @@
 
     private void AddDebugMessage(string message)
     {
-        DebugService.AddMessage(message);
+        try { DebugService.AddMessage(message); } catch { }
     }
-
-
-
-    [SupplyParameterFromForm]
-    public SavingsCalculatorModel calculatorModel { get; set; } = new();
-    private SavingsResults? results;
-    private List<YearlyBreakdown> yearlyBreakdown = new();
-    private List<IntervalSummary> intervalSummaries = new();
-    private HashSet<int> expandedIntervals = new();
-    private bool isPlanSummaryExpanded = true; // Default to expanded
-    private bool isSavingsBreakdownExpanded = true; // Default to expanded
-    string calculatorType = "TestSavings_yours";
 
     protected override async Task OnInitializedAsync()
     {
-        activeTab = "your"; // Ensure "Yours" tab is selected by default
-
-        // Set up debounce timer
-        debounceTimer = new System.Timers.Timer(100); // 100ms debounce
+        activeTab = "your";
+        debounceTimer = new System.Timers.Timer(100);
         debounceTimer.AutoReset = false;
-        debounceTimer.Elapsed += async (sender, args) =>
-        {
-            // await InvokeAsync(async () =>
-            // {
-            //     Calculate();
-            //     var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-            //     await SaveUserSavingsAsync(calcType);
-            // });
-        };
-
-        // // Get or create user GUID
-        // userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-
-        // Load from API and populate model
-        // await LoadUserSavingsAsync();
-        // Calculate();
+        debounceTimer.Elapsed += async (_, __) => { /* no-op debounce handler for now */ };
     }
 
     string userGuid = string.Empty;
@@ -709,14 +692,16 @@
     {
         if (firstRender)
         {
-            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            try
+            {
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            }
+            catch { }
+
             await LoadUserSavingsAsync();
             Calculate();
-            StateHasChanged(); // Trigger UI update after userGuid is set
+            StateHasChanged();
         }
-        // Load from API and populate model
-        // await LoadUserSavingsAsync();
-        // Calculate();
     }
 
     public void Dispose()
@@ -724,41 +709,15 @@
         debounceTimer?.Dispose();
     }
 
-    // Add a method to handle input changes
-    private void OnInputChanged()
-    {
-        // // Always save on change
-        // var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-        // _ = SaveUserSavingsAsync(calcType);
+    private void OnInputChanged() { /* placeholder */ }
+    private void HandleSelectChange() { /* placeholder */ }
 
-        // Only auto-calculate if enabled
-        // if (autoCalculate)
-        // {
-        //     debounceTimer?.Stop();
-        //     debounceTimer?.Start();
-        // }
-    }
-
-    // Method to handle select changes
-    private void HandleSelectChange()
-    {
-        // // Always save on change
-        // var calcType = activeTab == "partner" ? "TestSavings_partner" : "TestSavings_yours";
-        // _ = SaveUserSavingsAsync(calcType);
-
-        // Only auto-calculate if enabled
-        // if (autoCalculate)
-        // {
-        //     OnInputChanged();
-        // }
-    }
-
-    // Add a custom StateHasChanged method
     private void ForceUpdate()
     {
-        Console.WriteLine($"[DEBUG] {DateTime.Now:HH:mm:ss.fff} ForceUpdate called - CurrentAge: {calculatorModel.CurrentAge}, RetirementAge: {calculatorModel.RetirementAge}, Years: {calculatorModel.Years}");
+        Console.WriteLine($"[DEBUG] ForceUpdate called - CurrentAge: {calculatorModel.CurrentAge}, RetirementAge: {calculatorModel.RetirementAge}, Years: {calculatorModel.Years}");
         StateHasChanged();
     }
+
     private void Calculate()
     {
         try
@@ -767,122 +726,64 @@
             results = calculator.Calculate(calculatorModel);
             yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
 
-            // Create interval summaries for better UX
             if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries)
             {
                 intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
-
-                // Expand first two intervals by default to show more data without scrolling
                 expandedIntervals.Clear();
-                if (intervalSummaries.Count > 0)
-                    expandedIntervals.Add(intervalSummaries[0].StartYear);
-                if (intervalSummaries.Count > 1)
-                    expandedIntervals.Add(intervalSummaries[1].StartYear);
+                if (intervalSummaries.Count > 0) expandedIntervals.Add(intervalSummaries[0].StartYear);
+                if (intervalSummaries.Count > 1) expandedIntervals.Add(intervalSummaries[1].StartYear);
             }
 
-            StateHasChanged(); // Force UI update
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            // For debugging - you can remove this later
             Console.WriteLine($"Calculation error: {ex.Message}");
         }
     }
 
-    private string GetCompoundingText()
+    private string GetCompoundingText() => "Monthly";
+
+    private string GetIncomeTypeDescription(IncomeType incomeType) => incomeType switch
     {
-        return "Monthly";
-    }
+        IncomeType.MixedInvestment => "Mixed (Balanced portfolio)",
+        IncomeType.MostlyDividends => "Mostly Dividends (Dividend-focused)",
+        IncomeType.MostlyLongTermGains => "Mostly Long-Term Gains (Buy and hold)",
+        IncomeType.MostlyInterest => "Mostly Interest/Short-Term (Fixed income/active)",
+        _ => "Mixed Investment"
+    };
 
-    private string GetIncomeTypeDescription(IncomeType incomeType)
+    private string GetTaxBracketDescription(TaxBracket bracket) => bracket switch
     {
-        return incomeType switch
-        {
-            IncomeType.MixedInvestment => "Mixed (Balanced portfolio)",
-            IncomeType.MostlyDividends => "Mostly Dividends (Dividend-focused)",
-            IncomeType.MostlyLongTermGains => "Mostly Long-Term Gains (Buy and hold)",
-            IncomeType.MostlyInterest => "Mostly Interest/Short-Term (Fixed income/active)",
-            _ => "Mixed Investment"
-        };
-    }
-
-    private string GetTaxBracketDescription(TaxBracket bracket)
-    {
-        return bracket switch
-        {
-            TaxBracket.Low => "Low (10-12% ordinary, 0% long-term)",
-            TaxBracket.Medium => "Medium (22-24% ordinary, 15% long-term)",
-            TaxBracket.High => "High (32-35% ordinary, 20% long-term)",
-            _ => "Medium Tax Bracket"
-        };
-    }
-
-    private string GetTaxRatesDisplay(TaxBracket bracket)
-    {
-        return bracket switch
-        {
-            TaxBracket.Low => "12% / 0% (Ord/LT)",
-            TaxBracket.Medium => "24% / 15% (Ord/LT)",
-            TaxBracket.High => "35% / 20% (Ord/LT)",
-            _ => "24% / 15% (Ord/LT)"
-        };
-    }
-
-    private string GetTaxBreakdownTooltip(YearlyBreakdown year, IncomeType incomeType)
-    {
-        var sb = new System.Text.StringBuilder();
-
-        // Add interest breakdown
-        decimal totalInterest = year.NonQualifiedIncome + year.QualifiedDividendIncome + year.LongTermGains + year.ShortTermGains;
-        if (totalInterest > 0)
-        {
-            // Ordinary Income (24% rate)
-            decimal ordinaryIncome = year.NonQualifiedIncome + year.ShortTermGains;
-            decimal ordinaryPercent = Math.Round((ordinaryIncome / totalInterest) * 100);
-            sb.AppendLine($"Ordinary Income (Interest & ST Gains): {ordinaryIncome:C} ({ordinaryPercent}%)");
-
-            // Long-term rate income (15% rate)
-            decimal ltRateIncome = year.QualifiedDividendIncome + year.LongTermGains;
-            decimal ltPercent = Math.Round((ltRateIncome / totalInterest) * 100);
-            sb.AppendLine($"Long-Term Rate Income (Dividends & LT Gains): {ltRateIncome:C} ({ltPercent}%)");
-        }
-
-        return sb.ToString();
-    }
+        TaxBracket.Low => "Low (10-12% ordinary, 0% long-term)",
+        TaxBracket.Medium => "Medium (22-24% ordinary, 15% long-term)",
+        TaxBracket.High => "High (32-35% ordinary, 20% long-term)",
+        _ => "Medium Tax Bracket"
+    };
 
     private List<IntervalSummary> CreateIntervalSummaries(List<YearlyBreakdown> breakdown)
     {
-        if (breakdown == null || !breakdown.Any())
-            return new List<IntervalSummary>();
+        if (breakdown == null || !breakdown.Any()) return new List<IntervalSummary>();
 
-        return breakdown
-            .Select((y, index) => new
-            {
-                Year = y,
-                Age = calculatorModel.CurrentAge + index + 1
-            })
+        return breakdown.Select((y, index) => new { Year = y, Age = calculatorModel.CurrentAge + index + 1 })
             .GroupBy(item => ((item.Age - 1) / 5) * 5 + 5)
             .Select(g =>
             {
                 var first = g.First().Year;
                 var last = g.Last().Year;
-
                 return new IntervalSummary
                 {
                     StartYear = first.Year,
                     EndYear = last.Year,
                     StartAge = g.Key - 5,
                     EndAge = Math.Min(g.Key, calculatorModel.RetirementAge),
-                    // Use last-year values (not the sum) so the summary reflects the last year of the interval
                     FinalBalance = last.TotalEOYBalance,
-                    // Use sums across the interval for totals
                     TotalGrowth = g.Sum(item => item.Year.TotalGrowth),
                     TotalContributions = g.Sum(item => item.Year.TotalContributions),
                     YearlyDetails = g.Select(item => item.Year).ToList(),
                     MilestoneAchieved = GetMilestone(last.TotalEOYBalance)
                 };
-            })
-            .ToList();
+            }).ToList();
     }
 
     private string GetMilestone(decimal balance)
@@ -892,24 +793,32 @@
         if (balance >= 250000) return "💪 Quarter Million!";
         if (balance >= 100000) return "🎯 First $100K!";
         if (balance >= 50000) return "📈 $50K Milestone!";
-        return "";
+        return string.Empty;
     }
 
-    private void ToggleInterval(int startYear)
+    private async Task ToggleInterval(int startYear)
     {
-        Console.WriteLine($"ToggleInterval called for year {startYear}");
+        Console.WriteLine($"ToggleInterval server: {startYear}");
+        try { await JSRuntime.InvokeVoidAsync("console.log", $"ToggleInterval client: {startYear}"); } catch { }
+
+        bool nowExpanded;
         if (expandedIntervals.Contains(startYear))
         {
             expandedIntervals.Remove(startYear);
+            nowExpanded = false;
             Console.WriteLine($"Collapsed interval {startYear}");
         }
         else
         {
             expandedIntervals.Add(startYear);
+            nowExpanded = true;
             Console.WriteLine($"Expanded interval {startYear}");
         }
-        Console.WriteLine($"Total expanded intervals: {expandedIntervals.Count}");
-        StateHasChanged();
+
+        try { AddDebugMessage($"Interval {startYear} toggled: expanded={nowExpanded}"); } catch { }
+        try { await JSRuntime.InvokeVoidAsync("console.log", $"Interval {startYear} toggled: expanded={nowExpanded}; totalExpanded={expandedIntervals.Count}"); } catch { }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private void TogglePlanSummary()
@@ -923,6 +832,7 @@
         isSavingsBreakdownExpanded = !isSavingsBreakdownExpanded;
         StateHasChanged();
     }
+
     private async Task YourTabClick()
     {
         calculatorType = "TestSavings_yours";
@@ -930,7 +840,6 @@
         SetActiveTab("your");
         await LoadUserSavingsAsync();
         Calculate();
-
     }
 
     private async Task PartnerTabClick()
@@ -940,46 +849,13 @@
         SetActiveTab("partner");
         await LoadUserSavingsAsync();
         Calculate();
-
     }
 
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
-        // Clear messages when switching tabs
         userMessage = string.Empty;
         productMessage = string.Empty;
-    }
-
-    private int? interestTooltipYear = null;
-    // private void ShowInterestTooltip(int year)
-    // {
-    //     interestTooltipYear = year;
-    //     StateHasChanged();
-    // }
-    // private void HideInterestTooltip()
-    // {
-    //     interestTooltipYear = null;
-    //     StateHasChanged();
-    // }
-    private string GetInterestBreakdown(YearlyBreakdown year)
-    {
-        // Show the numbers that went into InterestEarned (e.g. 3 + 3 + 6)
-        var parts = new List<string>();
-        if (year.QualifiedDividendIncome > 0) parts.Add(year.QualifiedDividendIncome.ToString("N2"));
-        if (year.NonQualifiedIncome > 0) parts.Add(year.NonQualifiedIncome.ToString("N2"));
-        if (year.LongTermGains > 0) parts.Add(year.LongTermGains.ToString("N2"));
-        if (year.ShortTermGains > 0) parts.Add(year.ShortTermGains.ToString("N2"));
-        return string.Join(" + ", parts);
-    }
-    private string GetInterestBreakdownGreen(YearlyBreakdown year)
-    {
-        var parts = new List<string>();
-        if (year.QualifiedDividendIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.QualifiedDividendIncome:N2}</span>");
-        if (year.NonQualifiedIncome > 0) parts.Add($"<span style='color:#38B2AC;'>{year.NonQualifiedIncome:N2}</span>");
-        if (year.LongTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.LongTermGains:N2}</span>");
-        if (year.ShortTermGains > 0) parts.Add($"<span style='color:#38B2AC;'>{year.ShortTermGains:N2}</span>");
-        return string.Join(" + ", parts);
     }
 
     private string GetApiBaseUrl()
@@ -1017,16 +893,10 @@
             var json = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"API Response: {json}");
 
-            // Deserialize JSON into SavingsCalculatorModel
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
+            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (loadedModel != null)
             {
                 calculatorModel = loadedModel;
-                // autoCalculate = loadedModel.AutoCalculate;
                 StateHasChanged();
             }
         }
@@ -1044,30 +914,18 @@
 
     private async Task SaveUserSavingsAsync()
     {
-        // isLoading = true;
-        // StateHasChanged();
         var apiBaseUrl = GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/FinPlan/save";
 
         try
         {
-            calculatorModel.LastUpdateDate = DateTime.UtcNow; // Set last update time
-
-            // Create SaveRequest object
-            var saveRequest = new PersistSavingsRequest()
-            {
-                UserGuid = userGuid,
-                CalculatorType = calculatorType,
-                Data = calculatorModel
-            };
-
+            calculatorModel.LastUpdateDate = DateTime.UtcNow;
+            var saveRequest = new PersistSavingsRequest { UserGuid = userGuid, CalculatorType = calculatorType, Data = calculatorModel };
             AddDebugMessage($"Saving");
-
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.PostAsync(url, content);
-
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Saved");
@@ -1084,22 +942,14 @@
             AddDebugMessage($"Save Failed");
             Console.WriteLine($"Error saving data: {ex.Message}");
         }
-        finally
-        {
-            // isLoading = false;
-            // StateHasChanged();
-        }
     }
-
 
     private async Task ExecuteOpWithLoadingMessageIfSlow(Func<Task> operation)
     {
         bool loadingShown = false;
         var operationTask = operation();
         var delayTask = Task.Delay(1000);
-
         var completedTask = await Task.WhenAny(operationTask, delayTask);
-
         if (completedTask == delayTask)
         {
             isLoading = true;
