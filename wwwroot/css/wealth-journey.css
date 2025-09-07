@@ -1,0 +1,55 @@
+:root {
+  --wj-yellow: #FFD600;
+  --wj-dark-bg: #121212;
+  --wj-dark-card: #1E1E1E;
+}
+
+.tab-active-custom {
+    background-color: var(--wj-yellow) !important;
+    color: #222 !important;
+    font-weight: 600;
+    border: 1px solid var(--wj-yellow) !important;
+    border-bottom: none !important;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    transition: background 0.2s, color 0.2s;
+}
+
+/* Dark theme styles */
+.dark-theme {
+    background-color: var(--wj-dark-bg);
+    color: #E2E8F0;
+}
+
+.dark-theme .card { background-color: var(--wj-dark-card); border-color: #333; }
+.dark-theme .card-header { background-color: #252525 !important; border-bottom-color: #333; color: #E2E8F0 !important; }
+.dark-theme .form-control { background-color: #252525; border-color: #333; color: #E2E8F0; }
+.dark-theme .form-control:focus { background-color: #2D2D2D; box-shadow: 0 0 0 0.25rem rgba(109,93,252,0.25); }
+.dark-theme .btn-primary { background-color: #6D5DFC; border-color: #6D5DFC; }
+.dark-theme .btn-primary:hover { background-color: #5A4AE3; border-color: #5A4AE3; }
+.dark-theme .text-primary { color: #6D5DFC !important; }
+.dark-theme .text-success { color: #38B2AC !important; }
+.dark-theme .text-info { color: #4FD1C5 !important; }
+.dark-theme .text-warning { color: #F6AD55 !important; }
+.dark-theme .progress-bar.bg-info { background-color: #4FD1C5 !important; }
+.dark-theme .progress-bar.bg-success { background-color: #38B2AC !important; }
+.dark-theme .table { color: #E2E8F0; }
+.dark-theme .table-striped > tbody > tr:nth-of-type(odd) { background-color: rgba(255,255,255,0.05); }
+.dark-theme .form-text { color: #A0AEC0; }
+.dark-theme .interval-summary { background-color: #252525; }
+.dark-theme .interval-summary:hover { background-color: #2D2D2D; }
+.dark-theme .card.bg-light { background-color: #252525 !important; }
+.dark-theme .alert-info { background-color: rgba(79,209,197,0.15); color: #E2E8F0; border-color: rgba(79,209,197,0.4); }
+.dark-theme .col-taxable { background-color: #2a2a2a; color: #E2E8F0; }
+
+.theme-toggle { position: absolute; top: 10px; right: 10px; z-index: 1000; }
+
+.blazor-loading-modal { position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 99999; display:flex; align-items:center; justify-content:center; }
+.blazor-loading-content { text-align:center; background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.12); padding:32px 48px; min-width:220px; }
+.spinner-border { width:3rem; height:3rem; }
+
+.table th { white-space: normal !important; word-break: break-word; max-width: 90px; font-size:0.95em; line-height:1.2; }
+.table th, .table td { font-size: 0.85em !important; }
+
+.col-taxable { background-color: cadetblue; border-radius:6px; padding:4px 8px; }
+.dark-theme .col-taxable { background-color: #2a2a2a; color:#E2E8F0; }
