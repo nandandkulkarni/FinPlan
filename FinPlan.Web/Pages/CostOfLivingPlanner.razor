@@ -170,6 +170,27 @@
         flex: 0 0 auto;
     }
 
+    /* Retirement Adjust column: keep select and manual input on one line */
+    .retirement-adjust {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap; /* prevent inner wrapping */
+    }
+
+    .retirement-adjust .form-select {
+        flex: 0 0 160px; /* fixed width for select */
+    }
+
+    .retirement-adjust .input-group {
+        flex: 0 0 160px; /* fixed width for manual input when shown */
+    }
+
+    /* On very small screens allow the cell to scroll horizontally rather than wrap */
+    @@media (max-width: 650px) {
+        .retirement-adjust { min-width: 320px; }
+    }
+
     /* loading overlay styles */
     .blazor-loading-modal {
         position: fixed;
@@ -303,7 +324,7 @@
                 <th style="width:140px;">Category / Subcategory</th>
                 <th style="width:140px;">$Per Unit</th>
                 <th style="width:140px;">$Per Month</th>
-                <th style="width:220px;">Retirement Adjust</th>
+                <th style="width:320px;">Retirement Adjust</th>
                 <th style="width:160px;">Inflation</th>
                 <th style="width:60px;">Incl.</th>
                 <th style="width:180px;">Retirement Value</th>
@@ -401,28 +422,32 @@
                             <td style="width:140px; vertical-align:top; text-align:right;">
                                 <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
                             </td>
-                            <td style="width:220px;">
+                            <td style="width:320px;">
+                                <div class="retirement-adjust">
                                 <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
                                     @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
                                     {
                                         if (opt.ToString() == "Remove") continue; // hide Remove from UI
-                                                                                  <option value="@opt">@opt</option>
+                                        <option value="@opt">@opt</option>
                                     }
                                 </select>
+
                                 @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
                                 {
-                                    <div class="input-group input-group-sm mt-1">
+                                    <div class="input-group input-group-sm">
                                         <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
                                         <span class="input-group-text">%</span>
                                     </div>
                                 }
+
                                 @if (item.AdjustOption == RetirementAdjustOption.Manual)
                                 {
-                                        <div class="input-group input-group-sm mt-1" style="width:180px;">
-                                            <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
-                                            <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
-                                        </div>
+                                    <div class="input-group input-group-sm" style="width:180px;">
+                                        <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
+                                        <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
+                                    </div>
                                 }
+                                </div>
                             </td>
                             <td style="width:160px; vertical-align:middle;">
                                 @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)

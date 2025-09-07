@@ -1,0 +1,341 @@
+﻿@page "/howmuch-to-save-per-month"
+@using System.Globalization
+@using Microsoft.AspNetCore.Components.Forms
+
+<h3>Retirement Savings Back‑Calculator</h3>
+
+<div class="card p-3 mb-3">
+    <EditForm Model="this" OnValidSubmit="Calculate">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label>Current age</label>
+                <InputNumber class="form-control" @bind-Value="CurrentAge" />
+            </div>
+            <div class="col-md-2">
+                <label>Retirement age</label>
+                <InputNumber class="form-control" @bind-Value="RetirementAge" />
+            </div>
+            <div class="col-md-4">
+                <label>Target at retirement (nominal future $)</label>
+                <InputNumber class="form-control" @bind-Value="TargetAmount" />
+            </div>
+            <div class="col-md-2">
+                <label>Annual return % (nominal)</label>
+                <InputNumber class="form-control" @bind-Value="AnnualReturnPercent" />
+            </div>
+            <div class="col-md-2">
+                <label>Compounding</label>
+                <div class="form-text">Monthly, deposits at start</div>
+            </div>
+
+            <div class="col-12"><hr /></div>
+
+            <div class="col-md-4">
+                <label><InputCheckbox @bind-Value="IncludePostTax" /> Post‑tax</label>
+                <div class="form-text">Growth rate (annual %) for contributions</div>
+                <InputNumber class="form-control form-control-sm" @bind-Value="PostTaxGrowthPercent" />
+            </div>
+
+            <div class="col-md-4">
+                <label><InputCheckbox @bind-Value="IncludeTraditional" /> Traditional (pre‑tax)</label>
+                <div class="form-text">Growth rate (annual %) for contributions</div>
+                <InputNumber class="form-control form-control-sm" @bind-Value="TraditionalGrowthPercent" />
+            </div>
+
+            <div class="col-md-4">
+                <label><InputCheckbox @bind-Value="IncludeRoth" /> Roth (post‑tax)</label>
+                <div class="form-text">Growth rate (annual %) for contributions</div>
+                <InputNumber class="form-control form-control-sm" @bind-Value="RothGrowthPercent" />
+            </div>
+
+            <div class="col-12">
+                <label>Allocation mode</label>
+                <InputRadioGroup @bind-Value="AllocationMode">
+                    <label class="me-3"><InputRadio Value="@AllocationModes.Equal" /> Equal split</label>
+                    <label class="ms-3"><InputRadio Value="@AllocationModes.Custom" /> Custom %</label>
+                </InputRadioGroup>
+            </div>
+
+            @if (AllocationMode == AllocationModes.Custom)
+            {
+                <div class="col-md-4">
+                    <label>Post‑tax %</label>
+                    <InputNumber class="form-control" @bind-Value="PostTaxPct" />
+                </div>
+                <div class="col-md-4">
+                    <label>Traditional %</label>
+                    <InputNumber class="form-control" @bind-Value="TraditionalPct" />
+                </div>
+                <div class="col-md-4">
+                    <label>Roth %</label>
+                    <InputNumber class="form-control" @bind-Value="RothPct" />
+                </div>
+                <div class="col-12">
+                    <small class="text-muted">Percents must sum to 100 across included buckets (unchecked buckets ignored).</small>
+                </div>
+            }
+
+            <div class="col-12 mt-2">
+                <button class="btn btn-primary me-2" type="button" @onclick="Calculate">Calculate</button>
+                <button class="btn btn-secondary" type="button" @onclick="Reset">Reset</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@if (HasCalculated)
+{
+    <div class="card p-3">
+        <h5>Assumptions</h5>
+        <p>
+            Target is nominal future dollars at retirement. Monthly compounding, deposits at start of month.
+            Annual return: @AnnualReturnPercent% • Horizon: @YearsUntilRetirement years (@Months months)
+        </p>
+
+        <h5>Results</h5>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Bucket</th>
+                    <th>Included</th>
+                    <th>Allocation %</th>
+                    <th>Annual growth % (contrib)</th>
+                    <th>Initial monthly contribution</th>
+                    <th>Projected FV (bucket)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in BucketResults)
+                {
+                    <tr>
+                        <td>@r.Name</td>
+                        <td>@(r.Included ? "Yes" : "No")</td>
+                        <td>@r.AllocationPercent.ToString("P0")</td>
+                        <td>@r.AnnualGrowthPercent.ToString("P2")</td>
+                        <td>@(r.Included ? FormatMoney(r.InitialMonthly) : "-")</td>
+                        <td>@(r.Included ? FormatMoney(r.ProjectedFV) : "-")</td>
+                    </tr>
+                }
+                <tr class="table-primary">
+                    <th colspan="4">Total initial monthly</th>
+                    <th>@FormatMoney(TotalInitialMonthly)</th>
+                    <th>@FormatMoney(BucketResults.Where(x=>x.Included).Sum(x=>x.ProjectedFV))</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    // Inputs
+    public int CurrentAge { get; set; } = 35;
+    public int RetirementAge { get; set; } = 67;
+    public decimal TargetAmount { get; set; } = 1000000m;
+    public decimal AnnualReturnPercent { get; set; } = 6m;
+
+    public bool IncludePostTax { get; set; } = true;
+    public bool IncludeTraditional { get; set; } = true;
+    public bool IncludeRoth { get; set; } = false;
+
+    public decimal PostTaxGrowthPercent { get; set; } = 0m;
+    public decimal TraditionalGrowthPercent { get; set; } = 0m;
+    public decimal RothGrowthPercent { get; set; } = 0m;
+
+    public AllocationModes AllocationMode { get; set; } = AllocationModes.Equal;
+    public decimal PostTaxPct { get; set; } = 0m;
+    public decimal TraditionalPct { get; set; } = 0m;
+    public decimal RothPct { get; set; } = 0m;
+
+    // Derived / results
+    bool HasCalculated = false;
+    int YearsUntilRetirement;
+    int Months;
+    int n;
+    decimal MonthlyRate;
+
+    List<BucketResult> BucketResults = new();
+
+    decimal TotalInitialMonthly = 0m;
+
+    public enum AllocationModes { Equal, Custom }
+
+    class BucketResult
+    {
+        public string Name { get; set; } = "";
+        public bool Included { get; set; }
+        public decimal AllocationPercent { get; set; }
+        public decimal AnnualGrowthPercent { get; set; }
+        public decimal InitialMonthly { get; set; }
+        public decimal ProjectedFV { get; set; }
+    }
+
+    void Reset()
+    {
+        CurrentAge = 35;
+        RetirementAge = 67;
+        TargetAmount = 1000000m;
+        AnnualReturnPercent = 6m;
+        IncludePostTax = true;
+        IncludeTraditional = true;
+        IncludeRoth = false;
+        PostTaxGrowthPercent = TraditionalGrowthPercent = RothGrowthPercent = 0m;
+        AllocationMode = AllocationModes.Equal;
+        PostTaxPct = TraditionalPct = RothPct = 0m;
+        HasCalculated = false;
+        BucketResults.Clear();
+        TotalInitialMonthly = 0m;
+    }
+
+    void Calculate()
+    {
+        HasCalculated = false;
+        BucketResults.Clear();
+        TotalInitialMonthly = 0m;
+
+        if (RetirementAge <= CurrentAge || TargetAmount <= 0)
+        {
+            HasCalculated = true;
+            return;
+        }
+
+        YearsUntilRetirement = RetirementAge - CurrentAge;
+        Months = YearsUntilRetirement * 12;
+        n = Months;
+        MonthlyRate = (AnnualReturnPercent / 100m) / 12m;
+
+        // identify included buckets
+        var included = new List<string>();
+        if (IncludePostTax) included.Add("Post‑tax");
+        if (IncludeTraditional) included.Add("Traditional");
+        if (IncludeRoth) included.Add("Roth");
+
+        if (!included.Any())
+        {
+            HasCalculated = true;
+            return;
+        }
+
+        // allocation percents
+        var alloc = new Dictionary<string, decimal>();
+        if (AllocationMode == AllocationModes.Equal)
+        {
+            var equal = 1m / included.Count;
+            foreach (var k in included) alloc[k] = equal;
+        }
+        else
+        {
+            // custom: use provided percents but ignore unchecked buckets
+            var sum = 0m;
+            if (IncludePostTax) sum += PostTaxPct;
+            if (IncludeTraditional) sum += TraditionalPct;
+            if (IncludeRoth) sum += RothPct;
+            if (sum <= 0) // fallback to equal
+            {
+                var equal = 1m / included.Count;
+                foreach (var k in included) alloc[k] = equal;
+            }
+            else
+            {
+                if (IncludePostTax) alloc["Post‑tax"] = PostTaxPct / sum;
+                if (IncludeTraditional) alloc["Traditional"] = TraditionalPct / sum;
+                if (IncludeRoth) alloc["Roth"] = RothPct / sum;
+            }
+        }
+
+        // compute per bucket
+        var buckets = new[]
+        {
+            new { Name = "Post‑tax", Included = IncludePostTax, AnnualGrowth = PostTaxGrowthPercent },
+            new { Name = "Traditional", Included = IncludeTraditional, AnnualGrowth = TraditionalGrowthPercent },
+            new { Name = "Roth", Included = IncludeRoth, AnnualGrowth = RothGrowthPercent }
+        };
+
+        foreach (var b in buckets)
+        {
+            var br = new BucketResult { Name = b.Name, Included = b.Included, AnnualGrowthPercent = b.AnnualGrowth / 100m };
+            if (!b.Included)
+            {
+                BucketResults.Add(br);
+                continue;
+            }
+
+            var allocPct = alloc.ContainsKey(b.Name) ? alloc[b.Name] : 0m;
+            br.AllocationPercent = allocPct;
+            var requiredFuture = TargetAmount * allocPct;
+
+            // compute initial monthly PMT for growing annuity (payments at start of month)
+            var gm = AnnualToMonthlyGrowth(b.AnnualGrowth / 100m);
+            br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
+            // compute projected FV to verify
+            br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+
+            TotalInitialMonthly += br.InitialMonthly;
+            BucketResults.Add(br);
+        }
+
+        HasCalculated = true;
+    }
+
+    // convert annual growth rate to equivalent monthly growth
+    private decimal AnnualToMonthlyGrowth(decimal annual)
+    {
+        if (annual == 0m) return 0m;
+        var gm = (decimal)(Math.Pow((double)(1m + annual), 1.0 / 12.0) - 1.0);
+        return gm;
+    }
+
+    // Compute initial monthly payment (month 1 payment) for an annuity-due with growth gm per month
+    private decimal ComputeInitialMonthly(decimal futureTarget, decimal r, decimal gm, int periods)
+    {
+        if (periods <= 0) return 0m;
+
+        const decimal EPS = 1e-12m;
+        // handle special cases
+        if (Math.Abs((double)(r - gm)) < 1e-12)
+        {
+            // r == gm
+            var G = periods * (1m + r);
+            return G <= 0 ? 0m : futureTarget / G;
+        }
+
+        // compute (1+r)^n and (1+gm)^n
+        var onePlusRpowN = DecimalPow(1m + r, periods);
+        var onePlusGmpowN = DecimalPow(1m + gm, periods);
+
+        // G = [ (1+r)^n - (1+gm)^n ] / (r - gm) * (1+r)
+        var denom = r - gm;
+        // guard denom close to zero handled above
+        var Gfactor = ((onePlusRpowN - onePlusGmpowN) / denom) * (1m + r);
+        return Gfactor == 0m ? 0m : futureTarget / Gfactor;
+    }
+
+    // Compute projected future value produced by a growing payment stream starting with pmt0 (annuity due)
+    private decimal ComputeProjectedFVFromGrowingPayments(decimal pmt0, decimal r, decimal gm, int periods)
+    {
+        if (periods <= 0) return 0m;
+        if (pmt0 == 0m) return 0m;
+
+        if (Math.Abs((double)(r - gm)) < 1e-12)
+        {
+            var G = periods * (1m + r);
+            return pmt0 * G;
+        }
+
+        var onePlusRpowN = DecimalPow(1m + r, periods);
+        var onePlusGmpowN = DecimalPow(1m + gm, periods);
+        var denom = r - gm;
+        var Gfactor = ((onePlusRpowN - onePlusGmpowN) / denom) * (1m + r);
+        return pmt0 * Gfactor;
+    }
+
+    // Decimal power helper for integer exponent >= 0
+    private decimal DecimalPow(decimal x, int pow)
+    {
+        if (pow == 0) return 1m;
+        double dx = (double)x;
+        double r = Math.Pow(dx, pow);
+        return (decimal)r;
+    }
+
+    string FormatMoney(decimal v) => v.ToString("C0", CultureInfo.CurrentCulture);
+}

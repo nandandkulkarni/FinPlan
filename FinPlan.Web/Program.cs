@@ -60,6 +60,11 @@ builder.Services.AddAuthentication(options =>
         // These values should be set in appsettings.json under "Authentication:Google"
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        // Ensure correlation cookie works across the external redirect
+        options.CorrelationCookie.SameSite = SameSiteMode.None;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        // Keep returned tokens available if needed
+        options.SaveTokens = true;
         // Best practice: set the callback path if you host under a sub-path
         // options.CallbackPath = "/signin-google";
     });
@@ -105,10 +110,11 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 // Lightweight endpoints to trigger the external auth challenge and sign-out
-app.MapGet("/signin-google", async (HttpContext httpContext) =>
+// Start the OAuth flow from a distinct path so the middleware can reserve the callback path (/signin-google)
+app.MapGet("/signin-google-challenge", async (HttpContext httpContext) =>
 {
-    // Challenge the Google authentication scheme
-    await httpContext.ChallengeAsync(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme);
+    var props = new AuthenticationProperties { RedirectUri = "/" };
+    await httpContext.ChallengeAsync(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme, props);
 });
 
 app.MapGet("/signout", async (HttpContext httpContext) =>
