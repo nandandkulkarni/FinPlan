@@ -1,16 +1,42 @@
 ﻿@page "/howmuch-to-save-per-month"
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Forms
+@using FinPlan.Shared.Services
 @rendermode InteractiveServer
 
 <style>
-    .bucket-post { background-color: #fff8e1; }
-    .bucket-trad { background-color: #e8f7ff; }
-    .bucket-roth { background-color: #f7f0ff; }
-    .bucket-total { background-color: #e9fbe9; font-weight:600; }
+    .bucket-post { background-color: #ffecb3; }
+    .bucket-trad { background-color: #cfeeff; }
+    .bucket-roth { background-color: #e9dbff; }
+    .bucket-total { background-color: #cfeccf; font-weight:600; }
 
     .table thead th { text-align: center; }
     .table tbody td { vertical-align: middle; }
+
+    /* Header group bands matching bucket colors */
+    /* Use more specific selectors and !important so Bootstrap doesn't override these */
+    .table thead th.group-post { background-color: #ffecb3 !important; }
+    .table thead th.group-trad { background-color: #cfeeff !important; }
+    .table thead th.group-roth { background-color: #e9dbff !important; }
+    .table thead th.group-total { background-color: #cfeccf !important; font-weight:600; }
+
+    /* Ensure header cells inherit color and remove default white background */
+    .table thead th { background: transparent !important; }
+    .table thead th.group-post, .table thead th.group-trad, .table thead th.group-roth, .table thead th.group-total { color: #222 !important; }
+    /* Also style the subheader cells so the colored band spans both header rows */
+    .table thead th.sub-post { background-color: #ffecb3 !important; color: #222 !important; }
+    .table thead th.sub-trad { background-color: #cfeeff !important; color: #222 !important; }
+    .table thead th.sub-roth { background-color: #e9dbff !important; color: #222 !important; }
+    .table thead th.sub-total { background-color: #cfeccf !important; color: #222 !important; font-weight:600; }
+
+    /* Body cell bands - slightly lighter so header remains stronger */
+    .table tbody td.bucket-post { background-color: #fff9ec !important; }
+    .table tbody td.bucket-trad { background-color: #eaf9ff !important; }
+    .table tbody td.bucket-roth { background-color: #f8f1ff !important; }
+    .table tbody td.bucket-total { background-color: #eefbf0 !important; font-weight:600 !important; }
+
+    /* Sub-header styling */
+    .subhead { font-size: 0.85rem; font-weight:600; }
 </style>
 
 <h3>Retirement Savings Back‑Calculator</h3>
@@ -89,31 +115,122 @@
             </div>
 
             <div class="col-12">
-                <label>Allocation mode</label>
-                <InputRadioGroup @bind-Value="AllocationMode">
-                    <label class="me-3"><InputRadio Value="@AllocationModes.Equal" /> Equal split</label>
-                    <label class="ms-3"><InputRadio Value="@AllocationModes.Custom" /> Custom %</label>
-                </InputRadioGroup>
+                <button class="btn btn-sm btn-outline-secondary mb-2" type="button" @onclick="() => ShowAdvanced = !ShowAdvanced">
+                    @(ShowAdvanced ? "Hide advanced settings" : "Show advanced settings")
+                </button>
+
+                @if (ShowAdvanced)
+                {
+                    <div class="card p-3 mb-3">
+                        <h6>Advanced settings</h6>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label>Solver iterations</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="SolverIterations" />
+                                <div class="form-text">Max iterations for numeric solver (higher -> more accurate, slower)</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Solver tolerance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="SolverTolerance" />
+                                <div class="form-text">Stopping tolerance for solver (in dollars)</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Use yearly grid as authoritative</label>
+                                <div>
+                                    <InputCheckbox @bind-Value="UseYearlyGridAsSource" /> <small class="text-muted">Use simulated grid totals for final amounts</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Round intermediate</label>
+                                <div>
+                                    <InputCheckbox @bind-Value="RoundIntermediate" /> <small class="text-muted">Round intermediate values (affects accuracy)</small>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                 }
+             </div>
+
+            <div class="col-12">
+                <div class="card p-2 mb-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label>Ordinary tax rate %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Long-term gains tax %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Taxable income mix</label>
+                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                <option value="Mixed">Mixed (default)</option>
+                                <option value="Dividends">Mostly Dividends</option>
+                                <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                <option value="Interest">Mostly Interest/Short-Term</option>
+                            </select>
+                            <div class="form-text">Affects annual tax on taxable account growth</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            @if (AllocationMode == AllocationModes.Custom)
-            {
-                <div class="col-md-4">
-                    <label>Post‑tax %</label>
-                    <InputNumber class="form-control" @bind-Value="PostTaxPct" />
+            <div class="col-12">
+                <div class="card p-2 mb-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label>Ordinary tax rate %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Long-term gains tax %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Taxable income mix</label>
+                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                <option value="Mixed">Mixed (default)</option>
+                                <option value="Dividends">Mostly Dividends</option>
+                                <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                <option value="Interest">Mostly Interest/Short-Term</option>
+                            </select>
+                            <div class="form-text">Affects annual tax on taxable account growth</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label>Traditional %</label>
-                    <InputNumber class="form-control" @bind-Value="TraditionalPct" />
+            </div>
+
+            <div class="col-12">
+                <div class="card p-2 mb-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label>Ordinary tax rate %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Long-term gains tax %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Taxable income mix</label>
+                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                <option value="Mixed">Mixed (default)</option>
+                                <option value="Dividends">Mostly Dividends</option>
+                                <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                <option value="Interest">Mostly Interest/Short-Term</option>
+                            </select>
+                            <div class="form-text">Affects annual tax on taxable account growth</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label>Roth %</label>
-                    <InputNumber class="form-control" @bind-Value="RothPct" />
-                </div>
-                <div class="col-12">
-                    <small class="text-muted">Percents must sum to 100 across included buckets (unchecked buckets ignored).</small>
-                </div>
-            }
+            </div>
 
             <div class="col-12 mt-2">
                 <button class="btn btn-primary me-2" type="button" @onclick="Calculate">Calculate</button>
@@ -170,65 +287,79 @@
         </p>
         <table class="table table-sm table-bordered">
             <thead>
+                <!-- Top header row: colored group bands -->
                 <tr>
-                    <th>Year</th>
-                    <th>Age</th>
-                    <th colspan="5" class="text-center">Post‑tax</th>
-                    <th colspan="4" class="text-center">Traditional</th>
-                    <th colspan="4" class="text-center">Roth</th>
-                    <th colspan="5" class="text-center">Total</th>
+                    <th rowspan="2">Year</th>
+                    <th rowspan="2">Age</th>
+                    <th colspan="5" class="group-post">Post‑tax (taxable)</th>
+                    <th colspan="5" class="group-trad">Traditional (pre‑tax)</th>
+                    <th colspan="4" class="group-roth">Roth (post‑tax)</th>
+                    <th colspan="5" class="group-total">Totals</th>
                 </tr>
+
+                <!-- Second header row: descriptive column labels -->
                 <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Principal</th>
-                    <th>Growth</th>
-                    <th>No‑tax balance</th>
-                    <th>Taxes</th>
-                    <th>Ending Balance</th>
-                    <th>Principal</th>
-                    <th>Growth</th>
-                    <th>Taxes</th>
-                    <th>Ending Balance</th>
-                    <th>Principal</th>
-                    <th>Growth</th>
-                    <th>Taxes</th>
-                    <th>Ending Balance</th>
-                    <th>Principal</th>
-                    <th>Growth</th>
-                    <th>No‑tax balance</th>
-                    <th>Taxes</th>
-                    <th>Ending Balance</th>
+                    <!-- Post-tax columns -->
+                    <th class="subhead">Principal</th>
+                    <th class="subhead">Growth</th>
+                    <th class="subhead">No‑tax balance</th>
+                    <th class="subhead">Taxes</th>
+                    <th class="subhead sub-post">Ending balance</th>
+
+                    <!-- Traditional columns: pre-tax + growth + taxes (none here) + ending + after-tax -->
+                    <th class="subhead sub-trad">Principal</th>
+                    <th class="subhead sub-trad">Growth</th>
+                    <th class="subhead sub-trad">Taxes</th>
+                    <th class="subhead sub-trad">Ending (pre‑tax)</th>
+                    <th class="subhead sub-trad">Ending (after‑tax)</th>
+
+                    <!-- Roth columns -->
+                    <th class="subhead sub-roth">Principal</th>
+                    <th class="subhead sub-roth">Growth</th>
+                    <th class="subhead sub-roth">Taxes</th>
+                    <th class="subhead sub-roth">Ending balance</th>
+
+                    <!-- Totals: principal, growth, combined pre-tax, taxes, ending (after‑tax) -->
+                    <th class="subhead sub-total">Principal</th>
+                    <th class="subhead sub-total">Growth</th>
+                    <th class="subhead sub-total">Combined pre‑tax</th>
+                    <th class="subhead sub-total">Taxes</th>
+                    <th class="subhead sub-total">Ending (after‑tax)</th>
                 </tr>
             </thead>
             <tbody>
+                @{ var ordRate = OrdinaryTaxPercent / 100m; }
                 @foreach (var r in YearlyGrid)
                 {
                     <tr>
                         <td>@r.Year</td>
                         <td>@r.Age</td>
 
-                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxPrincipal)</td>
-                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxGrowth)</td>
-                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxPreTaxBalance)</td>
-                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxTaxes)</td>
-                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxBalance)</td>
+                        <td class="text-end bucket-post" style="background-color:#fff9ec;">@FormatMoney(r.PostTaxPrincipal)</td>
+                        <td class="text-end bucket-post" style="background-color:#fff9ec;">@FormatMoney(r.PostTaxGrowth)</td>
+                        <td class="text-end bucket-post" style="background-color:#fff9ec;">@FormatMoney(r.PostTaxPreTaxBalance)</td>
+                        <td class="text-end bucket-post" style="background-color:#fff9ec;">@FormatMoney(r.PostTaxTaxes)</td>
+                        <td class="text-end bucket-post" style="background-color:#fff9ec;">@FormatMoney(r.PostTaxBalance)</td>
 
-                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalPrincipal)</td>
-                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalGrowth)</td>
-                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalTaxes)</td>
-                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalBalance)</td>
+                        <td class="text-end bucket-trad" style="background-color:#eaf9ff;">@FormatMoney(r.TraditionalPrincipal)</td>
+                        <td class="text-end bucket-trad" style="background-color:#eaf9ff;">@FormatMoney(r.TraditionalGrowth)</td>
+                        <td class="text-end bucket-trad" style="background-color:#eaf9ff;">@FormatMoney(r.TraditionalTaxes)</td>
+                        <td class="text-end bucket-trad" style="background-color:#eaf9ff;">@FormatMoney(r.TraditionalBalance)</td>
+                        <td class="text-end bucket-trad" style="background-color:#eaf9ff;">@FormatMoney(Math.Round(r.TraditionalBalance * (1m - ordRate), 2))</td>
 
-                        <td class="text-end bucket-roth">@FormatMoney(r.RothPrincipal)</td>
-                        <td class="text-end bucket-roth">@FormatMoney(r.RothGrowth)</td>
-                        <td class="text-end bucket-roth">@FormatMoney(r.RothTaxes)</td>
-                        <td class="text-end bucket-roth">@FormatMoney(r.RothBalance)</td>
+                        <td class="text-end bucket-roth" style="background-color:#f8f1ff;">@FormatMoney(r.RothPrincipal)</td>
+                        <td class="text-end bucket-roth" style="background-color:#f8f1ff;">@FormatMoney(r.RothGrowth)</td>
+                        <td class="text-end bucket-roth" style="background-color:#f8f1ff;">@FormatMoney(r.RothTaxes)</td>
+                        <td class="text-end bucket-roth" style="background-color:#f8f1ff;">@FormatMoney(r.RothBalance)</td>
 
-                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxPrincipal + r.TraditionalPrincipal + r.RothPrincipal)</td>
-                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxGrowth + r.TraditionalGrowth + r.RothGrowth)</td>
-                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxPreTaxBalance + r.TraditionalBalance + r.RothBalance)</td>
-                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxTaxes + r.TraditionalTaxes + r.RothTaxes)</td>
-                        <td class="text-end bucket-total">@FormatMoney(r.TotalEndOfYear)</td>
+                        <td class="text-end bucket-total" style="background-color:#eefbf0;">@FormatMoney(r.PostTaxPrincipal + r.TraditionalPrincipal + r.RothPrincipal)</td>
+                        <td class="text-end bucket-total" style="background-color:#eefbf0;">@FormatMoney(r.PostTaxGrowth + r.TraditionalGrowth + r.RothGrowth)</td>
+                        @* Show combined pre-tax balances column for reference *@
+                        <td class="text-end bucket-total" style="background-color:#eefbf0;">@FormatMoney(r.PostTaxPreTaxBalance + r.TraditionalBalance + r.RothBalance)</td>
+                        <td class="text-end bucket-total" style="background-color:#eefbf0;">@FormatMoney(r.PostTaxTaxes + r.TraditionalTaxes + r.RothTaxes)</td>
+                        @* Display total in post-tax (withdrawal) basis: convert Traditional to after-tax *@
+                        @{ var totalAfterTax = r.PostTaxBalance + r.TraditionalBalance * (1m - ordRate) + r.RothBalance; }
+                        <td class="text-end bucket-total" style="background-color:#eefbf0;">@FormatMoney(Math.Round(totalAfterTax,2))</td>
                      </tr>
                  }
              </tbody>
@@ -261,6 +392,15 @@
     public decimal TraditionalPct { get; set; } = 0m;
     public decimal RothPct { get; set; } = 0m;
 
+    // Advanced settings
+    public bool ShowAdvanced { get; set; } = false;
+    public int SolverIterations { get; set; } = 120;
+    public decimal SolverTolerance { get; set; } = 0.5m; // in dollars
+    public bool UseYearlyGridAsSource { get; set; } = true;
+    public bool RoundIntermediate { get; set; } = false;
+    // Diagnostics
+    public decimal LastSolverError { get; set; } = 0m;
+
     // Derived / results
     bool HasCalculated = false;
     int YearsUntilRetirement;
@@ -281,7 +421,10 @@
         public decimal AllocationPercent { get; set; }
         public decimal AnnualGrowthPercent { get; set; }
         public decimal InitialMonthly { get; set; }
+        // Projected future value from solver/simpler math
         public decimal ProjectedFV { get; set; }
+        // Projected future value from full yearly grid simulation (authoritative)
+        public decimal ProjectedFVFromGrid { get; set; }
     }
 
     // Yearly grid row combining all three buckets
@@ -433,18 +576,22 @@
                     br.InitialMonthly = ComputeInitialMonthly(pretaxRequired, MonthlyRate, gm, n);
                     var pretaxFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
                     br.ProjectedFV = Math.Round(pretaxFV * (1m - ordinaryRate), 2);
+                    // store solver value also
+                    br.ProjectedFVFromGrid = 0m;
                 }
                 else if (b.Name == "Roth")
                 {
                     // Roth is post-tax at contribution, no tax at withdrawal
                     br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
                     br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+                    br.ProjectedFVFromGrid = 0m;
                 }
                 else // Post-tax (taxable)
                 {
                     // Solve numerically for initial monthly payment that yields requiredFuture after annual taxes
-                    br.InitialMonthly = SolveInitialMonthlyForPostTax(requiredFuture, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist);
-                    br.ProjectedFV = SimulatePostTaxFinalFromPmt(br.InitialMonthly, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist);
+                    br.InitialMonthly = TaxableSimulator.SolveInitialMonthlyForPostTax(requiredFuture, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist, SolverIterations, SolverTolerance, RoundIntermediate);
+                    br.ProjectedFV = TaxableSimulator.SimulatePostTaxFinalFromPmt(br.InitialMonthly, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist, RoundIntermediate);
+                    br.ProjectedFVFromGrid = 0m;
                 }
 
                 TotalInitialMonthly += br.InitialMonthly;
@@ -453,6 +600,42 @@
 
             // Build yearly grid by simulating each bucket's payments and growth
             BuildYearlyGrid();
+
+            // After building grid, fill BucketResults.ProjectedFVFromGrid from YearlyGrid last row
+            if (YearlyGrid.Any())
+            {
+                var last = YearlyGrid.Last();
+                // apply tax adjustments for authoritative projected FV from grid
+                var ordinaryRate = OrdinaryTaxPercent / 100m;
+                foreach (var br in BucketResults)
+                {
+                    if (br.Name == "Post‑tax") br.ProjectedFVFromGrid = last.PostTaxBalance;
+                    if (br.Name == "Traditional") br.ProjectedFVFromGrid = Math.Round(last.TraditionalBalance * (1m - ordinaryRate), 2);
+                    if (br.Name == "Roth") br.ProjectedFVFromGrid = last.RothBalance;
+                }
+
+                // Diagnostic logging
+                try
+                {
+                    Console.WriteLine("--- HowMuchToSavePlanner diagnostics ---");
+                    Console.WriteLine($"TargetAmount={TargetAmount}, Years={YearsUntilRetirement}, MonthlyRate={MonthlyRate}");
+                    foreach (var brr in BucketResults)
+                    {
+                        Console.WriteLine($"Bucket {brr.Name}: InitialMonthly={brr.InitialMonthly}, ProjectedFV(solver)={brr.ProjectedFV}, ProjectedFV(grid)={brr.ProjectedFVFromGrid}");
+                    }
+                    Console.WriteLine($"YearlyGrid final total: {YearlyGrid.Last().TotalEndOfYear}");
+                }
+                catch { }
+            }
+
+            // Optionally replace displayed ProjectedFV with grid values
+            if (UseYearlyGridAsSource && YearlyGrid.Any())
+            {
+                foreach (var br in BucketResults)
+                {
+                    br.ProjectedFV = br.ProjectedFVFromGrid;
+                }
+            }
 
             HasCalculated = true;
             await InvokeAsync(StateHasChanged);
@@ -479,7 +662,7 @@
         decimal rothPmt0 = roth?.InitialMonthly ?? 0m;
         decimal postGm = AnnualToMonthlyGrowth((post?.AnnualGrowthPercent ?? 0m));
         decimal tradGm = AnnualToMonthlyGrowth((trad?.AnnualGrowthPercent ?? 0m));
-        decimal rothGm = AnnualToMonthlyGrowth((roth?.AnnualGrowthPercent ?? 0m));
+        decimal rohGm = AnnualToMonthlyGrowth((roth?.AnnualGrowthPercent ?? 0m));
 
         // Prepare tax/distribution using user inputs
         var dist = GetIncomeDistributionFromMode();
@@ -528,7 +711,7 @@
 
                 if (roth != null && roth.Included)
                 {
-                    var p = rothPmt0 * DecimalPow(1m + rothGm, mAbs);
+                    var p = rothPmt0 * DecimalPow(1m + rohGm, mAbs);
                     rothYearPrincipal += p;
                     rothBal += p;
                     var i = rothBal * MonthlyRate;
@@ -658,7 +841,7 @@
         };
     }
 
-    private decimal SimulatePostTaxFinalFromPmt(decimal pmt0, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist)
+    private decimal SimulatePostTaxFinalFromPmt(decimal pmt0, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist, bool roundIntermediate = false)
     {
         if (periods <= 0) return 0m;
         decimal bal = 0m;
@@ -671,9 +854,11 @@
             {
                 var payment = pmt0 * DecimalPow(1m + gm, monthIndex);
                 bal += payment;
+                if (roundIntermediate) bal = Math.Round(bal, 8);
                 var interest = bal * monthlyRate;
                 yearGrowth += interest;
                 bal += interest;
+                if (roundIntermediate) bal = Math.Round(bal, 8);
             }
 
             var qual = yearGrowth * dist.q;
@@ -681,40 +866,48 @@
             var lt = yearGrowth * dist.lt;
             var st = yearGrowth * dist.st;
             var taxes = qual * ltgRate + (nonq + st) * ordinaryRate + lt * ltgRate;
+            if (roundIntermediate) taxes = Math.Round(taxes, 8);
             bal -= taxes;
+            if (roundIntermediate) bal = Math.Round(bal, 8);
         }
 
         return Math.Round(bal, 2);
     }
 
-    private decimal SolveInitialMonthlyForPostTax(decimal targetNet, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist)
-    {
-        if (targetNet <= 0m || periods <= 0) return 0m;
-
-        decimal low = 0m;
-        decimal high = Math.Max(100m, targetNet / periods); // heuristic
-
-        for (int expand = 0; expand < 60; expand++)
-        {
-            var testNet = SimulatePostTaxFinalFromPmt(high, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist);
-            if (testNet >= targetNet) break;
-            high *= 2m;
-        }
-
-        decimal result = 0m;
-        for (int iter = 0; iter < 80; iter++)
-        {
-            var mid = (low + high) / 2m;
-            var net = SimulatePostTaxFinalFromPmt(mid, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist);
-            if (Math.Abs((double)(net - targetNet)) < 0.01)
-            {
-                result = mid;
-                break;
-            }
-            if (net < targetNet) low = mid; else high = mid;
-            result = mid;
-        }
-
-        return Math.Round(result, 2);
-    }
+    private decimal SolveInitialMonthlyForPostTax(decimal targetNet, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist, int maxIterations, decimal tolerance)
+     {
+         if (targetNet <= 0m || periods <= 0) return 0m;
+ 
+         decimal low = 0m;
+         decimal high = Math.Max(100m, targetNet / periods); // heuristic
+ 
+         for (int expand = 0; expand < 60; expand++)
+         {
+             var testNet = SimulatePostTaxFinalFromPmt(high, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist, RoundIntermediate);
+             if (testNet >= targetNet) break;
+             high *= 2m;
+         }
+ 
+         // reset diagnostics
+         LastSolverError = 0m;
+ 
+         decimal result = 0m;
+         for (int iter = 0; iter < maxIterations; iter++)
+         {
+             var mid = (low + high) / 2m;
+             var net = SimulatePostTaxFinalFromPmt(mid, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist, RoundIntermediate);
+             if (Math.Abs((double)(net - targetNet)) < (double)tolerance)
+             {
+                 result = mid;
+                 // store solver diagnostic
+                 LastSolverError = Math.Round(net - targetNet, 6);
+                 break;
+             }
+             if (net < targetNet) low = mid; else high = mid;
+             result = mid;
+         }
+ 
+         // return result with higher precision (avoid rounding to cents here)
+         return Math.Round(result, 6);
+     }
 }
