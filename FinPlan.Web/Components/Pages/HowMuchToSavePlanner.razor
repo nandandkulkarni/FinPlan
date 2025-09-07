@@ -59,6 +59,35 @@
                 <InputNumber class="form-control form-control-sm" @bind-Value="RothGrowthPercent" />
             </div>
 
+            <div class="col-12"><hr /></div>
+
+            <div class="col-12">
+                <div class="card p-2 mb-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label>Ordinary tax rate %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Long-term gains tax %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Taxable income mix</label>
+                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                <option value="Mixed">Mixed (default)</option>
+                                <option value="Dividends">Mostly Dividends</option>
+                                <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                <option value="Interest">Mostly Interest/Short-Term</option>
+                            </select>
+                            <div class="form-text">Affects annual tax on taxable account growth</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-12">
                 <label>Allocation mode</label>
                 <InputRadioGroup @bind-Value="AllocationMode">
@@ -222,6 +251,11 @@
     public decimal TraditionalGrowthPercent { get; set; } = 0m;
     public decimal RothGrowthPercent { get; set; } = 0m;
 
+    // Tax inputs (user-editable)
+    public decimal OrdinaryTaxPercent { get; set; } = 24m; // default 24%
+    public decimal LTGTaxPercent { get; set; } = 15m; // default 15%
+    public string IncomeDistributionMode { get; set; } = "Mixed"; // Mixed, Dividends, LongTermGains, Interest
+
     public AllocationModes AllocationMode { get; set; } = AllocationModes.Equal;
     public decimal PostTaxPct { get; set; } = 0m;
     public decimal TraditionalPct { get; set; } = 0m;
@@ -295,6 +329,9 @@
         PostTaxGrowthPercent = TraditionalGrowthPercent = RothGrowthPercent = 0m;
         AllocationMode = AllocationModes.Equal;
         PostTaxPct = TraditionalPct = RothPct = 0m;
+        OrdinaryTaxPercent = 24;
+        LTGTaxPercent = 15;
+        IncomeDistributionMode = "Mixed";
         HasCalculated = false;
         BucketResults.Clear();
         TotalInitialMonthly = 0m;
@@ -383,9 +420,32 @@
 
                 // compute initial monthly PMT for growing annuity (payments at start of month)
                 var gm = AnnualToMonthlyGrowth(b.AnnualGrowth / 100m);
-                br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
-                // compute projected FV to verify
-                br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+
+                // Use user-provided tax inputs
+                var ordinaryRate = OrdinaryTaxPercent / 100m;
+                var ltgRate = LTGTaxPercent / 100m;
+                var dist = GetIncomeDistributionFromMode();
+
+                if (b.Name == "Traditional")
+                {
+                    // gross-up required future to pre-tax value assuming full ordinary tax on withdrawal
+                    var pretaxRequired = ordinaryRate >= 1m ? requiredFuture : requiredFuture / (1m - ordinaryRate);
+                    br.InitialMonthly = ComputeInitialMonthly(pretaxRequired, MonthlyRate, gm, n);
+                    var pretaxFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+                    br.ProjectedFV = Math.Round(pretaxFV * (1m - ordinaryRate), 2);
+                }
+                else if (b.Name == "Roth")
+                {
+                    // Roth is post-tax at contribution, no tax at withdrawal
+                    br.InitialMonthly = ComputeInitialMonthly(requiredFuture, MonthlyRate, gm, n);
+                    br.ProjectedFV = ComputeProjectedFVFromGrowingPayments(br.InitialMonthly, MonthlyRate, gm, n);
+                }
+                else // Post-tax (taxable)
+                {
+                    // Solve numerically for initial monthly payment that yields requiredFuture after annual taxes
+                    br.InitialMonthly = SolveInitialMonthlyForPostTax(requiredFuture, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist);
+                    br.ProjectedFV = SimulatePostTaxFinalFromPmt(br.InitialMonthly, MonthlyRate, gm, n, ordinaryRate, ltgRate, dist);
+                }
 
                 TotalInitialMonthly += br.InitialMonthly;
                 BucketResults.Add(br);
@@ -467,7 +527,7 @@
                 }
             }
 
-            // capture pre-tax balance before taxes (even if zero)
+            // capture pre-tax balance
             var postPreTaxBalance = postBal;
             // Taxes for taxable (post-tax) bucket - approximate using default distribution and tax rates
             if (post != null && post.Included)
@@ -576,4 +636,75 @@
     }
 
     string FormatMoney(decimal v) => v.ToString("C0", CultureInfo.CurrentCulture);
+
+    private (decimal q, decimal nonq, decimal lt, decimal st) GetIncomeDistributionFromMode()
+    {
+        return IncomeDistributionMode switch
+        {
+            "Dividends" => (0.60m, 0.20m, 0.15m, 0.05m),
+            "LongTermGains" => (0.15m, 0.10m, 0.70m, 0.05m),
+            "Interest" => (0.05m, 0.65m, 0.10m, 0.20m),
+            _ => (0.25m, 0.25m, 0.40m, 0.10m),
+        };
+    }
+
+    private decimal SimulatePostTaxFinalFromPmt(decimal pmt0, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist)
+    {
+        if (periods <= 0) return 0m;
+        decimal bal = 0m;
+        int monthIndex = 0;
+
+        while (monthIndex < periods)
+        {
+            decimal yearGrowth = 0m;
+            for (int m = 0; m < 12 && monthIndex < periods; m++, monthIndex++)
+            {
+                var payment = pmt0 * DecimalPow(1m + gm, monthIndex);
+                bal += payment;
+                var interest = bal * monthlyRate;
+                yearGrowth += interest;
+                bal += interest;
+            }
+
+            var qual = yearGrowth * dist.q;
+            var nonq = yearGrowth * dist.nonq;
+            var lt = yearGrowth * dist.lt;
+            var st = yearGrowth * dist.st;
+            var taxes = qual * ltgRate + (nonq + st) * ordinaryRate + lt * ltgRate;
+            bal -= taxes;
+        }
+
+        return Math.Round(bal, 2);
+    }
+
+    private decimal SolveInitialMonthlyForPostTax(decimal targetNet, decimal monthlyRate, decimal gm, int periods, decimal ordinaryRate, decimal ltgRate, (decimal q, decimal nonq, decimal lt, decimal st) dist)
+    {
+        if (targetNet <= 0m || periods <= 0) return 0m;
+
+        decimal low = 0m;
+        decimal high = Math.Max(100m, targetNet / periods); // heuristic
+
+        for (int expand = 0; expand < 60; expand++)
+        {
+            var testNet = SimulatePostTaxFinalFromPmt(high, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist);
+            if (testNet >= targetNet) break;
+            high *= 2m;
+        }
+
+        decimal result = 0m;
+        for (int iter = 0; iter < 80; iter++)
+        {
+            var mid = (low + high) / 2m;
+            var net = SimulatePostTaxFinalFromPmt(mid, monthlyRate, gm, periods, ordinaryRate, ltgRate, dist);
+            if (Math.Abs((double)(net - targetNet)) < 0.01)
+            {
+                result = mid;
+                break;
+            }
+            if (net < targetNet) low = mid; else high = mid;
+            result = mid;
+        }
+
+        return Math.Round(result, 2);
+    }
 }
