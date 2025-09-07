@@ -3,6 +3,16 @@
 @using Microsoft.AspNetCore.Components.Forms
 @rendermode InteractiveServer
 
+<style>
+    .bucket-post { background-color: #fff8e1; }
+    .bucket-trad { background-color: #e8f7ff; }
+    .bucket-roth { background-color: #f7f0ff; }
+    .bucket-total { background-color: #e9fbe9; font-weight:600; }
+
+    .table thead th { text-align: center; }
+    .table tbody td { vertical-align: middle; }
+</style>
+
 <h3>Retirement Savings Back‑Calculator</h3>
 
 <div class="card p-3 mb-3">
@@ -120,7 +130,7 @@
                 <tr class="table-primary">
                     <th colspan="4">Total initial monthly</th>
                     <th>@FormatMoney(TotalInitialMonthly)</th>
-                    <th>@FormatMoney(BucketResults.Where(x=>x.Included).Sum(x=>x.ProjectedFV))</th>
+                    <th>@FormatMoney(GetFinalProjectedTotal())</th>
                 </tr>
             </tbody>
         </table>
@@ -134,15 +144,17 @@
                 <tr>
                     <th>Year</th>
                     <th>Age</th>
-                    <th colspan="4" class="text-center">Post‑tax</th>
+                    <th colspan="5" class="text-center">Post‑tax</th>
                     <th colspan="4" class="text-center">Traditional</th>
                     <th colspan="4" class="text-center">Roth</th>
+                    <th colspan="5" class="text-center">Total</th>
                 </tr>
                 <tr>
                     <th></th>
                     <th></th>
                     <th>Principal</th>
                     <th>Growth</th>
+                    <th>No‑tax balance</th>
                     <th>Taxes</th>
                     <th>Ending Balance</th>
                     <th>Principal</th>
@@ -151,6 +163,11 @@
                     <th>Ending Balance</th>
                     <th>Principal</th>
                     <th>Growth</th>
+                    <th>Taxes</th>
+                    <th>Ending Balance</th>
+                    <th>Principal</th>
+                    <th>Growth</th>
+                    <th>No‑tax balance</th>
                     <th>Taxes</th>
                     <th>Ending Balance</th>
                 </tr>
@@ -161,24 +178,34 @@
                     <tr>
                         <td>@r.Year</td>
                         <td>@r.Age</td>
-                        <td class="text-end">@r.PostTaxPrincipal</td>
-                        <td class="text-end">@r.PostTaxGrowth</td>
-                        <td class="text-end">@r.PostTaxTaxes</td>
-                        <td class="text-end">@r.PostTaxBalance</td>
-                        <td class="text-end">@r.TraditionalPrincipal</td>
-                        <td class="text-end">@r.TraditionalGrowth</td>
-                        <td class="text-end">0</td>
-                        <td class="text-end">@r.TraditionalBalance</td>
-                        <td class="text-end">@r.RothPrincipal</td>
-                        <td class="text-end">@r.RothGrowth</td>
-                        <td class="text-end">0</td>
-                        <td class="text-end">@r.RothBalance</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+
+                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxPrincipal)</td>
+                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxGrowth)</td>
+                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxPreTaxBalance)</td>
+                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxTaxes)</td>
+                        <td class="text-end bucket-post">@FormatMoney(r.PostTaxBalance)</td>
+
+                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalPrincipal)</td>
+                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalGrowth)</td>
+                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalTaxes)</td>
+                        <td class="text-end bucket-trad">@FormatMoney(r.TraditionalBalance)</td>
+
+                        <td class="text-end bucket-roth">@FormatMoney(r.RothPrincipal)</td>
+                        <td class="text-end bucket-roth">@FormatMoney(r.RothGrowth)</td>
+                        <td class="text-end bucket-roth">@FormatMoney(r.RothTaxes)</td>
+                        <td class="text-end bucket-roth">@FormatMoney(r.RothBalance)</td>
+
+                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxPrincipal + r.TraditionalPrincipal + r.RothPrincipal)</td>
+                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxGrowth + r.TraditionalGrowth + r.RothGrowth)</td>
+                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxPreTaxBalance + r.TraditionalBalance + r.RothBalance)</td>
+                        <td class="text-end bucket-total">@FormatMoney(r.PostTaxTaxes + r.TraditionalTaxes + r.RothTaxes)</td>
+                        <td class="text-end bucket-total">@FormatMoney(r.TotalEndOfYear)</td>
+                     </tr>
+                 }
+             </tbody>
+         </table>
+     </div>
+ }
 
 @code {
     // Inputs
@@ -232,6 +259,7 @@
         public decimal PostTaxPrincipal { get; set; }
         public decimal PostTaxGrowth { get; set; }
         public decimal PostTaxTaxes { get; set; }
+        public decimal PostTaxPreTaxBalance { get; set; }
         public decimal PostTaxBalance { get; set; }
 
         public decimal TraditionalPrincipal { get; set; }
@@ -439,6 +467,8 @@
                 }
             }
 
+            // capture pre-tax balance before taxes (even if zero)
+            var postPreTaxBalance = postBal;
             // Taxes for taxable (post-tax) bucket - approximate using default distribution and tax rates
             if (post != null && post.Included)
             {
@@ -451,6 +481,9 @@
                 postYearTaxes = taxes;
                 postBal -= taxes;
             }
+
+            // store pre-tax balance
+            row.PostTaxPreTaxBalance = Math.Round(postPreTaxBalance, 2);
 
             // traditional and roth taxes assumed zero during accumulation
 
@@ -471,6 +504,14 @@
 
             YearlyGrid.Add(row);
         }
+    }
+
+    private decimal GetFinalProjectedTotal()
+    {
+        var sum = BucketResults.Where(x => x.Included).Sum(x => x.ProjectedFV);
+        if (sum == 0m && YearlyGrid.Any())
+            return Math.Round(YearlyGrid.Last().TotalEndOfYear, 2);
+        return Math.Round(sum, 2);
     }
 
     // convert annual growth rate to equivalent monthly growth

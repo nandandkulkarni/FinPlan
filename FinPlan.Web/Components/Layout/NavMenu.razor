@@ -120,22 +120,19 @@
 
         <!-- Authentication links -->
         <div class="nav-item px-3 mt-3">
-            @if (User?.Identity?.IsAuthenticated ?? false)
-            {
-                <div class="nav-link">
-                    <span class="bi bi-person-circle" aria-hidden="true"></span>
-                    @User.Identity.Name
-                </div>
-                <div class="nav-link" style="cursor:pointer;" @onclick="SignOut">
-                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Sign out
-                </div>
-            }
-            else
-            {
-                <div class="nav-link" style="cursor:pointer;" @onclick="SignInWithGoogle">
-                    <span class="bi bi-google" aria-hidden="true"></span> Sign in (Google)
-                </div>
-            }
+            <AuthorizeView>
+                <Authorized Context="auth">
+                    <div class="d-flex align-items-center">
+                        <span class="me-2"><span class="bi bi-person-circle" aria-hidden="true"></span> Hello, <strong>@GetDisplayName(auth.User)</strong></span>
+                        <a class="btn btn-sm btn-outline-secondary ms-2" @onclick="SignOut" style="cursor:pointer;">Sign out</a>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="nav-link" style="cursor:pointer;" @onclick="SignInWithGoogle">
+                        <span class="bi bi-google" aria-hidden="true"></span> Sign in (Google)
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
 
@@ -220,5 +217,15 @@
         {
             Navigation.NavigateTo("/signout", forceLoad: true);
         }
+    }
+
+    // get best display name from claims, fallback to Identity.Name
+    string GetDisplayName(ClaimsPrincipal user)
+    {
+        if (user is null) return "User";
+        var nameClaim = user.FindFirst(c => c.Type == "name")?.Value
+                        ?? user.FindFirst(c => c.Type == "given_name")?.Value
+                        ?? user.Identity?.Name;
+        return nameClaim ?? "User";
     }
 }

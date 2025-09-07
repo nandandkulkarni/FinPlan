@@ -1,0 +1,25 @@
+﻿@* @using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        @code {
+            // get best display name from claims, fallback to Identity.Name
+            string GetDisplayName()
+            {
+                var user = auth.User;
+                var nameClaim = user.FindFirst(c => c.Type == "name")?.Value
+                ?? user.FindFirst(c => c.Type == "given_name")?.Value
+                ?? user.Identity?.Name;
+                return nameClaim ?? "User";
+            }
+        }
+
+        <div class="d-flex align-items-center">
+            <span class="me-2">Hello, <strong>@GetDisplayName()</strong></span>
+            <a class="btn btn-sm btn-outline-secondary" href="/signout">Sign out</a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <a class="btn btn-sm btn-primary" href="/signin-google-challenge">Sign in</a>
+    </NotAuthorized>
+</AuthorizeView> *@
