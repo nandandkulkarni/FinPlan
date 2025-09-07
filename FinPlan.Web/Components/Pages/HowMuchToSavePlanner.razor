@@ -1,4 +1,9 @@
-﻿@page "/howmuch-to-save-per-month"
+﻿
+
+
+
+
+@page "/howmuch-to-save-per-month"
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Forms
 @using FinPlan.Shared.Services
@@ -87,7 +92,7 @@
 
             <div class="col-12"><hr /></div>
 
-            <div class="col-12">
+          @*   <div class="col-12">
                 <div class="card p-2 mb-2">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-4">
@@ -112,7 +117,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
             <div class="col-12">
                 <button class="btn btn-sm btn-outline-secondary mb-2" type="button" @onclick="() => ShowAdvanced = !ShowAdvanced">
@@ -121,7 +126,7 @@
 
                 @if (ShowAdvanced)
                 {
-                    <div class="card p-3 mb-3">
+                    @* <div class="card p-3 mb-3">
                         <h6>Advanced settings</h6>
                         <div class="row g-2">
                             <div class="col-md-3">
@@ -147,11 +152,37 @@
                                 </div>
                             </div>
                         </div>
-                     </div>
+                     </div> *@
+                    <div class="col-12">
+                        <div class="card p-2 mb-2">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-4">
+                                    <label>Ordinary tax rate %</label>
+                                    <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                                    <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Long-term gains tax %</label>
+                                    <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                                    <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Taxable income mix</label>
+                                    <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                        <option value="Mixed">Mixed (default)</option>
+                                        <option value="Dividends">Mostly Dividends</option>
+                                        <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                        <option value="Interest">Mostly Interest/Short-Term</option>
+                                    </select>
+                                    <div class="form-text">Affects annual tax on taxable account growth</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                  }
              </div>
 
-            <div class="col-12">
+          @*   <div class="col-12">
                 <div class="card p-2 mb-2">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-4">
@@ -176,8 +207,35 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
+         @*    <div class="col-12">
+                <div class="card p-2 mb-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label>Ordinary tax rate %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
+                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Long-term gains tax %</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
+                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Taxable income mix</label>
+                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
+                                <option value="Mixed">Mixed (default)</option>
+                                <option value="Dividends">Mostly Dividends</option>
+                                <option value="LongTermGains">Mostly Long-Term Gains</option>
+                                <option value="Interest">Mostly Interest/Short-Term</option>
+                            </select>
+                            <div class="form-text">Affects annual tax on taxable account growth</div>
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+@* 
             <div class="col-12">
                 <div class="card p-2 mb-2">
                     <div class="row g-2 align-items-end">
@@ -203,34 +261,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card p-2 mb-2">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-4">
-                            <label>Ordinary tax rate %</label>
-                            <InputNumber class="form-control form-control-sm" @bind-Value="OrdinaryTaxPercent" />
-                            <div class="form-text">Default applied to Traditional withdrawals and taxable ordinary income</div>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Long-term gains tax %</label>
-                            <InputNumber class="form-control form-control-sm" @bind-Value="LTGTaxPercent" />
-                            <div class="form-text">Applied to qualified dividends & long-term gains</div>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Taxable income mix</label>
-                            <select class="form-select form-select-sm" @bind="IncomeDistributionMode">
-                                <option value="Mixed">Mixed (default)</option>
-                                <option value="Dividends">Mostly Dividends</option>
-                                <option value="LongTermGains">Mostly Long-Term Gains</option>
-                                <option value="Interest">Mostly Interest/Short-Term</option>
-                            </select>
-                            <div class="form-text">Affects annual tax on taxable account growth</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div> *@
 
             <div class="col-12 mt-2">
                 <button class="btn btn-primary me-2" type="button" @onclick="Calculate">Calculate</button>
