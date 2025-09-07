@@ -473,12 +473,18 @@
         var roth = BucketResults.FirstOrDefault(x => x.Name == "Roth");
 
         decimal postBal = 0m, tradBal = 0m, rothBal = 0m;
+        decimal postNoTaxBal = 0m; // separate balance if no taxes applied
         decimal postPmt0 = post?.InitialMonthly ?? 0m;
         decimal tradPmt0 = trad?.InitialMonthly ?? 0m;
         decimal rothPmt0 = roth?.InitialMonthly ?? 0m;
         decimal postGm = AnnualToMonthlyGrowth((post?.AnnualGrowthPercent ?? 0m));
         decimal tradGm = AnnualToMonthlyGrowth((trad?.AnnualGrowthPercent ?? 0m));
         decimal rothGm = AnnualToMonthlyGrowth((roth?.AnnualGrowthPercent ?? 0m));
+
+        // Prepare tax/distribution using user inputs
+        var dist = GetIncomeDistributionFromMode();
+        var ordinaryRate = OrdinaryTaxPercent / 100m;
+        var ltgRate = LTGTaxPercent / 100m;
 
         int totalMonths = n;
         int monthIndex = 0; // 0-based
@@ -500,10 +506,14 @@
                     postYearPrincipal += p;
                     // deposit at start of month
                     postBal += p;
+                    postNoTaxBal += p;
                     // interest
                     var i = postBal * MonthlyRate;
                     postYearGrowth += i;
                     postBal += i;
+                    // interest applied to no-tax balance as well
+                    var iNoTax = postNoTaxBal * MonthlyRate;
+                    postNoTaxBal += iNoTax;
                 }
 
                 if (trad != null && trad.Included)
@@ -527,22 +537,22 @@
                 }
             }
 
-            // capture pre-tax balance
-            var postPreTaxBalance = postBal;
-            // Taxes for taxable (post-tax) bucket - approximate using default distribution and tax rates
+            // capture no-tax cumulative balance (what taxable bucket would be if taxes were never applied)
+            var postPreTaxBalance = postNoTaxBal;
+
+            // Taxes for taxable (post-tax) bucket - use user inputs
             if (post != null && post.Included)
             {
-                var dist = DEFAULT_INCOME_DISTRIBUTION;
                 var qual = postYearGrowth * dist.q;
                 var nonq = postYearGrowth * dist.nonq;
                 var lt = postYearGrowth * dist.lt;
                 var st = postYearGrowth * dist.st;
-                var taxes = qual * DEFAULT_LTG_TAX + (nonq + st) * DEFAULT_ORDINARY_TAX + lt * DEFAULT_LTG_TAX;
+                var taxes = qual * ltgRate + (nonq + st) * ordinaryRate + lt * ltgRate;
                 postYearTaxes = taxes;
                 postBal -= taxes;
             }
 
-            // store pre-tax balance
+            // store no-tax balance (what the taxable bucket would be if no taxes were ever applied)
             row.PostTaxPreTaxBalance = Math.Round(postPreTaxBalance, 2);
 
             // traditional and roth taxes assumed zero during accumulation
