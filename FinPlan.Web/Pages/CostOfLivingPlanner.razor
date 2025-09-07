@@ -246,13 +246,30 @@
 
 <p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
 
+<!-- Save status indicator -->
+<div class="d-flex align-items-center mb-2">
+    @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
+    {
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></div>
+        <span class="small text-muted">Saving…</span>
+    }
+    else if (!string.IsNullOrEmpty(lastSaveMessage))
+    {
+        <span class="small text-success">@lastSaveMessage</span>
+    }
+    else if (!string.IsNullOrEmpty(saveErrorMessage))
+    {
+        <span class="small text-danger">Save error: @saveErrorMessage</span>
+    }
+</div>
+
 <!-- Tab Navigation -->
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs mb-3" role="tablist">
     @foreach (var t in Tabs)
     {
         // add active class on li so highlight can wrap both label and actions
-        <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")">
-            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" @onclick="() => OnTabClick(t)">
+        <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
+            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == t ? "true" : "false")" tabindex="0" @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)" @onclick="() => OnTabClick(t)">
                 @GetTabLabel(t)
             </button>
 
@@ -261,17 +278,17 @@
             {
                 <div class="d-flex align-items-center ms-2">
                     <input class="form-control form-control-sm" style="width:160px;" @bind="TabHeaders[t]" @onkeydown="(KeyboardEventArgs e) => HandleHeaderKey(e, t)" />
-                    <button class="btn tab-action-btn btn-primary ms-2" @onclick="() => SaveTabHeader(t)">Save</button>
-                    <button class="btn tab-action-btn btn-secondary ms-1" @onclick="() => CancelEdit(t)">Cancel</button>
+                    <button class="btn tab-action-btn btn-primary ms-2" @onclick="() => SaveTabHeader(t)" disabled="@isSaving">Save</button>
+                    <button class="btn tab-action-btn btn-secondary ms-1" @onclick="() => CancelEdit(t)" disabled="@isSaving">Cancel</button>
                 </div>
             }
             else
             {
                 <div class="d-flex align-items-center ms-2">
-                    <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)">
+                    <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)" disabled="@isSaving">
                         <span class="bi bi-pencil-square"></span>
                     </button>
-                    <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)">
+                    <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)" disabled="@isSaving">
                         <span class="bi bi-trash-fill"></span>
                     </button>
                 </div>
@@ -279,7 +296,7 @@
         </li>
     }
     <li class="nav-item">
-        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@isAddingTab">+
+        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">+
         </button>
     </li>
 </ul>   
@@ -297,7 +314,7 @@
     <div class="add-category-bar">
         <div class="d-flex align-items-center add-category-input">
             <input class="form-control form-control-sm" placeholder="New category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKey" />
-            <button class="btn btn-primary btn-sm ms-2" type="button" @onclick="AddCategory">Add Category</button>
+            <button class="btn btn-primary btn-sm ms-2" type="button" @onclick="AddCategory" disabled="@isSaving">Add Category</button>
         </div>
 
         <div class="text-muted small ms-2">or</div>
@@ -311,7 +328,7 @@
                 }
                 <option value="@NewCategorySentinel">-- New category --</option>
             </InputSelect>
-            <button class="btn btn-success btn-sm ms-2" @onclick="AddRow">Add item</button>
+            <button class="btn btn-success btn-sm ms-2" @onclick="AddRow" disabled="@isSaving">Add item</button>
         </div>
     </div>
 
@@ -357,7 +374,7 @@
                 <tr class="table-active">
                     <td style="width:40px; vertical-align:middle;">
                         <!--0-->
-                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)">
+                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
                             <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                         </button>
                     </td>
@@ -398,7 +415,7 @@
                         <tr>
                             <td style="width:40px; vertical-align:middle;">
                                 <!-- subtle minus button: text-only and muted -->
-                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">
+                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
                                     <span class="icon-muted">−</span>
                                 </button>
 @*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
@@ -494,6 +511,21 @@
     </div>
 }
 
+@* Undo toast for recent removals *@
+@if (showUndoToast)
+{
+    <div style="position:fixed; right:16px; bottom:16px; z-index:1060;">
+        <div class="card shadow-sm" style="min-width:220px;">
+            <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                <div class="small text-truncate me-2">Item removed</div>
+                <div>
+                    <button class="btn btn-sm btn-link" @onclick="UndoRemove">Undo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @* Timeout / retry modal *@
 @if (showTimeoutModal)
 {
@@ -524,6 +556,11 @@
     private decimal InflationRate { get; set; } = 2.5m;
 
     private bool isLoading = false;
+
+    // Saving state for UI
+    private bool isSaving = false;
+    private string lastSaveMessage = string.Empty;
+    private string saveErrorMessage = string.Empty;
 
     // Only dynamic tabs; start with a single default plan (plan-a)
     private string activeTab = "plan-a"; // Track active tab for UI highlighting
@@ -596,6 +633,27 @@
         else if (e.Key == "Escape")
         {
             CancelEdit(tab);
+        }
+    }
+
+    private void HandleTabKey(KeyboardEventArgs e, string tab)
+    {
+        if (e == null) return;
+
+        if (e.Key == "ArrowLeft" || e.Key == "ArrowRight")
+        {
+            var list = Tabs.ToList();
+            if (list.Count <= 1) return;
+            var idx = list.IndexOf(tab);
+            if (idx < 0) idx = 0;
+            idx = e.Key == "ArrowLeft" ? (idx - 1 + list.Count) % list.Count : (idx + 1) % list.Count;
+            var next = list[idx];
+            // navigate visually and load data
+            _ = OnTabClick(next);
+        }
+        else if (e.Key == "Enter" || e.Key == " ")
+        {
+            _ = OnTabClick(tab);
         }
     }
 
@@ -1017,9 +1075,9 @@
         };
 
         // insert at end of that category's block (just add; rendering sorts by Subcategory)
-        Items.Add(newItem);
-        StateHasChanged();
-        ScheduleAutosave();
+    Items.Add(newItem);
+    StateHasChanged();
+    ScheduleAutosave();
     }
 
     private void ToggleCollapse(string category)
@@ -1104,12 +1162,69 @@
         ScheduleAutosave();
     }
 
+    // remove with undo support
+    private CostItem? lastRemovedItem = null;
+    private int lastRemovedIndex = -1;
+    private System.Timers.Timer? undoTimer;
+    private bool showUndoToast = false;
+
     private void RemoveItem(int index)
     {
         if (index >= 0 && index < Items.Count)
         {
+            lastRemovedIndex = index;
+            lastRemovedItem = Items[index];
             Items.RemoveAt(index);
+
+            showUndoToast = true;
+            StateHasChanged();
+
+            // start undo timer; if expires, finalize by saving
+            if (undoTimer == null)
+            {
+                undoTimer = new System.Timers.Timer(5000);
+                undoTimer.AutoReset = false;
+                undoTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        showUndoToast = false;
+                        await InvokeAsync(async () => await SaveToApi());
+                        lastRemovedItem = null;
+                        lastRemovedIndex = -1;
+                        StateHasChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"undoTimer elapsed exception: {ex.Message}");
+                    }
+                };
+            }
+            else
+            {
+                undoTimer.Stop();
+                undoTimer.Interval = 5000;
+            }
+            undoTimer.Start();
+        }
+    }
+
+    private void UndoRemove()
+    {
+        if (lastRemovedItem != null)
+        {
+            var insertIndex = Math.Min(Math.Max(0, lastRemovedIndex), Items.Count);
+            Items.Insert(insertIndex, lastRemovedItem);
+            lastRemovedItem = null;
+            lastRemovedIndex = -1;
+            showUndoToast = false;
+            if (undoTimer != null)
+            {
+                try { undoTimer.Stop(); undoTimer.Dispose(); } catch { }
+                undoTimer = null;
+            }
             ScheduleAutosave();
+            StateHasChanged();
         }
     }
 
@@ -1136,6 +1251,11 @@
     private async Task SaveToApi()
     {
         Log("SaveToApi start");
+        isSaving = true;
+        saveErrorMessage = string.Empty;
+        lastSaveMessage = string.Empty;
+        InvokeAsync(StateHasChanged);
+
         var apiBaseUrl = GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/CostOfLiving/save";
 
@@ -1183,17 +1303,25 @@
             {
                 await JSRuntime.InvokeVoidAsync("console.log", "Saved Cost of Living");
                 Log("SaveToApi success");
+                lastSaveMessage = $"Saved {DateTime.Now:T}";
             }
             else
             {
                 await JSRuntime.InvokeVoidAsync("console.error", $"Save failed: {response.StatusCode}");
                 LogError($"SaveToApi failed status: {response.StatusCode}");
+                saveErrorMessage = $"{response.StatusCode}";
             }
         }
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("console.error", $"Error saving: {ex.Message}");
             LogError($"SaveToApi exception: {ex.Message}");
+            saveErrorMessage = ex.Message;
+        }
+        finally
+        {
+            isSaving = false;
+            InvokeAsync(StateHasChanged);
         }
     }
 
@@ -1283,8 +1411,14 @@
     {
         if (autosaveTimer != null)
         {
-            autosaveTimer.Dispose();
+            try { autosaveTimer.Dispose(); } catch { }
             autosaveTimer = null;
+        }
+
+        if (undoTimer != null)
+        {
+            try { undoTimer.Dispose(); } catch { }
+            undoTimer = null;
         }
     }
 
