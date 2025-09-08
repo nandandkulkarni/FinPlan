@@ -418,15 +418,7 @@
 
 </style>
 
-<!-- Summary Dashboard -->
-<div class="card mb-3 shadow-sm" style="max-width:600px;">
-    <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-        <div>
-            <div class="fw-bold">Total Current: <span class="text-primary">@FormatCurrency(TotalCurrent)</span></div>
-            <div class="fw-bold">Retirement: <span class="text-success">@FormatCurrency(TotalRetirement)</span></div>
-        </div>
-    </div>
-</div>
+
 
 <style>
     .stepper-step {
@@ -527,11 +519,54 @@
     </div>
     <!-- Spacer to push next controls to right -->
     <div class="flex-grow-1"></div>
-    <!-- Add Category Button -->
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-primary btn-sm" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">+ Add Category</button>
+    <!-- Add Category Button with divider and pill style -->
+    <div class="d-flex align-items-center gap-2 ms-2">
+        <span class="vr mx-2" style="height:32px; background:#e3e3e3; width:2px; display:inline-block;"></span>
+        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">
+            <span class="bi bi-plus-lg me-1"></span> Add Category
+        </button>
     </div>
 </div>
+
+
+<!-- Totals Strip: Current and Retirement side by side -->
+<div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
+    <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+        <span class="totals-label">Current Total</span>
+        <span class="totals-value">@FormatCurrency(TotalCurrent)</span>
+    </div>
+    <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+        <span class="totals-label">Retirement Total</span>
+        <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
+    </div>
+</div>
+
+<style>
+.totals-strip {
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.totals-box {
+    min-width: 180px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1.5px solid #e3e3e3;
+    transition: box-shadow 0.2s;
+}
+.totals-label {
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0.92;
+    letter-spacing: 0.01em;
+}
+.totals-value {
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-top: 2px;
+}
+</style>
 
 
 <!-- Add Category Modal (root level for correct binding) -->
