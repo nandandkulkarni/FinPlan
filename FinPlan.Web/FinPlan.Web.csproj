@@ -22,8 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Components\" />
-    <Folder Include="Components\Custom\" />
     <Folder Include="Components\Models\" />
     <Folder Include="Models\" />
   </ItemGroup>

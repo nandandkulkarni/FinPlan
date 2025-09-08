@@ -1,45 +1,73 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <CascadingAuthenticationState>
-            <NavMenu />
-        </CascadingAuthenticationState>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="">Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+            <!-- Savings Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="savingsDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Wealth Building
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="savingsDropdown">
+                    <li><NavLink class="dropdown-item" href="/wealth-journey">Wealth Journey</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/howmuch-to-save-per-month">Goal-Based Savings</NavLink></li>
+                </ul>
+            </li>
+            <!-- Spending Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="spendingDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Retire Early
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="spendingDropdown">
+                    <li><NavLink class="dropdown-item" href="/retirement-fire">Financial Independence, Retire Early</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/living-cost">Living Cost Estimator</NavLink></li>
+                </ul>
+            </li>
+            <!-- About Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    About
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                    <li><NavLink class="dropdown-item" href="/team">Team</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/disclaimer">Disclaimer</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/terms-of-use">Terms of Use</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/contact">Contact Us</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/privacy-policy">Privacy Policy</NavLink></li>
+                </ul>
+            </li>
+            <!-- Other Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="otherDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Other
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="otherDropdown">
+                    <li><NavLink class="dropdown-item" href="other/option1">Other Option 1</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="other/option2">Other Option 2</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="other/option3">Other Option 3</NavLink></li>
+                </ul>
+            </li>
+        </ul>
     </div>
+</nav>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <!-- Top ad banner reserved spot (responsive) -->
-        <div class="ad-banner-placeholder" data-ad-type="banner" aria-hidden="true" title="Ad banner placeholder">
-            <div class="ad-placeholder">Top banner ad</div>
-        </div>
-
-        <div class="content-rail d-flex">
-            <article class="content px-4">
-                @Body
-
-                <!-- example in-content native ad placeholder (between sections) -->
-                <div class="ad-inline-placeholder" data-ad-type="native" aria-hidden="true">In-content native ad</div>
-
-            </article>
-
-            <!-- Right rail for desktop ads; hidden on small screens -->
-            <aside class="right-rail d-none d-lg-block">
-                <div class="ad-sidebar-placeholder ad-placeholder" data-ad-type="sidebar" aria-hidden="true" title="Right rail ad">Right rail ad</div>
-            </aside>
-        </div>
-
-        <!-- Mobile sticky bottom ad (hidden on large screens) -->
-        <div class="mobile-sticky-ad d-lg-none" aria-hidden="true" data-ad-type="mobile-sticky">
-            <div class="ad-placeholder small">Mobile sticky ad</div>
-        </div>
-
-    </main>
-</div>
+<main>
+    <div class="content-rail d-flex">
+        <article class="content px-4">
+            @Body
+        </article>
+    </div>
+</main>
 
 <!-- Consent banner -->
 <div id="consent-banner" style="display:none; position:fixed; right:16px; bottom:16px; z-index:1050; max-width:420px;">
