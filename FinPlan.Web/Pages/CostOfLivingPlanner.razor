@@ -1,3 +1,12 @@
+<style>
+.grid-yellow-bg {
+    background: #FFF9DB;
+    border-radius: 1.25rem;
+    border: 1px solid #FFD600;
+    box-shadow: 0 2px 8px rgba(255,214,0,0.07);
+    padding: 1.25rem 1rem;
+}
+</style>
 
 
     // Stub for View Details modal to resolve CS0103 error
@@ -637,33 +646,33 @@
             var expanded = !IsCollapsed(groupKey);
             var collapseId = $"catCollapse_{catIdx}";
             <div class="card mb-2">
-                <div class="card-header d-flex align-items-center justify-content-between" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
-                    <div>
-                        <span class="me-2">@groupKey</span>
-                        <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
-                        <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
-                    </div>
-                    <div>
-                        <button class="btn btn-success btn-sm me-2" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">+</button>
-                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
-                            <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
+                    <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
+                        <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                    </button>
+                    <span class="me-2">@groupKey</span>
+                    <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
+                    <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+                    <div class="ms-auto">
+                        <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
+                            <span class="bi bi-plus"></span> Add Item
                         </button>
                     </div>
                 </div>
                 <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
-                    <div class="card-body p-2">
+                    <div class="card-body p-2 grid-yellow-bg rounded-4">
                         <table class="table table-sm mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width:40px;">&nbsp;</th>
-                                    <th style="width:120px;">Frequency<br/>Units</th>
-                                    <th style="width:140px;">Subcategory</th>
-                                    <th style="width:140px;">$Per Unit</th>
-                                    <th style="width:140px;">$Per Month</th>
-                                    <th style="width:320px;">Retirement Adjust</th>
-                                    <th style="width:160px;">Inflation</th>
-                                    <th style="width:60px;">Incl.</th>
-                                    <th style="width:180px;">Retirement Value</th>
+                                    <th class="fw-semibold text-center align-middle" style="width:40px;">&nbsp;</th>
+                                    <th class="fw-semibold text-center align-middle" style="width:120px;">Frequency<br/><span class="small">(Units)</span></th>
+                                    <th class="fw-semibold text-center align-middle" style="width:140px;">Subcategory</th>
+                                    <th class="fw-semibold text-end align-middle" style="width:140px;">Per Unit<br/><span class="small">($)</span></th>
+                                    <th class="fw-semibold text-end align-middle" style="width:140px;">Per Month<br/><span class="small">($)</span></th>
+                                    <th class="fw-semibold text-center align-middle" style="width:320px;">Retirement<br/>Adjustment</th>
+                                    <th class="fw-semibold text-center align-middle" style="width:160px;">Inflation<br/><span class="small">Rate (%)</span></th>
+                                    <th class="fw-semibold text-center align-middle" style="width:60px;">Included?</th>
+                                    <th class="fw-semibold text-end align-middle" style="width:180px;">Retirement<br/>Value ($)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -678,14 +687,14 @@
                                                 </button>
                                             </div>
                                         </td>
-                                        <td style="width:120px; vertical-align:top;">@item.Frequency</td>
-                                        <td>@item.Subcategory</td>
-                                        <td style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
-                                        <td style="width:140px; vertical-align:top; text-align:right;">
-                                            <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
+                                        <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
+                                        <td class="text-center align-middle">@item.Subcategory</td>
+                                        <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                                        <td class="text-end align-middle" style="width:140px;">
+                                            <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</span>
                                         </td>
-                                        <td style="width:320px;">@item.AdjustOption</td>
-                                        <td style="width:160px; vertical-align:middle;">
+                                        <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
+                                        <td class="text-center align-middle" style="width:160px;">
                                             @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
                                             {
                                                 @item.PerItemInflationSource
@@ -695,11 +704,11 @@
                                                 }
                                             }
                                         </td>
-                                        <td style="width:60px; vertical-align:middle; text-align:center;">
+                                        <td class="text-center align-middle" style="width:60px;">
                                             <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
                                         </td>
-                                        <td style="width:180px; vertical-align:middle;">
-                                            <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
+                                        <td class="text-end align-middle" style="width:180px;">
+                                            <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
                                         </td>
                                         <td style="width:80px; vertical-align:middle;">
                                             <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenViewModal(idx)">View Details</button>
