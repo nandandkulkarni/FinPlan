@@ -555,7 +555,12 @@
         <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
     </div>
 </div>
-
+<div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
+        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+    </button>
+</div>
 <style>
 .totals-strip {
     width: 100%;
@@ -620,7 +625,7 @@
         var expanded = !IsCollapsed(groupKey);
         var collapseId = $"catCollapse_{catIdx}";
         <div class="card mb-2">
-            <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
+            <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)" title="@(expanded ? "Click to collapse" : "Click to expand")">
                 <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                 </button>
@@ -768,6 +773,13 @@
         </div>
     </div>
 }
+
+<div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
+        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+    </button>
+</div>
 
 @code {
     // Ghost tab creation modal state
@@ -1840,5 +1852,29 @@
     {
         var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Remove this category and all its items? This action cannot be undone.");
         if (ok) RemoveCategory(category);
+    }
+
+    private void CollapseAllCategories()
+    {
+        collapsed = new HashSet<string>(Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct());
+    }
+
+    private void ToggleCollapseAllCategories()
+    {
+        if (AnyCategoryExpanded())
+        {
+            // Collapse all
+            collapsed = new HashSet<string>(Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct());
+        }
+        else
+        {
+            // Expand all
+            collapsed.Clear();
+        }
+    }
+    private bool AnyCategoryExpanded()
+    {
+        var allCategories = Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct();
+        return allCategories.Any(c => !collapsed.Contains(c));
     }
 }
