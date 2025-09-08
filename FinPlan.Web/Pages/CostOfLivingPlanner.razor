@@ -568,6 +568,7 @@
 </ul>   
 
 <!-- Planner Controls Strip -->
+
 <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3">
     <!-- Years to Retirement -->
     <div class="d-flex align-items-center gap-2">
@@ -579,6 +580,8 @@
         <span class="fw-semibold">Inflation Rate (%):</span>
         <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
     </div>
+    <!-- Spacer to push next controls to right -->
+    <div class="flex-grow-1"></div>
     <!-- Add Category Button -->
     <div class="d-flex align-items-center gap-2">
         <button class="btn btn-primary btn-sm" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">+ Add Category</button>
