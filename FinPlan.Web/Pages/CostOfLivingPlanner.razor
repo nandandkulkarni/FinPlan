@@ -1,3 +1,93 @@
+    // Stub for View Details modal to resolve CS0103 error
+    private void OpenViewModal(int idx)
+    {
+        // TODO: Implement details modal logic
+    }
+                    <div class="mb-3">
+                        <label for="modalAdjustOption" class="form-label">Retirement Adjust</label>
+                        <select id="modalAdjustOption" class="form-select" @bind="modalAdjustOption">
+                            <option value="Same">Same</option>
+                            <option value="CustomPercentage">Custom %</option>
+                            <option value="Manual">Manual</option>
+                            <option value="AdjustForInflation">Adjust for Inflation</option>
+                        </select>
+                    </div>
+                    @if (modalAdjustOption == "CustomPercentage")
+                    {
+                        <div class="mb-3">
+                            <label for="modalCustomPercentage" class="form-label">Custom %</label>
+                            <input id="modalCustomPercentage" class="form-control" type="number" step="1" min="0" @bind="modalCustomPercentage" />
+                        </div>
+                    }
+                    @if (modalAdjustOption == "Manual")
+                    {
+                        <div class="mb-3">
+                            <label for="modalManualRetirementValue" class="form-label">Manual Retirement Value</label>
+                            <input id="modalManualRetirementValue" class="form-control" type="number" step="0.01" @bind="modalManualRetirementValue" />
+                        </div>
+                    }
+                    @if (modalAdjustOption == "AdjustForInflation")
+                    {
+                        <div class="mb-3">
+                            <label for="modalInflationSource" class="form-label">Inflation Source</label>
+                            <select id="modalInflationSource" class="form-select" @bind="modalPerItemInflationSource">
+                                <option value="UseGlobal">Global</option>
+                                <option value="Custom">Custom</option>
+                            </select>
+                        </div>
+                        @if (modalPerItemInflationSource == "Custom")
+                        {
+                            <div class="mb-3">
+                                <label for="modalPerItemInflationPercent" class="form-label">Custom Inflation %</label>
+                                <input id="modalPerItemInflationPercent" class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+                            </div>
+                        }
+                    }
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
+                        <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalCurrentValue" class="form-label">Current Value</label>
+                        <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
+                    </div>
+@* Edit Item Modal *@
+@if (showEditModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Item</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modalSubcategory" class="form-label">Subcategory</label>
+                        <input id="modalSubcategory" class="form-control" @bind="modalSubcategory" placeholder="Enter subcategory" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalFrequency" class="form-label">Frequency</label>
+                        <select id="modalFrequency" class="form-select" @bind="modalFrequency">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalCurrentValue" class="form-label">Current Value</label>
+                        <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveEditModal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index:1999;"></div>
+}
 @page "/living-cost"
 @using FinPlan.Shared.Models.LivingCosts
 @using FinPlan.Web.Components
@@ -242,9 +332,67 @@
     .table-container table { margin-bottom: 0; }
 
 </style>
-<h3>Cost of Living</h3>
 
-<p>Enter your current breakdown of costs. Use categories and subcategories (standard defaults provided). Four columns: Heading, Current Value, Retirement Adjust, Retirement Value.</p>
+<!-- Summary Dashboard -->
+<div class="card mb-3 shadow-sm" style="max-width:600px;">
+    <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+        <div>
+            <div class="fw-bold">Total Current: <span class="text-primary">@FormatCurrency(TotalCurrent)</span></div>
+            <div class="fw-bold">Retirement: <span class="text-success">@FormatCurrency(TotalRetirement)</span></div>
+        </div>
+        <div class="mt-2 mt-md-0">
+            @if (TotalRetirement <= TotalCurrent * 1.1m)
+            {
+                <span class="badge bg-success fs-6">You’re on track!</span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark fs-6">Review your plan</span>
+            }
+        </div>
+    </div>
+</div>
+
+
+<!-- Stepper / Progress Bar -->
+<nav aria-label="Progress" class="mb-3">
+    <ol class="stepper d-flex flex-row list-unstyled justify-content-between align-items-center" style="max-width:600px; margin:0 auto;">
+        <li class="stepper-step text-center flex-fill">
+            <div class="stepper-circle bg-primary text-white">1</div>
+            <div class="small">Categories</div>
+        </li>
+        <li class="stepper-line flex-fill"></li>
+        <li class="stepper-step text-center flex-fill">
+            <div class="stepper-circle bg-primary text-white">2</div>
+            <div class="small">Values</div>
+        </li>
+        <li class="stepper-line flex-fill"></li>
+        <li class="stepper-step text-center flex-fill">
+            <div class="stepper-circle bg-primary text-white">3</div>
+            <div class="small">Adjust</div>
+        </li>
+        <li class="stepper-line flex-fill"></li>
+        <li class="stepper-step text-center flex-fill">
+            <div class="stepper-circle bg-primary text-white">4</div>
+            <div class="small">Review</div>
+        </li>
+    </ol>
+</nav>
+
+<style>
+    .stepper-step { min-width: 80px; }
+    .stepper-circle {
+        width: 32px; height: 32px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 1.1rem; margin: 0 auto 4px auto;
+    }
+    .stepper-line {
+        height: 4px; background: #e0e0e0; margin: 0 0.5rem; border-radius: 2px;
+    }
+</style>
+
+<h3>Cost of Living Planner</h3>
+<p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Totals update automatically.</p>
 
 <!-- Save status indicator -->
 <div class="d-flex align-items-center mb-2">
@@ -332,171 +480,142 @@
         </div>
     </div>
 
-    <div class="table-container">
-        <table class="table table-sm">
-        <thead>
-            <tr>
-                <th style="width:40px;">&nbsp;</th>
-                <th style="width:120px;">Frequency<br/>Units</th>
-                <th style="width:140px;">Category / Subcategory</th>
-                <th style="width:140px;">$Per Unit</th>
-                <th style="width:140px;">$Per Month</th>
-                <th style="width:320px;">Retirement Adjust</th>
-                <th style="width:160px;">Inflation</th>
-                <th style="width:60px;">Incl.</th>
-                <th style="width:180px;">Retirement Value</th>
-            </tr>
-
-            <!-- Totals row: values aligned under the appropriate numeric columns -->
-            <tr class="table-secondary">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalCurrent)</td>
-                <td style="vertical-align:middle;" class="fw-bold">@FormatCurrency(TotalPerMonth)</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style="vertical-align:middle;" class="fw-bold text-primary">@FormatCurrency(TotalRetirement)</td>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                var groups = Items.GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
-            }
-
-            @foreach (var group in groups)
-            {
-                var groupKey = group.Key ?? string.Empty;
-                var groupCurrentTotal = group.Sum(i => i.CurrentValue);
-                var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
-
-                <tr class="table-active">
-                    <td style="width:40px; vertical-align:middle;">
-                        <!--0-->
-                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
+    <div class="accordion" id="costCategoryAccordion">
+        @{
+            var groups = Items.GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
+            int catIdx = 0;
+        }
+        @foreach (var group in groups)
+        {
+            var groupKey = group.Key ?? string.Empty;
+            var groupCurrentTotal = group.Sum(i => i.CurrentValue);
+            var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
+            var expanded = !IsCollapsed(groupKey);
+            var collapseId = $"catCollapse_{catIdx}";
+            <div class="card mb-2">
+                <div class="card-header d-flex align-items-center justify-content-between" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
+                    <div>
+                        <span class="me-2">@groupKey</span>
+                        <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
+                        <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-success btn-sm me-2" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">+</button>
+                        <button class="btn btn-sm btn-soft-danger" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
                             <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                         </button>
-                    </td>
-                    <td>
-                            <!--1-->
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-link btn-sm me-2 p-0" @onclick="() => ToggleCollapse(groupKey)">
-                                @(IsCollapsed(groupKey) ? "►" : "▼")
-                            </button>
-                            <button class="btn btn-success btn-sm me-2 p-0" title="Add item" @onclick="() => AddItemToCategory(groupKey)">
-                                +
-                            </button>
-                            <input class="form-control form-control-sm fw-bold" value="@groupKey" @onchange="(ChangeEventArgs e) => UpdateGroupCategory(groupKey, e.Value?.ToString() ?? string.Empty)" />
-                        </div>
-                    </td>
-                    <td style="width:140px; vertical-align:middle;">
-                            <!--2-->
-
-                        <div class="fw-bold">2-@FormatCurrency(groupCurrentTotal)</div>
-                    </td>
-                    <td></td>
-                    <td style="width:160px;"></td>
-                    <td style="width:60px; vertical-align:middle; text-align:center;">
-                        <div class="small">@group.Count(i => i.IncludeInRetirement)</div>
-                    </td>
-                    <td style="width:180px; vertical-align:middle;">
-                        <div class="fw-bold text-primary">@FormatCurrency(groupRetirementTotal)</div>
-                    </td>
-                    <td></td>
-                </tr>
-
-                @if (!IsCollapsed(groupKey))
-                {
-                    var sortedItems = group.OrderBy(i => i.Subcategory ?? string.Empty);
-                    @foreach (var item in sortedItems)
-                    {
-                        var idx = Items.IndexOf(item);
-                        <tr>
-                            <td style="width:40px; vertical-align:middle;">
-                                <!-- subtle minus button: text-only and muted -->
-                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
-                                    <span class="icon-muted">−</span>
-                                </button>
-@*                                 <button class="btn btn-sm btn-danger" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)">−</button>
- *@                            </td>
-                            <td style="width:120px; vertical-align:top;">
-                                <InputSelect class="form-select form-select-sm" @bind-Value="item.Frequency" @onchange="() => ScheduleAutosave()">
-                                    @foreach (var f in Enum.GetValues(typeof(FinPlan.Shared.Models.LivingCosts.Frequency)).Cast<FinPlan.Shared.Models.LivingCosts.Frequency>())
-                                    {
-                                        <option value="@f">@f.ToString()</option>
-                                    }
-                                </InputSelect>
-                            </td>
-                            <td>
-                                <div>
-                                    <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
-                                </div>
-                            </td>
-                            <td style="width:140px;">
-                                <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
-                            </td>
-                            <td style="width:140px; vertical-align:top; text-align:right;">
-                                <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
-                            </td>
-                            <td style="width:320px;">
-                                <div class="retirement-adjust">
-                                <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
-                                    @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
-                                    {
-                                        if (opt.ToString() == "Remove") continue; // hide Remove from UI
-                                        <option value="@opt">@opt</option>
-                                    }
-                                </select>
-
-                                @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                    </div>
+                </div>
+                <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
+                    <div class="card-body p-2">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;">&nbsp;</th>
+                                    <th style="width:120px;">Frequency<br/>Units</th>
+                                    <th style="width:140px;">Subcategory</th>
+                                    <th style="width:140px;">$Per Unit</th>
+                                    <th style="width:140px;">$Per Month</th>
+                                    <th style="width:320px;">Retirement Adjust</th>
+                                    <th style="width:160px;">Inflation</th>
+                                    <th style="width:60px;">Incl.</th>
+                                    <th style="width:180px;">Retirement Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
                                 {
-                                    <div class="input-group input-group-sm">
-                                        <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                }
-
-                                @if (item.AdjustOption == RetirementAdjustOption.Manual)
-                                {
-                                    <div class="input-group input-group-sm" style="width:180px;">
-                                        <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
-                                        <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
-                                    </div>
-                                }
-                                </div>
-                            </td>
-                            <td style="width:160px; vertical-align:middle;">
-                                @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
-                                {
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
-                                            <option value="@InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
-                                            <option value="@InflationSource.Custom">Custom</option>
-                                        </select>
-                                        @if (item.PerItemInflationSource == InflationSource.Custom)
-                                        {
-                                            <div class="input-group input-group-sm" style="width:120px;">
-                                                <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
-                                                <span class="input-group-text">%</span>
+                                    var idx = Items.IndexOf(item);
+                                    <tr>
+                                        <td style="width:40px; vertical-align:middle;">
+                                            <div class="d-flex flex-column gap-1">
+                                                <button class="btn btn-sm btn-subtle" title="Edit item" aria-label="Edit item" @onclick="() => OpenEditModal(idx)" disabled="@isSaving">
+                                                    <span class="bi bi-pencil"></span>
+                                                </button>
+                                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
+                                                    <span class="icon-muted">−</span>
+                                                </button>
                                             </div>
-                                        }
-                                    </div>
-                                }
-                            </td>
-                            <td style="width:60px; vertical-align:middle; text-align:center;">
-                                <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" @oninput="ScheduleAutosave" />
-                            </td>
-                            <td style="width:180px; vertical-align:middle;">
-                                <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
-                            </td>
+                                        </td>
+                                        <td style="width:120px; vertical-align:top;">
+                                            <InputSelect class="form-select form-select-sm" @bind-Value="item.Frequency" @onchange="() => ScheduleAutosave()">
+                                                @foreach (var f in Enum.GetValues(typeof(FinPlan.Shared.Models.LivingCosts.Frequency)).Cast<FinPlan.Shared.Models.LivingCosts.Frequency>())
+                                                {
+                                                    <option value="@f">@f.ToString()</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
+                                            </div>
+                                        </td>
+                                        <td style="width:140px;">
+                                            <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
+                                        </td>
+                                        <td style="width:140px; vertical-align:top; text-align:right;">
+                                            <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
+                                        </td>
+                                        <td style="width:320px;">
+                                            <div class="retirement-adjust">
+                                            <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
+                                                @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
+                                                {
+                                                    if (opt.ToString() == "Remove") continue; // hide Remove from UI
+                                                    <option value="@opt">@opt</option>
+                                                }
+                                            </select>
 
-                        </tr>
-                    }
-                }
-            }
-        </tbody>
-        </table>
+                                            @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                            {
+                                                <div class="input-group input-group-sm">
+                                                    <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            }
+
+                                            @if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                            {
+                                                <div class="input-group input-group-sm" style="width:180px;">
+                                                    <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
+                                                    <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
+                                                </div>
+                                            }
+                                            </div>
+                                        </td>
+                                        <td style="width:160px; vertical-align:middle;">
+                                            @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
+                                            {
+                                                <div class="d-flex gap-2 align-items-center">
+                                                    <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
+                                                        <option value="@InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
+                                                        <option value="@InflationSource.Custom">Custom</option>
+                                                    </select>
+                                                    @if (item.PerItemInflationSource == InflationSource.Custom)
+                                                    {
+                                                        <div class="input-group input-group-sm" style="width:120px;">
+                                                            <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
+                                                            <span class="input-group-text">%</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </td>
+                                        <td style="width:60px; vertical-align:middle; text-align:center;">
+                                            <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" @oninput="ScheduleAutosave" />
+                                        </td>
+                                        <td style="width:180px; vertical-align:middle;">
+                                            <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            catIdx++;
+        }
     </div>
 </EditForm>
 
@@ -550,6 +669,75 @@
 }
 
 @code {
+    // Edit Item Modal state
+    private bool showEditModal = false;
+    private int editItemIndex = -1;
+    private string modalSubcategory = string.Empty;
+    private string modalFrequency = "Monthly";
+    private decimal modalCurrentValue = 0m;
+    private string modalAdjustOption = "Same";
+    private decimal modalCustomPercentage = 0m;
+    private decimal? modalManualRetirementValue = null;
+    private string modalPerItemInflationSource = "UseGlobal";
+    private decimal modalPerItemInflationPercent = 0m;
+    private bool modalIncludeInRetirement = true;
+
+    private void OpenEditModal(int idx)
+    {
+        if (idx >= 0 && idx < Items.Count)
+        {
+            editItemIndex = idx;
+            var item = Items[idx];
+            modalSubcategory = item.Subcategory ?? string.Empty;
+            modalFrequency = item.Frequency.ToString();
+            modalCurrentValue = item.CurrentValue;
+            modalAdjustOption = item.AdjustOption.ToString();
+            modalCustomPercentage = item.CustomPercentage;
+            modalManualRetirementValue = item.ManualRetirementValue;
+            modalPerItemInflationSource = item.PerItemInflationSource.ToString();
+            modalPerItemInflationPercent = item.PerItemInflationPercent ?? 0;
+            modalIncludeInRetirement = item.IncludeInRetirement;
+            showEditModal = true;
+        }
+    }
+
+    private void CloseEditModal()
+    {
+        showEditModal = false;
+        editItemIndex = -1;
+        modalSubcategory = string.Empty;
+        modalFrequency = "Monthly";
+        modalCurrentValue = 0m;
+        modalAdjustOption = "Same";
+        modalCustomPercentage = 0m;
+        modalManualRetirementValue = null;
+        modalPerItemInflationSource = "UseGlobal";
+        modalPerItemInflationPercent = 0m;
+        modalIncludeInRetirement = true;
+    }
+
+    private void SaveEditModal()
+    {
+        if (editItemIndex >= 0 && editItemIndex < Items.Count)
+        {
+            var item = Items[editItemIndex];
+            item.Subcategory = modalSubcategory;
+            if (Enum.TryParse<FinPlan.Shared.Models.LivingCosts.Frequency>(modalFrequency, out var freq))
+                item.Frequency = freq;
+            item.CurrentValue = modalCurrentValue;
+            if (Enum.TryParse<RetirementAdjustOption>(modalAdjustOption, out var adj))
+                item.AdjustOption = adj;
+            item.CustomPercentage = modalCustomPercentage;
+            item.ManualRetirementValue = modalManualRetirementValue;
+            if (Enum.TryParse<InflationSource>(modalPerItemInflationSource, out var infl))
+                item.PerItemInflationSource = infl;
+            item.PerItemInflationPercent = modalPerItemInflationPercent;
+            item.IncludeInRetirement = modalIncludeInRetirement;
+            StateHasChanged();
+            ScheduleAutosave();
+        }
+        CloseEditModal();
+    }
     private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
     private int YearsToRetirement { get; set; } = 20;
