@@ -621,7 +621,7 @@
         var collapseId = $"catCollapse_{catIdx}";
         <div class="card mb-2">
             <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
-                <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
+                <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                 </button>
                 <span class="me-2">@groupKey</span>
@@ -656,7 +656,7 @@
                                 <tr>
                                     <td style="width:40px; vertical-align:middle;">
                                         <div class="d-flex flex-column gap-1">
-                                            <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
+                                            <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
                                                 <span class="icon-muted">−</span>
                                             </button>
                                         </div>
@@ -1828,5 +1828,17 @@
             // Show modal again with updated message
             ShowTimeout(op, $"Retry failed: {ex.Message}");
         }
+    }
+
+    private async Task ConfirmRemoveItem(int idx)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Remove this item? This action cannot be undone.");
+        if (ok) RemoveItem(idx);
+    }
+
+    private async Task ConfirmRemoveCategory(string category)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Remove this category and all its items? This action cannot be undone.");
+        if (ok) RemoveCategory(category);
     }
 }
