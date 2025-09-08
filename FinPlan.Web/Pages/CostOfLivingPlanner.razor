@@ -593,27 +593,28 @@
         </div>
     </div>
 
-    @if (showAddCategoryModal)
-    {
-        <div class="modal-backdrop fade show" style="z-index:1040"></div>
-        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add New Category</h5>
-                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input class="form-control" placeholder="Category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKeyModal" />
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
-                        <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving || string.IsNullOrWhiteSpace(NewCategoryName)">Add Category</button>
-                    </div>
+<!-- Add Category Modal (root level for correct binding) -->
+@if (showAddCategoryModal)
+{
+    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" placeholder="Category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKeyModal" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving || string.IsNullOrWhiteSpace(NewCategoryName)">Add Category</button>
                 </div>
             </div>
         </div>
-    }
+    </div>
+}
 
     <div class="accordion" id="costCategoryAccordion">
         @{
@@ -1429,12 +1430,12 @@
             IncludeInRetirement = true
         };
 
-        Items.Add(newItem);
-        RefreshCategories();
-        SelectedAddCategory = newCat;
-        CloseAddCategoryModal();
-        StateHasChanged();
-        ScheduleAutosave();
+    Items.Add(newItem);
+    RefreshCategories();
+    SelectedAddCategory = newCat;
+    StateHasChanged();
+    ScheduleAutosave();
+    CloseAddCategoryModal();
     }
 
     private void HandleAddCategoryKeyModal(KeyboardEventArgs e)
