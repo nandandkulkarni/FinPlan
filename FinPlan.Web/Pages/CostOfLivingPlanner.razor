@@ -1,67 +1,62 @@
 <style>
-.grid-yellow-bg {
-    background: #FFF9DB;
-    border-radius: 1.25rem;
-    border: 1px solid #FFD600;
-    box-shadow: 0 2px 8px rgba(255,214,0,0.07);
-    padding: 1.25rem 1rem;
-}
+    .grid-yellow-bg {
+        background: #FFF9DB;
+        border-radius: 1.25rem;
+        border: 1px solid #FFD600;
+        box-shadow: 0 2px 8px rgba(255,214,0,0.07);
+        padding: 1.25rem 1rem;
+    }
 </style>
 
 
-    // Stub for View Details modal to resolve CS0103 error
-    private void OpenViewModal(int idx)
+@* <div class="mb-3">
+    <label for="modalAdjustOption" class="form-label">Retirement Adjust</label>
+    <select id="modalAdjustOption" class="form-select" @bind="modalAdjustOption">
+        <option value="Same">Same</option>
+        <option value="CustomPercentage">Custom %</option>
+        <option value="Manual">Manual</option>
+        <option value="AdjustForInflation">Adjust for Inflation</option>
+    </select>
+</div>
+@if (modalAdjustOption == "CustomPercentage")
+{
+    <div class="mb-3">
+        <label for="modalCustomPercentage" class="form-label">Custom %</label>
+        <input id="modalCustomPercentage" class="form-control" type="number" step="1" min="0" @bind="modalCustomPercentage" />
+    </div>
+}
+@if (modalAdjustOption == "Manual")
+{
+    <div class="mb-3">
+        <label for="modalManualRetirementValue" class="form-label">Manual Retirement Value</label>
+        <input id="modalManualRetirementValue" class="form-control" type="number" step="0.01" @bind="modalManualRetirementValue" />
+    </div>
+} *@
+@* @if (modalAdjustOption == "AdjustForInflation")
+{
+    <div class="mb-3">
+        <label for="modalInflationSource" class="form-label">Inflation Source</label>
+        <select id="modalInflationSource" class="form-select" @bind="modalPerItemInflationSource">
+            <option value="UseGlobal">Global</option>
+            <option value="Custom">Custom</option>
+        </select>
+    </div>
+    @if (modalPerItemInflationSource == "Custom")
     {
-        // TODO: Implement details modal logic
+        <div class="mb-3">
+            <label for="modalPerItemInflationPercent" class="form-label">Custom Inflation %</label>
+            <input id="modalPerItemInflationPercent" class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+        </div>
     }
-                    <div class="mb-3">
-                        <label for="modalAdjustOption" class="form-label">Retirement Adjust</label>
-                        <select id="modalAdjustOption" class="form-select" @bind="modalAdjustOption">
-                            <option value="Same">Same</option>
-                            <option value="CustomPercentage">Custom %</option>
-                            <option value="Manual">Manual</option>
-                            <option value="AdjustForInflation">Adjust for Inflation</option>
-                        </select>
-                    </div>
-                    @if (modalAdjustOption == "CustomPercentage")
-                    {
-                        <div class="mb-3">
-                            <label for="modalCustomPercentage" class="form-label">Custom %</label>
-                            <input id="modalCustomPercentage" class="form-control" type="number" step="1" min="0" @bind="modalCustomPercentage" />
-                        </div>
-                    }
-                    @if (modalAdjustOption == "Manual")
-                    {
-                        <div class="mb-3">
-                            <label for="modalManualRetirementValue" class="form-label">Manual Retirement Value</label>
-                            <input id="modalManualRetirementValue" class="form-control" type="number" step="0.01" @bind="modalManualRetirementValue" />
-                        </div>
-                    }
-                    @if (modalAdjustOption == "AdjustForInflation")
-                    {
-                        <div class="mb-3">
-                            <label for="modalInflationSource" class="form-label">Inflation Source</label>
-                            <select id="modalInflationSource" class="form-select" @bind="modalPerItemInflationSource">
-                                <option value="UseGlobal">Global</option>
-                                <option value="Custom">Custom</option>
-                            </select>
-                        </div>
-                        @if (modalPerItemInflationSource == "Custom")
-                        {
-                            <div class="mb-3">
-                                <label for="modalPerItemInflationPercent" class="form-label">Custom Inflation %</label>
-                                <input id="modalPerItemInflationPercent" class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
-                            </div>
-                        }
-                    }
-                    <div class="mb-3 form-check">
-                        <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
-                        <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
-                    </div>
-                    <div class="mb-3">
-                        <label for="modalCurrentValue" class="form-label">Current Value</label>
-                        <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
-                    </div>
+} *@
+@* <div class="mb-3 form-check">
+    <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
+    <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
+</div>
+<div class="mb-3">
+    <label for="modalCurrentValue" class="form-label">Current Value</label>
+    <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
+</div> *@
 @* Details Modal: View/Edit toggle *@
 @if (showDetailsModal)
 {
@@ -243,27 +238,27 @@
         margin-right: 6px; /* small gap between tabs */
     }
 
-    /* Make non-active entire tab (li) light blue and include text + buttons */
-    .nav-tabs .nav-item:not(.tab-item-active) {
-        background: #e7f4ff; /* very light blue */
-        border-radius: 8px 8px 0 0;
-        padding: 3px 6px;
-    }
+        /* Make non-active entire tab (li) light blue and include text + buttons */
+        .nav-tabs .nav-item:not(.tab-item-active) {
+            background: #e7f4ff; /* very light blue */
+            border-radius: 8px 8px 0 0;
+            padding: 3px 6px;
+        }
 
-    /* ensure link and action buttons inside non-active li use blue styling */
-    .nav-tabs .nav-item:not(.tab-item-active) .nav-link,
-    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn {
-        background: transparent;
-        color: #0b5ed7; /* bootstrap primary blue */
-        border-color: transparent;
-    }
+            /* ensure link and action buttons inside non-active li use blue styling */
+            .nav-tabs .nav-item:not(.tab-item-active) .nav-link,
+            .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn {
+                background: transparent;
+                color: #0b5ed7; /* bootstrap primary blue */
+                border-color: transparent;
+            }
 
-    .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn.btn-soft-danger {
-        /* danger button on blue background: subtle red outline */
-        background-color: rgba(220,53,69,0.06);
-        color: #b02a37;
-        border: 1px solid rgba(176,42,55,0.08);
-    }
+                .nav-tabs .nav-item:not(.tab-item-active) .tab-action-btn.btn-soft-danger {
+                    /* danger button on blue background: subtle red outline */
+                    background-color: rgba(220,53,69,0.06);
+                    color: #b02a37;
+                    border: 1px solid rgba(176,42,55,0.08);
+                }
 
     .nav-tabs .nav-link:not(.tab-active-custom) {
         background: #fff;
@@ -279,11 +274,11 @@
         transition: background 0.12s, color 0.12s, box-shadow 0.12s;
     }
 
-    .nav-tabs .nav-link:not(.tab-active-custom):hover {
-        background: #f8f9fa;
-        color: rgba(0,0,0,0.95);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+        .nav-tabs .nav-link:not(.tab-active-custom):hover {
+            background: #f8f9fa;
+            color: rgba(0,0,0,0.95);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
 
     /* active li highlight should wrap both label and action buttons */
     .tab-item-active {
@@ -295,13 +290,13 @@
         gap: 6px;
     }
 
-    .tab-item-active .nav-link {
-        background: transparent !important;
-        border: none !important;
-        color: #222 !important;
-        font-weight: 600;
-        padding: 0.18rem 0.4rem;
-    }
+        .tab-item-active .nav-link {
+            background: transparent !important;
+            border: none !important;
+            color: #222 !important;
+            font-weight: 600;
+            padding: 0.18rem 0.4rem;
+        }
 
     /* smaller action buttons inside tabs */
     .tab-action-btn {
@@ -311,7 +306,9 @@
         border-radius: 5px;
     }
 
-    .tab-action-btn .bi { font-size: 0.95rem; }
+        .tab-action-btn .bi {
+            font-size: 0.95rem;
+        }
 
     /* softer danger button (light tint + muted text) */
     .btn-soft-danger {
@@ -375,11 +372,11 @@
         align-items: center;
     }
 
-    /* make the inner input flexible within the group */
-    .add-category-input > .form-control {
-        flex: 1 1 auto;
-        min-width: 260px;
-    }
+        /* make the inner input flexible within the group */
+        .add-category-input > .form-control {
+            flex: 1 1 auto;
+            min-width: 260px;
+        }
 
     /* Keep other controls from shrinking too small */
     .add-category-bar .form-select,
@@ -395,17 +392,19 @@
         white-space: nowrap; /* prevent inner wrapping */
     }
 
-    .retirement-adjust .form-select {
-        flex: 0 0 160px; /* fixed width for select */
-    }
+        .retirement-adjust .form-select {
+            flex: 0 0 160px; /* fixed width for select */
+        }
 
-    .retirement-adjust .input-group {
-        flex: 0 0 160px; /* fixed width for manual input when shown */
-    }
+        .retirement-adjust .input-group {
+            flex: 0 0 160px; /* fixed width for manual input when shown */
+        }
 
     /* On very small screens allow the cell to scroll horizontally rather than wrap */
     @@media (max-width: 650px) {
-        .retirement-adjust { min-width: 320px; }
+        .retirement-adjust {
+            min-width: 320px;
+        }
     }
 
     /* loading overlay styles */
@@ -431,10 +430,10 @@
         min-width: 200px;
     }
 
-    .blazor-loading-content .spinner-border {
-        width: 2.25rem;
-        height: 2.25rem;
-    }
+        .blazor-loading-content .spinner-border {
+            width: 2.25rem;
+            height: 2.25rem;
+        }
 
     /* table scroll container: keep top controls outside and make table body scrollable */
     .table-container {
@@ -444,19 +443,28 @@
         border: 1px solid transparent; /* keeps layout stable */
     }
 
-    /* make thead rows sticky so column headers stay visible while scrolling */
-    .table-container thead th {
-        position: sticky;
-        z-index: 3;
-        background: #fff; /* ensure header covers scrolled rows */
-    }
+        /* make thead rows sticky so column headers stay visible while scrolling */
+        .table-container thead th {
+            position: sticky;
+            z-index: 3;
+            background: #fff; /* ensure header covers scrolled rows */
+        }
 
-    /* if there are two header rows, offset the second under the first */
-    .table-container thead tr:nth-child(1) th { top: 0; }
-    .table-container thead tr:nth-child(2) th { top: 38px; z-index:2; background: #f8f9fa; }
+        /* if there are two header rows, offset the second under the first */
+        .table-container thead tr:nth-child(1) th {
+            top: 0;
+        }
 
-    /* ensure table layout doesn't collapse when scrolling */
-    .table-container table { margin-bottom: 0; }
+        .table-container thead tr:nth-child(2) th {
+            top: 38px;
+            z-index: 2;
+            background: #f8f9fa;
+        }
+
+        /* ensure table layout doesn't collapse when scrolling */
+        .table-container table {
+            margin-bottom: 0;
+        }
 
 </style>
 
@@ -467,54 +475,31 @@
             <div class="fw-bold">Total Current: <span class="text-primary">@FormatCurrency(TotalCurrent)</span></div>
             <div class="fw-bold">Retirement: <span class="text-success">@FormatCurrency(TotalRetirement)</span></div>
         </div>
-        <div class="mt-2 mt-md-0">
-            @if (TotalRetirement <= TotalCurrent * 1.1m)
-            {
-                <span class="badge bg-success fs-6">You’re on track!</span>
-            }
-            else
-            {
-                <span class="badge bg-warning text-dark fs-6">Review your plan</span>
-            }
-        </div>
     </div>
 </div>
 
-
-<!-- Stepper / Progress Bar -->
-<nav aria-label="Progress" class="mb-3">
-    <ol class="stepper d-flex flex-row list-unstyled justify-content-between align-items-center" style="max-width:600px; margin:0 auto;">
-        <li class="stepper-step text-center flex-fill">
-            <div class="stepper-circle bg-primary text-white">1</div>
-            <div class="small">Categories</div>
-        </li>
-        <li class="stepper-line flex-fill"></li>
-        <li class="stepper-step text-center flex-fill">
-            <div class="stepper-circle bg-primary text-white">2</div>
-            <div class="small">Values</div>
-        </li>
-        <li class="stepper-line flex-fill"></li>
-        <li class="stepper-step text-center flex-fill">
-            <div class="stepper-circle bg-primary text-white">3</div>
-            <div class="small">Adjust</div>
-        </li>
-        <li class="stepper-line flex-fill"></li>
-        <li class="stepper-step text-center flex-fill">
-            <div class="stepper-circle bg-primary text-white">4</div>
-            <div class="small">Review</div>
-        </li>
-    </ol>
-</nav>
-
 <style>
-    .stepper-step { min-width: 80px; }
-    .stepper-circle {
-        width: 32px; height: 32px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: bold; font-size: 1.1rem; margin: 0 auto 4px auto;
+    .stepper-step {
+        min-width: 80px;
     }
+
+    .stepper-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin: 0 auto 4px auto;
+    }
+
     .stepper-line {
-        height: 4px; background: #e0e0e0; margin: 0 0.5rem; border-radius: 2px;
+        height: 4px;
+        background: #e0e0e0;
+        margin: 0 0.5rem;
+        border-radius: 2px;
     }
 </style>
 
@@ -571,41 +556,30 @@
         </li>
     }
     <li class="nav-item">
-        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">+
+        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
+            +
         </button>
     </li>
-</ul>   
+</ul>
 
 <!-- Planner Controls Strip -->
 
 <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3">
     <!-- Years to Retirement -->
     <div class="d-flex align-items-center gap-2">
-        <span class="fw-semibold">Years to Retirement:</span>
-        <InputNumber class="form-control form-control-sm" style="width:80px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+        <span class="fw-semibold text-white">Years to Retirement:</span>
+        <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
     </div>
     <!-- Inflation Rate -->
     <div class="d-flex align-items-center gap-2">
-        <span class="fw-semibold">Inflation Rate (%):</span>
-        <InputNumber class="form-control form-control-sm" style="width:90px;" @bind-Value="InflationRate" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+        <span class="fw-semibold text-white">Inflation Rate (%):</span>
+        <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
     </div>
     <!-- Spacer to push next controls to right -->
     <div class="flex-grow-1"></div>
     <!-- Add Category Button -->
     <div class="d-flex align-items-center gap-2">
         <button class="btn btn-primary btn-sm" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">+ Add Category</button>
-    </div>
-    <!-- Add item to category -->
-    <div class="d-flex align-items-center gap-2">
-        <label class="small me-2 mb-0">Add item to:</label>
-        <InputSelect TValue="string" class="form-select form-select-sm" style="width:220px;" @bind-Value="SelectedAddCategory">
-            @foreach (var c in Categories)
-            {
-                <option value="@c">@c</option>
-            }
-            <option value="@NewCategorySentinel">-- New category --</option>
-        </InputSelect>
-        <button class="btn btn-success btn-sm ms-2" @onclick="AddRow" disabled="@isSaving">Add item</button>
     </div>
 </div>
 
@@ -633,96 +607,96 @@
     </div>
 }
 
-    <div class="accordion" id="costCategoryAccordion">
-        @{
-            var groups = Items.GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
-            int catIdx = 0;
-        }
-        @foreach (var group in groups)
-        {
-            var groupKey = group.Key ?? string.Empty;
-            var groupCurrentTotal = group.Sum(i => i.CurrentValue);
-            var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
-            var expanded = !IsCollapsed(groupKey);
-            var collapseId = $"catCollapse_{catIdx}";
-            <div class="card mb-2">
-                <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
-                    <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
-                        <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+<div class="accordion" id="costCategoryAccordion">
+    @{
+        var groups = Items.GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
+        int catIdx = 0;
+    }
+    @foreach (var group in groups)
+    {
+        var groupKey = group.Key ?? string.Empty;
+        var groupCurrentTotal = group.Sum(i => i.CurrentValue);
+        var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
+        var expanded = !IsCollapsed(groupKey);
+        var collapseId = $"catCollapse_{catIdx}";
+        <div class="card mb-2">
+            <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)">
+                <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => RemoveCategory(groupKey)" disabled="@isSaving">
+                    <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                </button>
+                <span class="me-2">@groupKey</span>
+                <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
+                <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+                <div class="ms-auto">
+                    <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
+                        <span class="bi bi-plus"></span> Add Item
                     </button>
-                    <span class="me-2">@groupKey</span>
-                    <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
-                    <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
-                    <div class="ms-auto">
-                        <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
-                            <span class="bi bi-plus"></span> Add Item
-                        </button>
-                    </div>
-                </div>
-                <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
-                    <div class="card-body p-2 grid-yellow-bg rounded-4">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="fw-semibold text-center align-middle" style="width:40px;">&nbsp;</th>
-                                    <th class="fw-semibold text-center align-middle" style="width:120px;">Frequency<br/><span class="small">(Units)</span></th>
-                                    <th class="fw-semibold text-center align-middle" style="width:140px;">Subcategory</th>
-                                    <th class="fw-semibold text-end align-middle" style="width:140px;">Per Unit<br/><span class="small">($)</span></th>
-                                    <th class="fw-semibold text-end align-middle" style="width:140px;">Per Month<br/><span class="small">($)</span></th>
-                                    <th class="fw-semibold text-center align-middle" style="width:320px;">Retirement<br/>Adjustment</th>
-                                    <th class="fw-semibold text-center align-middle" style="width:160px;">Inflation<br/><span class="small">Rate (%)</span></th>
-                                    <th class="fw-semibold text-center align-middle" style="width:60px;">Included?</th>
-                                    <th class="fw-semibold text-end align-middle" style="width:180px;">Retirement<br/>Value ($)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
-                                {
-                                    var idx = Items.IndexOf(item);
-                                    <tr>
-                                        <td style="width:40px; vertical-align:middle;">
-                                            <div class="d-flex flex-column gap-1">
-                                                <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
-                                                    <span class="icon-muted">−</span>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
-                                        <td class="text-center align-middle">@item.Subcategory</td>
-                                        <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
-                                        <td class="text-end align-middle" style="width:140px;">
-                                            <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</span>
-                                        </td>
-                                        <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
-                                        <td class="text-center align-middle" style="width:160px;">
-                                            @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
-                                            {
-                                                @item.PerItemInflationSource
-                                                @if (item.PerItemInflationSource == InflationSource.Custom)
-                                                {
-                                                    <span>: @item.PerItemInflationPercent%</span>
-                                                }
-                                            }
-                                        </td>
-                                        <td class="text-center align-middle" style="width:60px;">
-                                            <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
-                                        </td>
-                                        <td class="text-end align-middle" style="width:180px;">
-                                            <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
-                                        </td>
-                                        <td style="width:80px; vertical-align:middle;">
-                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenViewModal(idx)">View Details</button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
-            catIdx++;
-        }
-    </div>
+            <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
+                <div class="card-body p-2 grid-yellow-bg rounded-4">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th class="fw-semibold text-center align-middle" style="width:40px;">&nbsp;</th>
+                                <th class="fw-semibold text-center align-middle" style="width:120px;">Frequency<br /><span class="small">(Units)</span></th>
+                                <th class="fw-semibold text-center align-middle" style="width:140px;">Subcategory</th>
+                                <th class="fw-semibold text-end align-middle" style="width:140px;">Per Unit<br /><span class="small">($)</span></th>
+                                <th class="fw-semibold text-end align-middle" style="width:140px;">Per Month<br /><span class="small">($)</span></th>
+                                <th class="fw-semibold text-center align-middle" style="width:320px;">Retirement<br />Adjustment</th>
+                                <th class="fw-semibold text-center align-middle" style="width:160px;">Inflation<br /><span class="small">Rate (%)</span></th>
+                                <th class="fw-semibold text-center align-middle" style="width:60px;">Included?</th>
+                                <th class="fw-semibold text-end align-middle" style="width:180px;">Retirement<br />Value ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
+                            {
+                                var idx = Items.IndexOf(item);
+                                <tr>
+                                    <td style="width:40px; vertical-align:middle;">
+                                        <div class="d-flex flex-column gap-1">
+                                            <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
+                                                <span class="icon-muted">−</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
+                                    <td class="text-center align-middle">@item.Subcategory</td>
+                                    <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                                    <td class="text-end align-middle" style="width:140px;">
+                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</span>
+                                    </td>
+                                    <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
+                                    <td class="text-center align-middle" style="width:160px;">
+                                        @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
+                                        {
+                                            @item.PerItemInflationSource
+                                            @if (item.PerItemInflationSource == InflationSource.Custom)
+                                            {
+                                                <span>: @item.PerItemInflationPercent%</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td class="text-center align-middle" style="width:60px;">
+                                        <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
+                                    </td>
+                                    <td class="text-end align-middle" style="width:180px;">
+                                        <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
+                                    </td>
+                                    <td style="width:80px; vertical-align:middle;">
+                                        <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenViewModal(idx)">View Details</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        catIdx++;
+    }
+</div>
 
 
 @* Loading overlay shown while initial API calls are in progress *@
@@ -878,7 +852,7 @@
         }
     }
 
-    private Dictionary<string,string> TabHeaders = new Dictionary<string,string>();
+    private Dictionary<string, string> TabHeaders = new Dictionary<string, string>();
 
     // Lightweight fpDebug helpers - non-blocking
     private void Log(string message)
@@ -1369,9 +1343,9 @@
         };
 
         // insert at end of that category's block (just add; rendering sorts by Subcategory)
-    Items.Add(newItem);
-    StateHasChanged();
-    ScheduleAutosave();
+        Items.Add(newItem);
+        StateHasChanged();
+        ScheduleAutosave();
     }
 
     private void ToggleCollapse(string category)
@@ -1447,12 +1421,12 @@
             IncludeInRetirement = true
         };
 
-    Items.Add(newItem);
-    RefreshCategories();
-    SelectedAddCategory = newCat;
-    StateHasChanged();
-    ScheduleAutosave();
-    CloseAddCategoryModal();
+        Items.Add(newItem);
+        RefreshCategories();
+        SelectedAddCategory = newCat;
+        StateHasChanged();
+        ScheduleAutosave();
+        CloseAddCategoryModal();
     }
 
     private void HandleAddCategoryKeyModal(KeyboardEventArgs e)
@@ -1551,7 +1525,7 @@
     private string userGuid = Guid.NewGuid().ToString();
     private string calculatorType = "CostOfLiving_Your";
 
-     private string GetApiBaseUrl()
+    private string GetApiBaseUrl()
     {
 #if DEBUG
             return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
