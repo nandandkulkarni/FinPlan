@@ -497,9 +497,24 @@
             }
         </li>
     }
-    <li class="nav-item">
-        <button type="button" class="nav-link btn btn-sm btn-outline-primary ms-2" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
-            +
+    @{
+        // Show up to 3 ghost tabs (Plan B, C, D) if not already present
+        var ghostTabs = new List<string> { "plan-b", "plan-c", "plan-d" };
+        foreach (var ghost in ghostTabs)
+        {
+            if (!Tabs.Contains(ghost, StringComparer.OrdinalIgnoreCase))
+            {
+                <li class="nav-item ms-1">
+                    <button type="button" class="nav-link text-muted bg-light border-0" style="opacity:0.6; cursor:pointer;" title="Create this plan" @onclick="() => PromptCreateTab(ghost)">
+                        @GetTabLabel(ghost)
+                    </button>
+                </li>
+            }
+        }
+    }
+    <li class="nav-item ms-2">
+        <button type="button" class="nav-link btn btn-sm btn-primary rounded-pill px-3 fw-semibold" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
+            <span class="bi bi-plus-lg me-1"></span> Add Tab
         </button>
     </li>
 </ul>
@@ -733,8 +748,51 @@
         </div>
     </div>
 }
+@if (showCreateTabModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title">Create New Plan</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CancelCreateTab"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Would you like to create <strong>@GetTabLabel(pendingGhostTab)</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CancelCreateTab">Cancel</button>
+                    <button class="btn btn-primary" @onclick="ConfirmCreateTab">Create Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    // Ghost tab creation modal state
+    private bool showCreateTabModal = false;
+    private string pendingGhostTab = null;
+
+    private void PromptCreateTab(string ghostTab)
+    {
+        pendingGhostTab = ghostTab;
+        showCreateTabModal = true;
+    }
+
+    private async Task ConfirmCreateTab()
+    {
+        showCreateTabModal = false;
+        pendingGhostTab = null;
+        await AddNewTab();
+    }
+
+    private void CancelCreateTab()
+    {
+        showCreateTabModal = false;
+        pendingGhostTab = null;
+    }
+
     // Edit Item Modal state
     // Details Modal State
     private bool showDetailsModal = false;
