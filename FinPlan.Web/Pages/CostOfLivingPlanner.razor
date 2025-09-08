@@ -577,12 +577,9 @@
     <!-- Add category / quick add controls -->
     <div class="add-category-bar">
         <div class="d-flex align-items-center add-category-input">
-            <input class="form-control form-control-sm" placeholder="New category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKey" />
-            <button class="btn btn-primary btn-sm ms-2" type="button" @onclick="AddCategory" disabled="@isSaving">Add Category</button>
+            <button class="btn btn-primary btn-sm" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">+ Add Category</button>
         </div>
-
         <div class="text-muted small ms-2">or</div>
-
         <div class="d-flex align-items-center">
             <label class="small me-2 mb-0">Add item to:</label>
             <InputSelect TValue="string" class="form-select form-select-sm" style="width:220px;" @bind-Value="SelectedAddCategory">
@@ -595,6 +592,28 @@
             <button class="btn btn-success btn-sm ms-2" @onclick="AddRow" disabled="@isSaving">Add item</button>
         </div>
     </div>
+
+    @if (showAddCategoryModal)
+    {
+        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Category</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input class="form-control" placeholder="Category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKeyModal" />
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
+                        <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving || string.IsNullOrWhiteSpace(NewCategoryName)">Add Category</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="accordion" id="costCategoryAccordion">
         @{
@@ -1369,6 +1388,7 @@
     private string NewCategorySentinel { get; } = "__new__";
     private string SelectedAddCategory { get; set; } = string.Empty;
     private string NewCategoryName { get; set; } = string.Empty;
+    private bool showAddCategoryModal = false;
 
     private List<string> Categories => Items.Select(i => i.Category ?? string.Empty).Distinct().OrderBy(c => c).ToList();
 
@@ -1377,14 +1397,26 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void AddCategory()
+    private void OpenAddCategoryModal()
+    {
+        NewCategoryName = string.Empty;
+        showAddCategoryModal = true;
+    }
+
+    private void CloseAddCategoryModal()
+    {
+        showAddCategoryModal = false;
+        NewCategoryName = string.Empty;
+    }
+
+    private void AddCategoryModal()
     {
         var newCat = (NewCategoryName ?? string.Empty).Trim();
         if (string.IsNullOrWhiteSpace(newCat)) return;
         if (Categories.Contains(newCat))
         {
             SelectedAddCategory = newCat;
-            NewCategoryName = string.Empty;
+            CloseAddCategoryModal();
             return;
         }
 
@@ -1400,9 +1432,14 @@
         Items.Add(newItem);
         RefreshCategories();
         SelectedAddCategory = newCat;
-        NewCategoryName = string.Empty;
+        CloseAddCategoryModal();
         StateHasChanged();
         ScheduleAutosave();
+    }
+
+    private void HandleAddCategoryKeyModal(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddCategoryModal();
     }
 
     private void AddRow()
@@ -1681,7 +1718,7 @@
 
     private void HandleAddCategoryKey(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter") AddCategory();
+        if (e.Key == "Enter") OpenAddCategoryModal();
     }
 
     private void HandleNumericKey(KeyboardEventArgs e)
