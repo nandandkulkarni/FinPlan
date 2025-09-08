@@ -51,37 +51,153 @@
                         <label for="modalCurrentValue" class="form-label">Current Value</label>
                         <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
                     </div>
-@* Edit Item Modal *@
-@if (showEditModal)
+@* Details Modal: View/Edit toggle *@
+@if (showDetailsModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Item</h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseEditModal"></button>
+                    <h5 class="modal-title">Item Details</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDetailsModal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="modalSubcategory" class="form-label">Subcategory</label>
-                        <input id="modalSubcategory" class="form-control" @bind="modalSubcategory" placeholder="Enter subcategory" />
+                        <label class="form-label">Subcategory</label>
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-control" @bind="modalSubcategory" />
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@modalSubcategory</div>
+                        }
                     </div>
                     <div class="mb-3">
-                        <label for="modalFrequency" class="form-label">Frequency</label>
-                        <select id="modalFrequency" class="form-select" @bind="modalFrequency">
-                            <option value="Monthly">Monthly</option>
-                            <option value="Quarterly">Quarterly</option>
-                            <option value="Yearly">Yearly</option>
-                        </select>
+                        <label class="form-label">Frequency</label>
+                        @if (detailsEditMode)
+                        {
+                            <select class="form-select" @bind="modalFrequency">
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@modalFrequency</div>
+                        }
                     </div>
                     <div class="mb-3">
-                        <label for="modalCurrentValue" class="form-label">Current Value</label>
-                        <input id="modalCurrentValue" class="form-control" type="number" step="0.01" @bind="modalCurrentValue" placeholder="Enter amount" />
+                        <label class="form-label">Current Value</label>
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-control" type="number" step="0.01" @bind="modalCurrentValue" />
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@FormatCurrency(modalCurrentValue)</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Retirement Adjust</label>
+                        @if (detailsEditMode)
+                        {
+                            <select class="form-select" @bind="modalAdjustOption">
+                                <option value="Same">Same</option>
+                                <option value="CustomPercentage">Custom %</option>
+                                <option value="Manual">Manual</option>
+                                <option value="AdjustForInflation">Adjust for Inflation</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@modalAdjustOption</div>
+                        }
+                    </div>
+                    @if (modalAdjustOption == "CustomPercentage")
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Custom %</label>
+                            @if (detailsEditMode)
+                            {
+                                <input class="form-control" type="number" step="1" min="0" @bind="modalCustomPercentage" />
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@modalCustomPercentage %</div>
+                            }
+                        </div>
+                    }
+                    @if (modalAdjustOption == "Manual")
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Manual Retirement Value</label>
+                            @if (detailsEditMode)
+                            {
+                                <input class="form-control" type="number" step="0.01" @bind="modalManualRetirementValue" />
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@FormatCurrency(modalManualRetirementValue ?? 0)</div>
+                            }
+                        </div>
+                    }
+                    @if (modalAdjustOption == "AdjustForInflation")
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Inflation Source</label>
+                            @if (detailsEditMode)
+                            {
+                                <select class="form-select" @bind="modalPerItemInflationSource">
+                                    <option value="UseGlobal">Global</option>
+                                    <option value="Custom">Custom</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@modalPerItemInflationSource</div>
+                            }
+                        </div>
+                        @if (modalPerItemInflationSource == "Custom")
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Custom Inflation %</label>
+                                @if (detailsEditMode)
+                                {
+                                    <input class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+                                }
+                                else
+                                {
+                                    <div class="form-control-plaintext">@modalPerItemInflationPercent %</div>
+                                }
+                            </div>
+                        }
+                    }
+                    <div class="mb-3 form-check">
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
+                            <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
+                        }
+                        else
+                        {
+                            <label class="form-check-label">Include in Retirement:</label>
+                            <span class="ms-2">@(modalIncludeInRetirement ? "Yes" : "No")</span>
+                        }
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
-                    <button type="button" class="btn btn-primary" @onclick="SaveEditModal">Save</button>
+                    @if (detailsEditMode)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDetailsModal">Cancel</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveDetailsModal">Save</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDetailsModal">Close</button>
+                        <button type="button" class="btn btn-primary" @onclick="EnableDetailsEdit">Edit</button>
+                    }
                 </div>
             </div>
         </div>
@@ -529,83 +645,36 @@
                                     <tr>
                                         <td style="width:40px; vertical-align:middle;">
                                             <div class="d-flex flex-column gap-1">
-                                                <button class="btn btn-sm btn-subtle" title="Edit item" aria-label="Edit item" @onclick="() => OpenEditModal(idx)" disabled="@isSaving">
-                                                    <span class="bi bi-pencil"></span>
-                                                </button>
                                                 <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => RemoveItem(idx)" disabled="@isSaving">
                                                     <span class="icon-muted">−</span>
                                                 </button>
                                             </div>
                                         </td>
-                                        <td style="width:120px; vertical-align:top;">
-                                            <InputSelect class="form-select form-select-sm" @bind-Value="item.Frequency" @onchange="() => ScheduleAutosave()">
-                                                @foreach (var f in Enum.GetValues(typeof(FinPlan.Shared.Models.LivingCosts.Frequency)).Cast<FinPlan.Shared.Models.LivingCosts.Frequency>())
-                                                {
-                                                    <option value="@f">@f.ToString()</option>
-                                                }
-                                            </InputSelect>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <input class="form-control form-control-sm" @bind="item.Subcategory" placeholder="Subcategory" @onblur="ScheduleAutosave" />
-                                            </div>
-                                        </td>
-                                        <td style="width:140px;">
-                                            <FormattedNumber class="form-control form-control-sm" @bind-Value="item.CurrentValue" Decimals="0" @onblur="ScheduleAutosave" />
-                                        </td>
+                                        <td style="width:120px; vertical-align:top;">@item.Frequency</td>
+                                        <td>@item.Subcategory</td>
+                                        <td style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
                                         <td style="width:140px; vertical-align:top; text-align:right;">
                                             <div class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</div>
                                         </td>
-                                        <td style="width:320px;">
-                                            <div class="retirement-adjust">
-                                            <select class="form-select form-select-sm" @bind="item.AdjustOption" @onblur="ScheduleAutosave">
-                                                @foreach (var opt in Enum.GetValues(typeof(RetirementAdjustOption)))
-                                                {
-                                                    if (opt.ToString() == "Remove") continue; // hide Remove from UI
-                                                    <option value="@opt">@opt</option>
-                                                }
-                                            </select>
-
-                                            @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
-                                            {
-                                                <div class="input-group input-group-sm">
-                                                    <input class="form-control" type="number" step="1" min="0" @bind="item.CustomPercentage" @onblur="ScheduleAutosave" />
-                                                    <span class="input-group-text">%</span>
-                                                </div>
-                                            }
-
-                                            @if (item.AdjustOption == RetirementAdjustOption.Manual)
-                                            {
-                                                <div class="input-group input-group-sm" style="width:180px;">
-                                                    <FormattedNullableNumber class="form-control text-success" @bind-Value="item.ManualRetirementValue" Decimals="0" @onblur="ScheduleAutosave" />
-                                                    <span class="input-group-text">@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol</span>
-                                                </div>
-                                            }
-                                            </div>
-                                        </td>
+                                        <td style="width:320px;">@item.AdjustOption</td>
                                         <td style="width:160px; vertical-align:middle;">
                                             @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
                                             {
-                                                <div class="d-flex gap-2 align-items-center">
-                                                    <select class="form-select form-select-sm" style="width:170px;" @bind="item.PerItemInflationSource" @onblur="ScheduleAutosave">
-                                                        <option value="@InflationSource.UseGlobal">Global (@FormatDecimal(InflationRate)%)</option>
-                                                        <option value="@InflationSource.Custom">Custom</option>
-                                                    </select>
-                                                    @if (item.PerItemInflationSource == InflationSource.Custom)
-                                                    {
-                                                        <div class="input-group input-group-sm" style="width:120px;">
-                                                            <input class="form-control text-danger" type="number" step="0.1" min="0" @bind="item.PerItemInflationPercent" @onblur="ScheduleAutosave" />
-                                                            <span class="input-group-text">%</span>
-                                                        </div>
-                                                    }
-                                                </div>
+                                                @item.PerItemInflationSource
+                                                @if (item.PerItemInflationSource == InflationSource.Custom)
+                                                {
+                                                    <span>: @item.PerItemInflationPercent%</span>
+                                                }
                                             }
                                         </td>
                                         <td style="width:60px; vertical-align:middle; text-align:center;">
-                                            <input class="form-check-input" type="checkbox" @bind="item.IncludeInRetirement" id="inc_@idx" @oninput="ScheduleAutosave" />
+                                            <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
                                         </td>
                                         <td style="width:180px; vertical-align:middle;">
                                             <div class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</div>
+                                        </td>
+                                        <td style="width:80px; vertical-align:middle;">
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenViewModal(idx)">View Details</button>
                                         </td>
                                     </tr>
                                 }
@@ -670,8 +739,10 @@
 
 @code {
     // Edit Item Modal state
-    private bool showEditModal = false;
-    private int editItemIndex = -1;
+    // Details Modal State
+    private bool showDetailsModal = false;
+    private bool detailsEditMode = false;
+    private int detailsItemIndex = -1;
     private string modalSubcategory = string.Empty;
     private string modalFrequency = "Monthly";
     private decimal modalCurrentValue = 0m;
@@ -682,45 +753,43 @@
     private decimal modalPerItemInflationPercent = 0m;
     private bool modalIncludeInRetirement = true;
 
-    private void OpenEditModal(int idx)
+    private void OpenViewModal(int idx)
     {
         if (idx >= 0 && idx < Items.Count)
         {
-            editItemIndex = idx;
-            var item = Items[idx];
-            modalSubcategory = item.Subcategory ?? string.Empty;
-            modalFrequency = item.Frequency.ToString();
-            modalCurrentValue = item.CurrentValue;
-            modalAdjustOption = item.AdjustOption.ToString();
-            modalCustomPercentage = item.CustomPercentage;
-            modalManualRetirementValue = item.ManualRetirementValue;
-            modalPerItemInflationSource = item.PerItemInflationSource.ToString();
-            modalPerItemInflationPercent = item.PerItemInflationPercent ?? 0;
-            modalIncludeInRetirement = item.IncludeInRetirement;
-            showEditModal = true;
+            detailsItemIndex = idx;
+            // Copy values to modal fields
+            modalSubcategory = Items[idx].Subcategory ?? string.Empty;
+            modalFrequency = Items[idx].Frequency.ToString();
+            modalCurrentValue = Items[idx].CurrentValue;
+            modalAdjustOption = Items[idx].AdjustOption.ToString();
+            modalCustomPercentage = Items[idx].CustomPercentage;
+            modalManualRetirementValue = Items[idx].ManualRetirementValue;
+            modalPerItemInflationSource = Items[idx].PerItemInflationSource.ToString();
+            modalPerItemInflationPercent = Items[idx].PerItemInflationPercent ?? 0;
+            modalIncludeInRetirement = Items[idx].IncludeInRetirement;
+            showDetailsModal = true;
+            detailsEditMode = false;
         }
     }
 
-    private void CloseEditModal()
+    private void CloseDetailsModal()
     {
-        showEditModal = false;
-        editItemIndex = -1;
-        modalSubcategory = string.Empty;
-        modalFrequency = "Monthly";
-        modalCurrentValue = 0m;
-        modalAdjustOption = "Same";
-        modalCustomPercentage = 0m;
-        modalManualRetirementValue = null;
-        modalPerItemInflationSource = "UseGlobal";
-        modalPerItemInflationPercent = 0m;
-        modalIncludeInRetirement = true;
+        showDetailsModal = false;
+        detailsEditMode = false;
+        detailsItemIndex = -1;
     }
 
-    private void SaveEditModal()
+    private void EnableDetailsEdit()
     {
-        if (editItemIndex >= 0 && editItemIndex < Items.Count)
+        detailsEditMode = true;
+    }
+
+    private void SaveDetailsModal()
+    {
+        if (detailsItemIndex >= 0 && detailsItemIndex < Items.Count)
         {
-            var item = Items[editItemIndex];
+            var item = Items[detailsItemIndex];
             item.Subcategory = modalSubcategory;
             if (Enum.TryParse<FinPlan.Shared.Models.LivingCosts.Frequency>(modalFrequency, out var freq))
                 item.Frequency = freq;
@@ -736,7 +805,7 @@
             StateHasChanged();
             ScheduleAutosave();
         }
-        CloseEditModal();
+        CloseDetailsModal();
     }
     private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
