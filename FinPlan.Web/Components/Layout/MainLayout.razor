@@ -1,8 +1,130 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+
+<style>
+    /* Top strip: primary navigation shortcuts */
+    .top-strip {
+        background: #FFD600; /* yellow background */
+        color: #222;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding: 6px 0;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        z-index: 1030;
+    }
+
+        .top-strip .menu-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .top-strip .menu-link {
+            color: #222;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            /* make links more legible on yellow background on hover */
+            .top-strip .menu-link:hover {
+                background: rgba(0,0,0,0.04);
+                text-decoration: none;
+            }
+
+        .top-strip .menu-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* separator + auth box */
+        .top-sep {
+            width: 1px;
+            height: 28px;
+            background: rgba(0,0,0,0.08);
+            margin-left: 12px;
+            margin-right: 8px;
+            align-self: center;
+        }
+
+        .auth-box {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding-left: 6px;
+        }
+
+        .auth-name {
+            font-weight: 600;
+            color: #222;
+            margin-right: 6px;
+        }
+
+        .auth-btn { min-width: 74px; }
+
+    @@media (max-width: 768px) {
+        .top-strip .menu-container {
+            gap: 8px;
+        }
+
+        .top-strip .menu-link {
+            padding: 6px 8px;
+            font-size: .92rem;
+        }
+    }
+</style>
+
+<div class="top-strip">
+    <div class="container menu-container">
+        <NavLink class="menu-link" href="/wealth-journey"> <span class="bi bi-calculator"></span> Wealth Building</NavLink>
+        <NavLink class="menu-link d-none d-md-inline" href="/howmuch-to-save-per-month"> <span class="bi bi-piggy-bank"></span> Goal Savings</NavLink>
+        <NavLink class="menu-link" href="/living-cost"> <span class="bi bi-list-ul"></span> Living Cost</NavLink>
+        <NavLink class="menu-link" href="/retirement-fire"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
 
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="menu-actions">
+            <div class="top-sep" aria-hidden="true"></div>
+
+            @if (isAuthLoaded)
+            {
+                if (isAuthenticated && currentUser != null)
+                {
+                    var first = currentUser.FindFirst("given_name")?.Value ?? string.Empty;
+                    var last = currentUser.FindFirst("family_name")?.Value ?? string.Empty;
+                    var display = (!string.IsNullOrWhiteSpace(first) || !string.IsNullOrWhiteSpace(last)) ? $"{first} {last}".Trim() : (currentUser.FindFirst("name")?.Value ?? currentUser.Identity?.Name ?? "User");
+                    <div class="auth-box" role="region" aria-label="User account">
+                        <span class="auth-name">@display</span>
+                        <a class="btn btn-sm btn-outline-secondary auth-btn" href="/signout" aria-label="Sign out">Sign out</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="auth-box" role="region" aria-label="Authentication">
+                        <a class="btn btn-sm btn-primary auth-btn" href="/signin-google-challenge" aria-label="Sign in with Google">Sign in</a>
+                        <a class="btn btn-sm btn-outline-secondary d-none d-md-inline auth-btn" href="/register" aria-label="Sign up">Sign up</a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="auth-box" role="region" aria-label="Authentication">
+                    <div class="spinner-border spinner-border-sm text-dark" role="status" aria-hidden="true"></div>
+                </div>
+            }
+         </div>
+     </div>
+ </div>
+
+
+@* <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="">Home</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
         <span class="navbar-toggler-icon"></span>
@@ -16,7 +138,7 @@
                     Wealth Building
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="savingsDropdown">
-                    <li><NavLink class="dropdown-item" href="/wealth-journey">Wealth Journey</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/wealth-journey">Project future value</NavLink></li>
                     <li><NavLink class="dropdown-item" href="/howmuch-to-save-per-month">Goal-Based Savings</NavLink></li>
                 </ul>
             </li>
@@ -27,7 +149,7 @@
                     Retire Early
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="spendingDropdown">
-                    <li><NavLink class="dropdown-item" href="/retirement-fire">Financial Independence, Retire Early</NavLink></li>
+                    <li><NavLink class="dropdown-item" href="/retirement-fire">Retirement Drawdown</NavLink></li>
                     <li><NavLink class="dropdown-item" href="/living-cost">Living Cost Estimator</NavLink></li>
                 </ul>
             </li>
@@ -45,21 +167,9 @@
                     <li><NavLink class="dropdown-item" href="/privacy-policy">Privacy Policy</NavLink></li>
                 </ul>
             </li>
-            <!-- Other Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="otherDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Other
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="otherDropdown">
-                    <li><NavLink class="dropdown-item" href="other/option1">Other Option 1</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="other/option2">Other Option 2</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="other/option3">Other Option 3</NavLink></li>
-                </ul>
-            </li>
         </ul>
     </div>
-</nav>
+</nav> *@
 
 <main>
     <div class="content-rail d-flex">
@@ -241,3 +351,32 @@
         };
     })();
 </script>
+
+@code {
+    private ClaimsPrincipal? currentUser;
+    private bool isAuthenticated = false;
+    private bool isAuthLoaded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadAuthStateAsync();
+    }
+
+    private async Task LoadAuthStateAsync()
+    {
+        try
+        {
+            var state = await AuthStateProvider.GetAuthenticationStateAsync();
+            currentUser = state.User;
+            isAuthenticated = currentUser?.Identity?.IsAuthenticated ?? false;
+        }
+        catch
+        {
+            currentUser = null;
+            isAuthenticated = false;
+        }
+        isAuthLoaded = true;
+        StateHasChanged();
+    }
+}

@@ -7,6 +7,8 @@ using Polly.Extensions.Http;
 using System.Net.Http;
 using System.Net;
 using FinPlan.Web.Services;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Also register server-side blazor services to provide AuthenticationState during interactive rendering
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddOutputCache();
 
 // Register the Excel Export Service
@@ -42,6 +47,10 @@ builder.Services.AddLogging();
 
 // Register the UserGuidService as scoped
 builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();
+
+// Add authorization services for Blazor components
+builder.Services.AddAuthorization();
+// Do not manually register ServerAuthenticationStateProvider; AddServerSideBlazor provides the necessary AuthenticationStateProvider
 
 // Configure authentication and Google SSO (client id/secret in appsettings.json)
 builder.Services.AddAuthentication(options =>
@@ -65,8 +74,6 @@ builder.Services.AddAuthentication(options =>
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         // Keep returned tokens available if needed
         options.SaveTokens = true;
-        // Best practice: set the callback path if you host under a sub-path
-        options.CallbackPath = "/signin-google";
     });
 
 builder.Services.AddAuthorization(options =>
