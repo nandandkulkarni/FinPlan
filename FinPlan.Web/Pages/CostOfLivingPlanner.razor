@@ -605,7 +605,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
-                    <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving || string.IsNullOrWhiteSpace(NewCategoryName)">Add Category</button>
+                    <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving">Add Category</button>
                 </div>
             </div>
         </div>
@@ -783,6 +783,10 @@
 
 @code {
     // Ghost tab creation modal state
+
+        // Returns true if the Add Category button should be disabled
+    private bool IsAddCategoryDisabled => false;//string.IsNullOrWhiteSpace(NewCategoryName?.Trim());
+
     private bool showCreateTabModal = false;
     private string pendingGhostTab = null;
 
