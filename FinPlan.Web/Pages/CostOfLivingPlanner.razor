@@ -1389,6 +1389,13 @@
 
     private HashSet<string> collapsed = new HashSet<string>();
 
+    private string GenerateNewItemName(string category)
+    {
+        var catKey = string.IsNullOrWhiteSpace(category) ? "Uncategorized" : category;
+        var existingCount = Items.Count(i => string.Equals(i.Category ?? string.Empty, category ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+        return $"{catKey} Item {existingCount + 1}";
+    }
+
     private void AddItemToCategory(string category)
     {
         Log($"AddItemToCategory: {category}");
@@ -1396,7 +1403,7 @@
         var newItem = new CostItem
         {
             Category = cat,
-            Subcategory = "<new item - edit me>",
+            Subcategory = GenerateNewItemName(cat),
             CurrentValue = 0m,
             AdjustOption = RetirementAdjustOption.Same,
             IncludeInRetirement = true
@@ -1404,6 +1411,14 @@
 
         // insert at end of that category's block (just add; rendering sorts by Subcategory)
         Items.Add(newItem);
+
+        // Open the same view/edit modal used for existing items so the user can edit the new item
+        var idx = Items.IndexOf(newItem);
+        if (idx >= 0)
+        {
+            OpenViewModal(idx);
+        }
+
         StateHasChanged();
         ScheduleAutosave();
     }
@@ -1475,7 +1490,7 @@
         var newItem = new CostItem
         {
             Category = newCat,
-            Subcategory = "<new item - edit me>",
+            Subcategory = GenerateNewItemName(newCat),
             CurrentValue = 0m,
             AdjustOption = RetirementAdjustOption.Same,
             IncludeInRetirement = true
@@ -1497,7 +1512,7 @@
     private void AddRow()
     {
         var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
-        var newItem = new CostItem { Category = category, Subcategory = "", CurrentValue = 0m };
+        var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m };
         Items.Add(newItem);
         if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
         {
@@ -1569,8 +1584,6 @@
                 try { undoTimer.Stop(); undoTimer.Dispose(); } catch { }
                 undoTimer = null;
             }
-            ScheduleAutosave();
-            StateHasChanged();
         }
     }
 

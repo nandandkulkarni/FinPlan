@@ -126,29 +126,7 @@ app.MapGet("/signin-google-challenge", async (HttpContext httpContext) =>
 
 app.MapGet("/signout", async (HttpContext httpContext) =>
 {
-    // Sign out of the cookie authentication scheme
     await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
-
-    try
-    {
-        // Also attempt to remove the authentication cookie and any correlation cookies that may persist
-        var requestCookies = httpContext.Request.Cookies?.Keys?.ToList() ?? new List<string>();
-        foreach (var name in requestCookies)
-        {
-            if (string.IsNullOrEmpty(name)) continue;
-
-            // Default cookie name for cookie auth is .AspNetCore.Cookies; correlation cookies start with .AspNetCore.Correlation.
-            if (string.Equals(name, ".AspNetCore.Cookies", StringComparison.OrdinalIgnoreCase) || name.StartsWith(".AspNetCore.Correlation.", StringComparison.OrdinalIgnoreCase))
-            {
-                try { httpContext.Response.Cookies.Delete(name); } catch { }
-            }
-        }
-    }
-    catch
-    {
-        // ignore any errors deleting cookies
-    }
-
     httpContext.Response.Redirect("/");
 });
 
