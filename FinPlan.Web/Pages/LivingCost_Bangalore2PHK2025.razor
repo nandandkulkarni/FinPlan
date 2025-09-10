@@ -1,0 +1,196 @@
+@page "/living-cost/bangalore-2phk-2025"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+<PageTitle>Cost of Living: Bangalore (2PHK, Sept 2025)</PageTitle>
+
+<style>
+    body.page-fragment {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f9;
+        color: #333;
+    }
+
+    h1, h2 {
+        color: #2c3e50;
+    }
+
+    .category {
+        margin-bottom: 20px;
+    }
+
+        .category h2 {
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 0;
+        }
+
+    .category-content {
+        display: none;
+        padding: 10px;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .category-content p {
+            margin: 5px 0;
+        }
+
+    .totals {
+        font-size: 1.2em;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #d5dbdb;
+        border-radius: 5px;
+    }
+
+    .currency-toggle {
+        margin-bottom: 20px;
+    }
+
+        .currency-toggle label {
+            margin-right: 10px;
+        }
+
+        .currency-toggle input {
+            margin-right: 5px;
+        }
+</style>
+
+<div class="page-fragment">
+
+    <h1>Estimated Monthly Cost of Living for a Family of 2 in Bangalore (Sept 2025)</h1>
+
+    <div class="currency-toggle">
+        <label for="currency">Currency: </label>
+        <input type="radio" id="inr" name="currency" value="INR" checked> INR
+        <input type="radio" id="usd" name="currency" value="USD"> USD
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('housing')">?? Housing (2BHK Unfurnished + Furnishing EMI)</h2>
+        <div id="housing" class="category-content">
+            <p><strong>Rent (2BHK Unfurnished):</strong> ?30,000 – ?50,000</p>
+            <p><strong>Furnishing & Appliances EMI:</strong> ?5,000 – ?10,000</p>
+            <p><strong>Total Housing Cost:</strong> ?35,000 – ?60,000</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('utilities')">? Utilities & Internet</h2>
+        <div id="utilities" class="category-content">
+            <p><strong>Electricity & Water:</strong> ?2,000 – ?4,000</p>
+            <p><strong>Broadband & Mobile:</strong> ?1,500 – ?3,000</p>
+            <p><strong>Cooking Gas (LPG):</strong> ?1,000 – ?1,500</p>
+            <p><strong>Total Utilities & Internet:</strong> ?4,500 – ?8,500</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('food')">?? Food & Groceries</h2>
+        <div id="food" class="category-content">
+            <p><strong>Groceries:</strong> ?10,000 – ?15,000</p>
+            <p><strong>Eating Out:</strong> ?4,000 – ?6,000</p>
+            <p><strong>Total Food & Groceries:</strong> ?14,000 – ?21,000</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('transportation')">?? Transportation</h2>
+        <div id="transportation" class="category-content">
+            <p><strong>Car Loan/EMI:</strong> ?15,000 – ?25,000</p>
+            <p><strong>Fuel:</strong> ?5,000 – ?7,000</p>
+            <p><strong>Maintenance & Insurance:</strong> ?2,000 – ?3,000</p>
+            <p><strong>Driver Salary:</strong> ?25,000 – ?35,000</p>
+            <p><strong>Total Transportation Cost:</strong> ?47,000 – ?70,000</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('healthcare')">?? Healthcare & Insurance</h2>
+        <div id="healthcare" class="category-content">
+            <p><strong>Health Insurance Premium (Family Floater):</strong> ?8,000 – ?12,000</p>
+            <p><strong>Out-of-Pocket Medical Expenses:</strong> ?2,000 – ?4,000</p>
+            <p><strong>Total Healthcare & Insurance:</strong> ?10,000 – ?16,000</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('entertainment')">?? Entertainment & Leisure</h2>
+        <div id="entertainment" class="category-content">
+            <p><strong>Gym/Club Membership:</strong> ?1,500 – ?3,000</p>
+            <p><strong>Streaming & Movies:</strong> ?1,000 – ?2,000</p>
+            <p><strong>Dining & Outings:</strong> ?3,000 – ?5,000</p>
+            <p><strong>Total Entertainment & Leisure:</strong> ?5,500 – ?10,000</p>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 onclick="toggleCategory('miscellaneous')">?? Miscellaneous & Domestic Help</h2>
+        <div id="miscellaneous" class="category-content">
+            <p><strong>Maid/Cook:</strong> ?3,000 – ?5,000</p>
+            <p><strong>Clothing & Personal Care:</strong> ?2,000 – ?4,000</p>
+            <p><strong>Household Supplies:</strong> ?1,000 – ?2,000</p>
+            <p><strong>Total Miscellaneous & Domestic Help:</strong> ?6,000 – ?11,000</p>
+        </div>
+    </div>
+
+    <div class="totals">
+        <h2>?? Monthly Total (Low – Medium – High)</h2>
+        <p><strong>Low Estimate:</strong> ?107,000 (Approx. $1,284)</p>
+        <p><strong>Medium Estimate:</strong> ?166,500 (Approx. $1,998)</p>
+        <p><strong>High Estimate:</strong> ?266,500 (Approx. $3,198)</p>
+    </div>
+
+    <h2>?? Assumptions & Explanations</h2>
+    <p><strong>Driver Expense:</strong> Monthly salary (?12,000–?20,000 depending on experience).</p>
+    <p><strong>Car Payment:</strong> Assuming small sedan EMI (?15,000–?25,000 range).</p>
+    <p><strong>Gasoline:</strong> ~?110/L, average usage for family.</p>
+    <p><strong>Maid/Cook:</strong> Optional but common in Bangalore middle-class households.</p>
+    <p><strong>Entertainment:</strong> Balanced between budget (parks, free activities) vs premium (clubs, frequent dining out).</p>
+    <p><strong>Medical Insurance:</strong> Mid-tier family floater, not luxury expat plans.</p>
+    <p><strong>Excludes:</strong> Savings, investments, education.</p>
+
+    <h2>?? References</h2>
+    <ul>
+        <li><a href="https://www.magicbricks.com/2-bhk-flats-for-rent-in-bangalore-pppfr" target="_blank">MagicBricks - 2 BHK Flats for Rent in Bangalore</a></li>
+        <li><a href="https://www.glassdoor.com/Salaries/bangalore-india-driver-salary-SRCH_IL.0%2C15_IM1091_KO16%2C22.htm" target="_blank">Glassdoor - Driver Salary in Bangalore</a></li>
+        <li><a href="https://www.policybazaar.com/health-insurance/family-health-insurance-plan/" target="_blank">PolicyBazaar - Family Health Insurance Plans</a></li>
+    </ul>
+
+</div>
+
+<script>
+    function toggleCategory(category) {
+        const content = document.getElementById(category);
+        if (!content) return;
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    }
+
+    (function attachCurrencyToggle() {
+        const currencyElements = document.querySelectorAll('.currency-toggle input');
+        currencyElements.forEach(element => {
+            element.addEventListener('change', toggleCurrency);
+        });
+
+        function toggleCurrency() {
+            const currency = document.querySelector('.currency-toggle input:checked')?.value || 'INR';
+            const inrElements = document.querySelectorAll('.inr');
+            const usdElements = document.querySelectorAll('.usd');
+            if (currency === 'INR') {
+                inrElements.forEach(el => el.style.display = 'inline');
+                usdElements.forEach(el => el.style.display = 'none');
+            } else {
+                inrElements.forEach(el => el.style.display = 'none');
+                usdElements.forEach(el => el.style.display = 'inline');
+            }
+        }
+
+        // initialize
+        toggleCurrency();
+    })();
+</script>
