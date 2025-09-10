@@ -192,21 +192,81 @@
         opacity: 0.6;
     }
 
-    /* Smaller font size for monetary values in tables */
+    /* Typography improvements - step 2 (moderate)
+       - Increase prominence of money values in cards and summary
+       - Make card headers and titles slightly larger and clearer
+       - Improve tab link spacing + focus outline for accessibility
+       - Tweak helper text sizes for readability
+    */
+
+    /* Money values: more prominent */
     .money-value {
-        font-size: 0.70rem;
+        font-size: 1.125rem; /* 18px */
+        font-weight: 700;
+        line-height: 1.15;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
     }
 
-    /* More compact table headers */
+    /* Larger card titles for visual hierarchy */
+    .card .card-title,
+    .card-header h3 {
+        font-size: 1.25rem; /* 20px */
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    /* Tabs: increased tap/click target and visual weight */
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.85rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .nav-tabs .nav-link:focus-visible {
+        outline: 3px solid rgba(13,110,253,0.18);
+        outline-offset: 2px;
+        border-radius: 8px;
+    }
+
+    /* Slightly stronger form label and compact helper text */
+    label.form-label {
+        font-size: 0.98rem;
+        font-weight: 600;
+    }
+
+    .form-text {
+        font-size: 0.88rem;
+        color: var(--bs-body-color);
+        opacity: 0.8;
+    }
+
+    /* Table header and body adjustments for readability */
     .retirement-table th {
-        font-size: 0.85rem;
-        padding: 0.4rem;
+        font-size: 0.98rem;
+        padding: 0.56rem 0.6rem;
+        font-weight: 700;
+        color: var(--bs-body-color);
     }
 
-    /* More compact table cells */
     .retirement-table td {
-        padding: 0.4rem;
+        font-size: 0.92rem;
+        padding: 0.44rem 0.5rem;
+        vertical-align: middle;
     }
+
+    /* Make the small summary text under money values slightly larger */
+    .card .card-body p.mb-0 {
+        font-size: 0.95rem;
+        margin-top: 0.15rem;
+        color: rgba(0,0,0,0.75);
+    }
+
+    /* Dark theme overrides for new sizes */
+    .dark-theme .card .card-body p.mb-0 {
+        color: rgba(226,232,240,0.9);
+    }
+
 </style>
 
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
