@@ -9,12 +9,14 @@ namespace FinPlan.ApiService.Data
 
         public DbSet<FinPlanEntity> FinPlans { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserRegistration> UserRegistrations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("finplan");
             modelBuilder.Entity<FinPlanEntity>().ToTable("FinPlan");
             modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<UserRegistration>().ToTable("UserRegistration");
             base.OnModelCreating(modelBuilder);
         }
     }

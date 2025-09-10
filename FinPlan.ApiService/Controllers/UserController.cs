@@ -26,7 +26,7 @@ namespace FinPlan.ApiService.Controllers
 
             try
             {
-                Console.WriteLine($"UpsertUser called for UserGuid={request.UserGuid}; Email={request.Email}; First={request.FirstName}; Last={request.LastName}");
+                Console.WriteLine($"UpsertUser called for UserGuid={request.UserGuid}; Email={request.Email}; First={request.FirstName}; Last={request.LastName}; CookieGuid={request.CookieGuid}");
 
                 var existing = await _db.Users.FirstOrDefaultAsync(u => u.UserGuid == request.UserGuid);
                 if (existing == null)
@@ -45,6 +45,8 @@ namespace FinPlan.ApiService.Controllers
                     };
                     _db.Users.Add(user);
                     await _db.SaveChangesAsync();
+
+                    await EnsureUserRegistrationExists(request.Email, request.CookieGuid);
 
                     // Return created user info
                     return Ok(new {
@@ -70,6 +72,8 @@ namespace FinPlan.ApiService.Controllers
                     _db.Users.Update(existing);
                     await _db.SaveChangesAsync();
 
+                    await EnsureUserRegistrationExists(request.Email, request.CookieGuid);
+
                     return Ok(new {
                         existing.Id,
                         existing.UserGuid,
@@ -90,6 +94,33 @@ namespace FinPlan.ApiService.Controllers
             }
         }
 
+        private async Task EnsureUserRegistrationExists(string? email, string? cookieGuid)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return;
+
+            try
+            {
+                var existing = await _db.UserRegistrations.FirstOrDefaultAsync(r => r.UserEmail == email);
+                if (existing == null)
+                {
+                    var reg = new UserRegistration
+                    {
+                        Id = Guid.NewGuid(),
+                        UserEmail = email,
+                        CookieGuid = cookieGuid,
+                        CreatedDate = DateTime.UtcNow
+                    };
+                    _db.UserRegistrations.Add(reg);
+                    await _db.SaveChangesAsync();
+                    Console.WriteLine($"Created UserRegistration for {email}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"EnsureUserRegistrationExists exception: {ex.Message}");
+            }
+        }
+
         // Simple request DTO
         public class UpsertUserRequest
         {
@@ -99,6 +130,9 @@ namespace FinPlan.ApiService.Controllers
             public string? LastName { get; set; }
             public string? DisplayName { get; set; }
             public string? Provider { get; set; }
+
+            // optional cookie-guid to correlate client-side cookie to registration
+            public string? CookieGuid { get; set; }
         }
     }
 }
