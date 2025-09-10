@@ -74,6 +74,79 @@ builder.Services.AddAuthentication(options =>
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         // Keep returned tokens available if needed
         options.SaveTokens = true;
+
+        // Request standard OpenID Connect scopes including email so the provider returns the email claim
+        try
+        {
+            options.Scope.Add("openid");
+            options.Scope.Add("profile");
+            options.Scope.Add("email");
+        }
+        catch { }
+
+        // Map common JSON claim keys returned by Google into well-known claim types
+        try
+        {
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.GivenName, "given_name");
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Surname, "family_name");
+            // Also map 'name' to ClaimTypes.Name
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
+        }
+        catch { }
+
+        // Ensure claims exist by inspecting the user info JSON on ticket creation
+        options.Events.OnCreatingTicket = async context =>
+        {
+            try
+            {
+                var user = context.User; // JObject-like (JsonElement)
+                // helper to extract string safely
+                static string? GetProp(Microsoft.AspNetCore.Authentication.OAuth.OAuthCreatingTicketContext ctx, params string[] names)
+                {
+                    foreach (var n in names)
+                    {
+                        if (ctx.User.TryGetProperty(n, out var prop))
+                        {
+                            try { var s = prop.GetString(); if (!string.IsNullOrWhiteSpace(s)) return s; } catch { }
+                        }
+                    }
+                    return null;
+                }
+
+                var email = GetProp(context, "email", "emails");
+                var given = GetProp(context, "given_name", "givenName", "first_name");
+                var family = GetProp(context, "family_name", "familyName", "last_name");
+                var name = GetProp(context, "name");
+                var sub = GetProp(context, "sub", "id");
+
+                if (!string.IsNullOrWhiteSpace(email) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Email))
+                {
+                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
+                }
+                if (!string.IsNullOrWhiteSpace(given) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.GivenName))
+                {
+                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.GivenName, given));
+                }
+                if (!string.IsNullOrWhiteSpace(family) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Surname))
+                {
+                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Surname, family));
+                }
+                if (!string.IsNullOrWhiteSpace(name) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Name))
+                {
+                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
+                }
+                if (!string.IsNullOrWhiteSpace(sub) && !context.Identity.HasClaim(c => c.Type == "sub"))
+                {
+                    context.Identity.AddClaim(new System.Security.Claims.Claim("sub", sub));
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+            await System.Threading.Tasks.Task.CompletedTask;
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -121,12 +194,15 @@ app.MapDefaultEndpoints();
 app.MapGet("/signin-google-challenge", async (HttpContext httpContext) =>
 {
     var props = new AuthenticationProperties { RedirectUri = "/" };
+    // Ask Google to show the account chooser so returning users can pick a different account
+    props.Parameters["prompt"] = "select_account";
     await httpContext.ChallengeAsync(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme, props);
 });
 
 app.MapGet("/signout", async (HttpContext httpContext) =>
 {
     await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+    // Also clear the local authentication session and redirect to home
     httpContext.Response.Redirect("/");
 });
 
