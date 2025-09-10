@@ -22,6 +22,47 @@
 
 @inject IJSRuntime JSRuntime
 
+<!-- Embedded styles copied from CostOfLivingPlanner to ensure active-tab highlighting and shared UI styles -->
+<style>
+    .tab-active-custom {
+        background-color: #FFD600 !important;
+        color: #222 !important;
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tab-item-active .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: #222 !important;
+        font-weight: 600;
+        padding: 0.18rem 0.4rem;
+    }
+
+    /* Supporting styles (totals box, loading overlay) */
+    .totals-strip { width:100%; max-width:600px; margin-left:auto; margin-right:auto; }
+    .totals-box { min-width:180px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border:1.5px solid #e3e3e3; }
+    .totals-label { font-size:1rem; font-weight:500; opacity:0.92; }
+    .totals-value { font-size:1.08rem; font-weight:700; margin-top:2px; }
+
+    .blazor-loading-modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items:center; justify-content:center; }
+    .blazor-loading-content { text-align:center; background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.12); padding:20px 28px; min-width:200px; }
+    .blazor-loading-content .spinner-border { width:2.25rem; height:2.25rem; }
+</style>
+
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
     <!-- Theme toggle button -->
     <button @onclick="ToggleTheme" class="btn btn-sm theme-toggle @(isDarkTheme ? "btn-light" : "btn-dark")">
@@ -31,15 +72,13 @@
 
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
-                    @onclick="YourTabClick">
+        <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
+            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "your" ? "true" : "false")" tabindex="0" @onkeydown="@(async (KeyboardEventArgs e) => await HandleTabKey(e, "your"))" @onclick="YourTabClick">
                 Your  Savings
             </button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")"
-                    @onclick="PartnerTabClick">
+        <li class="nav-item d-flex align-items-center me-1 @(activeTab == "partner" ? "tab-item-active" : "")" role="presentation">
+            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "partner" ? "true" : "false")" tabindex="0" @onkeydown="@(async (KeyboardEventArgs e) => await HandleTabKey(e, "partner"))" @onclick="PartnerTabClick">
                 Partner  Savings
             </button>
         </li>
@@ -589,6 +628,25 @@
 
     private void OnInputChanged() { /* placeholder */ }
     private void HandleSelectChange() { /* placeholder */ }
+
+    private async Task HandleTabKey(KeyboardEventArgs e, string tab)
+    {
+        if (e == null) return;
+
+        var tabs = new[] { "your", "partner" };
+        if (e.Key == "ArrowLeft" || e.Key == "ArrowRight")
+        {
+            var idx = Array.IndexOf(tabs, tab);
+            if (idx < 0) idx = 0;
+            idx = e.Key == "ArrowLeft" ? (idx - 1 + tabs.Length) % tabs.Length : (idx + 1) % tabs.Length;
+            var next = tabs[idx];
+            if (next == "your") await YourTabClick(); else await PartnerTabClick();
+        }
+        else if (e.Key == "Enter" || e.Key == " ")
+        {
+            if (tab == "your") await YourTabClick(); else await PartnerTabClick();
+        }
+    }
 
     private void ForceUpdate()
     {
