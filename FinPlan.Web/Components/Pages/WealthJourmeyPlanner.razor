@@ -44,6 +44,46 @@
             </button>
         </li>
     </ul>
+
+    @* Results summary moved here so it's visible above the form *@
+    @if (results != null)
+    {
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-primary">@results.FinalAmount.ToString("C")</h4>
+                        <p class="mb-0">Final Amount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
+                        <p class="mb-0">Growth</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-info">@results.TotalContributions.ToString("C")</h4>
+                        <p class="mb-0">Total Contributions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-warning">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
+                        <p class="mb-0">Annual Growth Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
@@ -55,6 +95,13 @@
                 <div class="card-body">
                     <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
+
+                        <!-- Calculate button moved to top of the form -->
+                        <div class="d-flex align-items-center mb-3 justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg" disabled="@calculatorModel.AutoCalculate">
+                                <i class="bi bi-calculator"></i> Calculate Savings
+                            </button>
+                        </div>
 
                         <div class="card mb-3">
                             <div class="card-header">
@@ -229,14 +276,8 @@
 
                         <div class="d-flex align-items-center mb-3">
                             <div class="form-check me-auto">
-                                @* <input class="form-check-input" type="checkbox" id="autoCalculate" @bind="calculatorModel.AutoCalculate" disabled />
-                                <label class="form-check-label" for="autoCalculate">
-                                    Auto-calculate (updates immediately as you type - disabled)
-                                </label> *@
+                                @* Auto-calc checkbox placeholder *@
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg" disabled="@calculatorModel.AutoCalculate">
-                                <i class="bi bi-calculator"></i> Calculate Savings
-                            </button>
                         </div>
                     </EditForm>
                 </div>
@@ -407,14 +448,14 @@
                     <div class="card mt-3">
                         <div class="card-header">
                             <h5 class="mb-0">
-                                <i class="bi bi-graph-up-arrow"></i> Your Age-Based Retirement Journey
+                                <i class="bi bi-graph-up-arrow"></i> Your Age-Based Savings Journey
                                 @if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries)
                                 {
                                     <small class="text-muted ms-2">Click age ranges to see yearly details (@intervalSummaries.Count intervals)</small>
                                 }
                             </h5>
                         </div>
-                        <div class="card-body" style="max-height: 700px; overflow-y: auto;">
+                        <div class="card-body">
 
                             @foreach (var interval in intervalSummaries)
                             {
