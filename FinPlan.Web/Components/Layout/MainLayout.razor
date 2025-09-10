@@ -3,6 +3,8 @@
 @inject NavigationManager Navigation
 @using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
 
 <style>
     /* Top strip: primary navigation shortcuts */
@@ -15,71 +17,71 @@
         z-index: 1030;
     }
 
-        .top-strip .menu-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .top-strip .menu-link {
-            color: #222;
-            font-weight: 600;
-            padding: 6px 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-            /* make links more legible on yellow background on hover */
-            .top-strip .menu-link:hover {
-                background: rgba(0,0,0,0.04);
-                text-decoration: none;
-            }
-
-        .top-strip .menu-actions {
-            margin-left: auto;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        /* separator + auth box */
-        .top-sep {
-            width: 1px;
-            height: 28px;
-            background: rgba(0,0,0,0.08);
-            margin-left: 12px;
-            margin-right: 8px;
-            align-self: center;
-        }
-
-        .auth-box {
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-            padding-left: 6px;
-        }
-
-        .auth-name {
-            font-weight: 600;
-            color: #222;
-            margin-right: 6px;
-        }
-
-        .auth-btn { min-width: 74px; }
-
-    @@media (max-width: 768px) {
-        .top-strip .menu-container {
-            gap: 8px;
-        }
-
-        .top-strip .menu-link {
-            padding: 6px 8px;
-            font-size: .92rem;
-        }
+    .top-strip .menu-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
+
+    .top-strip .menu-link {
+        color: #222;
+        font-weight: 600;
+        padding: 6px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* make links more legible on yellow background on hover */
+    .top-strip .menu-link:hover {
+        background: rgba(0,0,0,0.04);
+        text-decoration: none;
+    }
+
+    .top-strip .menu-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* separator + auth box */
+    .top-sep {
+        width: 1px;
+        height: 28px;
+        background: rgba(0,0,0,0.08);
+        margin-left: 12px;
+        margin-right: 8px;
+        align-self: center;
+    }
+
+    .auth-box {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding-left: 6px;
+    }
+
+    .auth-name {
+        font-weight: 600;
+        color: #222;
+        margin-right: 6px;
+    }
+
+    .auth-btn { min-width: 74px; }
+
+@@media (max-width: 768px) {
+    .top-strip .menu-container {
+        gap: 8px;
+    }
+
+    .top-strip .menu-link {
+        padding: 6px 8px;
+        font-size: .92rem;
+    }
+}
 </style>
 
 <div class="top-strip"> 
@@ -356,6 +358,7 @@
     private ClaimsPrincipal? currentUser;
     private bool isAuthenticated = false;
     private bool isAuthLoaded = false;
+    private bool userRecordCreated = false;
     
     private void SignOutClicked()
     {
@@ -383,6 +386,73 @@
             isAuthenticated = false;
         }
         isAuthLoaded = true;
+
+        // If signed in, ensure server has a user record
+        if (isAuthenticated && currentUser != null && !userRecordCreated)
+        {
+            _ = EnsureUserRecordAsync(); // fire-and-forget but do not block UI
+        }
+
         StateHasChanged();
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
+    private async Task EnsureUserRecordAsync()
+    {
+        if (currentUser == null) return;
+
+        try
+        {
+            // Best stable identifier from claims: prefer 'sub', fallback to NameIdentifier or email
+            var sub = currentUser.FindFirst("sub")?.Value ?? currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? currentUser.FindFirst("email")?.Value;
+            if (string.IsNullOrWhiteSpace(sub)) return;
+
+            var email = currentUser.FindFirst("email")?.Value;
+            var firstName = currentUser.FindFirst("given_name")?.Value;
+            var lastName = currentUser.FindFirst("family_name")?.Value;
+            var name = currentUser.FindFirst("name")?.Value ?? ((firstName ?? string.Empty) + " " + (lastName ?? string.Empty)).Trim();
+
+            var request = new
+            {
+                UserGuid = sub,
+                Email = email,
+                FirstName = firstName,
+                LastName = lastName,
+                DisplayName = name,
+                Provider = "Google"
+            };
+
+            var apiBase = GetApiBaseUrl();
+            var url = $"{apiBase}/api/User/upsert";
+            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(request);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var resp = await client.PostAsync(url, content);
+            if (resp.IsSuccessStatusCode)
+            {
+                userRecordCreated = true;
+            }
+            else
+            {
+                // non-fatal; log to console if available
+                try { Console.Error.WriteLine($"User upsert failed: {resp.StatusCode}"); } catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            try { Console.Error.WriteLine($"EnsureUserRecordAsync exception: {ex.Message}"); } catch { }
+        }
+    }
+
+    public void Dispose()
+    {
     }
 }

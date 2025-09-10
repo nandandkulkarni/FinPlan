@@ -8,11 +8,13 @@ namespace FinPlan.ApiService.Data
         public FinPlanDbContext(DbContextOptions<FinPlanDbContext> options) : base(options) { }
 
         public DbSet<FinPlanEntity> FinPlans { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("finplan");
             modelBuilder.Entity<FinPlanEntity>().ToTable("FinPlan");
+            modelBuilder.Entity<User>().ToTable("User");
             base.OnModelCreating(modelBuilder);
         }
     }
