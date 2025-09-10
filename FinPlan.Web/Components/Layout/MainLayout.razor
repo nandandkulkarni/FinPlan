@@ -411,14 +411,13 @@
 
         try
         {
-            // Best stable identifier from claims: prefer 'sub', fallback to NameIdentifier or email
             var sub = currentUser.FindFirst("sub")?.Value ?? currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? currentUser.FindFirst("email")?.Value;
             if (string.IsNullOrWhiteSpace(sub)) return;
 
-            var email = currentUser.FindFirst("email")?.Value;
-            var firstName = currentUser.FindFirst("given_name")?.Value;
-            var lastName = currentUser.FindFirst("family_name")?.Value;
-            var name = currentUser.FindFirst("name")?.Value ?? ((firstName ?? string.Empty) + " " + (lastName ?? string.Empty)).Trim();
+            var email = currentUser.FindFirst(ClaimTypes.Email)?.Value ?? currentUser.FindFirst("email")?.Value;
+            var firstName = currentUser.FindFirst(ClaimTypes.GivenName)?.Value ?? currentUser.FindFirst("given_name")?.Value;
+            var lastName = currentUser.FindFirst(ClaimTypes.Surname)?.Value ?? currentUser.FindFirst("family_name")?.Value;
+            var name = currentUser.FindFirst(ClaimTypes.Name)?.Value ?? currentUser.FindFirst("name")?.Value ?? ((firstName ?? string.Empty) + " " + (lastName ?? string.Empty)).Trim();
 
             var request = new
             {
@@ -435,15 +434,19 @@
             var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var json = System.Text.Json.JsonSerializer.Serialize(request);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            Console.WriteLine($"Posting user upsert to {url} with payload: {json}");
             var resp = await client.PostAsync(url, content);
+            var respBody = await resp.Content.ReadAsStringAsync();
+            Console.WriteLine($"Upsert response: {resp.StatusCode}; body: {respBody}");
+
             if (resp.IsSuccessStatusCode)
             {
                 userRecordCreated = true;
             }
             else
             {
-                // non-fatal; log to console if available
-                try { Console.Error.WriteLine($"User upsert failed: {resp.StatusCode}"); } catch { }
+                try { Console.Error.WriteLine($"User upsert failed: {resp.StatusCode}; body: {respBody}"); } catch { }
             }
         }
         catch (Exception ex)

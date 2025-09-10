@@ -201,9 +201,36 @@ app.MapGet("/signin-google-challenge", async (HttpContext httpContext) =>
 
 app.MapGet("/signout", async (HttpContext httpContext) =>
 {
-    await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
-    // Also clear the local authentication session and redirect to home
-    httpContext.Response.Redirect("/");
+    try
+    {
+        // Sign out the local cookie
+        await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Attempt to sign out the external provider session (best-effort)
+        try
+        {
+            await httpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme);
+        }
+        catch {
+            // ignore if provider signout isn't supported
+        }
+
+        // Remove the cookie explicitly by name (default cookie name used by the middleware)
+        try
+        {
+            httpContext.Response.Cookies.Delete(".AspNetCore.Cookies");
+        }
+        catch { }
+
+        // Redirect to home to ensure a full reload of the Blazor server circuit
+        httpContext.Response.Redirect("/");
+    }
+    catch (Exception ex)
+    {
+        // Log and still redirect
+        try { Console.Error.WriteLine($"Signout endpoint error: {ex.Message}"); } catch { }
+        httpContext.Response.Redirect("/");
+    }
 });
 
 app.Run();

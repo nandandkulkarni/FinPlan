@@ -18,38 +18,76 @@ namespace FinPlan.ApiService.Controllers
         [HttpPost("upsert")]
         public async Task<IActionResult> UpsertUser([FromBody] UpsertUserRequest request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.UserGuid)) return BadRequest("Invalid request");
-
-            var existing = await _db.Users.FirstOrDefaultAsync(u => u.UserGuid == request.UserGuid);
-            if (existing == null)
+            if (request == null || string.IsNullOrWhiteSpace(request.UserGuid))
             {
-                var user = new User
+                Console.Error.WriteLine("UpsertUser called with invalid request");
+                return BadRequest("Invalid request");
+            }
+
+            try
+            {
+                Console.WriteLine($"UpsertUser called for UserGuid={request.UserGuid}; Email={request.Email}; First={request.FirstName}; Last={request.LastName}");
+
+                var existing = await _db.Users.FirstOrDefaultAsync(u => u.UserGuid == request.UserGuid);
+                if (existing == null)
                 {
-                    Id = Guid.NewGuid(),
-                    UserGuid = request.UserGuid,
-                    Email = request.Email,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    DisplayName = request.DisplayName,
-                    Provider = request.Provider,
-                    CreatedAt = DateTime.UtcNow,
-                    LastSignInAt = DateTime.UtcNow
-                };
-                _db.Users.Add(user);
-            }
-            else
-            {
-                existing.Email = request.Email ?? existing.Email;
-                existing.FirstName = request.FirstName ?? existing.FirstName;
-                existing.LastName = request.LastName ?? existing.LastName;
-                existing.DisplayName = request.DisplayName ?? existing.DisplayName;
-                existing.Provider = request.Provider ?? existing.Provider;
-                existing.LastSignInAt = DateTime.UtcNow;
-                _db.Users.Update(existing);
-            }
+                    var user = new User
+                    {
+                        Id = Guid.NewGuid(),
+                        UserGuid = request.UserGuid,
+                        Email = request.Email,
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        DisplayName = request.DisplayName,
+                        Provider = request.Provider,
+                        CreatedAt = DateTime.UtcNow,
+                        LastSignInAt = DateTime.UtcNow
+                    };
+                    _db.Users.Add(user);
+                    await _db.SaveChangesAsync();
 
-            await _db.SaveChangesAsync();
-            return Ok();
+                    // Return created user info
+                    return Ok(new {
+                        user.Id,
+                        user.UserGuid,
+                        user.Email,
+                        user.FirstName,
+                        user.LastName,
+                        user.DisplayName,
+                        user.Provider,
+                        user.CreatedAt,
+                        user.LastSignInAt
+                    });
+                }
+                else
+                {
+                    existing.Email = request.Email ?? existing.Email;
+                    existing.FirstName = request.FirstName ?? existing.FirstName;
+                    existing.LastName = request.LastName ?? existing.LastName;
+                    existing.DisplayName = request.DisplayName ?? existing.DisplayName;
+                    existing.Provider = request.Provider ?? existing.Provider;
+                    existing.LastSignInAt = DateTime.UtcNow;
+                    _db.Users.Update(existing);
+                    await _db.SaveChangesAsync();
+
+                    return Ok(new {
+                        existing.Id,
+                        existing.UserGuid,
+                        existing.Email,
+                        existing.FirstName,
+                        existing.LastName,
+                        existing.DisplayName,
+                        existing.Provider,
+                        existing.CreatedAt,
+                        existing.LastSignInAt
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"UpsertUser exception: {ex.Message}");
+                return StatusCode(500, "Server error");
+            }
         }
 
         // Simple request DTO
