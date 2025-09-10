@@ -5,6 +5,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 <style>
     /* Top strip: primary navigation shortcuts */
@@ -126,52 +127,40 @@
  </div>
    
 
-@* <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="">Home</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
-            <!-- Savings Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="savingsDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Wealth Building
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="savingsDropdown">
-                    <li><NavLink class="dropdown-item" href="/wealth-journey">Project future value</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/howmuch-to-save-per-month">Goal-Based Savings</NavLink></li>
-                </ul>
-            </li>
-            <!-- Spending Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="spendingDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Retire Early
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="spendingDropdown">
-                    <li><NavLink class="dropdown-item" href="/retirement-fire">Retirement Drawdown</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/living-cost">Living Cost Estimator</NavLink></li>
-                </ul>
-            </li>
-            <!-- About Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    About
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
-                    <li><NavLink class="dropdown-item" href="/team">Team</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/disclaimer">Disclaimer</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/terms-of-use">Terms of Use</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/contact">Contact Us</NavLink></li>
-                    <li><NavLink class="dropdown-item" href="/privacy-policy">Privacy Policy</NavLink></li>
-                </ul>
-            </li>
-        </ul>
+@* Confirmation modal for cookie association *@
+@if (showCookieAssocModal)
+{
+    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Associate locally-stored data with your account</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="DeclineAssociate"></button>
+                </div>
+                <div class="modal-body">
+                    <p>We detected saved calculator data on this browser (<strong>@pendingItemCount</strong> items) that is tied to this device's local identifier. If you confirm, this data will be associated with your account <strong>@pendingEmail</strong> so you'll be able to access it from other devices.</p>
+                    <p><strong>What will happen if you accept</strong>:</p>
+                    <ul>
+                        <li>The locally-stored calculators and settings (saved on this device) will be linked to your account.</li>
+                        <li>Future sign-ins from other devices using your account will be able to load this data.</li>
+                        <li>No data will be deleted.</li>
+                    </ul>
+                    <p><strong>What will happen if you decline</strong>:</p>
+                    <ul>
+                        <li>The locally-stored data will remain only on this browser and will not be associated with your account.</li>
+                        <li>You will be signed out now to prevent accidental association.</li>
+                    </ul>
+                    <p class="text-muted small">If you'd like to review or export the items before associating, use the Debug > Saved Data tools (development only).</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" @onclick="DeclineAssociate">No, sign me out</button>
+                    <button class="btn btn-primary btn-sm" @onclick="ConfirmAssociate">Yes, associate my data</button>
+                </div>
+            </div>
+        </div>
     </div>
-</nav> *@
+}
 
 <main>
     <div class="content-rail d-flex">
@@ -359,7 +348,13 @@
     private bool isAuthenticated = false;
     private bool isAuthLoaded = false;
     private bool userRecordCreated = false;
-    
+
+    // modal state
+    private bool showCookieAssocModal = false;
+    private string? pendingCookieGuid;
+    private int pendingItemCount = 0;
+    private string? pendingEmail;
+
     private void SignOutClicked()
     {
         // Force full navigation so the server signout endpoint runs and cookies are cleared
@@ -411,6 +406,7 @@
 
         try
         {
+            // Best stable identifier from claims: prefer 'sub', fallback to NameIdentifier or email
             var sub = currentUser.FindFirst("sub")?.Value ?? currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? currentUser.FindFirst("email")?.Value;
             if (string.IsNullOrWhiteSpace(sub)) return;
 
@@ -419,6 +415,9 @@
             var lastName = currentUser.FindFirst(ClaimTypes.Surname)?.Value ?? currentUser.FindFirst("family_name")?.Value;
             var name = currentUser.FindFirst(ClaimTypes.Name)?.Value ?? currentUser.FindFirst("name")?.Value ?? ((firstName ?? string.Empty) + " " + (lastName ?? string.Empty)).Trim();
 
+            // include client's cookie-guid so server can detect local data
+            var cookieGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+
             var request = new
             {
                 UserGuid = sub,
@@ -426,7 +425,8 @@
                 FirstName = firstName,
                 LastName = lastName,
                 DisplayName = name,
-                Provider = "Google"
+                Provider = "Google",
+                CookieGuid = cookieGuid
             };
 
             var apiBase = GetApiBaseUrl();
@@ -442,7 +442,28 @@
 
             if (resp.IsSuccessStatusCode)
             {
-                userRecordCreated = true;
+                try
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(respBody);
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("needsCookieAssociation", out var needProp) && needProp.GetBoolean())
+                    {
+                        pendingCookieGuid = root.GetProperty("cookieGuid").GetString();
+                        pendingItemCount = root.GetProperty("itemCount").GetInt32();
+                        pendingEmail = email;
+                        showCookieAssocModal = true;
+                        StateHasChanged();
+                        return;
+                    }
+                    else
+                    {
+                        userRecordCreated = true;
+                    }
+                }
+                catch
+                {
+                    userRecordCreated = true;
+                }
             }
             else
             {
@@ -453,6 +474,45 @@
         {
             try { Console.Error.WriteLine($"EnsureUserRecordAsync exception: {ex.Message}"); } catch { }
         }
+    }
+
+    private async Task ConfirmAssociate()
+    {
+        showCookieAssocModal = false;
+        StateHasChanged();
+
+        if (string.IsNullOrWhiteSpace(pendingEmail) || string.IsNullOrWhiteSpace(pendingCookieGuid))
+        {
+            // nothing to do
+            return;
+        }
+
+        try
+        {
+            var apiBase = GetApiBaseUrl();
+            var url = $"{apiBase}/api/User/associate-cookie";
+            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var req = new { UserEmail = pendingEmail, CookieGuid = pendingCookieGuid };
+            var json = System.Text.Json.JsonSerializer.Serialize(req);
+            var resp = await client.PostAsync(url, new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            var body = await resp.Content.ReadAsStringAsync();
+            Console.WriteLine($"AssociateCookie response: {resp.StatusCode}; body: {body}");
+
+            // Re-run upsert so server can proceed now that registration exists
+            await EnsureUserRecordAsync();
+        }
+        catch (Exception ex)
+        {
+            try { Console.Error.WriteLine($"ConfirmAssociate exception: {ex.Message}"); } catch { }
+        }
+    }
+
+    private void DeclineAssociate()
+    {
+        showCookieAssocModal = false;
+        StateHasChanged();
+        // if user declines, sign them out
+        Navigation.NavigateTo("/signout", forceLoad: true);
     }
 
     public void Dispose()

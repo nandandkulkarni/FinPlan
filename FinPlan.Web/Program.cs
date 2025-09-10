@@ -63,6 +63,42 @@ builder.Services.AddAuthentication(options =>
         // Ensure correlation cookies survive the external redirect during OAuth handshake
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+        // Set an explicit cookie name so we can reliably delete/inspect it
+        options.Cookie.Name = ".AspNetCore.FinPlanAuth";
+
+        // Hook events to log when the cookie is being created for debugging
+        options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+        {
+            OnSigningIn = context =>
+            {
+                try
+                {
+                    var principal = context.Principal;
+                    var name = principal?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? principal?.Identity?.Name;
+                    Console.WriteLine($"Cookie OnSigningIn: Issuing auth cookie for user: {name}");
+                }
+                catch { }
+                return Task.CompletedTask;
+            },
+            OnSignedIn = context =>
+            {
+                try
+                {
+                    var principal = context.Principal;
+                    var name = principal?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? principal?.Identity?.Name;
+                    Console.WriteLine($"Cookie OnSignedIn: Auth cookie issued for user: {name}");
+                }
+                catch { }
+                return Task.CompletedTask;
+            },
+            OnValidatePrincipal = context =>
+            {
+                // optional: log validation
+                try { Console.WriteLine("Cookie OnValidatePrincipal called"); } catch { }
+                return Task.CompletedTask;
+            }
+        };
     })
     .AddGoogle(options =>
     {

@@ -28,6 +28,21 @@ namespace FinPlan.ApiService.Controllers
             {
                 Console.WriteLine($"UpsertUser called for UserGuid={request.UserGuid}; Email={request.Email}; First={request.FirstName}; Last={request.LastName}; CookieGuid={request.CookieGuid}");
 
+                // If client supplied a cookie-guid, check whether that cookie-guid already has FinPlan rows
+                // and there is no registration for this email. If so, require user confirmation before associating.
+                if (!string.IsNullOrWhiteSpace(request.CookieGuid) && !string.IsNullOrWhiteSpace(request.Email))
+                {
+                    var cookieGuid = request.CookieGuid;
+                    var hasFinplans = await _db.FinPlans.AnyAsync(f => f.UserGuid == cookieGuid);
+                    var hasRegistration = await _db.UserRegistrations.AnyAsync(r => r.UserEmail == request.Email);
+                    if (hasFinplans && !hasRegistration)
+                    {
+                        // return a response indicating association is required
+                        var count = await _db.FinPlans.CountAsync(f => f.UserGuid == cookieGuid);
+                        return Ok(new { needsCookieAssociation = true, cookieGuid = cookieGuid, itemCount = count });
+                    }
+                }
+
                 var existing = await _db.Users.FirstOrDefaultAsync(u => u.UserGuid == request.UserGuid);
                 if (existing == null)
                 {
@@ -46,10 +61,10 @@ namespace FinPlan.ApiService.Controllers
                     _db.Users.Add(user);
                     await _db.SaveChangesAsync();
 
-                    await EnsureUserRegistrationExists(request.Email, request.CookieGuid);
+                    // Do NOT auto-create UserRegistration here - association must be explicit
 
                     // Return created user info
-                    return Ok(new {
+                    return Ok(new { needsCookieAssociation = false, user = new {
                         user.Id,
                         user.UserGuid,
                         user.Email,
@@ -59,7 +74,7 @@ namespace FinPlan.ApiService.Controllers
                         user.Provider,
                         user.CreatedAt,
                         user.LastSignInAt
-                    });
+                    }});
                 }
                 else
                 {
@@ -72,9 +87,9 @@ namespace FinPlan.ApiService.Controllers
                     _db.Users.Update(existing);
                     await _db.SaveChangesAsync();
 
-                    await EnsureUserRegistrationExists(request.Email, request.CookieGuid);
+                    // Do NOT auto-create UserRegistration here - association must be explicit
 
-                    return Ok(new {
+                    return Ok(new { needsCookieAssociation = false, user = new {
                         existing.Id,
                         existing.UserGuid,
                         existing.Email,
@@ -84,7 +99,7 @@ namespace FinPlan.ApiService.Controllers
                         existing.Provider,
                         existing.CreatedAt,
                         existing.LastSignInAt
-                    });
+                    }});
                 }
             }
             catch (Exception ex)
@@ -94,30 +109,35 @@ namespace FinPlan.ApiService.Controllers
             }
         }
 
-        private async Task EnsureUserRegistrationExists(string? email, string? cookieGuid)
+        [HttpPost("associate-cookie")]
+        public async Task<IActionResult> AssociateCookie([FromBody] AssociateRequest request)
         {
-            if (string.IsNullOrWhiteSpace(email)) return;
+            if (request == null || string.IsNullOrWhiteSpace(request.UserEmail) || string.IsNullOrWhiteSpace(request.CookieGuid))
+                return BadRequest("Missing fields");
 
             try
             {
-                var existing = await _db.UserRegistrations.FirstOrDefaultAsync(r => r.UserEmail == email);
-                if (existing == null)
+                // If registration already exists, return ok
+                var existing = await _db.UserRegistrations.FirstOrDefaultAsync(r => r.UserEmail == request.UserEmail);
+                if (existing != null)
+                    return Ok(new { associated = false, reason = "already_exists" });
+
+                var reg = new UserRegistration
                 {
-                    var reg = new UserRegistration
-                    {
-                        Id = Guid.NewGuid(),
-                        UserEmail = email,
-                        CookieGuid = cookieGuid,
-                        CreatedDate = DateTime.UtcNow
-                    };
-                    _db.UserRegistrations.Add(reg);
-                    await _db.SaveChangesAsync();
-                    Console.WriteLine($"Created UserRegistration for {email}");
-                }
+                    Id = Guid.NewGuid(),
+                    UserEmail = request.UserEmail,
+                    CookieGuid = request.CookieGuid,
+                    CreatedDate = DateTime.UtcNow
+                };
+                _db.UserRegistrations.Add(reg);
+                await _db.SaveChangesAsync();
+                Console.WriteLine($"Associated cookie {request.CookieGuid} to email {request.UserEmail}");
+                return Ok(new { associated = true });
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"EnsureUserRegistrationExists exception: {ex.Message}");
+                Console.Error.WriteLine($"AssociateCookie exception: {ex.Message}");
+                return StatusCode(500, "Server error");
             }
         }
 
@@ -132,6 +152,12 @@ namespace FinPlan.ApiService.Controllers
             public string? Provider { get; set; }
 
             // optional cookie-guid to correlate client-side cookie to registration
+            public string? CookieGuid { get; set; }
+        }
+
+        public class AssociateRequest
+        {
+            public string? UserEmail { get; set; }
             public string? CookieGuid { get; set; }
         }
     }
