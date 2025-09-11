@@ -7,6 +7,35 @@
         padding: 1.25rem 1rem;
     }
 
+    /* Active tab styles restored (yellow background) */
+    .tab-active-custom {
+        background-color: #FFD600 !important;
+        color: #222 !important;
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tab-item-active .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: #222 !important;
+        font-weight: 600;
+        padding: 0.18rem 0.4rem;
+    }
+
     /* Left and right sidebars (shared layout used by WealthJourmeyPlanner) */
     .left-sidebar, .right-sidebar {
         position: fixed;
