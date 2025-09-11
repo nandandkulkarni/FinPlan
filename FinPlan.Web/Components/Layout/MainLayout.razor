@@ -51,6 +51,18 @@
         text-decoration: none;
     }
 
+    /* Active/current page highlight for NavLink (NavLink adds 'active' automatically) */
+    .top-strip .menu-link.active,
+    .top-strip .menu-link[aria-current="page"] {
+        background-color: #fff8d6; /* soft yellow/white contrast */
+        color: #111;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border-radius: 8px;
+        padding: 6px 12px;
+        transform: translateY(-1px);
+    }
+
     /* Keep actions pinned to the right */
     .top-strip .menu-actions {
         position: absolute;
