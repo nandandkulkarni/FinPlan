@@ -192,81 +192,36 @@
         opacity: 0.6;
     }
 
-    /* Typography improvements - step 2 (moderate)
-       - Increase prominence of money values in cards and summary
-       - Make card headers and titles slightly larger and clearer
-       - Improve tab link spacing + focus outline for accessibility
-       - Tweak helper text sizes for readability
-    */
-
-    /* Money values: more prominent */
+    /* Smaller font size for monetary values in tables */
     .money-value {
-        font-size: 1.125rem; /* 18px */
-        font-weight: 700;
-        line-height: 1.15;
+        font-size: 0.70rem;
+    }
+
+    /* Prominent summary numbers for top cards and totals */
+    .summary-money {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.05;
         font-variant-numeric: tabular-nums;
-        letter-spacing: -0.01em;
     }
 
-    /* Larger card titles for visual hierarchy */
-    .card .card-title,
-    .card-header h3 {
-        font-size: 1.25rem; /* 20px */
-        font-weight: 700;
-        letter-spacing: -0.01em;
+    /* Prevent any pseudo-element generated content from duplicating the displayed numbers */
+    .summary-money::before, .summary-money::after,
+    .money-value::before, .money-value::after {
+        content: none !important;
+        display: none !important;
     }
 
-    /* Tabs: increased tap/click target and visual weight */
-    .nav-tabs .nav-link {
-        padding: 0.5rem 0.85rem;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-    .nav-tabs .nav-link:focus-visible {
-        outline: 3px solid rgba(13,110,253,0.18);
-        outline-offset: 2px;
-        border-radius: 8px;
-    }
-
-    /* Slightly stronger form label and compact helper text */
-    label.form-label {
-        font-size: 0.98rem;
-        font-weight: 600;
-    }
-
-    .form-text {
-        font-size: 0.88rem;
-        color: var(--bs-body-color);
-        opacity: 0.8;
-    }
-
-    /* Table header and body adjustments for readability */
+    /* More compact table headers */
     .retirement-table th {
-        font-size: 0.98rem;
-        padding: 0.56rem 0.6rem;
-        font-weight: 700;
-        color: var(--bs-body-color);
+        font-size: 0.85rem;
+        padding: 0.4rem;
     }
 
+    /* More compact table cells */
     .retirement-table td {
-        font-size: 0.92rem;
-        padding: 0.44rem 0.5rem;
-        vertical-align: middle;
+        padding: 0.4rem;
     }
-
-    /* Make the small summary text under money values slightly larger */
-    .card .card-body p.mb-0 {
-        font-size: 0.95rem;
-        margin-top: 0.15rem;
-        color: rgba(0,0,0,0.75);
-    }
-
-    /* Dark theme overrides for new sizes */
-    .dark-theme .card .card-body p.mb-0 {
-        color: rgba(226,232,240,0.9);
-    }
-
 </style>
 
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
@@ -651,73 +606,82 @@
                             <div class="col-6">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-primary money-value">@results.TotalWithdrawals.ToString("C0")</h4>
-                                        <p class="mb-0">Total Spending</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h4 class="text-success money-value">@results.TotalGrowth.ToString("C0")</h4>
-                                        <p class="mb-0">Investment Growth</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+-                                        <h4 class="text-primary money-value">@results.TotalWithdrawals.ToString("C0")</h4>
++                                        <h4 class="text-primary money-value summary-money">@results.TotalWithdrawals.ToString("C0")</h4>
+                                         <p class="mb-0">Total Spending</p>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="card bg-light">
+                                     <div class="card-body text-center">
+-                                        <h4 class="text-success money-value">@results.TotalGrowth.ToString("C0")</h4>
++                                        <h4 class="text-success money-value summary-money">@results.TotalGrowth.ToString("C0")</h4>
+                                         <p class="mb-0">Investment Growth</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h4 class="@GetSustainabilityClass(results.IsSustainable) money-value">
-                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
-                                        </h4>
-                                        <p class="mb-0">Final Balance</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h4 class="@GetSustainabilityClass(results.IsSustainable)">
-                                            @(results.MoneyRunsOutAge > 0 && !results.IsSustainable
-                                                                                    ? $"Age {results.MoneyRunsOutAge}"
-                                                                                    : "Lifetime")
-                                    </h4>
-                                    <p class="mb-0">Money Lasts Until</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                         <div class="row mb-3">
+                             <div class="col-6">
+                                 <div class="card bg-light">
+                                     <div class="card-body text-center">
+-                                        <h4 class="@GetSustainabilityClass(results.IsSustainable) money-value">
+-                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
+-                                        </h4>
++                                        <h4 class="@GetSustainabilityClass(results.IsSustainable) money-value summary-money">
++                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
++                                        </h4>
+                                         <p class="mb-0">Final Balance</p>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="card bg-light">
+                                     <div class="card-body text-center">
+                                         <h4 class="@GetSustainabilityClass(results.IsSustainable)">
+                                             @(results.MoneyRunsOutAge > 0 && !results.IsSustainable
+                                                                                         ? $"Age {results.MoneyRunsOutAge}"
+                                                                                         : "Lifetime")
+                                     </h4>
+                                     <p class="mb-0">Money Lasts Until</p>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
 
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Final Account Balances</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <table class="table mb-0">
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>Post-Tax Account:</strong></td>
-                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Traditional Account:</strong></td>
-                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Roth Account:</strong></td>
-                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
-                                        </tr>
-                                        <tr class="table-active">
-                                            <td><strong>Total:</strong></td>
-                                            <td class="text-end money-value"><strong>@results.FinalBalance.ToString("C0")</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                         <div class="card mb-3">
+                             <div class="card-header bg-light">
+                                 <h5 class="mb-0">Final Account Balances</h5>
+                             </div>
+                             <div class="card-body p-0">
+                                 <table class="table mb-0">
+                                     <tbody>
+                                         <tr>
+                                             <td><strong>Post-Tax Account:</strong></td>
+-                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
++                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
+                                         </tr>
+                                         <tr>
+                                             <td><strong>Traditional Account:</strong></td>
+-                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
++                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
+                                         </tr>
+                                         <tr>
+                                             <td><strong>Roth Account:</strong></td>
+-                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
++                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
+                                         </tr>
+                                         <tr class="table-active">
+                                             <td><strong>Total:</strong></td>
+-                                            <td class="text-end money-value"><strong>@results.FinalBalance.ToString("C0")</strong></td>
++                                            <td class="text-end money-value summary-money"><strong>@results.FinalBalance.ToString("C0")</strong></td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
 
                         <div class="progress mb-3" style="height: 30px;">
                             <div class="progress-bar bg-info" role="progressbar"
