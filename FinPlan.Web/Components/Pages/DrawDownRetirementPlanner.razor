@@ -269,6 +269,33 @@
         color: #e6eef6;
     }
 
+    /* Debug area inside right sidebar */
+    .right-sidebar .debug-toggle-btn {
+        background: transparent;
+        border: none;
+        color: inherit;
+        padding: 6px 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .right-sidebar .debug-box {
+        margin-top: 8px;
+        background: rgba(0,0,0,0.06);
+        padding: 8px 10px;
+        border-radius: 6px;
+        max-height: 220px;
+        overflow-y: auto;
+        font-size: 0.82rem;
+    }
+
+    .dark-theme .right-sidebar .debug-box {
+        background: rgba(255,255,255,0.03);
+    }
+
     /* Hide sidebars on small screens */
     @@media (max-width: 992px) {
         .left-sidebar, .right-sidebar { display: none !important; }
@@ -304,6 +331,29 @@
             <li><a class="sidebar-link" href="/privacy-policy"><i class="bi bi-file-earmark-text"></i> Privacy</a></li>
             <li><a class="sidebar-link" href="/contact"><i class="bi bi-envelope"></i> Contact</a></li>
         </ul>
+
+        <!-- Debug toggle and messages (copied from NavMenu debug area) -->
+        <div class="mt-2">
+            <button class="debug-toggle-btn" title="Toggle debug messages" @onclick="ToggleRightDebug" aria-pressed="@showRightDebug.ToString().ToLower()">
+                <span class="bi @(showRightDebug ? "bi-bug-fill" : "bi-bug")" aria-hidden="true"></span>
+                <span style="font-size:0.9rem">Debug</span>
+            </button>
+        </div>
+
+        @if (showRightDebug)
+        {
+            <div class="debug-box">
+                <strong>Debug</strong>
+                @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
+                {
+                    <div class="mt-1">
+                        <small class="text-muted">@msg.MessageTime.ToString("HH:mm:ss")</small>
+                        <div>@msg.MessageText</div>
+                    </div>
+                }
+            </div>
+        }
+
     </nav>
 
     <!-- Theme toggle button -->
@@ -1046,6 +1096,7 @@
 @code {
     private bool isDarkTheme = false;
     private bool isSummaryExpanded = false;
+    private bool showRightDebug = false;
 
     // Properties for custom withdrawal order UI
     private string firstWithdrawalType = "Taxable";
@@ -1094,6 +1145,12 @@
     private void ToggleSummary()
     {
         isSummaryExpanded = !isSummaryExpanded;
+    }
+
+    private void ToggleRightDebug()
+    {
+        showRightDebug = !showRightDebug;
+        StateHasChanged();
     }
 
     // Update the withdrawal order based on UI selections
