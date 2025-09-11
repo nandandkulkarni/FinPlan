@@ -175,7 +175,7 @@
                                                               @bind-value="calculatorModel.InitialTaxableAmount"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
 
-                                        <FormattedNumber class="form-control" @bind-Value="calculatorModel.InitialTaxableAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialTaxableAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
   
                                         <small class="form-text">Regular brokerage/savings account</small>
                                     </div>
@@ -185,7 +185,7 @@
                                                               @bind-value="calculatorModel.InitialTraditionalAmount"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
 
-                                                                                                      <FormattedNumber class="form-control" @bind-Value="calculatorModel.InitialTraditionalAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialTraditionalAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
 
                                         <small class="form-text">401k, Traditional IRA (include employer)</small>
                                     </div>
@@ -194,7 +194,7 @@
                                         @* <FormattedInputNumber id="initialRothAmount" class="form-control"
                                                               @bind-value="calculatorModel.InitialRothAmount"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-                                        <FormattedNumber class="form-control" @bind-Value="calculatorModel.InitialRothAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialRothAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
 
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
@@ -216,7 +216,7 @@
                                         @* <FormattedInputNumber id="monthlyTaxableContribution" class="form-control"
                                                               @bind-value="calculatorModel.MonthlyTaxableContribution"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-                                        <FormattedNumber class="form-control" @bind-Value="calculatorModel.MonthlyTaxableContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyTaxableContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
 
                                         <small class="form-text">Regular brokerage/savings account</small>
                                     </div>
@@ -226,7 +226,7 @@
                                                               @bind-value="calculatorModel.MonthlyTraditionalContribution"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
 
-                                        <FormattedNumber class="form-control" @bind-Value="calculatorModel.MonthlyTraditionalContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyTraditionalContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
 
                                         <small class="form-text">401k, Traditional IRA (include Employer)</small>
                                     </div>
@@ -235,7 +235,7 @@
                                         @* <FormattedInputNumber id="monthlyRothContribution" class="form-control"
                                                               @bind-value="calculatorModel.MonthlyRothContribution"
                                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-                                        <FormattedNumber class="form-control" @bind-Value="calculatorModel.MonthlyRothContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyRothContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
 
                                         <small class="form-text">Roth 401k, Roth IRA</small>
                                     </div>
