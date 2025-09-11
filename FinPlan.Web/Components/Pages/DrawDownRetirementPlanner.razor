@@ -205,12 +205,12 @@
         font-variant-numeric: tabular-nums;
     }
 
-    /* Prevent any pseudo-element generated content from duplicating the displayed numbers */
-    .summary-money::before, .summary-money::after,
-    .money-value::before, .money-value::after {
-        content: none !important;
-        display: none !important;
-    }
+        /* Prevent any pseudo-element generated content from duplicating the displayed numbers */
+        .summary-money::before, .summary-money::after,
+        .money-value::before, .money-value::after {
+            content: none !important;
+            display: none !important;
+        }
 
     /* More compact table headers */
     .retirement-table th {
@@ -238,26 +238,33 @@
         font-size: 0.95rem;
     }
 
-    .left-sidebar { left: 12px; }
-    .right-sidebar { right: 12px; }
-
-    .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        color: #222;
-        text-decoration: none;
-        border-radius: 6px;
-        margin-bottom: 6px;
+    .left-sidebar {
+        left: 12px;
     }
 
-    .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
-        background: rgba(0,0,0,0.04);
-        text-decoration: none;
+    .right-sidebar {
+        right: 12px;
     }
 
-    .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i { font-size: 1.05rem; }
+        .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            color: #222;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+            .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
+                background: rgba(0,0,0,0.04);
+                text-decoration: none;
+            }
+
+            .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i {
+                font-size: 1.05rem;
+            }
 
     /* Dark theme adjustments */
     .dark-theme .left-sidebar, .dark-theme .right-sidebar {
@@ -265,9 +272,9 @@
         color: #e6eef6;
     }
 
-    .dark-theme .left-sidebar .sidebar-link, .dark-theme .right-sidebar .sidebar-link {
-        color: #e6eef6;
-    }
+        .dark-theme .left-sidebar .sidebar-link, .dark-theme .right-sidebar .sidebar-link {
+            color: #e6eef6;
+        }
 
     /* Debug area inside right sidebar */
     .right-sidebar .debug-toggle-btn {
@@ -287,7 +294,7 @@
         background: rgba(0,0,0,0.06);
         padding: 8px 10px;
         border-radius: 6px;
-        max-height: 220px;
+        max-height: 420px;
         overflow-y: auto;
         font-size: 0.82rem;
     }
@@ -298,8 +305,14 @@
 
     /* Hide sidebars on small screens */
     @@media (max-width: 992px) {
-        .left-sidebar, .right-sidebar { display: none !important; }
-        .container-fluid.page-with-sidebars { padding-left: 16px !important; padding-right: 16px !important; }
+        .left-sidebar, .right-sidebar {
+            display: none !important;
+        }
+
+        .container-fluid.page-with-sidebars {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
     }
 
     /* Shift page content inward so it doesn't sit under fixed sidebars */
@@ -399,10 +412,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-floating mb-2">
-                                        @* <input type="number" id="taxableBalance" class="form-control"
-                                               @bind-value="spendingModel.TaxableBalance" @bind-value:event="oninput" /> *@
-
-                                        <FormattedNumber class="form-control" @bind-Value="spendingModel.TaxableBalance" Decimals="0" @onblur="SaveUserRetirementAsync" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="spendingModel.TaxableBalance" Decimals="0" @onblur="SaveUserRetirementAsync" />
 
                                         <label for="taxableBalance">Post-Tax</label>
                                         <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
@@ -411,8 +421,8 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating mb-2">
-                                        <input type="number" id="traditionalBalance" class="form-control"
-                                               @bind-value="spendingModel.TraditionalBalance" @bind-value:event="oninput" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="spendingModel.TraditionalBalance" Decimals="0" @onblur="SaveUserRetirementAsync" />
+
                                         <label for="traditionalBalance">Traditional</label>
                                         <ValidationMessage For="@(() => spendingModel.TraditionalBalance)" class="text-danger" />
                                     </div>
@@ -420,8 +430,8 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating mb-2">
-                                        <input type="number" id="rothBalance" class="form-control"
-                                               @bind-value="spendingModel.RothBalance" @bind-value:event="oninput" />
+                                        <FormattedNumberNew class="form-control" @bind-Value="spendingModel.RothBalance" Decimals="0" @onblur="SaveUserRetirementAsync" />
+
                                         <label for="rothBalance">Roth</label>
                                         <ValidationMessage For="@(() => spendingModel.RothBalance)" class="text-danger" />
                                     </div>
@@ -435,7 +445,6 @@
                             <input type="number" id="traditionalTaxRate" class="form-control" step="0.1" min="0" max="50"
                                    @bind-value="spendingModel.TraditionalTaxRate" @bind-value:event="oninput" />
                             <ValidationMessage For="@(() => spendingModel.TraditionalTaxRate)" class="text-danger" />
-                            <div class="form-text">Estimated tax rate on Traditional account withdrawals</div>
                         </div>
 
                         <div class="mb-3">
@@ -479,12 +488,13 @@
                                             <label class="form-label">Start Age</label>
                                             <input type="number" class="form-control" min="50" max="100"
                                                    @bind-value="spendingModel.SocialSecurityStartAgeIndividual" @bind-value:event="oninput" />
+
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgeIndividual)" class="text-danger" />
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label">Estimated Monthly Benefit ($)</label>
-                                            <input type="number" class="form-control" step="1" min="0"
-                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountIndividual" @bind-value:event="oninput" />
+                                            <FormattedNumberNew class="form-control" @bind-Value="spendingModel.SocialSecurityMonthlyAmountIndividual" Decimals="0" @onblur="SaveUserRetirementAsync" />
+
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountIndividual)" class="text-danger" />
                                         </div>
                                     </div>
@@ -508,8 +518,8 @@
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label">Estimated Monthly Benefit ($)</label>
-                                            <input type="number" class="form-control" step="1" min="0"
-                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountIndividual" @bind-value:event="oninput" />
+                                            <FormattedNumberNew class="form-control" @bind-Value="spendingModel.SocialSecurityMonthlyAmountIndividual" Decimals="0" @onblur="SaveUserRetirementAsync" />
+
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountIndividual)" class="text-danger" />
                                         </div>
                                     </div>
@@ -527,14 +537,12 @@
                                     <div class="row g-2">
                                         <div class="col-6">
                                             <label class="form-label">Start Age</label>
-                                            <input type="number" class="form-control" min="50" max="100"
-                                                   @bind-value="spendingModel.SocialSecurityStartAgeYour" @bind-value:event="oninput" />
+                                            <input type="number" class="form-control" min="50" max="100" @bind-value="spendingModel.SocialSecurityStartAgeYour" @bind-value:event="oninput" />
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityStartAgeYour)" class="text-danger" />
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label">Estimated Monthly Benefit ($)</label>
-                                            <input type="number" class="form-control" step="1" min="0"
-                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountYour" @bind-value:event="oninput" />
+                                            <FormattedNumberNew class="form-control" @bind-Value="spendingModel.SocialSecurityMonthlyAmountYour" Decimals="0" @onblur="SaveUserRetirementAsync" />
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountYour)" class="text-danger" />
                                         </div>
                                     </div>
@@ -555,8 +563,7 @@
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label">Estimated Monthly Benefit ($)</label>
-                                            <input type="number" class="form-control" step="1" min="0"
-                                                   @bind-value="spendingModel.SocialSecurityMonthlyAmountPartner" @bind-value:event="oninput" />
+                                            <FormattedNumberNew class="form-control" @bind-Value="spendingModel.SocialSecurityMonthlyAmountPartner" Decimals="0" @onblur="SaveUserRetirementAsync" />
                                             <ValidationMessage For="@(() => spendingModel.SocialSecurityMonthlyAmountPartner)" class="text-danger" />
                                         </div>
                                     </div>
@@ -741,76 +748,85 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h4 class="text-primary money-value summary-money">@results.TotalWithdrawals.ToString("C0")</h4>
-                                         <p class="mb-0">Total Spending</p>
-                                     </div>
-                                 </div>
-                             </div>
-                             <div class="col-6">
-                                 <div class="card bg-light">
-                                     <div class="card-body text-center">
+                                        <p class="mb-0">Total Spending</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
                                         <h4 class="text-success money-value summary-money">@results.TotalGrowth.ToString("C0")</h4>
-                                         <p class="mb-0">Investment Growth</p>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
+                                        <p class="mb-0">Investment Growth</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                         <div class="row mb-3">
-                             <div class="col-6">
-                                 <div class="card bg-light">
-                                     <div class="card-body text-center">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
                                         <h4 class="@GetSustainabilityClass(results.IsSustainable) money-value summary-money">
-+                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
-+                                        </h4>
-                                         <p class="mb-0">Final Balance</p>
-                                     </div>
-                                 </div>
-                             </div>
-                             <div class="col-6">
-                                 <div class="card bg-light">
-                                     <div class="card-body text-center">
-                                         <h4 class="@GetSustainabilityClass(results.IsSustainable)">
-                                             @(results.MoneyRunsOutAge > 0 && !results.IsSustainable
-                                                                                         ? $"Age {results.MoneyRunsOutAge}"
-                                                                                         : "Lifetime")
-                                     </h4>
-                                     <p class="mb-0">Money Lasts Until</p>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
+                                            +                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
+                                            +
+                                        </h4>
+                                        <p class="mb-0">Final Balance</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="@GetSustainabilityClass(results.IsSustainable)">
+                                            @(results.MoneyRunsOutAge > 0 && !results.IsSustainable
+                                                                                    ? $"Age {results.MoneyRunsOutAge}"
+                                                                                    : "Lifetime")
+                                    </h4>
+                                    <p class="mb-0">Money Lasts Until</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                         <div class="card mb-3">
-                             <div class="card-header bg-light">
-                                 <h5 class="mb-0">Final Account Balances</h5>
-                             </div>
-                             <div class="card-body p-0">
-                                 <table class="table mb-0">
-                                     <tbody>
-                                         <tr>
-                                             <td><strong>Post-Tax Account:</strong></td>
--                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
-+                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
-                                         </tr>
-                                         <tr>
-                                             <td><strong>Traditional Account:</strong></td>
--                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
-+                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
-                                         </tr>
-                                         <tr>
-                                             <td><strong>Roth Account:</strong></td>
--                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
-+                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
-                                         </tr>
-                                         <tr class="table-active">
-                                             <td><strong>Total:</strong></td>
--                                            <td class="text-end money-value"><strong>@results.FinalBalance.ToString("C0")</strong></td>
-+                                            <td class="text-end money-value summary-money"><strong>@results.FinalBalance.ToString("C0")</strong></td>
-                                         </tr>
-                                     </tbody>
-                                 </table>
-                             </div>
-                         </div>
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Final Account Balances</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Post-Tax Account:</strong></td>
+                                            -
+                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
+                                            +
+                                            <td class="text-end money-value">@results.TaxableBalance.ToString("C0")</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Traditional Account:</strong></td>
+                                            -
+                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
+                                            +
+                                            <td class="text-end money-value">@results.TraditionalBalance.ToString("C0")</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Roth Account:</strong></td>
+                                            -
+                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
+                                            +
+                                            <td class="text-end money-value">@results.RothBalance.ToString("C0")</td>
+                                        </tr>
+                                        <tr class="table-active">
+                                            <td><strong>Total:</strong></td>
+                                            -
+                                            <td class="text-end money-value"><strong>@results.FinalBalance.ToString("C0")</strong></td>
+                                            +
+                                            <td class="text-end money-value summary-money"><strong>@results.FinalBalance.ToString("C0")</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
                         <div class="progress mb-3" style="height: 30px;">
                             <div class="progress-bar bg-info" role="progressbar"
@@ -956,11 +972,11 @@
                                                                 <th>Post-Tax Start</th>
                                                                 <th>Traditional Start</th>
                                                                 <th>Roth Start</th>
-                                                               @*  @if (spendingModel.HasPartialRetirement)
+                                                                @*  @if (spendingModel.HasPartialRetirement)
                                                                 {
                                                                     <th>Part-time Income</th>
                                                                 } *@
-                                                              
+
                                                                 <th>Post-Tax W/D</th>
                                                                 <th>Traditional W/D</th>
                                                                 <th>Roth W/D</th>
