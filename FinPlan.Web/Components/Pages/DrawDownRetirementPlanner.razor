@@ -369,12 +369,15 @@
 
     </nav>
 
-    <!-- Theme toggle button -->
+    @* <!-- Theme toggle button -->
     <button @onclick="ToggleTheme" class="btn btn-sm theme-toggle @(isDarkTheme ? "btn-light" : "btn-dark")">
         <i class="bi @(isDarkTheme ? "bi-sun" : "bi-moon")"></i>
         @(isDarkTheme ? "Light Mode" : "Dark Mode")
-    </button>
+    </button> *@
     <!-- Tab Navigation -->
+    <h3>Retire Drawdown Projections</h3>
+    <p class="text-muted">Enter your estimated account balance at retirement, age, social security benefits.</p>
+
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
             <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")"
@@ -400,7 +403,7 @@
             <div class="card">
                 <div class="card-header @(isDarkTheme ? "" : "bg-primary text-white")">
                     <h3 class="card-title mb-0">
-                        <i class="bi bi-wallet2"></i> Retirement Spending Planner
+                        <i class="bi bi-wallet2"></i> Your Inputs
                     </h3>
                 </div>
                 <div class="card-body">
@@ -415,7 +418,7 @@
                         </div> *@
 
                         <div class="mb-3">
-                            <label class="form-label">Account Balances ($)</label>
+                            <label class="form-label">Account Balances at Retirement ($)</label>
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-floating mb-2">
@@ -424,7 +427,7 @@
                                         <label for="taxableBalance">Post-Tax</label>
                                         <ValidationMessage For="@(() => spendingModel.TaxableBalance)" class="text-danger" />
                                     </div>
-                                    <div class="form-text">Brokerage accounts</div>
+                                    <div class="form-text">Banks, Brokerage accounts</div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating mb-2">
@@ -690,7 +693,7 @@
                         </div>
 
                         <div class="card mb-3">
-                            <div class="card-header bg-info text-white">
+                            @* <div class="card-header bg-info text-white">
                                 <div class="form-check mb-0">
                                     <input type="checkbox" id="hasPartialRetirement" class="form-check-input"
                                            @bind="hasPartialRetirementChecked" />
@@ -698,7 +701,7 @@
                                         I plan to work part-time during early retirement
                                     </label>
                                 </div>
-                            </div>
+                            </div> *@
                             @if (hasPartialRetirementChecked)
                             {
                                 <div class="card-body">
@@ -783,8 +786,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h4 class="@GetSustainabilityClass(results.IsSustainable) money-value summary-money">
-                                            +                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
-                                            +
+                                            @(results.FinalBalance > 0 ? results.FinalBalance.ToString("C0") : "$0")
                                         </h4>
                                         <p class="mb-0">Final Balance</p>
                                     </div>
