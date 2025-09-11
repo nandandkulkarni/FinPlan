@@ -2,6 +2,19 @@
 
 <PageTitle>REWealthen - Financial Planning Made Easy</PageTitle>
 
+<style>
+    /* Summary number/title styling to match other pages */
+    .summary-money {
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1.05;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Ensure no pseudo-element duplication */
+    .summary-money::before, .summary-money::after { content: none !important; display: none !important; }
+</style>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -20,7 +33,7 @@
                     <div class="card h-100">
                         <div class="card-body text-center">
                             <i class="bi bi-calculator display-4 text-primary mb-3"></i>
-                            <h5 class="card-title">Wealth Journey</h5>
+                            <h5 class="card-title summary-money">Wealth Journey</h5>
                             <p class="card-text">Calculate how your savings will grow with compound interest and regular contributions.</p>
                             <a href="/wealth-journey" class="btn btn-primary">Try Planner</a>
                         </div>
@@ -31,7 +44,7 @@
                     <div class="card h-100">
                         <div class="card-body text-center">
                             <i class="bi bi-graph-up display-4 text-success mb-3"></i>
-                            <h5 class="card-title">Retirement & FIRE</h5>
+                            <h5 class="card-title summary-money">Retirement & FIRE</h5>
                             <p class="card-text">Plan for financial independence and early retirement with our advanced retirement calculator.</p>
                             <a href="/retirement-fire" class="btn btn-success">Retirement & FIRE Planner</a>
                         </div>
@@ -42,7 +55,7 @@
                     <div class="card h-100">
                         <div class="card-body text-center">
                             <i class="bi bi-currency-dollar display-4 text-warning mb-3"></i>
-                            <h5 class="card-title">Cost of Living</h5>
+                            <h5 class="card-title summary-money">Cost of Living</h5>
                             <p class="card-text">Capture and project cost of livings now vs retirement.</p>
                             <a href="/wealth-journey" class="btn btn-warning">Set Goals</a>
                         </div>

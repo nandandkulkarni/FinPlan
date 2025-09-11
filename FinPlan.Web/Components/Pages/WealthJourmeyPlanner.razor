@@ -61,6 +61,24 @@
     .blazor-loading-modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items:center; justify-content:center; }
     .blazor-loading-content { text-align:center; background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.12); padding:20px 28px; min-width:200px; }
     .blazor-loading-content .spinner-border { width:2.25rem; height:2.25rem; }
+
+    /* Smaller font size for monetary values in tables (kept consistent with retirement planner) */
+    .money-value { font-size: 0.70rem; }
+
+    /* Prominent summary numbers for top cards and totals */
+    .summary-money {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.05;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Prevent pseudo-elements duplicating numbers */
+    .summary-money::before, .summary-money::after,
+    .money-value::before, .money-value::after {
+        content: none !important;
+        display: none !important;
+    }
 </style>
 
 <div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
@@ -91,7 +109,7 @@
             <div class="col-md-3">
                 <div class="card bg-light">
                     <div class="card-body text-center">
-                        <h4 class="text-primary">@results.FinalAmount.ToString("C")</h4>
+                        <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C")</h4>
                         <p class="mb-0">Final Amount</p>
                     </div>
                 </div>
@@ -99,7 +117,7 @@
             <div class="col-md-3">
                 <div class="card bg-light">
                     <div class="card-body text-center">
-                        <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
+                        <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C")</h4>
                         <p class="mb-0">Growth</p>
                     </div>
                 </div>
@@ -107,7 +125,7 @@
             <div class="col-md-3">
                 <div class="card bg-light">
                     <div class="card-body text-center">
-                        <h4 class="text-info">@results.TotalContributions.ToString("C")</h4>
+                        <h4 class="text-info summary-money">@results.TotalContributions.ToString("C")</h4>
                         <p class="mb-0">Total Contributions</p>
                     </div>
                 </div>
@@ -115,7 +133,7 @@
             <div class="col-md-3">
                 <div class="card bg-light">
                     <div class="card-body text-center">
-                        <h4 class="text-warning">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
+                        <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
                         <p class="mb-0">Annual Growth Rate</p>
                     </div>
                 </div>
@@ -346,7 +364,7 @@
                             <div class="col-md-3">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-primary">@results.FinalAmount.ToString("C")</h4>
+                                        <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C")</h4>
                                         <p class="mb-0">Final Amount</p>
                                     </div>
                                 </div>
@@ -354,7 +372,7 @@
                             <div class="col-md-3">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-success">@results.TotalInterestEarned.ToString("C")</h4>
+                                        <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C")</h4>
                                         <p class="mb-0">Growth</p>
                                     </div>
                                 </div>
@@ -362,7 +380,7 @@
                             <div class="col-md-3">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-info">@results.TotalContributions.ToString("C")</h4>
+                                        <h4 class="text-info summary-money">@results.TotalContributions.ToString("C")</h4>
                                         <p class="mb-0">Total Contributions</p>
                                     </div>
                                 </div>
@@ -370,7 +388,7 @@
                             <div class="col-md-3">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-warning">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
+                                        <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
                                         <p class="mb-0">Annual Growth Rate</p>
                                     </div>
                                 </div>
