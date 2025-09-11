@@ -212,7 +212,7 @@
     </div>
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
-@page "/living-cost"
+@page "/cost-of-living"
 @using FinPlan.Shared.Models.LivingCosts
 @using FinPlan.Web.Components
 @using Microsoft.AspNetCore.Components.Forms
@@ -243,7 +243,7 @@
 <div class="container-fluid page-with-sidebars">
     <div class="row">
         <div class="col-12">
-            <h3>Cost of Living Planner</h3>
+            <h3>Cost of Living Projection</h3>
             <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Totals update automatically.</p>
 
             <!-- Save status indicator -->
@@ -297,7 +297,7 @@
                 }
                 @{
                     // Show up to 3 ghost tabs (Plan B, C, D) if not already present
-                    var ghostTabs = new List<string> { "plan-b", "plan-c", "plan-d" };
+                    var ghostTabs = new List<string> { "City-B", "City-C", "City-D" };
                     foreach (var ghost in ghostTabs)
                     {
                         if (!Tabs.Contains(ghost, StringComparer.OrdinalIgnoreCase))
@@ -1411,7 +1411,7 @@
                     isSaving = true;
                     saveErrorMessage = string.Empty;
                     lastSaveMessage = string.Empty;
-                    InvokeAsync(StateHasChanged);
+                    await InvokeAsync(StateHasChanged);
 
                     var apiBaseUrl = GetApiBaseUrl();
                     var url = $"{apiBaseUrl}/api/CostOfLiving/save";
@@ -1478,7 +1478,7 @@
                     finally
                     {
                         isSaving = false;
-                        InvokeAsync(StateHasChanged);
+                        await InvokeAsync(StateHasChanged);
                     }
                 }
 
@@ -1638,7 +1638,7 @@
                             Log("User triggered retry: LoadTabsAsync");
                             await LoadTabsAsync();
                             // if tabs loaded and activeTab missing, ensure selection
-                            if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "plan-a";
+                            if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "City-A";
                             calculatorType = MapTabToCalculatorType(activeTab);
                             // After reloading tabs, try loading data for the active tab
                             await LoadFromApi();

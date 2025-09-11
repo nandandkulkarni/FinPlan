@@ -87,10 +87,10 @@
 
 <div class="top-strip"> 
     <div class="container menu-container">
-        <NavLink class="menu-link" href="/wealth-journey"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
+        <NavLink class="menu-link" href="/wealth-building"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
         @* <NavLink class="menu-link d-none d-md-inline" href="/howmuch-to-save-per-month"> <span class="bi bi-piggy-bank"></span> Goal Savings</NavLink> *@
-        <NavLink class="menu-link" href="/living-cost"> <span class="bi bi-list-ul"></span> Living Cost</NavLink>
-        <NavLink class="menu-link" href="/retirement-fire"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
+        <NavLink class="menu-link" href="/cost-of-living"> <span class="bi bi-list-ul"></span> Cost of Living Projection</NavLink>
+        <NavLink class="menu-link" href="/retirement-drawdown"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
 
 
         <div class="menu-actions">
@@ -98,7 +98,7 @@
 
             @if (isAuthLoaded)
             {
-                if (isAuthenticated && currentUser != null)
+                @* if (isAuthenticated && currentUser != null)
                 {
                     var first = currentUser.FindFirst("given_name")?.Value ?? string.Empty;
                     var last = currentUser.FindFirst("family_name")?.Value ?? string.Empty;
@@ -114,7 +114,7 @@
                         <a class="btn btn-sm btn-primary auth-btn" href="/signin-google-challenge" aria-label="Sign in with Google">Sign in</a>
                         <a class="btn btn-sm btn-outline-secondary d-none d-md-inline auth-btn" href="/signin-google-challenge" aria-label="Sign up with Google">Sign up</a>
                     </div>
-                }
+                } *@
             }
             else
             {
@@ -188,7 +188,8 @@
             </div>
             <div class="d-flex justify-content-end">
                 <button class="btn btn-link btn-sm me-2" id="consent-decline">Decline all</button>
-                <button class="btn btn-primary btn-sm" id="consent-accept">Save</button>
+                <button class="btn btn-primary btn-sm" id="consent-accept">Accept all</button>
+                <button class="btn btn-primary btn-sm" id="consent-accept">Accept necessary ones</button>
             </div>
         </div>
     </div>
