@@ -407,6 +407,13 @@
                     <EditForm Model="@spendingModel" OnValidSubmit="@Calculate" FormName="SpendingPlannerForm">
                         <DataAnnotationsValidator />
 
+                        @* <!-- Calculate button moved to top of the form -->
+                        <div class="d-flex align-items-center mb-3 justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calculator"></i> Calculate
+                            </button>
+                        </div> *@
+
                         <div class="mb-3">
                             <label class="form-label">Account Balances ($)</label>
                             <div class="row">
@@ -718,9 +725,12 @@
                             }
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="bi bi-calculator"></i> Calculate Spending Plan
-                        </button>
+                      @*   <!-- Calculate button at bottom for convenience -->
+                        <div class="d-flex align-items-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-calculator"></i> Calculate Spending Plan
+                            </button>
+                        </div> *@
                     </EditForm>
                 </div>
             </div>
@@ -735,11 +745,17 @@
                             <h3 class="card-title mb-0">
                                 <i class="bi bi-graph-up"></i> Results
                             </h3>
-                            <RetirementExportButton Results="@results"
+                            <!-- Calculate button moved to top of the form -->
+                            <div class="d-flex align-items-center mb-3 justify-content-end">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-calculator"></i> Re-Calculate
+                                </button>
+                            </div>
+                            @* <RetirementExportButton Results="@results"
                                                     YearlyBreakdown="@yearlyBreakdown"
                                                     Model="@spendingModel"
                                                     Text="Export to Excel"
-                                                    CssClass="@(isDarkTheme ? "btn btn-outline-light btn-sm" : "btn btn-light btn-sm")" />
+                                                    CssClass="@(isDarkTheme ? "btn btn-outline-light btn-sm" : "btn btn-light btn-sm")" /> *@
                         </div>
                     </div>
                     <div class="card-body">
