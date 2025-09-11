@@ -1174,7 +1174,7 @@
                         Category = cat,
                         Subcategory = GenerateNewItemName(cat),
                         CurrentValue = 0m,
-                        AdjustOption = RetirementAdjustOption.Same,
+                        AdjustOption = RetirementAdjustOption.AdjustForInflation,
                         IncludeInRetirement = true
                     };
 
@@ -1261,7 +1261,7 @@
                         Category = newCat,
                         Subcategory = GenerateNewItemName(newCat),
                         CurrentValue = 0m,
-                        AdjustOption = RetirementAdjustOption.Same,
+                        AdjustOption = RetirementAdjustOption.AdjustForInflation,
                         IncludeInRetirement = true
                     };
 
@@ -1281,7 +1281,7 @@
                 private void AddRow()
                 {
                     var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
-                    var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m };
+                    var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m, AdjustOption = RetirementAdjustOption.AdjustForInflation, IncludeInRetirement = true };
                     Items.Add(newItem);
                     if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
                     {
