@@ -79,9 +79,124 @@
         content: none !important;
         display: none !important;
     }
+
+    /* Left and right vertical menu bars (shared with retirement planner) */
+    .left-sidebar, .right-sidebar {
+        position: fixed;
+        top: 70px; /* below top nav / toggle */
+        bottom: 20px;
+        width: 180px;
+        padding: 12px 8px;
+        overflow-y: auto;
+        background: rgba(255,255,255,0.98);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        border-radius: 8px;
+        z-index: 1050;
+        font-size: 0.95rem;
+    }
+
+    .left-sidebar { left: 12px; }
+    .right-sidebar { right: 12px; }
+
+    .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        color: #222;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+
+    .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
+        background: rgba(0,0,0,0.04);
+        text-decoration: none;
+    }
+
+    .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i { font-size: 1.05rem; }
+
+    /* Debug area inside right sidebar */
+    .right-sidebar .debug-toggle-btn {
+        background: transparent;
+        border: none;
+        color: inherit;
+        padding: 6px 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .right-sidebar .debug-box {
+        margin-top: 8px;
+        background: rgba(0,0,0,0.06);
+        padding: 8px 10px;
+        border-radius: 6px;
+        max-height: 420px;
+        overflow-y: auto;
+        font-size: 0.82rem;
+    }
+
+    /* Dark theme adjustments for sidebars */
+    .dark-theme .left-sidebar, .dark-theme .right-sidebar { background: #1b1b1b; color: #e6eef6; }
+    .dark-theme .left-sidebar .sidebar-link, .dark-theme .right-sidebar .sidebar-link { color: #e6eef6; }
+
+    /* Shift page content inward so it doesn't sit under fixed sidebars */
+    .container-fluid.page-with-sidebars {
+        padding-left: 220px; /* left sidebar width + spacing */
+        padding-right: 220px; /* right sidebar width + spacing */
+        box-sizing: border-box;
+    }
+
+    /* Hide sidebars on small screens */
+    @@media (max-width: 992px) {
+        .left-sidebar, .right-sidebar { display: none !important; }
+        .container-fluid.page-with-sidebars { padding-left: 16px !important; padding-right: 16px !important; }
+    }
 </style>
 
-<div class="container-fluid @(isDarkTheme ? "dark-theme" : "")">
+<!-- Left and right sidebars injected before main container -->
+<nav class="left-sidebar" aria-label="Left menu">
+    <ul class="list-unstyled mb-0">
+        <li><a class="sidebar-link" href="/wealth-journey"><i class="bi bi-graph-up-arrow"></i> Planner</a></li>
+        <li><a class="sidebar-link" href="#results"><i class="bi bi-graph-up"></i> Results</a></li>
+        <li><a class="sidebar-link" href="#export"><i class="bi bi-file-earmark-excel"></i> Export</a></li>
+        <li><a class="sidebar-link" href="/contact"><i class="bi bi-envelope"></i> Contact</a></li>
+    </ul>
+</nav>
+
+<nav class="right-sidebar" aria-label="Right menu">
+    <ul class="list-unstyled mb-0">
+        <li><a class="sidebar-link" href="/"><i class="bi bi-house"></i> Home</a></li>
+        <li><a class="sidebar-link" href="/retirement-fire"><i class="bi bi-wallet2"></i> Retirement</a></li>
+        <li><a class="sidebar-link" href="/privacy-policy"><i class="bi bi-file-earmark-text"></i> Privacy</a></li>
+    </ul>
+
+    <div class="mt-2">
+        <button class="debug-toggle-btn" title="Toggle debug messages" @onclick="ToggleRightDebug" aria-pressed="@showRightDebug.ToString().ToLower()">
+            <span class="bi @(showRightDebug ? "bi-bug-fill" : "bi-bug")" aria-hidden="true"></span>
+            <span style="font-size:0.9rem">Debug</span>
+        </button>
+    </div>
+
+    @if (showRightDebug)
+    {
+        <div class="debug-box">
+            <strong>Debug</strong>
+            @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
+            {
+                <div class="mt-1">
+                    <small class="text-muted">@msg.MessageTime.ToString("HH:mm:ss")</small>
+                    <div>@msg.MessageText</div>
+                </div>
+            }
+        </div>
+    }
+</nav>
+
+<div class="container-fluid page-with-sidebars @(isDarkTheme ? "dark-theme" : "")">
     <!-- Theme toggle button -->
     <button @onclick="ToggleTheme" class="btn btn-sm theme-toggle @(isDarkTheme ? "btn-light" : "btn-dark")">
         <i class="bi @(isDarkTheme ? "bi-sun" : "bi-moon")"></i>
@@ -91,12 +206,12 @@
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
-            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "your" ? "true" : "false")" tabindex="0" @onkeydown="@(async (KeyboardEventArgs e) => await HandleTabKey(e, "your"))" @onclick="YourTabClick">
+            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "your" ? "true" : "false")" tabindex="0" @onclick="YourTabClick">
                 Your  Savings
             </button>
         </li>
         <li class="nav-item d-flex align-items-center me-1 @(activeTab == "partner" ? "tab-item-active" : "")" role="presentation">
-            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "partner" ? "true" : "false")" tabindex="0" @onkeydown="@(async (KeyboardEventArgs e) => await HandleTabKey(e, "partner"))" @onclick="PartnerTabClick">
+            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "partner" ? "true" : "false")" tabindex="0" @onclick="PartnerTabClick">
                 Partner  Savings
             </button>
         </li>
@@ -606,6 +721,7 @@
     private string userMessage = string.Empty;
     private string productMessage = string.Empty;
     private bool isLoading = false;
+    private bool showRightDebug = false;
     private int reirementDistanceForHiding5YearSummaries = 0;
 
     [SupplyParameterFromForm]
@@ -936,5 +1052,11 @@
             isLoading = false;
             StateHasChanged();
         }
+    }
+
+    private void ToggleRightDebug()
+    {
+        showRightDebug = !showRightDebug;
+        StateHasChanged();
     }
 }
