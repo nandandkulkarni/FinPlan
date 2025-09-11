@@ -22,6 +22,16 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        position: relative; /* allow absolute positioning of actions */
+    }
+
+    /* Centered links wrapper */
+    .top-strip .menu-links {
+        margin: 0 auto;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
     }
 
     .top-strip .menu-link {
@@ -41,8 +51,12 @@
         text-decoration: none;
     }
 
+    /* Keep actions pinned to the right */
     .top-strip .menu-actions {
-        margin-left: auto;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex;
         gap: 8px;
         align-items: center;
@@ -82,16 +96,32 @@
         padding: 6px 8px;
         font-size: .92rem;
     }
+
+    /* On small screens make actions part of normal flow to avoid overlap */
+    .top-strip .menu-actions {
+        position: static;
+        transform: none;
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+
+    .top-strip .menu-links {
+        margin: 0; /* allow wrapping */
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
 }
 </style>
 
 <div class="top-strip"> 
     <div class="container menu-container">
-        <NavLink class="menu-link" href="/wealth-building"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
-        @* <NavLink class="menu-link d-none d-md-inline" href="/howmuch-to-save-per-month"> <span class="bi bi-piggy-bank"></span> Goal Savings</NavLink> *@
-        <NavLink class="menu-link" href="/cost-of-living"> <span class="bi bi-list-ul"></span> Cost of Living Projection</NavLink>
-        <NavLink class="menu-link" href="/retirement-drawdown"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
-
+        <div class="menu-links">
+            <NavLink class="menu-link" href="/wealth-building"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
+            @* <NavLink class="menu-link d-none d-md-inline" href="/howmuch-to-save-per-month"> <span class="bi bi-piggy-bank"></span> Goal Savings</NavLink> *@
+            <NavLink class="menu-link" href="/cost-of-living"> <span class="bi bi-list-ul"></span> Cost of Living Projection</NavLink>
+            <NavLink class="menu-link" href="/retirement-drawdown"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
+        </div>
 
         <div class="menu-actions">
             <div class="top-sep" aria-hidden="true"></div>
