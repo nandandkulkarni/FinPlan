@@ -119,7 +119,12 @@ namespace FinPlan.Shared.Services
             decimal taxableBalance = model.InitialTaxableAmount;
             decimal traditionalBalance = model.InitialTraditionalAmount;
             decimal rothBalance = model.InitialRothAmount;
-            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+
+            // Use independent monthly rates per bucket
+            decimal monthlyRateTaxable = model.AnnualGrowthRateTaxable / 100m / 12m;
+            decimal monthlyRateTraditional = model.AnnualGrowthRateTraditional / 100m / 12m;
+            decimal monthlyRateRoth = model.AnnualGrowthRateRoth / 100m / 12m;
+
             int totalMonths = model.Years * 12;
             decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
             decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
@@ -141,7 +146,7 @@ namespace FinPlan.Shared.Services
                 decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = traditionalBalance * monthlyRate;
+                    decimal monthlyInterest = traditionalBalance * monthlyRateTraditional;
                     yearlyTraditionalInterest += monthlyInterest;
                     traditionalBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
@@ -150,7 +155,7 @@ namespace FinPlan.Shared.Services
                 decimal yearlyRothContribution = monthlyRothContribution * 12;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = rothBalance * monthlyRate;
+                    decimal monthlyInterest = rothBalance * monthlyRateRoth;
                     yearlyRothInterest += monthlyInterest;
                     rothBalance += monthlyInterest + monthlyRothContribution;
                 }
@@ -159,7 +164,7 @@ namespace FinPlan.Shared.Services
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = taxableBalance * monthlyRate;
+                    decimal monthlyInterest = taxableBalance * monthlyRateTaxable;
                     yearlyTaxableInterest += monthlyInterest;
                     taxableBalance += monthlyInterest + monthlyTaxableContribution;
                 }
@@ -217,7 +222,11 @@ namespace FinPlan.Shared.Services
             var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) =
                 GetIncomeDistribution(model.TaxableIncomeType);
 
-            decimal monthlyRate = model.AnnualGrowthRate / 100 / 12;
+            // Use independent monthly rates for each bucket
+            decimal monthlyRateTaxable = model.AnnualGrowthRateTaxable / 100m / 12m;
+            decimal monthlyRateTraditional = model.AnnualGrowthRateTraditional / 100m / 12m;
+            decimal monthlyRateRoth = model.AnnualGrowthRateRoth / 100m / 12m;
+
             decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
             decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
             decimal monthlyRothContribution = model.MonthlyRothContribution;
@@ -235,7 +244,7 @@ namespace FinPlan.Shared.Services
                 decimal rothEOYBalance = rothBOYBalance;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal rothMonthlyGrowth = rothEOYBalance * monthlyRate;
+                    decimal rothMonthlyGrowth = rothEOYBalance * monthlyRateRoth;
                     yearlyRothInterest += rothMonthlyGrowth;
                     rothEOYBalance += rothMonthlyGrowth + monthlyRothContribution;
                 }
@@ -246,12 +255,10 @@ namespace FinPlan.Shared.Services
                 decimal traditionalEOYBalance = traditionalBOYBalance;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = traditionalEOYBalance * monthlyRate;
+                    decimal monthlyInterest = traditionalEOYBalance * monthlyRateTraditional;
                     yearlyTraditionalInterest += monthlyInterest;
                     traditionalEOYBalance += monthlyInterest + monthlyTraditionalContribution;
                 }
-
-            
 
                 // Taxable
                 decimal yearlyTaxableInterest = 0;
@@ -260,12 +267,11 @@ namespace FinPlan.Shared.Services
 
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = taxableEOYBalance * monthlyRate;
+                    decimal monthlyInterest = taxableEOYBalance * monthlyRateTaxable;
                     yearlyTaxableInterest += monthlyInterest;
                     taxableEOYBalance += monthlyInterest + monthlyTaxableContribution;
                 }
 
-            
                 // Taxes
                 decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
                 decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
@@ -282,7 +288,7 @@ namespace FinPlan.Shared.Services
                 taxableEOYBalance -= yearlyTaxes;
 
                 // Totals
-                decimal totalBalance = rothEOYBalance + taxableEOYBalance + rothEOYBalance;
+                decimal totalBalance = taxableEOYBalance + traditionalEOYBalance + rothEOYBalance;
                 decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
                 decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
 

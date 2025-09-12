@@ -280,8 +280,8 @@
                         <div class="col-md-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
-                                    <p class="mb-0">Annual Growth Rate</p>
+                                    <h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4>
+                                    <p class="mb-0">Growth (Taxable/Traditional/Roth)</p>
                                 </div>
                             </div>
                         </div>
@@ -424,42 +424,46 @@
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Annual Growth Rate (%)</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <input type="number" id="currentAge" class="form-control"
-                                               @bind-value="calculatorModel.AnnualGrowthRate"
-                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
-                                               @onblur="@(() => SaveUserSavingsAsync())" />
-
-                                        @*                        <FormattedInputNumber id="annualGrowthRate" class="form-control"
-                                                              @bind-value="calculatorModel.AnnualGrowthRate"
-                                                              OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-
-                                        @*   <input type="number" id="annualGrowthRate" class="form-control"
-                                               @bind-value="calculatorModel.AnnualGrowthRate"
-                                               @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
-                                               step="0.1"
-                                               OnBlur="@(() => SaveUserSavingsAsync())" /> *@
-                                        <ValidationMessage For="@(() => calculatorModel.AnnualGrowthRate)" class="text-danger" />
-                                        <small class="form-text">Enter as percentage (e.g., 7 for 7%)</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Compounding Frequency</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <input type="text" id="compoundingFrequency" class="form-control" value="Monthly" readonly />
-                                        <small class="form-text">Growth/Interest compounded monthly</small>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                     <div class="col-md-4">
+                                         <div class="card h-100">
+                                             <div class="card-header"><h6 class="mb-0">Taxable Growth (%)</h6></div>
+                                             <div class="card-body">
+                                                 <input type="number" class="form-control" step="0.1"
+                                                        @bind-value="calculatorModel.AnnualGrowthRateTaxable"
+                                                        @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
+                                                        @onblur="@(() => SaveUserSavingsAsync())" />
+                                                 <small class="form-text">Post-tax account expected annual return</small>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="col-md-4">
+                                         <div class="card h-100">
+                                             <div class="card-header"><h6 class="mb-0">Traditional Growth (%)</h6></div>
+                                             <div class="card-body">
+                                                 <input type="number" class="form-control" step="0.1"
+                                                        @bind-value="calculatorModel.AnnualGrowthRateTraditional"
+                                                        @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
+                                                        @onblur="@(() => SaveUserSavingsAsync())" />
+                                                 <small class="form-text">Pre-tax account expected annual return</small>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="col-md-4">
+                                         <div class="card h-100">
+                                             <div class="card-header"><h6 class="mb-0">Roth Growth (%)</h6></div>
+                                             <div class="card-body">
+                                                 <input type="number" class="form-control" step="0.1"
+                                                        @bind-value="calculatorModel.AnnualGrowthRateRoth"
+                                                        @oninput="@(e => { if (calculatorModel.AutoCalculate) OnInputChanged(); })"
+                                                        @onblur="@(() => SaveUserSavingsAsync())" />
+                                                 <small class="form-text">Roth account expected annual return</small>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
                         </div>
 
                         <div class="card mb-3">
@@ -580,8 +584,8 @@
                             <div class="col-md-3">
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
-                                        <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
-                                        <p class="mb-0">Annual Growth Rate</p>
+                                        <h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4>
+                                        <p class="mb-0">Growth (Taxable/Traditional/Roth)</p>
                                     </div>
                                 </div>
                             </div>
@@ -681,9 +685,8 @@
                                         <li><strong>Investment Income Type:</strong> @GetIncomeTypeDescription(calculatorModel.TaxableIncomeType)</li>
                                         <li><strong>Tax Bracket:</strong> @GetTaxBracketDescription(calculatorModel.TaxBracket)</li>
                                         <li><strong>Total Taxes Paid:</strong> @results.TotalTaxesPaid.ToString("C")</li>
-                                        <li><strong>Expected Growth Rate:</strong> @calculatorModel.AnnualGrowthRate% annually</li>
-                                        <li>
-                                            <strong>Compounding:</strong> @GetCompoundingText()
+                                        <li><strong>Growth Rates (Taxable / Traditional / Roth):</strong>
+                                            @string.Format("{0:F1}% / {1:F1}% / {2:F1}%", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)
                                         </li>
                                     </ul>
                                 </div>
@@ -870,9 +873,15 @@
     {
         try
         {
-            var calculator = new SavingsCalculationEngine();
-            results = calculator.Calculate(calculatorModel);
-            yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+            // Always use individual per-bucket growth rates (no single legacy AnnualGrowthRate)
+            // If any per-bucket rate is not set, treat it as 0%.
+            calculatorModel.AnnualGrowthRateTaxable = calculatorModel.AnnualGrowthRateTaxable;
+            calculatorModel.AnnualGrowthRateTraditional = calculatorModel.AnnualGrowthRateTraditional;
+            calculatorModel.AnnualGrowthRateRoth = calculatorModel.AnnualGrowthRateRoth;
+ 
+             var calculator = new SavingsCalculationEngine();
+             results = calculator.Calculate(calculatorModel);
+             yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
 
             if (calculatorModel.Years > reirementDistanceForHiding5YearSummaries)
             {
@@ -889,8 +898,6 @@
             Console.WriteLine($"Calculation error: {ex.Message}");
         }
     }
-
-    private string GetCompoundingText() => "Monthly";
 
     private string GetIncomeTypeDescription(IncomeType incomeType) => incomeType switch
     {
