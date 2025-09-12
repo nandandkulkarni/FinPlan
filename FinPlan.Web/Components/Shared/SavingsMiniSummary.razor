@@ -1,0 +1,85 @@
+@namespace FinPlan.Web.Components.Shared
+@using FinPlan.Shared.Models
+@using FinPlan.Shared.Models.Savings
+@using System.Globalization
+
+<div class="savings-mini" role="region" aria-label="@Title">
+    <div class="card small-card">
+        <div class="card-body p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong class="small-title">@Title</strong>
+                <small class="text-muted small">Total</small>
+            </div>
+
+            <div class="row mb-1 align-items-center user-row">
+                <div class="col-5 small-label">You</div>
+                <div class="col-7 text-end small-values">
+                    <div class="d-flex justify-content-end gap-1">
+                        <small class="badge bg-light text-dark">@Format(@YouTaxable)</small>
+                        <small class="badge bg-light text-dark">@Format(@YouTraditional)</small>
+                        <small class="badge bg-light text-dark">@Format(@YouRoth)</small>
+                    </div>
+                    <div class="mt-1"><strong>@Format(@YouTotal)</strong></div>
+                </div>
+            </div>
+
+            @if (HasPartner)
+            {
+                <div class="row align-items-center partner-row">
+                    <div class="col-5 small-label">Partner</div>
+                    <div class="col-7 text-end small-values">
+                        <div class="d-flex justify-content-end gap-1">
+                            <small class="badge bg-light text-dark">@Format(@PartnerTaxable)</small>
+                            <small class="badge bg-light text-dark">@Format(@PartnerTraditional)</small>
+                            <small class="badge bg-light text-dark">@Format(@PartnerRoth)</small>
+                        </div>
+                        <div class="mt-1"><strong>@Format(@PartnerTotal)</strong></div>
+                    </div>
+                </div>
+            }
+
+            <hr class="my-2" />
+            <div class="d-flex justify-content-between">
+                <small class="text-muted">Grand Total</small>
+                <strong>@Format(GrandTotal)</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SavingsResults? YouResults { get; set; }
+
+    [Parameter]
+    public SavingsResults? PartnerResults { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Savings";
+
+    private decimal YouTaxable => YouResults?.TaxableBalance ?? 0m;
+    private decimal YouTraditional => YouResults?.TaxDeferredBalance ?? 0m;
+    private decimal YouRoth => YouResults?.RothBalance ?? 0m;
+    private decimal YouTotal => YouTaxable + YouTraditional + YouRoth;
+
+    private decimal PartnerTaxable => PartnerResults?.TaxableBalance ?? 0m;
+    private decimal PartnerTraditional => PartnerResults?.TaxDeferredBalance ?? 0m;
+    private decimal PartnerRoth => PartnerResults?.RothBalance ?? 0m;
+    private decimal PartnerTotal => PartnerTaxable + PartnerTraditional + PartnerRoth;
+
+    private bool HasPartner => PartnerResults != null && (PartnerTaxable != 0m || PartnerTraditional != 0m || PartnerRoth != 0m);
+
+    private decimal GrandTotal => YouTotal + (HasPartner ? PartnerTotal : 0m);
+
+    private string Format(decimal v) => v.ToString("C0", CultureInfo.CurrentCulture);
+}
+
+<style>
+.savings-mini { width: 160px; }
+.savings-mini .small-card { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.small-title { font-size: 0.95rem; }
+.small-label { font-size: 0.82rem; color: #666; }
+.small-values .badge { font-size: 0.72rem; padding: 0.25rem 0.45rem; }
+.user-row, .partner-row { font-size: 0.82rem; }
+@@media (max-width: 992px) { .savings-mini { display:none !important; } }
+</style>

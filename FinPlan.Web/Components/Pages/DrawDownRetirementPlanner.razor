@@ -594,222 +594,6 @@
         background-color: #f8f9fa !important;
     }
 
-    /* Special styles for this page */
-    .sustainability-high {
-        color: #38B2AC;
-    }
-
-    .sustainability-medium {
-        color: #F6AD55;
-    }
-
-    .sustainability-low {
-        color: #F56565;
-    }
-
-    .dark-theme .sustainability-high {
-        color: #38B2AC;
-    }
-
-    .dark-theme .sustainability-medium {
-        color: #F6AD55;
-    }
-
-    .dark-theme .sustainability-low {
-        color: #F56565;
-    }
-
-    .duration-exceeded {
-        text-decoration: line-through;
-        opacity: 0.6;
-    }
-
-    /* Smaller font size for monetary values in tables */
-    .money-value {
-        font-size: 0.70rem;
-    }
-
-    /* Prominent summary numbers for top cards and totals */
-    .summary-money {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1.05;
-        font-variant-numeric: tabular-nums;
-    }
-
-        /* Prevent any pseudo-element generated content from duplicating the displayed numbers */
-        .summary-money::before, .summary-money::after,
-        .money-value::before, .money-value::after {
-            content: none !important;
-            display: none !important;
-        }
-
-    /* More compact table headers */
-    .retirement-table th {
-        font-size: 0.85rem;
-        padding: 0.4rem;
-    }
-
-    /* More compact table cells */
-    .retirement-table td {
-        padding: 0.4rem;
-    }
-
-    /* Left and right vertical menu bars */
-    .left-sidebar, .right-sidebar {
-        position: fixed;
-        top: 70px; /* below top nav / toggle */
-        bottom: 20px;
-        width: 180px;
-        padding: 12px 8px;
-        overflow-y: auto;
-        background: rgba(255,255,255,0.98);
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        border-radius: 8px;
-        z-index: 1050;
-        font-size: 0.95rem;
-    }
-
-    .left-sidebar {
-        left: 12px;
-    }
-
-    .right-sidebar {
-        right: 12px;
-    }
-
-        .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 10px;
-            color: #222;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 6px;
-        }
-
-            .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
-                background: rgba(0,0,0,0.04);
-                text-decoration: none;
-            }
-
-            .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i {
-                font-size: 1.05rem;
-            }
-
-    /* Dark theme adjustments */
-    .dark-theme .left-sidebar, .dark-theme .right-sidebar {
-        background: #1b1b1b;
-        color: #e6eef6;
-    }
-
-        .dark-theme .left-sidebar .sidebar-link, .dark-theme .right-sidebar .sidebar-link {
-            color: #e6eef6;
-        }
-
-    /* Debug area inside right sidebar */
-    .right-sidebar .debug-toggle-btn {
-        background: transparent;
-        border: none;
-        color: inherit;
-        padding: 6px 8px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-    }
-
-    .right-sidebar .debug-box {
-        margin-top: 8px;
-        background: rgba(0,0,0,0.06);
-        padding: 8px 10px;
-        border-radius: 6px;
-        max-height: 420px;
-        overflow-y: auto;
-        font-size: 0.82rem;
-    }
-
-    .dark-theme .right-sidebar .debug-box {
-        background: rgba(255,255,255,0.03);
-    }
-
-    /* Hide sidebars on small screens */
-    @@media (max-width: 992px) {
-        .left-sidebar, .right-sidebar {
-            display: none !important;
-        }
-
-        .container-fluid.page-with-sidebars {
-            padding-left: 16px !important;
-            padding-right: 16px !important;
-        }
-    }
-
-    /* Shift page content inward so it doesn't sit under fixed sidebars */
-    .container-fluid.page-with-sidebars {
-        padding-left: 220px; /* left sidebar width + spacing */
-        padding-right: 220px; /* right sidebar width + spacing */
-        box-sizing: border-box;
-    }
-
-    /* Add variables and tab-panel box so the panel can 'kiss' the tabs */
-    :root {
-        --tab-panel-top-offset: -6px;
-        --tab-panel-padding-top: 22px;
-    }
-
-    /* ensure tab row doesn't leave default bottom spacing */
-    .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-        margin-bottom: 0 !important;
-        padding-bottom: 0;
-        position: relative;
-        z-index: 20;
-    }
-
-    .tab-panel-box {
-        border: 2px solid #C79A00; /* dark yellow border */
-        border-radius: 8px;
-        padding: var(--tab-panel-padding-top) 18px 20px 18px;
-        margin-top: 0;
-        top: var(--tab-panel-top-offset);
-        position: relative;
-        background: #ffffff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        z-index: 10;
-        overflow: visible;
-    }
-
-    /* Custom styles for the tab navigation */
-    .nav-tabs {
-        border-bottom: 2px solid #C79A00;
-    }
-
-        .nav-tabs .nav-item.show .nav-link,
-        .nav-tabs .nav-link.active {
-            color: #C79A00;
-            background-color: transparent;
-            border: none;
-            border-bottom: 2px solid #C79A00;
-            border-radius: 0;
-        }
-
-        .nav-tabs .nav-link {
-            border: none;
-            border-radius: 0;
-            color: #666;
-        }
-
-            .nav-tabs .nav-link:hover {
-                color: #C79A00;
-            }
-
-    /* Override the card header background for the first card to match the tabs */
-    .card-header {
-        background-color: #f8f9fa !important;
-    }
-
     /* Debug area specific to this page */
     .debug-area {
         background-color: #2d3748;
@@ -830,14 +614,12 @@
         <ul class="list-unstyled mb-0">
             <li><a class="sidebar-link" href="/"><i class="bi bi-house"></i> Home</a></li>
             <li><a class="sidebar-link" href="/guides/how-to-use-drawdown-calculator"><i class="bi bi-house"></i>How to</a></li>
-            
-
-            @* <li><a class="sidebar-link" href="/retirement-fire"><i class="bi bi-calculator"></i> Planner</a></li>
-            <li><a class="sidebar-link" href="#results"><i class="bi bi-graph-up"></i> Results</a></li>
-            <li><a class="sidebar-link" href="#final-balances"><i class="bi bi-wallet2"></i> Final Balances</a></li>
-            <li><a class="sidebar-link" href="#yearly-breakdown"><i class="bi bi-calendar-event"></i> Yearly Breakdown</a></li>
-            <li><a class="sidebar-link" href="#export" @onclick="@(async () => await ExportToExcel())"><i class="bi bi-file-earmark-excel"></i> Export</a></li> *@
         </ul>
+
+        <div class="mt-3">
+            <Components.Shared.SavingsMiniSummary YouResults="new FinPlan.Shared.Models.Savings.SavingsResults { TaxableBalance = results.TaxableBalance, TaxDeferredBalance = results.TraditionalBalance, RothBalance = results.RothBalance, FinalAmount = results.FinalBalance }" Title="Final Balances" />
+        </div>
+
     </nav>
 
     <!-- Right sidebar menu (fixed) -->
@@ -960,7 +742,7 @@
                                         </div>
                                     </div>
                                 </div>
-                              
+
                                 <div class="mb-3">
                                     <label for="traditionalTaxRate" class="form-label">Traditional Account Tax Rate (%)</label>
                                     <input type="number" id="traditionalTaxRate" class="form-control" step="0.1" min="0" max="50"
@@ -1103,7 +885,7 @@
                                 </div>
 
                                 @if (spendingModel.Strategy == SpendingPlanModel.WithdrawalStrategy.FixedAmount ||
-                                                    spendingModel.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
+                                                                spendingModel.Strategy == SpendingPlanModel.WithdrawalStrategy.InflationAdjusted)
                                 {
                                     <div class="mb-3">
                                         <label for="annualWithdrawal" class="form-label">Yearly Spending Amount ($)</label>
@@ -1239,7 +1021,7 @@
                                     }
                                 </div>
 
-                              @*   <!-- Calculate button at bottom for convenience -->
+                                @*   <!-- Calculate button at bottom for convenience -->
                                 <div class="d-flex align-items-center mt-4">
                                     <button type="submit" class="btn btn-primary btn-lg w-100">
                                         <i class="bi bi-calculator"></i> Calculate Spending Plan
@@ -1308,8 +1090,8 @@
                                             <div class="card-body text-center">
                                                 <h4 class="@GetSustainabilityClass(results.IsSustainable)">
                                                     @(results.MoneyRunsOutAge > 0 && !results.IsSustainable
-                                                                                        ? $"Age {results.MoneyRunsOutAge}"
-                                                                                        : "Lifetime")
+                                                                                                    ? $"Age {results.MoneyRunsOutAge}"
+                                                                                                    : "Lifetime")
                                             </h4>
                                             <p class="mb-0">Money Lasts Until</p>
                                         </div>
@@ -1645,7 +1427,7 @@
     private bool isDarkTheme = false;
     private bool isSummaryExpanded = false;
     private bool showRightDebug = false;
-    
+
 
     // Properties for custom withdrawal order UI
     private string firstWithdrawalType = "Taxable";
@@ -1816,43 +1598,43 @@
 
 
     private async Task Calculate()
-{
-    try
     {
-        var calculator = new SpendingCalculationEngine();
-        results = calculator.Calculate(spendingModel);
-        yearlyBreakdown = calculator.GetYearlyBreakdown(spendingModel);
-
-        // Ensure the displayed "Money Runs Out" value is derived from the same yearly breakdown
-        // that populates the bottom grid. Use the first year where funds are depleted.
-        var depletedYear = yearlyBreakdown?.FirstOrDefault(y => !y.FundsRemaining);
-        if (depletedYear != null)
+        try
         {
-            results.MoneyRunsOutAge = depletedYear.Age;
-            results.IsSustainable = false;
-        }
-        else
-        {
-            // No depletion found -> plan is sustainable
-            results.IsSustainable = true;
-            results.MoneyRunsOutAge = 0; // zero indicates 'Lifetime' in UI logic
-        }
+            var calculator = new SpendingCalculationEngine();
+            results = calculator.Calculate(spendingModel);
+            yearlyBreakdown = calculator.GetYearlyBreakdown(spendingModel);
 
-        // Create interval summaries for better UX
-        if (spendingModel.PlanYears > 10)
-        {
-            intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
-        }
+            // Ensure the displayed "Money Runs Out" value is derived from the same yearly breakdown
+            // that populates the bottom grid. Use the first year where funds are depleted.
+            var depletedYear = yearlyBreakdown?.FirstOrDefault(y => !y.FundsRemaining);
+            if (depletedYear != null)
+            {
+                results.MoneyRunsOutAge = depletedYear.Age;
+                results.IsSustainable = false;
+            }
+            else
+            {
+                // No depletion found -> plan is sustainable
+                results.IsSustainable = true;
+                results.MoneyRunsOutAge = 0; // zero indicates 'Lifetime' in UI logic
+            }
 
-        await SaveUserRetirementAsync();
-        StateHasChanged(); // Force UI update
+            // Create interval summaries for better UX
+            if (spendingModel.PlanYears > 10)
+            {
+                intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
+            }
+
+            await SaveUserRetirementAsync();
+            StateHasChanged(); // Force UI update
+        }
+        catch (Exception ex)
+        {
+            // For debugging - you can remove this later
+            Console.WriteLine($"Calculation error: {ex.Message}");
+        }
     }
-    catch (Exception ex)
-    {
-        // For debugging - you can remove this later
-        Console.WriteLine($"Calculation error: {ex.Message}");
-    }
-}
 
 
     private string GetStrategyText()
