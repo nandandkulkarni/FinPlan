@@ -30,7 +30,7 @@
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 
-<PageTitle>Retirement Spending Planner</PageTitle>
+<PageTitle>REWealth-en - Retirement Drawdown Planner</PageTitle>
 
 <style>
     .tab-active-custom {
@@ -1790,7 +1790,7 @@
         base.OnInitialized();
     }
 
-    private async Task Calculate()
+    private async Task CalculateOld()
     {
         try
         {
@@ -1812,6 +1812,47 @@
             Console.WriteLine($"Calculation error: {ex.Message}");
         }
     }
+
+
+    private async Task Calculate()
+{
+    try
+    {
+        var calculator = new SpendingCalculationEngine();
+        results = calculator.Calculate(spendingModel);
+        yearlyBreakdown = calculator.GetYearlyBreakdown(spendingModel);
+
+        // Ensure the displayed "Money Runs Out" value is derived from the same yearly breakdown
+        // that populates the bottom grid. Use the first year where funds are depleted.
+        var depletedYear = yearlyBreakdown?.FirstOrDefault(y => !y.FundsRemaining);
+        if (depletedYear != null)
+        {
+            results.MoneyRunsOutAge = depletedYear.Age;
+            results.IsSustainable = false;
+        }
+        else
+        {
+            // No depletion found -> plan is sustainable
+            results.IsSustainable = true;
+            results.MoneyRunsOutAge = 0; // zero indicates 'Lifetime' in UI logic
+        }
+
+        // Create interval summaries for better UX
+        if (spendingModel.PlanYears > 10)
+        {
+            intervalSummaries = CreateIntervalSummaries(yearlyBreakdown);
+        }
+
+        await SaveUserRetirementAsync();
+        StateHasChanged(); // Force UI update
+    }
+    catch (Exception ex)
+    {
+        // For debugging - you can remove this later
+        Console.WriteLine($"Calculation error: {ex.Message}");
+    }
+}
+
 
     private string GetStrategyText()
     {

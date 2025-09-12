@@ -1,3 +1,15 @@
+@page "/cost-of-living"
+@using FinPlan.Shared.Models.LivingCosts
+@using FinPlan.Web.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+
 <style>
     /* ----------------------------
        Tweakable values
@@ -294,17 +306,6 @@
     </div>
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
-@page "/cost-of-living"
-@using FinPlan.Shared.Models.LivingCosts
-@using FinPlan.Web.Components
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.JSInterop
-@using FinPlan.Web.Services
-@inject IHttpClientFactory HttpClientFactory
-@inject IConfiguration Configuration
-@inject IJSRuntime JSRuntime
-@inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 <nav class="left-sidebar" aria-label="Left menu">
     <ul class="list-unstyled mb-0">
