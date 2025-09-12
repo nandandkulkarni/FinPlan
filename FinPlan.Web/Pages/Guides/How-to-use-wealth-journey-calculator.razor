@@ -1,0 +1,88 @@
+@page "/guides/how-to-use-wealth-journey-calculator"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+
+<style>
+    :root { --brand:#ffd600; --muted:#6c757d; --panel-bg:#fff9e6; --card-radius:12px; --max-width:980px; }
+    .container-guide { max-width:var(--max-width); margin:0 auto; padding:32px 16px; }
+    body .container-guide { padding-top:0; }
+    .hero { background: linear-gradient(90deg, rgba(255,214,0,0.12), rgba(255,214,0,0.02)); border:1px solid rgba(255,214,0,0.18); border-radius:var(--card-radius); padding:22px; display:flex; gap:18px; align-items:center; box-shadow:0 8px 30px rgba(21,35,54,0.04); }
+    .hero .title { font-weight:700; font-size:1.375rem; margin-bottom:6px; }
+    .hero .subtitle { color:var(--muted); margin:0; }
+    .section { margin-top:22px; }
+    .card-guide { border-radius:12px; padding:18px; background:var(--panel-bg); border:1px solid rgba(255,214,0,0.12); }
+    .steps .step { display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px dashed rgba(0,0,0,0.04); }
+    .steps .step:last-child{ border-bottom:none; }
+    .steps .step .num { width:40px; height:40px; min-width:40px; background:var(--brand); color:#111; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; box-shadow:0 3px 10px rgba(0,0,0,0.06); }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; background:#f6f8fa; border:1px solid #e9ecef; padding:2px 6px; border-radius:6px; font-size:0.85rem; }
+    .muted { color:var(--muted); }
+    footer { margin-top:28px; color:var(--muted); font-size:0.9rem; text-align:center; }
+    @@media (max-width:720px) { .hero{ flex-direction:column; align-items:flex-start; gap:8px; } }
+</style>
+
+<div class="container-guide">
+    <header class="hero mb-3">
+        <div class="me-3">
+            <div class="badge bg-primary text-white rounded-pill px-3 py-2"><i class="bi bi-graph-up me-2" aria-hidden="true"></i>Wealth Journey</div>
+        </div>
+        <div>
+            <div class="title">Guide — plan savings, contributions and growth</div>
+            <p class="subtitle">This guide explains the Wealth Journey planner: inputs, growth assumptions, and how to interpret projected final balances.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="section card-guide">
+            <h4 class="mb-2">Overview</h4>
+            <p class="muted mb-0">The Wealth Journey planner models growth from starting balances and recurring contributions under various return assumptions. Useful for projecting retirement assets and required saving rates.</p>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Quick Start</h5>
+            <div class="steps mt-3">
+                <div class="step"><div class="num">1</div><div><strong>Open planner</strong><br /><button class="btn btn-sm btn-outline-primary" @onclick="() => NavigationManager.NavigateTo('/wealth-building')">Open Wealth Planner</button></div></div>
+                <div class="step"><div class="num">2</div><div><strong>Enter starting balances</strong><br />Provide Brokerage, Traditional and Roth starting balances.</div></div>
+                <div class="step"><div class="num">3</div><div><strong>Set contributions</strong><br />Enter monthly contributions by account (post-tax/traditional/roth).</div></div>
+                <div class="step"><div class="num">4</div><div><strong>Configure returns</strong><br />Set expected annual growth and length of plan. Use conservative and optimistic scenarios to compare.</div></div>
+                <div class="step"><div class="num">5</div><div><strong>Calculate results</strong><br />Run calculation to view final balance, total contributions, and total growth.</div></div>
+            </div>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Key metrics</h5>
+            <ul>
+                <li><strong>Final Amount</strong> — projected portfolio value at end of horizon.</li>
+                <li><strong>Total Contributions</strong> — sum of deposits over the plan.</li>
+                <li><strong>Total Growth</strong> — earnings due to investment returns.</li>
+                <li><strong>Average Return</strong> — used to stress-test different outcomes.</li>
+            </ul>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Tips</h5>
+            <ul>
+                <li>Check multiple return scenarios (e.g., 4%, 6%, 8%) to understand variability.</li>
+                <li>Increase contributions gradually; small changes compound significantly over decades.</li>
+                <li>Consider tax-advantaged accounts (401k, IRA) for tax-efficient growth.</li>
+            </ul>
+        </section>
+
+        <section class="section card-guide">
+            <h5>FAQ</h5>
+            <dl class="row">
+                <dt class="col-sm-4">Are contributions pre- or post-tax?</dt>
+                <dd class="col-sm-8">The planner lets you specify Traditional (pre-tax) and Roth/Post-tax contributions separately.</dd>
+
+                <dt class="col-sm-4">How often compounding is applied?</dt>
+                <dd class="col-sm-8">The model assumes annual return by default; seek periodic compounding options in advanced settings if needed.</dd>
+            </dl>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Further reading</h5>
+            <p class="muted mb-0">Resources on compound interest, asset allocation and retirement savings can help refine your assumptions and plan.</p>
+        </section>
+    </main>
+
+    <footer><div>© REWealthen • Wealth Journey Guide</div></footer>
+</div>

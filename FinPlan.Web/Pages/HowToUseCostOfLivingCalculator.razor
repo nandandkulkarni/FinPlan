@@ -1,0 +1,228 @@
+﻿@page "/guides/how-to-use-cost-of-living-calculator"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+
+<style>
+    :root {
+        --brand: #ffd600;
+        --muted: #6c757d;
+        --panel-bg: #fff9e6;
+        --card-radius: 12px;
+        --max-width: 980px;
+    }
+
+    .container-guide {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 32px 16px;
+    }
+
+    body .container-guide {
+        padding-top: 0;
+    }
+    /* avoid double padding when embedded in app layout */
+
+    .hero {
+        background: linear-gradient(90deg, rgba(255,214,0,0.12), rgba(255,214,0,0.02));
+        border: 1px solid rgba(255,214,0,0.18);
+        border-radius: var(--card-radius);
+        padding: 22px;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        box-shadow: 0 8px 30px rgba(21,35,54,0.04);
+    }
+
+        .hero .title {
+            font-weight: 700;
+            font-size: 1.375rem;
+            margin-bottom: 6px;
+        }
+
+        .hero .subtitle {
+            color: var(--muted);
+            margin: 0;
+        }
+
+    .section {
+        margin-top: 22px;
+    }
+
+    .card-guide {
+        border-radius: 12px;
+        padding: 18px;
+        background: var(--panel-bg);
+        border: 1px solid rgba(255,214,0,0.12);
+    }
+
+    .steps .step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-bottom: 1px dashed rgba(0,0,0,0.04);
+    }
+
+        .steps .step:last-child {
+            border-bottom: none;
+        }
+
+        .steps .step .num {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            background: var(--brand);
+            color: #111;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+    .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+        background: #f6f8fa;
+        border: 1px solid #e9ecef;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    @@media (max-width:720px) {
+        .hero
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    }
+</style>
+
+<div class="container-guide">
+    <header class="hero mb-3">
+        <div class="me-3">
+            <div class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                <i class="bi bi-calculator me-2" aria-hidden="true"></i> Cost of Living Planner
+            </div>
+        </div>
+        <div>
+            <div class="title">Quick guide — capture today’s expenses and project retirement costs</div>
+            <p class="subtitle">This guide explains the planner UI, steps to create plans, adjust inflation, and interpret totals — fast and practical.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="section card-guide">
+            <h4 class="mb-2">Overview</h4>
+            <p class="muted mb-0">The Cost of Living Planner lets you enter categories and items (subcategories), set how each item scales into retirement, and project totals using a global or per-item inflation rate. Changes are auto-saved but can be undone shortly after removal.</p>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Quick Start</h5>
+            <div class="steps mt-3">
+                <div class="step">
+                    <div class="num">1</div>
+                    <div>
+                        <strong>Open the planner</strong><br />
+                        Click the button: <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigationManager.NavigateTo(\" /cost-of-living\")">Open Planner</button>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="num">2</div>
+                    <div>
+                        <strong>Add a category</strong><br />
+                        Click <span class="kbd">Add Category</span>, enter a name, and the planner will add a starter item for that category.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="num">3</div>
+                    <div>
+                        <strong>Add items</strong><br />
+                        Use the green <i class="bi bi-plus"></i> Add Item button in a category header to add subcategory rows. Click the trash icon to remove a single row.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="num">4</div>
+                    <div>
+                        <strong>Edit item details</strong><br />
+                        Click <span class="btn btn-sm btn-outline-primary">View/Edit</span> to open the item modal. Change frequency, current value, retirement adjustment, or per-item inflation.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="num">5</div>
+                    <div>
+                        <strong>Set years & inflation</strong><br />
+                        Use the controls in the top strip: <span class="kbd">Years to Retirement</span> and <span class="kbd">Inflation Rate (%)</span>. Changing inflation immediately recalculates totals.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Understanding retirement adjustments</h5>
+            <ul class="mb-0">
+                <li><strong>Same</strong> — item amount remains identical in retirement.</li>
+                <li><strong>Adjust for Inflation</strong> — item is inflated using either the global inflation rate or a per-item custom percent.</li>
+                <li><strong>Custom %</strong> — retirement value is a percentage of current value.</li>
+                <li><strong>Manual</strong> — you specify the retirement monthly value directly.</li>
+            </ul>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Totals & live updates</h5>
+            <p class="muted">Totals (Current & Retirement) appear in the totals strip. When you change the global inflation rate or a per-item inflation percent, the retirement totals update immediately. The planner debounces changes and autosaves — a small spinner indicates saving.</p>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Shortcuts & tips</h5>
+            <ul>
+                <li>Keyboard: while editing a header, press <span class="kbd">Enter</span> to save or <span class="kbd">Escape</span> to cancel.</li>
+                <li>Undo: after removing an item you'll see an <strong>Undo</strong> toast for a few seconds.</li>
+                <li>Tabs: use the tab controls to create additional plans (Plan-B, Plan-C), each saved independently.</li>
+                <li>Performance: large plans autosave in background — no blocking UI.</li>
+            </ul>
+        </section>
+
+        <section class="section card-guide">
+            <h5>FAQ</h5>
+            <dl class="row">
+                <dt class="col-sm-4">Can I set different inflation for an item?</dt>
+                <dd class="col-sm-8">Yes — open the item modal, choose <em>Adjust for Inflation</em>, set <em>Inflation Source</em> to <em>Custom</em>, and enter a percent.</dd>
+
+                <dt class="col-sm-4">How are frequencies handled?</dt>
+                <dd class="col-sm-8">The planner converts weekly, yearly etc. into a monthly-equivalent before applying retirement adjustments.</dd>
+
+                <dt class="col-sm-4">Where are plans saved?</dt>
+                <dd class="col-sm-8">Plans are saved for your user GUID and are retrievable via the tab list. Use the Delete All button to remove saved plans (confirmation required).</dd>
+            </dl>
+        </section>
+
+        <section class="section card-guide">
+            <h5>Contact & support</h5>
+            <p class="muted mb-0">If you find issues or want improvements, open an issue or contact the developer team. For quick debugging enable the app’s debug console (if available) or copy the last save timestamp displayed on the planner UI.</p>
+        </section>
+    </main>
+
+    <footer>
+        <div>© REWealthen • Cost of Living Planner Guide</div>
+    </footer>
+</div>
