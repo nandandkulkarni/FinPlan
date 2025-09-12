@@ -36,7 +36,7 @@
         padding: 0.18rem 0.4rem;
     }
 
-    /* Left and right sidebars (shared layout used by WealthJourmeyPlanner) */
+    /* Left and right sidebars (shared layout used by WealthJourneyPlanner) */
     .left-sidebar, .right-sidebar {
         position: fixed;
         top: 70px;
@@ -313,6 +313,11 @@
                 <li class="nav-item ms-2">
                     <button type="button" class="nav-link btn btn-sm btn-primary rounded-pill px-3 fw-semibold" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
                         <span class="bi bi-plus-lg me-1"></span> Add Plan/City
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button type="button" class="nav-link btn btn-sm btn-danger rounded-pill px-3 fw-semibold" title="Delete all saved plans" @onclick="ConfirmDeleteAll" disabled="@(isAddingTab || isSaving || isDeletingPlans)">
+                        <span class="bi bi-trash-fill me-1"></span> Delete All
                     </button>
                 </li>
             </ul>
@@ -863,6 +868,80 @@
                 }
 
                 private bool isAddingTab = false;
+                private bool isDeletingPlans = false;
+
+                // Confirm deletion of all saved dynamic plans for the user
+                private async Task ConfirmDeleteAll()
+                {
+                    try
+                    {
+                        var ok = await JSRuntime.InvokeAsync<bool>("confirm", "Delete ALL saved plans for this user? This cannot be undone.");
+                        if (!ok) return;
+                        await DeleteAllPlans();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"ConfirmDeleteAll exception: {ex.Message}");
+                    }
+                }
+
+                // Delete each dynamic tab for the current user by calling the existing DeleteTab API endpoint
+                private async Task DeleteAllPlans()
+                {
+                    Log("DeleteAllPlans start");
+                    if (isDeletingPlans) return;
+                    isDeletingPlans = true;
+                    isSaving = true; // show saving indicator to user while deleting
+                    await InvokeAsync(StateHasChanged);
+
+                    try
+                    {
+                        var apiBaseUrl = GetApiBaseUrl();
+                        var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+                        // Make a copy of dynamicTabs to avoid mutation during enumeration
+                        var tabsToDelete = dynamicTabs.ToList();
+                        foreach (var tab in tabsToDelete)
+                        {
+                            try
+                            {
+                                var calcType = MapTabToCalculatorType(tab);
+                                var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+                                var resp = await client.DeleteAsync(url);
+                                Log($"DeleteAllPlans: delete {tab} returned {(int)resp.StatusCode}");
+                            }
+                            catch (Exception ex)
+                            {
+                                LogError($"DeleteAllPlans delete error for {tab}: {ex.Message}");
+                            }
+                        }
+
+                        // Clear local state for dynamic tabs and headers
+                        foreach (var t in tabsToDelete)
+                        {
+                            dynamicTabs.Remove(t);
+                            if (TabHeaders.ContainsKey(t)) TabHeaders.Remove(t);
+                        }
+
+                        // Reload tabs and select default
+                        await LoadTabsAsync();
+                        activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
+                        calculatorType = MapTabToCalculatorType(activeTab);
+                        await LoadFromApi();
+
+                        Log("DeleteAllPlans completed");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"DeleteAllPlans exception: {ex.Message}");
+                    }
+                    finally
+                    {
+                        isDeletingPlans = false;
+                        isSaving = false;
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
 
                 private static string NumberToLetters(int number)
                 {
