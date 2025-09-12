@@ -1,4 +1,32 @@
 <style>
+  
+    .nav-tabs {
+        position: relative; /* allow stacking with panel box */
+        z-index: 20;
+    }
+
+    /* Panel that encloses everything below the tabs */
+    .tab-panel-box {
+        border: 2px solid #C79A00; /* dark yellow border */
+        border-radius: 8px; /* matches tab corner feel */
+        padding: 18px 18px 20px 18px; /* inner spacing */
+        margin-top: -1px; /* sit flush under the tabs */
+        background: #ffffff; /* panel background; adjust for dark theme if needed */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        position: relative;
+        z-index: 10;
+    }
+
+    /* If using dark theme, slightly different background so border remains visible */
+    .dark-theme .tab-panel-box {
+        background: #171717;
+    }
+
+    /* Make active tab appear above the panel so it visually connects */
+    .tab-item-active, .nav-link.tab-active-custom {
+        position: relative;
+        z-index: 30;
+    }
     .grid-yellow-bg {
         background: #FFF9DB;
         border-radius: 1.25rem;
@@ -58,6 +86,7 @@
     .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover { background: rgba(0,0,0,0.04); }
     .container-fluid.page-with-sidebars { padding-left: 220px; padding-right: 220px; box-sizing: border-box; }
     @@media (max-width: 992px) { .left-sidebar, .right-sidebar { display:none !important; } .container-fluid.page-with-sidebars { padding-left:16px !important; padding-right:16px !important; } }
+
 </style>
 
 @if (showDetailsModal)
@@ -322,6 +351,9 @@
                 </li>
             </ul>
 
+            <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
+            <div class="tab-panel-box">
+
             <!-- Planner Controls Strip -->
 
             <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3">
@@ -583,7 +615,10 @@
                     <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
                 </button>
             </div>
-
+        </div>
+    </div>
+    </div>
+</div>
             @code {
                 // Ghost tab creation modal state
 
@@ -1772,6 +1807,3 @@
                     return allCategories.Any(c => !collapsed.Contains(c));
                 }
             }
-        </div>
-    </div>
-</div>
