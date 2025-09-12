@@ -312,7 +312,7 @@
                 }
                 <li class="nav-item ms-2">
                     <button type="button" class="nav-link btn btn-sm btn-primary rounded-pill px-3 fw-semibold" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
-                        <span class="bi bi-plus-lg me-1"></span> Add Tab
+                        <span class="bi bi-plus-lg me-1"></span> Add Plan/City
                     </button>
                 </li>
             </ul>
@@ -689,7 +689,7 @@
                 private string saveErrorMessage = string.Empty;
 
                 // Only dynamic tabs; start with a single default plan (plan-a)
-                private string activeTab = "plan-a"; // Track active tab for UI highlighting
+                private string activeTab = "Plan-A-City-A"; // Track active tab for UI highlighting
 
                 private List<string> dynamicTabs = new List<string>();
                 // Always include the built-in "plan-a" tab first so UI shows a default tab when no dynamic tabs exist.
@@ -698,13 +698,13 @@
                     get
                     {
                         // Ensure TabHeaders has default for built-in tab
-                        if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+                        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan - A";
 
                         // Return plan-a first, then any dynamic tabs (excluding duplicates)
-                        var result = new List<string> { "plan-a" };
+                        var result = new List<string> { "Plan-A-City-A" };
                         foreach (var t in dynamicTabs)
                         {
-                            if (!string.Equals(t, "plan-a", StringComparison.OrdinalIgnoreCase) && !result.Contains(t)) result.Add(t);
+                            if (!string.Equals(t, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase) && !result.Contains(t)) result.Add(t);
                         }
                         return result;
                     }
@@ -726,7 +726,7 @@
                 {
                     if (TabHeaders.ContainsKey(tab) && !string.IsNullOrWhiteSpace(TabHeaders[tab])) return TabHeaders[tab];
                     // fallback: convert id to nicer label
-                    if (string.Equals(tab, "plan-a", StringComparison.OrdinalIgnoreCase)) return "Plan-A";
+                    if (string.Equals(tab, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase)) return "Plan-A-City-A";
                     return tab;
                 }
 
@@ -891,7 +891,7 @@
                         int candidateIndex = totalTabs + 1; // add 1 to the count
 
                         // ensure TabHeaders has default Plan-A if not present
-                        if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+                        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
 
                         var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
 
@@ -899,7 +899,7 @@
                         do
                         {
                             var letters = NumberToLetters(candidateIndex);
-                            headerName = $"Plan-{letters}";
+                            headerName = $"Plan-{letters}-City-{letters}";
                             candidateIndex++;
                         } while (existingNames.Contains(headerName));
 
@@ -999,7 +999,7 @@
                             // if deleted tab was active, switch to first available
                             if (activeTab == tab)
                             {
-                                activeTab = Tabs.FirstOrDefault() ?? "plan-a";
+                                activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
                                 calculatorType = MapTabToCalculatorType(activeTab);
                                 await LoadFromApi();
                             }
@@ -1041,7 +1041,7 @@
                                 dynamicTabs = list.Select(s => s.StartsWith("CostOfLiving-") ? s.Substring("CostOfLiving-".Length) : s).ToList();
 
                                 // ensure headers dictionary has defaults for built-in tabs
-                                if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+                                if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
 
                                 // load headers for each dynamic tab
                                 foreach (var t in dynamicTabs)
@@ -1078,7 +1078,7 @@
                         // Timeout or cancellation - continue with defaults
                         LogError($"LoadTabsAsync timeout/cancelled: {oce.Message}");
                         dynamicTabs = new List<string>();
-                        if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+                        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
                         // Show modal to allow retry
                         ShowTimeout(OperationType.LoadTabs, "Loading tabs timed out. You can retry.");
                     }
@@ -1087,7 +1087,7 @@
                         LogError($"LoadTabsAsync exception: {ex.Message}");
                         // ensure we have at least the default tab so UI remains usable
                         dynamicTabs = new List<string>();
-                        if (!TabHeaders.ContainsKey("plan-a")) TabHeaders["plan-a"] = "Plan-A";
+                        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
                         ShowTimeout(OperationType.LoadTabs, $"Loading tabs failed: {ex.Message}");
                     }
                 }
@@ -1513,7 +1513,7 @@
                             {
                                 // If there are no dynamic tabs returned, keep the existing activeTab (default "plan-a").
                                 // Otherwise select the first available tab safely.
-                                activeTab = Tabs.FirstOrDefault() ?? activeTab ?? "plan-a";
+                                activeTab = Tabs.FirstOrDefault() ?? activeTab ?? "Plan-A-City-A";
                             }
 
                             calculatorType = MapTabToCalculatorType(activeTab);
