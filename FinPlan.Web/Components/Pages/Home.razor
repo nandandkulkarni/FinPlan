@@ -1,4 +1,27 @@
-﻿@page "/"
+﻿<!-- Audio Guide Button: Option 3 (Face Speaking Icon with Glow) -->
+<div class="text-center my-4">
+    <a href="/audio/how-to-use.mp3" target="_blank" class="btn btn-info btn-lg rounded-circle shadow-lg" style="width: 120px; height: 120px; box-shadow: 0 0 30px #0dcaf0; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="bi bi-person-lines-fill" style="font-size: 4rem; color: #fff;"></i>
+        <span class="visually-hidden">Listen: How to use this site</span>
+    </a>
+</div>
+<div class="text-center mb-4">
+    <div class="alert alert-primary fw-semibold mx-auto" style="max-width: 500px; font-size: 1.15rem; box-shadow: 0 2px 12px #0dcaf033;">
+        <i class="bi bi-info-circle-fill me-2 text-info" style="font-size: 1.5rem; vertical-align: middle;"></i>
+        <span style="vertical-align: middle;">Click the audio icon above to hear a quick guide on how to use the financial calculators on this site.</span>
+    </div>
+</div>
+<!-- Glowing effect for the audio button -->
+<style>
+    .btn-info.shadow-lg {
+        animation: glow 1.5s infinite alternate;
+    }
+    @@keyframes glow {
+        0% { box-shadow: 0 0 30px #0dcaf0, 0 0 10px #0dcaf0; }
+        100% { box-shadow: 0 0 60px #0dcaf0, 0 0 20px #0dcaf0; }
+    }
+</style>
+@page "/"
 
 <PageTitle>REWealthen - Financial Planning Made Easy</PageTitle>
 

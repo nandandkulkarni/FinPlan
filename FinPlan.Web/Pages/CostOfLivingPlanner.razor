@@ -418,7 +418,7 @@
                 <!-- Inflation Rate -->
                 <div class="d-flex align-items-center gap-2">
                     <span class="fw-semibold text-white">Inflation Rate (%):</span>
-                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @bind-Value:event="oninput" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
                 </div>
                 <!-- Spacer to push next controls to right -->
                 <div class="flex-grow-1"></div>
@@ -773,7 +773,20 @@
                 private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
 
                 private int YearsToRetirement { get; set; } = 20;
-                private decimal InflationRate { get; set; } = 2.5m;
+                // Backing field and property so changes trigger recalculation and autosave
+                private decimal _inflationRate = 2.5m;
+                private decimal InflationRate
+                {
+                    get => _inflationRate;
+                    set
+                    {
+                        if (_inflationRate != value)
+                        {
+                            _inflationRate = value;
+                            RecalculateAll(save: true);
+                        }
+                    }
+                }
 
                 private bool isLoading = false;
 
@@ -1701,9 +1714,29 @@
                 private readonly object autosaveLock = new object();
                 private int autosaveDelayMs = 800; // debounce
 
+                // Recalculate derived UI values and optionally schedule autosave.
+                private void RecalculateAll(bool save = false)
+                {
+                    try
+                    {
+                        // Totals are computed properties (TotalCurrent/TotalRetirement) so just refresh UI.
+                        InvokeAsync(StateHasChanged);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"RecalculateAll error: {ex.Message}");
+                    }
+
+                    if (save)
+                    {
+                        ScheduleAutosave();
+                    }
+                }
+
                 private void ScheduleAutosave()
                 {
-                    Log("ScheduleAutosave called");
+                     Log("ScheduleAutosave called");
+
                     lock (autosaveLock)
                     {
                         if (autosaveTimer == null)
