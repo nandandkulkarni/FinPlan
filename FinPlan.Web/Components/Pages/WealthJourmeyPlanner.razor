@@ -256,7 +256,7 @@
                         <div class="col-md-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C")</h4>
+                                    <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4>
                                     <p class="mb-0">Final Amount</p>
                                 </div>
                             </div>
@@ -264,7 +264,7 @@
                         <div class="col-md-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C")</h4>
+                                    <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4>
                                     <p class="mb-0">Growth</p>
                                 </div>
                             </div>
@@ -272,7 +272,7 @@
                         <div class="col-md-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h4 class="text-info summary-money">@results.TotalContributions.ToString("C")</h4>
+                                    <h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4>
                                     <p class="mb-0">Total Contributions</p>
                                 </div>
                             </div>
@@ -282,6 +282,45 @@
                                 <div class="card-body text-center">
                                     <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
                                     <p class="mb-0">Annual Growth Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insert this block right after the existing summary row (the <div class="row mb-3"> that shows Final Amount / Growth / Total Contributions / Annual Growth Rate) -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-primary summary-money">@results.TaxableBalance.ToString("C0")</h5>
+                                    <p class="mb-0">Post‑Tax Balance</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-success summary-money">@results.TaxDeferredBalance.ToString("C0")</h5>
+                                    <p class="mb-0">Traditional Balance</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-info summary-money">@results.RothBalance.ToString("C0")</h5>
+                                    <p class="mb-0">Roth Balance</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-warning summary-money">@fixedAssetsValue.ToString("C0")</h5>
+                                    <p class="mb-0">Fixed Assets Value</p>
                                 </div>
                             </div>
                         </div>
@@ -739,6 +778,7 @@
     // State
     private bool isDarkTheme = false;
     private System.Timers.Timer? debounceTimer;
+    private decimal fixedAssetsValue = 0m;
 
     private string activeTab = "your";
     private string userMessage = string.Empty;
