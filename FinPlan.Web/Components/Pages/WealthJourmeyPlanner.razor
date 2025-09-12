@@ -24,6 +24,35 @@
 
 <!-- Embedded styles copied from CostOfLivingPlanner to ensure active-tab highlighting and shared UI styles -->
 <style>
+    /* Tweakable variables for panel placement (adjust to 'kiss' tabs)
+       --tab-panel-top-offset: negative pulls the panel up under tabs
+       --tab-panel-padding-top: extra top padding inside the panel to prevent overlap */
+    :root {
+        --tab-panel-top-offset: -6px;
+        --tab-panel-padding-top: 26px;
+    }
+
+    /* ensure tab row doesn't leave default bottom spacing */
+    .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+        margin-bottom: 0 !important;
+        padding-bottom: 0;
+        position: relative;
+        z-index: 20;
+    }
+
+    .tab-panel-box {
+        border: 2px solid #C79A00; /* dark yellow border */
+        border-radius: 8px;
+        padding: var(--tab-panel-padding-top) 18px 20px 18px;
+        margin-top: 0;
+        top: var(--tab-panel-top-offset);
+        position: relative;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        z-index: 10;
+        overflow: visible;
+    }
+
     .tab-active-custom {
         background-color: #FFD600 !important;
         color: #222 !important;
@@ -112,31 +141,6 @@
     .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
         background: rgba(0,0,0,0.04);
         text-decoration: none;
-    }
-
-    .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i { font-size: 1.05rem; }
-
-    /* Debug area inside right sidebar */
-    .right-sidebar .debug-toggle-btn {
-        background: transparent;
-        border: none;
-        color: inherit;
-        padding: 6px 8px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-    }
-
-    .right-sidebar .debug-box {
-        margin-top: 8px;
-        background: rgba(0,0,0,0.06);
-        padding: 8px 10px;
-        border-radius: 6px;
-        max-height: 420px;
-        overflow-y: auto;
-        font-size: 0.82rem;
     }
 
     /* Dark theme adjustments for sidebars */
@@ -231,54 +235,56 @@
         </li>
     </ul>
 
-    @* Results summary moved here so it's visible above the form *@
-    @if (results != null)
-    {
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C")</h4>
-                        <p class="mb-0">Final Amount</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C")</h4>
-                        <p class="mb-0">Growth</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <h4 class="text-info summary-money">@results.TotalContributions.ToString("C")</h4>
-                        <p class="mb-0">Total Contributions</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
-                        <p class="mb-0">Annual Growth Rate</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+    @* Apply yellow 'tab-panel-box' styling directly to the card below to avoid extra wrapper which can confuse the Razor parser *@
+    <!-- Results summary moved here so it's visible above the form -->
+
 
     <div class="row">
         <div class="col-lg-12">
 
-            <div class="card">
+            <div class="card tab-panel-box">
                 @*<div class="card-header @(isDarkTheme ? "" : "bg-primary text-white")">
                      <h3 class="card-title mb-0">
                         <i class="bi bi-calculator"></i> Wealth Journey Planner
                     </h3>
                 </div> *@
+                @if (results != null)
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-primary summary-money">@results.FinalAmount.ToString("C")</h4>
+                                    <p class="mb-0">Final Amount</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C")</h4>
+                                    <p class="mb-0">Growth</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-info summary-money">@results.TotalContributions.ToString("C")</h4>
+                                    <p class="mb-0">Total Contributions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-warning summary-money">@calculatorModel.AnnualGrowthRate.ToString("F1")%</h4>
+                                    <p class="mb-0">Annual Growth Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div class="card-body">
                     <EditForm Model="@calculatorModel" OnValidSubmit="@Calculate" FormName="SavingsCalculatorForm">
                         <DataAnnotationsValidator />
