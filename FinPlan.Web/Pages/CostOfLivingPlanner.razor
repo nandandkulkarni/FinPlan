@@ -551,8 +551,12 @@
                                                 <td style="width:40px; vertical-align:middle;">
                                                     <div class="d-flex flex-column gap-1">
                                                         <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
-                                                            <span class="icon-muted">−</span>
+                                                                <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                                         </button>
+
+                                                        @* <button class="btn btn-sm btn-subtle" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
+                                                            <span class="icon-muted">−</span>
+                                                        </button> *@
                                                     </div>
                                                 </td>
                                                 <td class="text-center align-middle">@item.Subcategory</td>
