@@ -348,8 +348,11 @@
         </ul>
 
         <!-- Debug toggle and messages (copied from NavMenu debug area) -->
-        <div class="mt-2">
-            <button class="debug-toggle-btn" title="Toggle debug messages" @onclick="ToggleRightDebug" aria-pressed="@showRightDebug.ToString().ToLower()">
+        <!-- Debug toggle and messages (copied from NavMenu debug area) -->
+        <div class="mt-2" style="color:#f9f9f9">
+            <button class="debug-toggle-btn" title="Toggle debug messages"
+                    @onclick="ToggleRightDebug"
+                    aria-pressed="@showRightDebug.ToString().ToLower()">
                 <span class="bi @(showRightDebug ? "bi-bug-fill" : "bi-bug")" aria-hidden="true"></span>
                 <span style="font-size:0.9rem">Debug</span>
             </button>
