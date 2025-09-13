@@ -12,11 +12,11 @@
 
 <style>
     /* ----------------------------
-                   Tweakable values
-                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                   ---------------------------- */
+                                               Tweakable values
+                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -33,8 +33,8 @@
     }
 
     /* Panel that encloses everything below the tabs.
-                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                   Tweak the CSS variables above to adjust placement and padding. */
+                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -151,6 +151,102 @@
             padding-left: 16px !important;
             padding-right: 16px !important;
         }
+    }
+
+    .sidebar-link-highlight {
+        background: linear-gradient(90deg,#FFD600,#FFB800);
+        color: #111 !important;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+        /* Slight lift on hover/focus */
+        .sidebar-link-highlight:hover,
+        .sidebar-link-highlight:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+            text-decoration: none;
+        }
+
+        /* Make icon slightly larger inside highlighted link */
+        .sidebar-link-highlight .bi {
+            font-size: 1.05rem;
+        }
+
+    /* Ensure it stacks nicely on small screens */
+    @@media (max-width: 992px) {
+        .sidebar-link-highlight {
+            display: inline-flex;
+            padding: 8px 10px;
+            border-radius: 6px;
+            box-shadow: none;
+        }
+    }
+
+    .attention-wrapper {
+        position: relative;
+        padding-left: 44px; /* make room for the arrow */
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .attention-arrow {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+        .attention-arrow svg {
+            width: 100%;
+            height: 100%;
+            fill: #111;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));
+            animation: arrow-bob 1.6s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+    /* optional gentle pulse on the highlighted link */
+    .sidebar-link-highlight.attention-wrapper {
+        box-shadow: 0 8px 20px rgba(255, 182, 0, 0.10);
+        transition: box-shadow 0.18s ease, transform 0.12s ease;
+    }
+
+    @@keyframes arrow-bob {
+        0% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(-58%) translateX(2px) rotate(-6deg);
+        }
+
+        50% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+
+        75% {
+            transform: translateY(-54%) translateX(1px) rotate(6deg);
+        }
+
+        100% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+    }
+
     }
 </style>
 
@@ -317,7 +413,38 @@
 
 <nav class="right-sidebar" aria-label="Right menu">
     <ul class="list-unstyled mb-0">
-        <li><a class="sidebar-link" href="/guides/how-to-use-cost-of-living-calculator"><i class="bi bi-graph-up"></i> How to use this planner</a></li>
+        <!-- Replace the existing right-sidebar link line with this improved, more prominent link -->
+        <li>&nbsp; </li>
+        <li>&nbsp; </li>
+        <li>&nbsp; </li>
+        <li>&nbsp; </li>
+        <li>&nbsp; </li>
+        @* <li>
+            <a class="sidebar-link sidebar-link-highlight"
+               href="/guides/how-to-use-cost-of-living-calculator"
+               title="How to use this planner"
+               aria-label="How to use this planner — guide">
+                <i class="bi bi-graph-up" aria-hidden="true"></i>
+                <span>How to use this planner</span>
+            </a>
+        </li> *@
+        <!-- Replace the current prominent link <li> in the right-sidebar with this -->
+        <li>
+            <a class="sidebar-link sidebar-link-highlight attention-wrapper"
+               href="/guides/how-to-use-cost-of-living-calculator"
+               title="How to use this planner"
+               aria-label="How to use this planner — guide">
+                <span class="attention-arrow" aria-hidden="true">
+                    <!-- Small animated arrow (SVG) -->
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true" role="img">
+                        <path d="M4 12h12.59L11.3 6.71a1 1 0 111.41-1.41l6 6a1 1 0 010 1.41l-6 6a1 1 0 11-1.41-1.41L16.59 13H4a1 1 0 110-2z" />
+                    </svg>
+                </span>
+
+                <i class="bi bi-graph-up" aria-hidden="true"></i>
+                <span>How to use this planner</span>
+            </a>
+        </li>
         <li><a class="sidebar-link" href="/cost-of-living/2025-bangalore-2BHK">Cost of Living - Bangalore</a></li>
         @* <li><a class="sidebar-link" href="/retirement-fire"><i class="bi bi-wallet2"></i> Retirement</a></li>
         <li><a class="sidebar-link" href="/wealth-journey"><i class="bi bi-graph-up"></i> Wealth Journey</a></li>
