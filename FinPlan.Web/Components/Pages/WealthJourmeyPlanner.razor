@@ -40,6 +40,54 @@
         z-index: 20;
     }
 
+    /* Accent styles for data entry and sections */
+    .form-control {
+        transition: box-shadow 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+        border: 1px solid #d7d7d7;
+        background-color: #fff;
+    }
+
+    .form-control:focus {
+        border-color: #6D5DFC; /* purple accent */
+        box-shadow: 0 6px 20px rgba(109,93,252,0.12);
+        transform: translateY(-1px);
+        outline: none;
+    }
+
+    /* Make numeric inputs slightly bolder so values stand out */
+    input[type=number].form-control, .FormattedNumberNew.form-control {
+        font-weight: 600;
+        letter-spacing: -0.2px;
+    }
+
+    /* Accent the card headers and give cards a left accent bar so sections pop */
+    .card.accented {
+        border-left: 6px solid #6D5DFC; /* purple accent */
+        box-shadow: 0 8px 26px rgba(13,38,76,0.04);
+    }
+
+    .card.accented .card-header {
+        background: linear-gradient(90deg, rgba(245,246,250,0.98), rgba(255,255,255,0.9));
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    /* Slight background for card body to separate from page */
+    .card .card-body { background-color: #ffffff; }
+
+    /* Small helper to highlight labels */
+    .form-label.fw-accent {
+        color: #222; font-weight: 700;
+    }
+
+    /* Make small help text slightly darker and more readable */
+    .form-text { color: #6b7280; font-size: 0.85rem; }
+
+    /* Hover on cards to show lift */
+    .card:hover { transform: translateY(-3px); transition: transform 0.12s ease; }
+
+    /* Grouped input rows accent */
+    .input-group-accent { border-radius: 8px; padding: 10px; background: linear-gradient(180deg,#fff,#fbfbfe); border:1px solid rgba(0,0,0,0.04); }
+
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px;

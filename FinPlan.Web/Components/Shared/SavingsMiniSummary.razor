@@ -14,10 +14,10 @@
             <div class="user-block mb-2">
                 <div class="small-label">You</div>
                 <ul class="mini-list mb-1">
-                    <li>Post?Tax: <strong>@Format(YouTaxable)</strong></li>
-                    <li>Traditional: <strong>@Format(YouTraditional)</strong></li>
-                    <li>Roth: <strong>@Format(YouRoth)</strong></li>
-                    <li class="user-total">Total: <strong>@Format(YouTotal)</strong></li>
+                    <li class="row-item">Post?Tax: <strong>@Format(YouTaxable)</strong></li>
+                    <li class="row-item">Traditional: <strong>@Format(YouTraditional)</strong></li>
+                    <li class="row-item">Roth: <strong>@Format(YouRoth)</strong></li>
+                    <li class="row-item user-total">Total: <strong>@Format(YouTotal)</strong></li>
                 </ul>
             </div>
 
@@ -26,10 +26,10 @@
                 <div class="partner-block mb-2">
                     <div class="small-label">Partner</div>
                     <ul class="mini-list mb-1">
-                        <li>Post?Tax: <strong>@Format(PartnerTaxable)</strong></li>
-                        <li>Traditional: <strong>@Format(PartnerTraditional)</strong></li>
-                        <li>Roth: <strong>@Format(PartnerRoth)</strong></li>
-                        <li class="user-total">Total: <strong>@Format(PartnerTotal)</strong></li>
+                        <li class="row-item">Post?Tax: <strong>@Format(PartnerTaxable)</strong></li>
+                        <li class="row-item">Traditional: <strong>@Format(PartnerTraditional)</strong></li>
+                        <li class="row-item">Roth: <strong>@Format(PartnerRoth)</strong></li>
+                        <li class="row-item user-total">Total: <strong>@Format(PartnerTotal)</strong></li>
                     </ul>
                 </div>
             }
@@ -37,9 +37,9 @@
             <div class="grand-block mt-2">
                 <div class="small-label">Combined (per bucket)</div>
                 <ul class="mini-list mb-0">
-                    <li>Post?Tax: <strong>@Format(GrandTaxable)</strong></li>
-                    <li>Traditional: <strong>@Format(GrandTraditional)</strong></li>
-                    <li>Roth: <strong>@Format(GrandRoth)</strong></li>
+                    <li class="row-item">Post?Tax: <strong>@Format(GrandTaxable)</strong></li>
+                    <li class="row-item">Traditional: <strong>@Format(GrandTraditional)</strong></li>
+                    <li class="row-item">Roth: <strong>@Format(GrandRoth)</strong></li>
                 </ul>
             </div>
         </div>
@@ -79,10 +79,20 @@
 .savings-mini { width: 180px; }
 .savings-mini .small-card { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .small-title { font-size: 0.95rem; }
-.small-label { font-size: 0.85rem; color: #666; margin-bottom: 6px; }
-.mini-list { margin: 0; padding-left: 1rem; font-size: 0.82rem; }
-.mini-list li { line-height: 1.1; list-style: disc; }
+.small-label { font-size: 0.80rem; color: #444; margin-bottom: 6px; }
+.mini-list { margin: 0; padding-left: 0.9rem; font-size: 0.82rem; }
+.mini-list li { line-height: 1.1; list-style: disc; padding: 6px 8px; border-radius: 6px; }
+.mini-list li.row-item:nth-child(odd) { background: rgba(0,0,0,0.02); }
+.mini-list li.row-item:nth-child(even) { background: rgba(0,0,0,0.00); }
 .user-total { margin-top: 6px; font-weight: 700; }
-.grand-block { border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; }
+
+/* Different backgrounds per section */
+.user-block { background: linear-gradient(90deg, rgba(237,246,255,1) 0%, rgba(245,251,255,1) 100%); padding:8px; border-radius:6px; }
+.partner-block { background: linear-gradient(90deg, rgba(240,255,244,1) 0%, rgba(247,255,250,1) 100%); padding:8px; border-radius:6px; }
+.grand-block { background: linear-gradient(90deg, rgba(255,250,240,1) 0%, rgba(255,253,243,1) 100%); padding:8px; border-radius:6px; }
+
+/* Highlight totals */
+.user-total { background: transparent; }
+
 @@media (max-width: 992px) { .savings-mini { display:none !important; } }
 </style>
