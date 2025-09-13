@@ -1,0 +1,43 @@
+@page "/retirement-drawdown-survey-new"
+@using FinPlan.Web.Components.Models
+@using FinPlan.Web.Components.Survey
+@using Microsoft.AspNetCore.Components
+
+<PageTitle>Retirement Drawdown Feedback (New)</PageTitle>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <SurveyForm Questions="@questions" Title="Retirement Drawdown Feedback" SurveyType="RetirementDrawdown" Description="Please answer the following questions about the Retirement Drawdown Planner. No personal information is collected." />
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SurveyQuestion> questions = new()
+    {
+        // 20 MCQs
+        new SurveyQuestion("How easy was it to enter your post-tax, traditional and Roth balances at retirement?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How clear were the withdrawal strategy options (fixed amount, % of balance, inflation-adjusted)?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+        new SurveyQuestion("How useful did you find the account priority / tax-optimized withdrawal ordering?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How easy was it to set Social Security claim ages and benefits?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How useful were the retirement income projection charts (visuals)?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How clear was the year-by-year breakdown of withdrawals and balances?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+        new SurveyQuestion("How helpful was the 'Money Lasts Until' / sustainability indicator in interpreting results?", new List<string>{"Very Helpful","Helpful","Neutral","Not Helpful","Did Not Use"}),
+        new SurveyQuestion("How easy was it to change assumptions (investment growth) and re-run scenarios?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to compare multiple scenarios or save variations?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How useful were warnings or alerts (e.g., money may run out) in guiding decisions?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How easy was the UI for adjusting withdrawal order or choosing custom order?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How would you rate the app's speed and performance when recalculating results?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
+        new SurveyQuestion("How useful is the ability to view final balance, totals and year summaries?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How likely are you to recommend the Retirement Drawdown Planner to a colleague or friend?", new List<string>{"Very Likely","Likely","Neutral","Unlikely","Very Unlikely"}),
+        new SurveyQuestion("Overall, how satisfied are you with the Retirement Drawdown Planner?", new List<string>{"Very Satisfied","Satisfied","Neutral","Dissatisfied","Very Dissatisfied"}),
+
+        // 5 Essay questions
+        new SurveyQuestion("What did you like most about the Retirement Drawdown Planner?"),
+        new SurveyQuestion("What part of the planner did you find most confusing or difficult to use?"),
+        new SurveyQuestion("What additional features or improvements would you like to see?"),
+        new SurveyQuestion("Did any results or calculations seem incorrect? Please describe any discrepancies or bugs."),
+        new SurveyQuestion("Any other comments, suggestions or use-cases you'd like to share?")
+    };
+}
