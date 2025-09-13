@@ -22,6 +22,7 @@
 @using FinPlan.Shared.Services
 @using FinPlan.Web
 @using FinPlan.Web.Components
+@using FinPlan.Web.Components.Shared
 @using FinPlan.Web.Services
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
@@ -833,7 +834,7 @@
         </ul>
 
         <div class="mt-3">
-            <Components.Shared.SavingsMiniSummary YouResults="youResults" PartnerResults="partnerResults" Title="Final Balances" />
+            <SavingsMiniSummary YouResults="youResults" PartnerResults="partnerResults" Title="Final Balances" />
         </div>
 
     </nav>
@@ -2455,19 +2456,35 @@
                     var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calcType}";
                     var response = await client.GetAsync(url);
                     if (!response.IsSuccessStatusCode) return null;
+
                     var json = await response.Content.ReadAsStringAsync();
                     var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (loadedModel == null) return null;
-                    var calc = new FinPlan.Shared.Services.SpendingCalculationEngine();
-                    var res = calc.Calculate(loadedModel);
-                    // Map SpendingResults to SavingsResults for display
-                    return new FinPlan.Shared.Models.Savings.SavingsResults
+
+                    // Prefer showing the model's posted balances (more useful for a 'Final Balances' mini-summary)
+                    if (loadedModel != null)
                     {
-                        TaxableBalance = res.FinalBalance, // best-effort mapping; SpendingResults uses FinalBalance and account fields
-                        TaxDeferredBalance = res.TraditionalBalance,
-                        RothBalance = res.RothBalance,
-                        FinalAmount = res.FinalBalance
-                    };
+                        return new FinPlan.Shared.Models.Savings.SavingsResults
+                        {
+                            TaxableBalance = loadedModel.TaxableBalance,
+                            TaxDeferredBalance = loadedModel.TraditionalBalance,
+                            RothBalance = loadedModel.RothBalance,
+                            FinalAmount = loadedModel.TaxableBalance + loadedModel.TraditionalBalance + loadedModel.RothBalance
+                        };
+                    }
+
+                    // If no model was returned, fall back to local model for the "yours" calculator type
+                    if (calcType == "Withdrawals_yours" && spendingModel != null)
+                    {
+                        return new FinPlan.Shared.Models.Savings.SavingsResults
+                        {
+                            TaxableBalance = spendingModel.TaxableBalance,
+                            TaxDeferredBalance = spendingModel.TraditionalBalance,
+                            RothBalance = spendingModel.RothBalance,
+                            FinalAmount = spendingModel.TaxableBalance + spendingModel.TraditionalBalance + spendingModel.RothBalance
+                        };
+                    }
+
+                    return null;
                 }
                 catch { return null; }
             }
