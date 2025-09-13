@@ -594,6 +594,222 @@
         background-color: #f8f9fa !important;
     }
 
+    /* Special styles for this page */
+    .sustainability-high {
+        color: #38B2AC;
+    }
+
+    .sustainability-medium {
+        color: #F6AD55;
+    }
+
+    .sustainability-low {
+        color: #F56565;
+    }
+
+    .dark-theme .sustainability-high {
+        color: #38B2AC;
+    }
+
+    .dark-theme .sustainability-medium {
+        color: #F6AD55;
+    }
+
+    .dark-theme .sustainability-low {
+        color: #F56565;
+    }
+
+    .duration-exceeded {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+
+    /* Smaller font size for monetary values in tables */
+    .money-value {
+        font-size: 0.70rem;
+    }
+
+    /* Prominent summary numbers for top cards and totals */
+    .summary-money {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.05;
+        font-variant-numeric: tabular-nums;
+    }
+
+        /* Prevent any pseudo-element generated content from duplicating the displayed numbers */
+        .summary-money::before, .summary-money::after,
+        .money-value::before, .money-value::after {
+            content: none !important;
+            display: none !important;
+        }
+
+    /* More compact table headers */
+    .retirement-table th {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    /* More compact table cells */
+    .retirement-table td {
+        padding: 0.4rem;
+    }
+
+    /* Left and right vertical menu bars */
+    .left-sidebar, .right-sidebar {
+        position: fixed;
+        top: 70px; /* below top nav / toggle */
+        bottom: 20px;
+        width: 180px;
+        padding: 12px 8px;
+        overflow-y: auto;
+        background: rgba(255,255,255,0.98);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        border-radius: 8px;
+        z-index: 1050;
+        font-size: 0.95rem;
+    }
+
+    .left-sidebar {
+        left: 12px;
+    }
+
+    .right-sidebar {
+        right: 12px;
+    }
+
+        .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            color: #222;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+            .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
+                background: rgba(0,0,0,0.04);
+                text-decoration: none;
+            }
+
+            .left-sidebar .sidebar-link i, .right-sidebar .sidebar-link i {
+                font-size: 1.05rem;
+            }
+
+    /* Dark theme adjustments */
+    .dark-theme .left-sidebar, .dark-theme .right-sidebar {
+        background: #1b1b1b;
+        color: #e6eef6;
+    }
+
+        .dark-theme .left-sidebar .sidebar-link, .dark-theme .right-sidebar .sidebar-link {
+            color: #e6eef6;
+        }
+
+    /* Debug area inside right sidebar */
+    .right-sidebar .debug-toggle-btn {
+        background: transparent;
+        border: none;
+        color: inherit;
+        padding: 6px 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .right-sidebar .debug-box {
+        margin-top: 8px;
+        background: rgba(0,0,0,0.06);
+        padding: 8px 10px;
+        border-radius: 6px;
+        max-height: 420px;
+        overflow-y: auto;
+        font-size: 0.82rem;
+    }
+
+    .dark-theme .right-sidebar .debug-box {
+        background: rgba(255,255,255,0.03);
+    }
+
+    /* Hide sidebars on small screens */
+    @@media (max-width: 992px) {
+        .left-sidebar, .right-sidebar {
+            display: none !important;
+        }
+
+        .container-fluid.page-with-sidebars {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+    }
+
+    /* Shift page content inward so it doesn't sit under fixed sidebars */
+    .container-fluid.page-with-sidebars {
+        padding-left: 220px; /* left sidebar width + spacing */
+        padding-right: 220px; /* right sidebar width + spacing */
+        box-sizing: border-box;
+    }
+
+    /* Add variables and tab-panel box so the panel can 'kiss' the tabs */
+    :root {
+        --tab-panel-top-offset: -6px;
+        --tab-panel-padding-top: 22px;
+    }
+
+    /* ensure tab row doesn't leave default bottom spacing */
+    .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+        margin-bottom: 0 !important;
+        padding-bottom: 0;
+        position: relative;
+        z-index: 20;
+    }
+
+    .tab-panel-box {
+        border: 2px solid #C79A00; /* dark yellow border */
+        border-radius: 8px;
+        padding: var(--tab-panel-padding-top) 18px 20px 18px;
+        margin-top: 0;
+        top: var(--tab-panel-top-offset);
+        position: relative;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        z-index: 10;
+        overflow: visible;
+    }
+
+    /* Custom styles for the tab navigation */
+    .nav-tabs {
+        border-bottom: 2px solid #C79A00;
+    }
+
+        .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {
+            color: #C79A00;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid #C79A00;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 0;
+            color: #666;
+        }
+
+            .nav-tabs .nav-link:hover {
+                color: #C79A00;
+            }
+
+    /* Override the card header background for the first card to match the tabs */
+    .card-header {
+        background-color: #f8f9fa !important;
+    }
+
     /* Debug area specific to this page */
     .debug-area {
         background-color: #2d3748;
@@ -617,7 +833,7 @@
         </ul>
 
         <div class="mt-3">
-            <Components.Shared.SavingsMiniSummary YouResults="new FinPlan.Shared.Models.Savings.SavingsResults { TaxableBalance = results.TaxableBalance, TaxDeferredBalance = results.TraditionalBalance, RothBalance = results.RothBalance, FinalAmount = results.FinalBalance }" Title="Final Balances" />
+            <Components.Shared.SavingsMiniSummary YouResults="youResults" PartnerResults="partnerResults" Title="Final Balances" />
         </div>
 
     </nav>
@@ -1415,6 +1631,57 @@
                                 </div>
                             </div>
                         }
+
+                        @*  <!-- detailed yearly breakdown table - initially hidden
+                        <div class="card mt-3" id="detailedBreakdownCard" style="display:none">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-graph-down-arrow"></i> Your Detailed Yearly Breakdown
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Year</th>
+                                                <th>Age</th>
+                                                <th>Scenario</th>
+                                                <th>Taxable Begin</th>
+                                                <th>Trad. Begin</th>
+                                                <th>Roth Begin</th>
+                                                <th>Taxable End</th>
+                                                <th>Trad. End</th>
+                                                <th>Roth End</th>
+                                                <th>Withdrawals</th>
+                                                <th>Taxes Paid</th>
+                                                <th>Growth</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var year in yearlyBreakdown)
+                                            {
+                                                <tr>
+                                                    <td>@year.Year</td>
+                                                    <td>@year.Age</td>
+                                                    <td>@(year.IsPartialRetirement ? "Partial" : "Full")</td>
+                                                    <td class="money-value">@year.StartingTaxableBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.StartingTraditionalBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.StartingRothBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingTaxableBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingTraditionalBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.EndingRothBalance.ToString("C0")</td>
+                                                    <td class="money-value">@year.TotalWithdrawal.ToString("C0")</td>
+                                                    <td class="money-value">@year.TaxPaid.ToString("C0")</td>
+                                                    <td class="money-value">@year.TotalGrowth.ToString("C0")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        *@
                     }
                 </div>
             </div>
@@ -1691,6 +1958,7 @@
             summarySheet.Cell("A1").Value = "Retirement Spending Plan Summary";
             summarySheet.Cell("A1").Style.Font.Bold = true;
             summarySheet.Cell("A1").Style.Font.FontSize = 16;
+            summarySheet.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             summarySheet.Range("A1:F1").Merge();
 
             summarySheet.Cell("A2").Value = $"Generated on {DateTime.Now:MMMM d, yyyy}";
@@ -1830,8 +2098,8 @@
             detailSheet.Cell("A1").Value = "Year";
             detailSheet.Cell("B1").Value = "Age";
             detailSheet.Cell("C1").Value = "Starting Taxable";
-            detailSheet.Cell("D1").Value = "Starting Traditional";
-            detailSheet.Cell("E1").Value = "Starting Roth";
+            detailSheet.Cell("D1").Value = "Trad. Begin";
+            detailSheet.Cell("E1").Value = "Roth Begin";
             detailSheet.Cell("F1").Value = "Starting Total";
 
             if (spendingModel.HasPartialRetirement)
@@ -2107,6 +2375,7 @@
             userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
             await LoadUserRetirementAsync();
             await Calculate();
+            await LoadMiniSummariesAsync();
             StateHasChanged(); // Trigger UI update after userGuid is set
         }
     }
@@ -2167,6 +2436,55 @@
             StateHasChanged();
         }
     }
+
+    // Mini-summary data for left sidebar
+    private FinPlan.Shared.Models.Savings.SavingsResults? youResults;
+    private FinPlan.Shared.Models.Savings.SavingsResults? partnerResults;
+
+    private async Task LoadMiniSummariesAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            async Task<FinPlan.Shared.Models.Savings.SavingsResults?> LoadFor(string calcType)
+            {
+                try
+                {
+                    var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calcType}";
+                    var response = await client.GetAsync(url);
+                    if (!response.IsSuccessStatusCode) return null;
+                    var json = await response.Content.ReadAsStringAsync();
+                    var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (loadedModel == null) return null;
+                    var calc = new FinPlan.Shared.Services.SpendingCalculationEngine();
+                    var res = calc.Calculate(loadedModel);
+                    // Map SpendingResults to SavingsResults for display
+                    return new FinPlan.Shared.Models.Savings.SavingsResults
+                    {
+                        TaxableBalance = res.FinalBalance, // best-effort mapping; SpendingResults uses FinalBalance and account fields
+                        TaxDeferredBalance = res.TraditionalBalance,
+                        RothBalance = res.RothBalance,
+                        FinalAmount = res.FinalBalance
+                    };
+                }
+                catch { return null; }
+            }
+
+            var youTask = LoadFor("Withdrawals_yours");
+            var partnerTask = LoadFor("Withdrawals_partners");
+            await Task.WhenAll(youTask, partnerTask);
+            youResults = await youTask;
+            partnerResults = await partnerTask;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading mini summaries: {ex.Message}");
+        }
+    }
+
     private System.Timers.Timer? debounceTimer;
 
     public void Dispose()

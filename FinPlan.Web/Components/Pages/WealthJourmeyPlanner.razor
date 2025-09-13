@@ -7,6 +7,7 @@
 @using FinPlan.Shared.Services
 @using FinPlan.Web
 @using FinPlan.Web.Components
+@using FinPlan.Web.Components.Shared
 @using FinPlan.Web.Services
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
@@ -229,20 +230,10 @@
         <li><a class="sidebar-link" href="/guides/how-to-use-wealth-journey-calculator"><i class="bi bi-house"></i>How to</a></li>
     </ul>
 
-    @* Savings mini summary embedded in the left sidebar *@
-    @if (results != null)
-    {
-        <div class="mt-3">
-            <Components.Shared.SavingsMiniSummary YouResults="results" Title="Savings" />
-        </div>
-    }
-    else
-    {
-        <div class="mt-3">
-            No info
-        </div>
-    }
-    }
+    @* Savings mini summary embedded in the left sidebar - always show both yours and partner's summaries if available *@
+    <div class="mt-3">
+        <SavingsMiniSummary YouResults="youResults" PartnerResults="partnerResults" Title="Savings" />
+    </div>
 </nav>
 
 <nav class="right-sidebar" aria-label="Right menu">
@@ -865,6 +856,8 @@
     [SupplyParameterFromForm]
     public SavingsCalculatorModel calculatorModel { get; set; } = new();
     private SavingsResults? results;
+    private FinPlan.Shared.Models.Savings.SavingsResults? youResults;
+    private FinPlan.Shared.Models.Savings.SavingsResults? partnerResults;
     private List<YearlyBreakdown> yearlyBreakdown = new();
     private List<IntervalSummary> intervalSummaries = new();
     private HashSet<int> expandedIntervals = new();
@@ -902,8 +895,11 @@
             }
             catch { }
 
+            // Load the active calculator data as before (this populates calculatorModel and results used by page)
             await LoadUserSavingsAsync();
             Calculate();
+            // Ensure mini-summary has both your and partner data
+            await LoadMiniSummariesAsync();
             StateHasChanged();
         }
     }
@@ -1136,6 +1132,43 @@
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task LoadMiniSummariesAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            async Task<FinPlan.Shared.Models.Savings.SavingsResults?> LoadFor(string calcType)
+            {
+                try
+                {
+                    var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calcType}";
+                    var response = await client.GetAsync(url);
+                    if (!response.IsSuccessStatusCode) return null;
+                    var json = await response.Content.ReadAsStringAsync();
+                    var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (loadedModel == null) return null;
+                    var calc = new FinPlan.Shared.Services.SavingsCalculationEngine();
+                    return calc.Calculate(loadedModel);
+                }
+                catch { return null; }
+            }
+
+            var yourTask = LoadFor("TestSavings_yours");
+            var partnerTask = LoadFor("TestSavings_partners");
+            await Task.WhenAll(yourTask, partnerTask);
+
+            youResults = await yourTask;
+            partnerResults = await partnerTask;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading mini summaries: {ex.Message}");
         }
     }
 
