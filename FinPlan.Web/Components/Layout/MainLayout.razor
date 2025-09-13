@@ -18,61 +18,61 @@
         z-index: 1030;
     }
 
-    .top-strip .menu-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        position: relative; /* allow absolute positioning of actions */
-    }
+        .top-strip .menu-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative; /* allow absolute positioning of actions */
+        }
 
-    /* Centered links wrapper */
-    .top-strip .menu-links {
-        margin: 0 auto;
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        align-items: center;
-    }
+        /* Centered links wrapper */
+        .top-strip .menu-links {
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .top-strip .menu-link {
-        color: #222;
-        font-weight: 600;
-        padding: 6px 10px;
-        border-radius: 6px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .top-strip .menu-link {
+            color: #222;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    /* make links more legible on yellow background on hover */
-    .top-strip .menu-link:hover {
-        background: rgba(0,0,0,0.04);
-        text-decoration: none;
-    }
+            /* make links more legible on yellow background on hover */
+            .top-strip .menu-link:hover {
+                background: rgba(0,0,0,0.04);
+                text-decoration: none;
+            }
 
-    /* Active/current page highlight for NavLink (NavLink adds 'active' automatically) */
-    .top-strip .menu-link.active,
-    .top-strip .menu-link[aria-current="page"] {
-        background-color: #fff8d6; /* soft yellow/white contrast */
-        color: #111;
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border-radius: 8px;
-        padding: 6px 12px;
-        transform: translateY(-1px);
-    }
+            /* Active/current page highlight for NavLink (NavLink adds 'active' automatically) */
+            .top-strip .menu-link.active,
+            .top-strip .menu-link[aria-current="page"] {
+                background-color: #fff8d6; /* soft yellow/white contrast */
+                color: #111;
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                border-radius: 8px;
+                padding: 6px 12px;
+                transform: translateY(-1px);
+            }
 
-    /* Keep actions pinned to the right */
-    .top-strip .menu-actions {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
+        /* Keep actions pinned to the right */
+        .top-strip .menu-actions {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
 
     /* separator + auth box */
     .top-sep {
@@ -97,36 +97,80 @@
         margin-right: 6px;
     }
 
-    .auth-btn { min-width: 74px; }
-
-@@media (max-width: 768px) {
-    .top-strip .menu-container {
-        gap: 8px;
+    .auth-btn {
+        min-width: 74px;
     }
 
-    .top-strip .menu-link {
-        padding: 6px 8px;
-        font-size: .92rem;
+    /* Feedback banner styles (placed above top-strip) */
+    .feedback-strip {
+        background: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        padding: 8px 0;
+        font-size: 0.95rem;
     }
 
-    /* On small screens make actions part of normal flow to avoid overlap */
-    .top-strip .menu-actions {
-        position: static;
-        transform: none;
-        margin-left: 0;
-        justify-content: flex-end;
-    }
+        .feedback-strip .feedback-title {
+            font-weight: 700;
+            margin-right: 8px;
+        }
 
-    .top-strip .menu-links {
-        margin: 0; /* allow wrapping */
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
+        .feedback-strip .feedback-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+            .feedback-strip .feedback-links .btn {
+                min-width: 160px;
+            }
+
+    @@media (max-width: 768px) {
+        .top-strip .menu-container {
+            gap: 8px;
+        }
+
+        .top-strip .menu-link {
+            padding: 6px 8px;
+            font-size: .92rem;
+        }
+        /* On small screens make actions part of normal flow to avoid overlap */
+        .top-strip .menu-actions {
+            position: static;
+            transform: none;
+            margin-left: 0;
+            justify-content: flex-end;
+        }
+
+        .top-strip .menu-links {
+            margin: 0; /* allow wrapping */
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .feedback-strip .feedback-links {
+            flex-direction: column;
+            gap: 6px;
+        }
     }
-}
 </style>
 
-<div class="top-strip"> 
+<!-- Feedback strip placed above navigation -->
+<div class="feedback-strip" role="region" aria-label="Feedback">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div>
+            <span class="feedback-title">Feedback</span>
+            <span class="small text-muted">Share quick survey responses or general feedback</span>
+        </div>
+        <div class="feedback-links">
+            <NavLink class="btn btn-sm btn-outline-primary" href="/cost-of-living-survey">Cost of Living Survey</NavLink>
+            <NavLink class="btn btn-sm btn-outline-primary" href="/wealth-journey-survey">Wealth Journey Survey</NavLink>
+            <NavLink class="btn btn-sm btn-outline-primary" href="/contact">General Feedback</NavLink>
+        </div>
+    </div>
+</div>
+
+<div class="top-strip">
     <div class="container menu-container">
         <div class="menu-links">
             <NavLink class="menu-link" href="/wealth-building"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
@@ -164,10 +208,10 @@
                     <div class="spinner-border spinner-border-sm text-dark" role="status" aria-hidden="true"></div>
                 </div>
             }
-         </div>
-     </div>
- </div>
-   
+        </div>
+    </div>
+</div>
+
 
 @* Confirmation modal for cookie association *@
 @if (showCookieAssocModal)

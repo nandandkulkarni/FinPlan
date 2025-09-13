@@ -1,0 +1,255 @@
+@page "/wealth-journey-survey"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Wealth Journey Planner Pilot Survey</PageTitle>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-3 text-primary">Wealth Journey Planner Pilot Survey</h2>
+                    <p class="text-center text-muted mb-4">
+                        Thank you for helping us improve! Please answer the following questions about your experience.<br />
+                        <strong>No personal information is collected.</strong>
+                    </p>
+                </div>
+            </div>
+
+            <EditForm Model="@survey" OnFieldChanged="OnFieldChanged" OnValidSubmit="OnSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3 text-secondary">Multiple Choice Questions</h5>
+                        @for (int i = 0; i < MultipleChoiceQuestions.Count; i++)
+                        {
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">@($"{i + 1}. {MultipleChoiceQuestions[i].Question}")</label>
+                                <div>
+                                    @foreach (var option in MultipleChoiceQuestions[i].Options)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="mcq-@i"
+                                                   id="mcq-@i-@option"
+                                                   value="@option"
+                                                   checked="@(survey.MultipleChoiceAnswers[i] == option)"
+                                                   @onchange="(e) => OnMCQChanged(i, option)" />
+                                            <label class="form-check-label" for="mcq-@i-@option">@option</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3 text-secondary">Open-Ended Questions</h5>
+                        @for (int i = 0; i < EssayQuestions.Count; i++)
+                        {
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">@($"{i + 1}. {EssayQuestions[i]}")</label>
+                                <textarea class="form-control"
+                                          rows="3"
+                                          @bind="survey.EssayAnswers[i]"
+                                          @oninput="(e) => OnEssayChanged(i, survey.EssayAnswers[i])"></textarea>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="text-center mb-5">
+                    <span class="text-success fw-bold" style="font-size:1.1rem;" 
+                          hidden="@(!showSavedMessage)">Saved!</span>
+                </div>
+
+                <div class="text-center mb-5">
+                    <button class="btn btn-lg btn-success px-5 py-2 shadow" type="submit">
+                        <i class="bi bi-send-fill me-2"></i>Submit Survey
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@if (showThankYouModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.35); z-index:2000;" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+                <div class="modal-header bg-success text-white" style="border-radius: 1.5rem 1.5rem 0 0;">
+                    <h4 class="modal-title w-100 text-center">Thank You!</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-emoji-smile" style="font-size: 3rem; color: #28a745;"></i>
+                    </div>
+                    <p class="lead mb-3">Your feedback has been submitted.<br />We appreciate your help in making our planner better!</p>
+                    <hr />
+                    <div class="mb-3">
+                        <p class="mb-2 fw-semibold">Would you like to be kept abreast of future developments?</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="notifyYes" name="notify" value="true" @bind="wantsUpdates" />
+                            <label class="form-check-label" for="notifyYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="notifyNo" name="notify" value="false" @bind="wantsUpdates" />
+                            <label class="form-check-label" for="notifyNo">No</label>
+                        </div>
+                    </div>
+                    @if (wantsUpdates)
+                    {
+                        <div class="mb-3">
+                            <input class="form-control mb-2" placeholder="Your Name (optional)" @bind="userName" />
+                            <input class="form-control" placeholder="Your Email Address" @bind="userEmail" type="email" />
+                        </div>
+                        <button class="btn btn-primary px-4" @onclick="SaveContactInfo" disabled="@string.IsNullOrWhiteSpace(userEmail)">
+                            Keep Me Updated
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary px-4" @onclick="CloseThankYouModal">Close</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index:1999;"></div>
+}
+
+@code {
+    // Survey data model
+    public class SurveyModel
+    {
+        [Required]
+        public List<string> MultipleChoiceAnswers { get; set; } = new List<string>(new string[20]);
+        public List<string> EssayAnswers { get; set; } = new List<string>(new string[5]);
+    }
+
+    SurveyModel survey = new SurveyModel();
+
+    // MCQ definitions
+    public class MCQ
+    {
+        public string Question { get; set; }
+        public string[] Options { get; set; }
+    }
+
+    List<MCQ> MultipleChoiceQuestions = new()
+    {
+        new MCQ { Question = "How easy was it to find the Wealth Journey Planner on the site?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How clear were the instructions for using the planner?", Options = new[] { "Very Clear", "Clear", "Neutral", "Unclear", "Very Unclear" } },
+        new MCQ { Question = "How would you rate the visual design of the planner?", Options = new[] { "Excellent", "Good", "Average", "Poor", "Very Poor" } },
+        new MCQ { Question = "How easy was it to enter your current balances?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How easy was it to enter your monthly contributions?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How easy was it to understand the growth rate settings?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How clear was the meaning of 'Taxable', 'Traditional', and 'Roth' accounts?", Options = new[] { "Very Clear", "Clear", "Neutral", "Unclear", "Very Unclear" } },
+        new MCQ { Question = "How useful did you find the 'Retirement Timeline' section?", Options = new[] { "Very Useful", "Useful", "Neutral", "Not Useful", "Did Not Use" } },
+        new MCQ { Question = "How easy was it to understand the 'Investment Settings'?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How clear was the meaning of 'Tax Bracket'?", Options = new[] { "Very Clear", "Clear", "Neutral", "Unclear", "Very Unclear" } },
+        new MCQ { Question = "How useful did you find the summary cards (Final Amount, Growth, etc.)?", Options = new[] { "Very Useful", "Useful", "Neutral", "Not Useful", "Did Not Use" } },
+        new MCQ { Question = "How easy was it to interpret the progress bars and breakdowns?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How useful did you find the 'Your Retirement Plan Summary'?", Options = new[] { "Very Useful", "Useful", "Neutral", "Not Useful", "Did Not Use" } },
+        new MCQ { Question = "How confident are you that your data was saved?", Options = new[] { "Very Confident", "Confident", "Neutral", "Not Confident", "Unsure" } },
+        new MCQ { Question = "How easy was it to switch between 'Your Savings' and 'Partner Savings' tabs?", Options = new[] { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" } },
+        new MCQ { Question = "How would you rate the speed/performance of the planner?", Options = new[] { "Excellent", "Good", "Average", "Poor", "Very Poor" } },
+        new MCQ { Question = "How likely are you to recommend this planner to others?", Options = new[] { "Very Likely", "Likely", "Neutral", "Unlikely", "Very Unlikely" } },
+        new MCQ { Question = "Overall, how satisfied are you with the Wealth Journey Planner?", Options = new[] { "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied" } },
+        new MCQ { Question = "Did you use the 'How Your Money Grows' breakdown?", Options = new[] { "Yes", "No", "Not Sure" } },
+        new MCQ { Question = "Did you use the 'Age-Based Savings Journey' breakdown?", Options = new[] { "Yes", "No", "Not Sure" } },
+    };
+
+    List<string> EssayQuestions = new()
+    {
+        "What did you like most about the Wealth Journey Planner?",
+        "What did you find confusing or difficult to use?",
+        "What features would you like to see added or improved?",
+        "Did you encounter any bugs or errors? Please describe.",
+        "Any other comments or suggestions?"
+    };
+
+    bool showSavedMessage = false;
+    System.Timers.Timer? saveMsgTimer;
+
+    // Modal state
+    bool showThankYouModal = false;
+    bool wantsUpdates = false;
+    string userName = "";
+    string userEmail = "";
+
+    // Save on every answer change
+    async Task OnFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        await SaveSurvey();
+    }
+
+    void OnMCQChanged(int idx, string value)
+    {
+        survey.MultipleChoiceAnswers[idx] = value;
+        _ = SaveSurvey();
+    }
+
+    void OnEssayChanged(int idx, string value)
+    {
+        survey.EssayAnswers[idx] = value;
+        _ = SaveSurvey();
+    }
+
+    async Task SaveSurvey()
+    {
+        // TODO: Replace with real save logic (API call, local storage, etc.)
+        showSavedMessage = true;
+        StateHasChanged();
+
+        // Hide "Saved!" after 1.5 seconds
+        saveMsgTimer?.Dispose();
+        saveMsgTimer = new System.Timers.Timer(1500);
+        saveMsgTimer.AutoReset = false;
+        saveMsgTimer.Elapsed += (_, __) =>
+        {
+            showSavedMessage = false;
+            InvokeAsync(StateHasChanged);
+        };
+        saveMsgTimer.Start();
+        await Task.CompletedTask;
+    }
+
+    async Task OnSubmit()
+    {
+        // Final save and show thank you modal
+        await SaveSurvey();
+        showThankYouModal = true;
+        StateHasChanged();
+    }
+
+    void CloseThankYouModal()
+    {
+        showThankYouModal = false;
+        wantsUpdates = false;
+        userName = "";
+        userEmail = "";
+    }
+
+    void SaveContactInfo()
+    {
+        // TODO: Save userName and userEmail to your backend or mailing list
+        showThankYouModal = false;
+        wantsUpdates = false;
+        userName = "";
+        userEmail = "";
+        // Optionally show a confirmation toast/message here
+    }
+
+    public void Dispose()
+    {
+        saveMsgTimer?.Dispose();
+    }
+}
