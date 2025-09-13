@@ -11,38 +11,6 @@
 <div>
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            @if (!string.IsNullOrEmpty(Title))
-            {
-                <h3 class="mb-3">@Title</h3>
-            }
-            @if (Questions == null || Questions.Count == 0)
-            {
-               <div> No questions provided to the survey (Questions is null or empty)</div>
-            }
-            else
-            {
-                <div>Questions provided: @Questions.Count</div>
-            }
-            <p class="text-muted">@Description</p>
-
-            @* Debug: show questions count and list when empty to help diagnose missing UI *@
-            @if (Questions == null || Questions.Count == 0)
-            {
-                <div class="alert alert-warning">No questions provided to the survey (Questions is null or empty).</div>
-            }
-            else
-            {
-                <div class="mb-3">
-                    <strong>Questions (debug):</strong>
-                    <ul>
-                        @foreach (var q in Questions)
-                        {
-                            <li>@q.QuestionText (@(q.Options?.Count ?? 0) options)</li>
-                        }
-                    </ul>
-                </div>
-            }
-
             @if (Questions != null && Questions.Count > 0)
             {
                 @foreach (var question in Questions)
