@@ -11,23 +11,31 @@
 <div>
     <div class="card shadow-sm mb-4">
         <div class="card-body">
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <h3 class="mb-3">@Title</h3>
+                <p class="text-muted">@Description</p>
+            }
+
             @if (Questions != null && Questions.Count > 0)
             {
                 @foreach (var question in Questions)
                 {
-                    @if (question.Options != null && question.Options.Count > 0)
-                    {
-                        <McqQuestion Question="@question" Selected="@(s => OnMcqSelectedAsync(question.QuestionText, s))" />
-                    }
-                    else
-                    {
-                        <EssayQuestion Question="@question" Answer="@GetAnswer(question.QuestionText)" AnswerChanged="@(v => OnEssayChangedAsync(question.QuestionText, v))" />
-                    }
+                    <div class="mb-4 p-3 border rounded bg-light">
+                        @if (question.Options != null && question.Options.Count > 0)
+                        {
+                            <McqQuestion Question="@question" SelectedValue="@GetAnswer(question.QuestionText)" Selected="@(s => OnMcqSelectedAsync(question.QuestionText, s))" />
+                        }
+                        else
+                        {
+                            <EssayQuestion Question="@question" Answer="@GetAnswer(question.QuestionText)" AnswerChanged="@(v => OnEssayChangedAsync(question.QuestionText, v))" />
+                        }
+                    </div>
                 }
             }
 
             <div class="mt-4 text-end">
-                <button class="btn btn-primary" @onclick="SubmitAsync">Submit</button>
+                <button class="btn btn-primary btn-lg" @onclick="SubmitAsync">Submit</button>
             </div>
 
             @if (!string.IsNullOrEmpty(statusMessage))

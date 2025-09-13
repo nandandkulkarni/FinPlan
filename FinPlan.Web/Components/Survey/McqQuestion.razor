@@ -6,10 +6,16 @@
     @if (Question.Options?.Count > 0)
     {
         <div class="mt-2">
-            <div class="btn-group" role="group" aria-label="MCQ options">
+            <div class="d-flex flex-wrap">
                 @foreach (var opt in Question.Options)
                 {
-                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnSelect(opt)">@opt</button>
+                    var isSelected = string.Equals(opt, SelectedValue, StringComparison.Ordinal);
+                    <button type="button"
+                            class="btn @(isSelected ? "btn-primary" : "btn-outline-secondary") btn-sm me-2 mb-2"
+                            aria-pressed="@(isSelected.ToString().ToLower())"
+                            @onclick="() => OnSelect(opt)">
+                        @opt
+                    </button>
                 }
             </div>
         </div>
@@ -19,6 +25,9 @@
 @code {
     [Parameter]
     public SurveyQuestion Question { get; set; } = default!;
+
+    [Parameter]
+    public string SelectedValue { get; set; } = string.Empty;
 
     [Parameter]
     public EventCallback<string> Selected { get; set; }
