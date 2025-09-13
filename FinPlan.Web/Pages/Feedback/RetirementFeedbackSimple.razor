@@ -15,6 +15,24 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-sm mb-4">
+
+                @if (questions is not null && questions.Count > 0)
+                {
+                    @foreach(var question in questions)
+                    {
+                            <span class="badge bg-secondary">@question.QuestionText</span>
+                            @if(question.Options!=null)
+                            {
+                                var options = question.Options;
+                                @foreach (var opt in options)
+                                {
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(question.QuestionText, opt)">@opt</button>
+                                }
+                            }
+                    }
+                }
+
+
                 <div class="card-body">
                     <h3 class="mb-3">Retirement Drawdown Feedback</h3>
                     <p class="text-muted">Please answer the question below. Your answers are not personally identifiable.</p>
@@ -24,7 +42,7 @@
                         <label class="form-label fw-semibold">@mcqQuestion1</label>
                         <div class="mt-2">
                             <div class="btn-group" role="group" aria-label="MCQ options">
-                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(mcqQuestion1, mcAnaswer1[0])">mcAnaswer1[0]</button>
+                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(mcqQuestion1.QuestionText, mcAnaswer1)">mcAnaswer1</button>
                             </div>
                         </div>
                     </div>
@@ -51,14 +69,19 @@
 
 @code {
     // question constants used by handlers
-    private const string mcqQuestion1 = "How easy was it to use the Retirement Drawdown Planner?";
-    private string[] mcAnaswer1 = {"Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult"};
-
+    private SurveyQuestion mcqQuestion1 = new SurveyQuestion("How easy was it to use the Retirement Drawdown Planner?", new List<string> { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" });
     private const string essayQuestion = "Please describe anything you found confusing or suggestions for improvement:";
+    private const string mcAnaswer1 = "Very Easy";
 
     private string essayAnswer = string.Empty;
     private string selectedMcqAnswer = string.Empty;
     private string statusMessage = string.Empty;
+    private List<SurveyQuestion> questions = new List<SurveyQuestion>()
+    {
+       new SurveyQuestion("How easy was it to use the Retirement Drawdown Planner?", new List<string> { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" }),
+       new SurveyQuestion("Please describe anything you found confusing or suggestions for improvement:"),
+       new SurveyQuestion("How likely are you to recommend our service to a friend or colleague?", new List<string> { "Very Likely", "Likely", "Neutral", "Unlikely", "Very Unlikely" })
+    };
 
     private void CloseDetailsModal()
     {
@@ -91,5 +114,18 @@
     {
         // Final submission logic can be implemented here. For now show a confirmation message.
         statusMessage = $"Submitted MCQ: '{selectedMcqAnswer}' and Essay length: {essayAnswer?.Length ?? 0}";
+    }
+
+    public class SurveyQuestion
+    {
+        public string QuestionText { get; set; }
+        public List<string> Options { get; set; } // For MCQs
+        public bool IsEssay { get; set; } // True if essay question
+        public SurveyQuestion(string questionText, List<string> options = null)
+        {
+            QuestionText = questionText;
+            Options = options ?? new List<string>();
+            IsEssay = options == null;
+        }
     }
 }
