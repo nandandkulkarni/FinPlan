@@ -3,15 +3,10 @@
 @using FinPlan.Web.Components.Survey
 @using Microsoft.AspNetCore.Components
 
-<PageTitle>Retirement Drawdown Feedback (New)</PageTitle>
+<PageTitle>Retirement Drawdown Planner - Survey</PageTitle>
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <SurveyForm Questions="@questions" Title="Retirement Drawdown Feedback" SurveyType="RetirementDrawdown" Description="Please answer the following questions about the Retirement Drawdown Planner. No personal information is collected." />
-        </div>
-    </div>
-</div>
+
+<SurveyForm Questions="@questions" Title="Retirement Drawdown Planner - Survey" SurveyType="RetirementDrawdown" Description="Please answer the following questions about the Retirement Drawdown Planner. No personal information is collected." />
 
 @code {
     private List<SurveyQuestion> questions = new()

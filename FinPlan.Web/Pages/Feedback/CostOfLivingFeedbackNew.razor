@@ -3,15 +3,9 @@
 @using FinPlan.Web.Components.Survey
 @using Microsoft.AspNetCore.Components
 
-<PageTitle>Cost of Living Feedback (New)</PageTitle>
+<PageTitle>Cost of Living Planner - Survey</PageTitle>
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <SurveyForm Questions="@questions" Title="Cost of Living Planner Pilot Survey" SurveyType="CostOfLiving" Description="Thank you for helping us improve! Please answer the following questions about your experience. No personal information is collected." />
-        </div>
-    </div>
-</div>
+<SurveyForm Questions="@questions" Title="Cost of Living Planner -  Survey" SurveyType="CostOfLiving" Description="Thank you for helping us improve! Please answer the following questions about your experience. No personal information is collected." />
 
 @code {
     private List<SurveyQuestion> questions = new()
