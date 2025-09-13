@@ -1,0 +1,24 @@
+@using FinPlan.Web.Components.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="mb-3">
+    <label class="form-label fw-semibold">@Question.QuestionText</label>
+    <textarea class="form-control" rows="4" @bind="Answer"></textarea>
+</div>
+
+@code {
+    [Parameter]
+    public SurveyQuestion Question { get; set; } = default!;
+
+    [Parameter]
+    public string Answer { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> AnswerChanged { get; set; }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        Answer = e.Value?.ToString() ?? string.Empty;
+        await AnswerChanged.InvokeAsync(Answer);
+    }
+}

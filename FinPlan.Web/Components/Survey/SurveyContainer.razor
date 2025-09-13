@@ -1,0 +1,21 @@
+@using FinPlan.Web.Components.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <h5 class="mb-3 text-secondary">@Title</h5>
+        }
+
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

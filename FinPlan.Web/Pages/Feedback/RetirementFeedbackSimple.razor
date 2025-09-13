@@ -5,6 +5,7 @@
 @using Microsoft.JSInterop
 @using System.Text.Json
 @using System.Net.Http.Json
+@using FinPlan.Web.Components.Models
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
@@ -38,21 +39,13 @@
                     <h3 class="mb-3">Retirement Drawdown Feedback</h3>
                     <p class="text-muted">Please answer the question below. Your answers are not personally identifiable.</p>
 
-                    <h5 class="mt-4">Multiple Choice (example)</h5>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">@mcqQuestion1.QuestionText</label>
-                        <div class="mt-2">
-                            <div class="btn-group" role="group" aria-label="MCQ options">
-                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelectedAsync(mcqQuestion1.QuestionText, mcAnaswer1)">@mcAnaswer1</button>
-                            </div>
-                        </div>
-                    </div>
+                    <SurveyContainer Title="Multiple Choice (example)">
+                        <McqQuestion Question="@mcqQuestion1" Selected="@OnMcqSelectedHandler" />
+                    </SurveyContainer>
 
-                    <h5 class="mt-4">Open-Ended</h5>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">@essayQuestion</label>
-                        <textarea class="form-control" rows="4" @bind="essayAnswer" @oninput="OnEssayInputAsync"></textarea>
-                    </div>
+                    <SurveyContainer Title="Open-Ended">
+                        <EssayQuestion Question="@essayQuestionObj" Answer="@essayAnswer" AnswerChanged="@OnEssayChangedHandler" />
+                    </SurveyContainer>
 
                     <div class="mt-4 text-end">
                         <button class="btn btn-primary" @onclick="SubmitAsync">Submit</button>
@@ -72,6 +65,7 @@
     // question constants used by handlers
     private SurveyQuestion mcqQuestion1 = new SurveyQuestion("How easy was it to use the Retirement Drawdown Planner?", new List<string> { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" });
     private const string essayQuestion = "Please describe anything you found confusing or suggestions for improvement:";
+    private SurveyQuestion essayQuestionObj = default!;
     private const string mcAnaswer1 = "Very Easy";
 
     private string essayAnswer = string.Empty;
@@ -101,18 +95,14 @@
         {
             userGuid = Guid.NewGuid().ToString();
         }
+
+        // initialize derived question objects
+        essayQuestionObj = new SurveyQuestion(essayQuestion);
     }
 
     private void CloseDetailsModal()
     {
         // Logic to close the modal can be implemented here
-    }
-
-    // oninput handler for essay - async so we can call async storage/print
-    private async Task OnEssayInputAsync(ChangeEventArgs e)
-    {
-        essayAnswer = e.Value?.ToString() ?? string.Empty;
-        await OnEssayChangedAsync(essayQuestion, essayAnswer);
     }
 
     // store MCQ answer (ensures no duplicate questions - dictionary key enforces uniqueness),
@@ -130,6 +120,11 @@
         StateHasChanged();
     }
 
+    private Task OnMcqSelectedHandler(string selected)
+    {
+        return OnMcqSelectedAsync(mcqQuestion1.QuestionText, selected);
+    }
+
     // store essay answer and print JSON and save
     private async Task OnEssayChangedAsync(string questionText, string currentAnswer)
     {
@@ -141,6 +136,11 @@
         await PrintAnswersJsonAsync();
         await SaveAnswersToApiAsync();
         StateHasChanged();
+    }
+
+    private Task OnEssayChangedHandler(string value)
+    {
+        return OnEssayChangedAsync(essayQuestion, value);
     }
 
     // Convert answers dictionary to JSON and print to browser console
@@ -195,20 +195,7 @@
         await SaveAnswersToApiAsync();
     }
 
-    public class SurveyQuestion
-    {
-        public string QuestionText { get; set; }
-        public List<string> Options { get; set; } // For MCQs
-        public bool IsEssay { get; set; } // True if essay question
-        public SurveyQuestion(string questionText, List<string> options = null)
-        {
-            QuestionText = questionText;
-            Options = options ?? new List<string>();
-            IsEssay = options == null;
-        }
-    }
-
-      private string GetApiBaseUrl()
+    private string GetApiBaseUrl()
     {
 #if DEBUG
                         return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";

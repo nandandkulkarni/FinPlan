@@ -1,0 +1,30 @@
+@using FinPlan.Web.Components.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="mb-3">
+    <label class="form-label fw-semibold">@Question.QuestionText</label>
+    @if (Question.Options?.Count > 0)
+    {
+        <div class="mt-2">
+            <div class="btn-group" role="group" aria-label="MCQ options">
+                @foreach (var opt in Question.Options)
+                {
+                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnSelect(opt)">@opt</button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public SurveyQuestion Question { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<string> Selected { get; set; }
+
+    private async Task OnSelect(string opt)
+    {
+        await Selected.InvokeAsync(opt);
+    }
+}
