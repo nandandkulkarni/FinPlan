@@ -3,7 +3,7 @@
 
 <div class="mb-3">
     <label class="form-label fw-semibold">@Question.QuestionText</label>
-    <textarea class="form-control" rows="4" @bind="Answer"></textarea>
+    <textarea class="form-control" rows="4" @bind="Answer" @oninput="OnInput"></textarea>
 </div>
 
 @code {

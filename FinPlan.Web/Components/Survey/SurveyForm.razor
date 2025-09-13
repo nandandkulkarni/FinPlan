@@ -1,0 +1,184 @@
+﻿@using FinPlan.Web.Components.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using System.Text.Json
+@using System.Net.Http.Json
+@inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject IConfiguration Configuration
+
+<div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <h3 class="mb-3">@Title</h3>
+            }
+            @if (Questions == null || Questions.Count == 0)
+            {
+               <div> No questions provided to the survey (Questions is null or empty)</div>
+            }
+            else
+            {
+                <div>Questions provided: @Questions.Count</div>
+            }
+            <p class="text-muted">@Description</p>
+
+            @* Debug: show questions count and list when empty to help diagnose missing UI *@
+            @if (Questions == null || Questions.Count == 0)
+            {
+                <div class="alert alert-warning">No questions provided to the survey (Questions is null or empty).</div>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <strong>Questions (debug):</strong>
+                    <ul>
+                        @foreach (var q in Questions)
+                        {
+                            <li>@q.QuestionText (@(q.Options?.Count ?? 0) options)</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (Questions != null && Questions.Count > 0)
+            {
+                @foreach (var question in Questions)
+                {
+                    @if (question.Options != null && question.Options.Count > 0)
+                    {
+                        <McqQuestion Question="@question" Selected="@(s => OnMcqSelectedAsync(question.QuestionText, s))" />
+                    }
+                    else
+                    {
+                        <EssayQuestion Question="@question" Answer="@GetAnswer(question.QuestionText)" AnswerChanged="@(v => OnEssayChangedAsync(question.QuestionText, v))" />
+                    }
+                }
+            }
+
+            <div class="mt-4 text-end">
+                <button class="btn btn-primary" @onclick="SubmitAsync">Submit</button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="alert alert-success mt-3">@statusMessage</div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<SurveyQuestion>? Questions { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Survey";
+
+    [Parameter]
+    public string Description { get; set; } = "Please answer the questions below. Your answers are not personally identifiable.";
+
+    [Parameter]
+    public string SurveyType { get; set; } = "GenericSurvey";
+
+    // internal state
+    private readonly Dictionary<string, string> answers = new();
+    private string statusMessage = string.Empty;
+    private string userGuid = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        }
+        catch
+        {
+            userGuid = Guid.NewGuid().ToString();
+        }
+    }
+
+    private string GetAnswer(string questionText)
+    {
+        return answers.TryGetValue(questionText, out var v) ? v : string.Empty;
+    }
+
+    private async Task OnMcqSelectedAsync(string questionText, string chosenAnswer)
+    {
+        if (string.IsNullOrEmpty(questionText)) return;
+
+        answers[questionText] = chosenAnswer;
+        statusMessage = $"Recorded: '{questionText}' → '{chosenAnswer}'";
+
+        await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
+        StateHasChanged();
+    }
+
+    private async Task OnEssayChangedAsync(string questionText, string currentAnswer)
+    {
+        if (string.IsNullOrEmpty(questionText)) return;
+
+        answers[questionText] = currentAnswer;
+        statusMessage = $"Essay updated for: '{questionText}'";
+
+        await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
+        StateHasChanged();
+    }
+
+    private async Task PrintAnswersJsonAsync()
+    {
+        try
+        {
+            var payload = answers.Select(kvp => new { Question = kvp.Key, Answer = kvp.Value }).ToArray();
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+            await JSRuntime.InvokeVoidAsync("console.log", json);
+            Console.WriteLine(json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error serializing answers: {ex}");
+        }
+    }
+
+    private async Task SaveAnswersToApiAsync()
+    {
+        var apiBase = GetApiBaseUrl();
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient("Api");
+            var req = new
+            {
+                UserGuid = userGuid,
+                SurveyType = SurveyType,
+                SurveyJson = answers
+            };
+
+            await client.PostAsJsonAsync(apiBase + "/api/survey/save", req);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving survey: {ex}");
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        statusMessage = $"Submitted ({SurveyType}) with {answers.Count} answers.";
+        await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+}
