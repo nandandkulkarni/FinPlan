@@ -1,6 +1,9 @@
 @page "/retirement-drawdown-survey"
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Net.Http.Json
+@inject IHttpClientFactory HttpClientFactory
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
 
 <PageTitle>Retirement Drawdown Planner Pilot Survey</PageTitle>
 
@@ -56,16 +59,16 @@
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">@($"{i + 1}. {EssayQuestions[i]}")</label>
                                 <textarea class="form-control"
-                                          rows="3"
-                                          @bind="survey.EssayAnswers[i]"
-                                          @oninput="(e) => OnEssayChanged(i, survey.EssayAnswers[i])"></textarea>
+                                      rows="3"
+                                      @bind="survey.EssayAnswers[i]"
+                                      @oninput="(e) => OnEssayChanged(i, survey.EssayAnswers[i])"></textarea>
                             </div>
                         }
                     </div>
                 </div>
 
                 <div class="text-center mb-5">
-                    <span class="text-success fw-bold" style="font-size:1.1rem;" 
+                    <span class="text-success fw-bold" style="font-size:1.1rem;"
                           hidden="@(!showSavedMessage)">Saved!</span>
                 </div>
 
@@ -186,6 +189,10 @@
     string userName = "";
     string userEmail = "";
 
+    // Local fields for user & survey type
+    private string userGuid = string.Empty;
+    private string surveyType = "RetirementDrawdown";
+
     // Save on every answer change
     async Task OnFieldChanged(object sender, FieldChangedEventArgs e)
     {
@@ -202,25 +209,6 @@
     {
         survey.EssayAnswers[idx] = value;
         _ = SaveSurvey();
-    }
-
-    async Task SaveSurvey()
-    {
-        // TODO: Replace with real save logic (API call, local storage, etc.)
-        showSavedMessage = true;
-        StateHasChanged();
-
-        // Hide "Saved!" after 1.5 seconds
-        saveMsgTimer?.Dispose();
-        saveMsgTimer = new System.Timers.Timer(1500);
-        saveMsgTimer.AutoReset = false;
-        saveMsgTimer.Elapsed += (_, __) =>
-        {
-            showSavedMessage = false;
-            InvokeAsync(StateHasChanged);
-        };
-        saveMsgTimer.Start();
-        await Task.CompletedTask;
     }
 
     async Task OnSubmit()
@@ -249,8 +237,65 @@
         // Optionally show a confirmation toast/message here
     }
 
-     public void Dispose()
+    public void Dispose()
     {
         saveMsgTimer?.Dispose();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        }
+        catch { userGuid = Guid.NewGuid().ToString(); }
+
+        await LoadSurvey();
+    }
+
+    async Task SaveSurvey()
+    {
+        showSavedMessage = true;
+        StateHasChanged();
+
+        var client = HttpClientFactory.CreateClient("Api");
+        var req = new
+        {
+            UserGuid = userGuid,
+            SurveyType = surveyType,
+            SurveyJson = survey
+        };
+        try
+        {
+            await client.PostAsJsonAsync("api/survey/save", req);
+        }
+        catch { }
+
+        // Hide "Saved!" after 1.5 seconds (existing logic)
+        saveMsgTimer?.Dispose();
+        saveMsgTimer = new System.Timers.Timer(1500);
+        saveMsgTimer.AutoReset = false;
+        saveMsgTimer.Elapsed += (_, __) =>
+        {
+            showSavedMessage = false;
+            InvokeAsync(StateHasChanged);
+        };
+        saveMsgTimer.Start();
+    }
+
+    async Task LoadSurvey()
+    {
+        var client = HttpClientFactory.CreateClient("Api");
+        try
+        {
+            var result = await client.GetFromJsonAsync<SurveyModel>($"api/survey/{surveyType}/{userGuid}");
+            if (result != null)
+                survey = result;
+        }
+        catch
+        {
+            // Not found or error, start fresh
+            survey = new SurveyModel();
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace FinPlan.ApiService.Data
         public DbSet<FinPlanEntity> FinPlans { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRegistration> UserRegistrations { get; set; }
+        public DbSet<SurveyResponse> SurveyResponses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
