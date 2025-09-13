@@ -1,13 +1,9 @@
 ﻿@page "/retirement-feedback-simple"
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
-@using FinPlan.Web.Components
-@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
-@using FinPlan.Web.Services
-@inject IHttpClientFactory HttpClientFactory
-@inject IConfiguration Configuration
+@using System.Text.Json
 @inject IJSRuntime JSRuntime
 <PageTitle>Retirement Feedback (Simple)</PageTitle>
 
@@ -20,29 +16,29 @@
                 {
                     @foreach(var question in questions)
                     {
-                            <span class="badge bg-secondary">@question.QuestionText</span>
-                            @if(question.Options!=null)
+                        <div class="mb-2">
+                            <span class="badge bg-secondary me-2">@question.QuestionText</span>
+                            @if (question.Options?.Count > 0)
                             {
-                                var options = question.Options;
-                                @foreach (var opt in options)
+                                @foreach (var opt in question.Options)
                                 {
-                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(question.QuestionText, opt)">@opt</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-1" @onclick="() => OnMcqSelectedAsync(question.QuestionText, opt)">@opt</button>
                                 }
                             }
+                        </div>
                     }
                 }
-
 
                 <div class="card-body">
                     <h3 class="mb-3">Retirement Drawdown Feedback</h3>
                     <p class="text-muted">Please answer the question below. Your answers are not personally identifiable.</p>
 
-                    <h5 class="mt-4">Multiple Choice</h5>
+                    <h5 class="mt-4">Multiple Choice (example)</h5>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">@mcqQuestion1</label>
+                        <label class="form-label fw-semibold">@mcqQuestion1.QuestionText</label>
                         <div class="mt-2">
                             <div class="btn-group" role="group" aria-label="MCQ options">
-                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(mcqQuestion1.QuestionText, mcAnaswer1)">mcAnaswer1</button>
+                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelectedAsync(mcqQuestion1.QuestionText, mcAnaswer1)">@mcAnaswer1</button>
                             </div>
                         </div>
                     </div>
@@ -50,11 +46,11 @@
                     <h5 class="mt-4">Open-Ended</h5>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">@essayQuestion</label>
-                        <textarea class="form-control" rows="4" @bind="essayAnswer" @oninput="OnEssayInput"></textarea>
+                        <textarea class="form-control" rows="4" @bind="essayAnswer" @oninput="OnEssayInputAsync"></textarea>
                     </div>
 
                     <div class="mt-4 text-end">
-                        <button class="btn btn-primary" @onclick="Submit">Submit</button>
+                        <button class="btn btn-primary" @onclick="SubmitAsync">Submit</button>
                     </div>
 
                     @if (!string.IsNullOrEmpty(statusMessage))
@@ -76,6 +72,10 @@
     private string essayAnswer = string.Empty;
     private string selectedMcqAnswer = string.Empty;
     private string statusMessage = string.Empty;
+
+    // Store answers uniquely by question text
+    private readonly Dictionary<string, string> answers = new();
+
     private List<SurveyQuestion> questions = new List<SurveyQuestion>()
     {
        new SurveyQuestion("How easy was it to use the Retirement Drawdown Planner?", new List<string> { "Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult" }),
@@ -87,33 +87,67 @@
     {
         // Logic to close the modal can be implemented here
     }
-    private void OnEssayInput(ChangeEventArgs e)
+
+    // oninput handler for essay - async so we can call async storage/print
+    private async Task OnEssayInputAsync(ChangeEventArgs e)
     {
         essayAnswer = e.Value?.ToString() ?? string.Empty;
-        OnEssayChanged(essayQuestion, essayAnswer);
+        await OnEssayChangedAsync(essayQuestion, essayAnswer);
     }
 
-    // Called when a multiple-choice option is selected. Receives the actual question text and chosen answer.
-    private void OnMcqSelected(string questionText, string chosenAnswer)
+    // store MCQ answer (ensures no duplicate questions - dictionary key enforces uniqueness),
+    // then convert current answers to JSON and print to browser console
+    private async Task OnMcqSelectedAsync(string questionText, string chosenAnswer)
     {
-        // Store the selected answer and do any processing needed
+        if (string.IsNullOrEmpty(questionText)) return;
+
+        answers[questionText] = chosenAnswer; // add or replace
         selectedMcqAnswer = chosenAnswer;
         statusMessage = $"Recorded: '{questionText}' → '{chosenAnswer}'";
+
+        await PrintAnswersJsonAsync();
         StateHasChanged();
     }
 
-    // Called when essay content changes. Receives the actual question text and current essay text.
-    private void OnEssayChanged(string questionText, string currentAnswer)
+    // store essay answer and print JSON
+    private async Task OnEssayChangedAsync(string questionText, string currentAnswer)
     {
-        essayAnswer = currentAnswer;
-        // Optionally update status to show progress
+        if (string.IsNullOrEmpty(questionText)) return;
+
+        answers[questionText] = currentAnswer;
         statusMessage = $"Essay updated for: '{questionText}'";
+
+        await PrintAnswersJsonAsync();
+        StateHasChanged();
     }
 
-    private void Submit()
+    // Convert answers dictionary to JSON and print to browser console
+    private async Task PrintAnswersJsonAsync()
     {
-        // Final submission logic can be implemented here. For now show a confirmation message.
+        try
+        {
+            // create an array of { question, answer } objects for nicer JSON
+            var payload = answers.Select(kvp => new { Question = kvp.Key, Answer = kvp.Value }).ToArray();
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+
+            // print to browser console
+            await JSRuntime.InvokeVoidAsync("console.log", json);
+
+            // also write to server console (useful during server-side debugging)
+            Console.WriteLine(json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error serializing answers: {ex}");
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        // Final submission logic can be implemented here.
+        // For now show a confirmation message and print final JSON.
         statusMessage = $"Submitted MCQ: '{selectedMcqAnswer}' and Essay length: {essayAnswer?.Length ?? 0}";
+        await PrintAnswersJsonAsync();
     }
 
     public class SurveyQuestion
