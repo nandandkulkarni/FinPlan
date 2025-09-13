@@ -1,0 +1,95 @@
+﻿@page "/retirement-feedback-simple"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using FinPlan.Web.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+<PageTitle>Retirement Feedback (Simple)</PageTitle>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="mb-3">Retirement Drawdown Feedback</h3>
+                    <p class="text-muted">Please answer the question below. Your answers are not personally identifiable.</p>
+
+                    <h5 class="mt-4">Multiple Choice</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">@mcqQuestion1</label>
+                        <div class="mt-2">
+                            <div class="btn-group" role="group" aria-label="MCQ options">
+                                <button type="button" class="btn btn-outline-secondary" @onclick="() => OnMcqSelected(mcqQuestion1, mcAnaswer1[0])">mcAnaswer1[0]</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4">Open-Ended</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">@essayQuestion</label>
+                        <textarea class="form-control" rows="4" @bind="essayAnswer" @oninput="OnEssayInput"></textarea>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button class="btn btn-primary" @onclick="Submit">Submit</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(statusMessage))
+                    {
+                        <div class="alert alert-success mt-3">@statusMessage</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // question constants used by handlers
+    private const string mcqQuestion1 = "How easy was it to use the Retirement Drawdown Planner?";
+    private string[] mcAnaswer1 = {"Very Easy", "Easy", "Neutral", "Difficult", "Very Difficult"};
+
+    private const string essayQuestion = "Please describe anything you found confusing or suggestions for improvement:";
+
+    private string essayAnswer = string.Empty;
+    private string selectedMcqAnswer = string.Empty;
+    private string statusMessage = string.Empty;
+
+    private void CloseDetailsModal()
+    {
+        // Logic to close the modal can be implemented here
+    }
+    private void OnEssayInput(ChangeEventArgs e)
+    {
+        essayAnswer = e.Value?.ToString() ?? string.Empty;
+        OnEssayChanged(essayQuestion, essayAnswer);
+    }
+
+    // Called when a multiple-choice option is selected. Receives the actual question text and chosen answer.
+    private void OnMcqSelected(string questionText, string chosenAnswer)
+    {
+        // Store the selected answer and do any processing needed
+        selectedMcqAnswer = chosenAnswer;
+        statusMessage = $"Recorded: '{questionText}' → '{chosenAnswer}'";
+        StateHasChanged();
+    }
+
+    // Called when essay content changes. Receives the actual question text and current essay text.
+    private void OnEssayChanged(string questionText, string currentAnswer)
+    {
+        essayAnswer = currentAnswer;
+        // Optionally update status to show progress
+        statusMessage = $"Essay updated for: '{questionText}'";
+    }
+
+    private void Submit()
+    {
+        // Final submission logic can be implemented here. For now show a confirmation message.
+        statusMessage = $"Submitted MCQ: '{selectedMcqAnswer}' and Essay length: {essayAnswer?.Length ?? 0}";
+    }
+}
