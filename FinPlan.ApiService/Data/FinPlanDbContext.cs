@@ -18,6 +18,7 @@ namespace FinPlan.ApiService.Data
             modelBuilder.Entity<FinPlanEntity>().ToTable("FinPlan");
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<UserRegistration>().ToTable("UserRegistration");
+            modelBuilder.Entity<SurveyResponse>().ToTable("SurveyResponses");
             base.OnModelCreating(modelBuilder);
         }
     }

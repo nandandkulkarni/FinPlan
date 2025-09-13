@@ -4,7 +4,12 @@
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 @using System.Text.Json
+@using System.Net.Http.Json
 @inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject IConfiguration Configuration
+
 <PageTitle>Retirement Feedback (Simple)</PageTitle>
 
 <div class="container my-5">
@@ -83,6 +88,21 @@
        new SurveyQuestion("How likely are you to recommend our service to a friend or colleague?", new List<string> { "Very Likely", "Likely", "Neutral", "Unlikely", "Very Unlikely" })
     };
 
+    private string userGuid = string.Empty;
+    private readonly string surveyType = "RetirementDrawdown";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        }
+        catch
+        {
+            userGuid = Guid.NewGuid().ToString();
+        }
+    }
+
     private void CloseDetailsModal()
     {
         // Logic to close the modal can be implemented here
@@ -96,7 +116,7 @@
     }
 
     // store MCQ answer (ensures no duplicate questions - dictionary key enforces uniqueness),
-    // then convert current answers to JSON and print to browser console
+    // then convert current answers to JSON and print to browser console and save via API
     private async Task OnMcqSelectedAsync(string questionText, string chosenAnswer)
     {
         if (string.IsNullOrEmpty(questionText)) return;
@@ -106,10 +126,11 @@
         statusMessage = $"Recorded: '{questionText}' → '{chosenAnswer}'";
 
         await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
         StateHasChanged();
     }
 
-    // store essay answer and print JSON
+    // store essay answer and print JSON and save
     private async Task OnEssayChangedAsync(string questionText, string currentAnswer)
     {
         if (string.IsNullOrEmpty(questionText)) return;
@@ -118,6 +139,7 @@
         statusMessage = $"Essay updated for: '{questionText}'";
 
         await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
         StateHasChanged();
     }
 
@@ -142,12 +164,35 @@
         }
     }
 
+    private async Task SaveAnswersToApiAsync()
+    {
+        var apiBase = GetApiBaseUrl();
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient("Api");
+            var req = new
+            {
+                UserGuid = userGuid,
+                SurveyType = surveyType,
+                SurveyJson = answers
+            };
+
+            await client.PostAsJsonAsync(apiBase + "/api/survey/save", req);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving survey: {ex}");
+        }
+    }
+
     private async Task SubmitAsync()
     {
         // Final submission logic can be implemented here.
-        // For now show a confirmation message and print final JSON.
+        // For now show a confirmation message and save
         statusMessage = $"Submitted MCQ: '{selectedMcqAnswer}' and Essay length: {essayAnswer?.Length ?? 0}";
         await PrintAnswersJsonAsync();
+        await SaveAnswersToApiAsync();
     }
 
     public class SurveyQuestion
@@ -162,4 +207,14 @@
             IsEssay = options == null;
         }
     }
+
+      private string GetApiBaseUrl()
+    {
+#if DEBUG
+                        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
 }
