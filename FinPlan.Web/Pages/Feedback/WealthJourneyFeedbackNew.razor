@@ -1,0 +1,47 @@
+@page "/wealth-journey-survey"
+@using FinPlan.Web.Components.Models
+@using FinPlan.Web.Components.Survey
+@using Microsoft.AspNetCore.Components
+
+<PageTitle>Wealth Journey Feedback (New)</PageTitle>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <SurveyForm Questions="@questions" Title="Wealth Journey Planner Pilot Survey" SurveyType="WealthJourney" Description="Thank you for helping us improve! Please answer the following questions about your experience. No personal information is collected." />
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SurveyQuestion> questions = new()
+    {
+        new SurveyQuestion("How easy was it to find the Wealth Journey Planner on the site?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How clear were the instructions for using the planner?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+        new SurveyQuestion("How would you rate the visual design of the planner?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
+        new SurveyQuestion("How easy was it to enter your current balances?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to enter your monthly contributions?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to understand the growth rate settings?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How clear was the meaning of 'Taxable', 'Traditional', and 'Roth' accounts?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+        new SurveyQuestion("How useful did you find the 'Retirement Timeline' section?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How easy was it to understand the 'Investment Settings'?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How clear was the meaning of 'Tax Bracket'?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+        new SurveyQuestion("How useful did you find the summary cards (Final Amount, Growth, etc.)?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How easy was it to interpret the progress bars and breakdowns?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How useful did you find the 'Your Retirement Plan Summary'?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How confident are you that your data was saved?", new List<string>{"Very Confident","Confident","Neutral","Not Confident","Unsure"}),
+        new SurveyQuestion("How easy was it to switch between 'Your Savings' and 'Partner Savings' tabs?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How would you rate the speed/performance of the planner?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
+        new SurveyQuestion("How likely are you to recommend this planner to others?", new List<string>{"Very Likely","Likely","Neutral","Unlikely","Very Unlikely"}),
+        new SurveyQuestion("Overall, how satisfied are you with the Wealth Journey Planner?", new List<string>{"Very Satisfied","Satisfied","Neutral","Dissatisfied","Very Dissatisfied"}),
+        new SurveyQuestion("Did you use the 'How Your Money Grows' breakdown?", new List<string>{"Yes","No","Not Sure"}),
+        new SurveyQuestion("Did you use the 'Age-Based Savings Journey' breakdown?", new List<string>{"Yes","No","Not Sure"}),
+
+        // Essay questions
+        new SurveyQuestion("What did you like most about the Wealth Journey Planner?"),
+        new SurveyQuestion("What did you find confusing or difficult to use?"),
+        new SurveyQuestion("What features would you like to see added or improved?"),
+        new SurveyQuestion("Did you encounter any bugs or errors? Please describe."),
+        new SurveyQuestion("Any other comments or suggestions?")
+    };
+}
