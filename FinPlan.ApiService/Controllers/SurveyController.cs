@@ -16,6 +16,7 @@ public class SurveyController : ControllerBase
     [HttpPost("save")]
     public async Task<IActionResult> SaveSurvey([FromBody] SurveySaveRequest req)
     {
+
         var existing = await _db.SurveyResponses
             .FirstOrDefaultAsync(x => x.UserGuid == req.UserGuid && x.SurveyType == req.SurveyType);
 
@@ -44,7 +45,7 @@ public class SurveyController : ControllerBase
 
     // Get survey response
     [HttpGet("{surveyType}/{userGuid}")]
-    public async Task<IActionResult> GetSurvey(string surveyType, Guid userGuid)
+    public async Task<IActionResult> GetSurvey(string surveyType, string userGuid)
     {
         var existing = await _db.SurveyResponses
             .FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.SurveyType == surveyType);

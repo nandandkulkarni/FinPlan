@@ -6,7 +6,7 @@ namespace FinPlan.ApiService.Data
         public Guid Id { get; set; } = Guid.NewGuid();
 
         // UserGuid should be provided by the caller (keeps as Guid type)
-        public Guid UserGuid { get; set; }
+        public string UserGuid { get; set; }
 
         public string SurveyType { get; set; } = string.Empty;
         public string SurveyJson { get; set; } = string.Empty;

@@ -18,7 +18,21 @@ namespace FinPlan.ApiService.Data
             modelBuilder.Entity<FinPlanEntity>().ToTable("FinPlan");
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<UserRegistration>().ToTable("UserRegistration");
-            modelBuilder.Entity<SurveyResponse>().ToTable("SurveyResponses");
+
+            // Ensure SurveyResponses mapping and avoid EF Core generating OUTPUT clauses by
+            // configuring the key as not value-generated. This prevents SQL Server INSERT/UPDATE
+            // statements from including an OUTPUT clause which is blocked when the table has triggers.
+            modelBuilder.Entity<SurveyResponse>(b =>
+            {
+                b.ToTable("SurveyResponses");
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Id).ValueGeneratedNever();
+
+                // Make sure CreatedAt/UpdatedAt are treated as regular properties (not computed)
+                b.Property(e => e.CreatedAt).ValueGeneratedNever();
+                b.Property(e => e.UpdatedAt).ValueGeneratedNever();
+            });
+
             base.OnModelCreating(modelBuilder);
         }
     }
