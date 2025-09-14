@@ -124,39 +124,56 @@
                 min-width: 160px;
             }
 
+    /* Numbered step badge (filled circle) to indicate order */
+    .step-badge {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #222; /* dark filled circle */
+        color: #fff;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    /* Slightly larger badge for emphasis on desktop */
+    @@media (min-width: 1200px) {
+        .step-badge { width:40px; height:40px; min-width:40px; font-size:1.05rem; }
+    }
+
+    /* When the menu-link is active, invert badge so it matches active background */
+    .top-strip .menu-link.active .step-badge,
+    .top-strip .menu-link[aria-current="page"] .step-badge {
+        background: #fff8d6;
+        color: #111;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    /* Keep icon spacing consistent when badge present */
+    .menu-link .bi {
+        font-size: 1.05rem;
+    }
+
+    /* On smaller screens scale down the badge */
     @@media (max-width: 768px) {
-        .top-strip .menu-container {
-            gap: 8px;
-        }
+        .step-badge { width:30px; height:30px; min-width:30px; font-size:0.95rem; margin-right:6px; }
+        .top-strip .menu-link { padding: 6px 8px; font-size: .92rem; }
+    }
 
-        .top-strip .menu-link {
-            padding: 6px 8px;
-            font-size: .92rem;
-        }
-        /* On small screens make actions part of normal flow to avoid overlap */
-        .top-strip .menu-actions {
-            position: static;
-            transform: none;
-            margin-left: 0;
-            justify-content: flex-end;
-        }
-
-        .top-strip .menu-links {
-            margin: 0; /* allow wrapping */
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .feedback-strip .feedback-links {
-            flex-direction: column;
-            gap: 6px;
-        }
+    @@media (max-width: 480px) {
+        /* If extremely small, reduce label length (use existing icons + smaller text) */
+        .step-badge { width:26px; height:26px; min-width:26px; font-size:0.85rem; margin-right:6px; }
     }
 </style>
 
 <!-- Feedback strip placed above navigation -->
-<div class="feedback-strip" role="region" aria-label="Feedback">
+@* <div class="feedback-strip" role="region" aria-label="Feedback">
     <div class="container d-flex align-items-center justify-content-between">
         <div>
             <span class="feedback-title">Feedback</span>
@@ -168,15 +185,28 @@
             <NavLink class="btn btn-sm btn-outline-primary" href="/sample-survey">Simple Survey</NavLink>
         </div>
     </div>
-</div>
+</div> *@
 
 <div class="top-strip">
     <div class="container menu-container">
         <div class="menu-links">
-            <NavLink class="menu-link" href="/wealth-building"> <span class="bi bi-piggy-bank"></span> Wealth Building</NavLink>
-            @* <NavLink class="menu-link d-none d-md-inline" href="/howmuch-to-save-per-month"> <span class="bi bi-piggy-bank"></span> Goal Savings</NavLink> *@
-            <NavLink class="menu-link" href="/cost-of-living"> <span class="bi bi-list-ul"></span> Cost of Living Projection</NavLink>
-            <NavLink class="menu-link" href="/retirement-drawdown"> <span class="bi bi-wallet2"></span> Retirement Drawdown</NavLink>
+            <NavLink class="menu-link" href="/cost-of-living">
+                <span class="step-badge" aria-hidden="true">1</span>
+                <span class="bi bi-list-ul" aria-hidden="true"></span>
+                <span>Cost of Living Projection</span>
+            </NavLink>
+
+            <NavLink class="menu-link" href="/wealth-building">
+                <span class="step-badge" aria-hidden="true">2</span>
+                <span class="bi bi-piggy-bank" aria-hidden="true"></span>
+                <span>Wealth Building</span>
+            </NavLink>
+
+            <NavLink class="menu-link" href="/retirement-drawdown">
+                <span class="step-badge" aria-hidden="true">3</span>
+                <span class="bi bi-wallet2" aria-hidden="true"></span>
+                <span>Retirement Drawdown</span>
+            </NavLink>
         </div>
 
         <div class="menu-actions">
