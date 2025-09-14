@@ -2453,44 +2453,20 @@
             {
                 try
                 {
-                    var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calcType}";
+                    var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calcType}";
                     var response = await client.GetAsync(url);
                     if (!response.IsSuccessStatusCode) return null;
-
                     var json = await response.Content.ReadAsStringAsync();
-                    var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                    // Prefer showing the model's posted balances (more useful for a 'Final Balances' mini-summary)
-                    if (loadedModel != null)
-                    {
-                        return new FinPlan.Shared.Models.Savings.SavingsResults
-                        {
-                            TaxableBalance = loadedModel.TaxableBalance,
-                            TaxDeferredBalance = loadedModel.TraditionalBalance,
-                            RothBalance = loadedModel.RothBalance,
-                            FinalAmount = loadedModel.TaxableBalance + loadedModel.TraditionalBalance + loadedModel.RothBalance
-                        };
-                    }
-
-                    // If no model was returned, fall back to local model for the "yours" calculator type
-                    if (calcType == "Withdrawals_yours" && spendingModel != null)
-                    {
-                        return new FinPlan.Shared.Models.Savings.SavingsResults
-                        {
-                            TaxableBalance = spendingModel.TaxableBalance,
-                            TaxDeferredBalance = spendingModel.TraditionalBalance,
-                            RothBalance = spendingModel.RothBalance,
-                            FinalAmount = spendingModel.TaxableBalance + spendingModel.TraditionalBalance + spendingModel.RothBalance
-                        };
-                    }
-
-                    return null;
+                    var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (loadedModel == null) return null;
+                    var calc = new FinPlan.Shared.Services.SavingsCalculationEngine();
+                    return calc.Calculate(loadedModel);
                 }
                 catch { return null; }
             }
 
-            var youTask = LoadFor("Withdrawals_yours");
-            var partnerTask = LoadFor("Withdrawals_partners");
+            var youTask = LoadFor("TestSavings_yours");
+            var partnerTask = LoadFor("TestSavings_partners");
             await Task.WhenAll(youTask, partnerTask);
             youResults = await youTask;
             partnerResults = await partnerTask;
