@@ -226,7 +226,7 @@ namespace FinPlan.Web.Components.Pages
                 var response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                 {
-                    DebugService.AddMessage("Calendar load failed");
+                    DebugService.AddMessage("load failed");
                     return;
                 }
 
@@ -241,13 +241,13 @@ namespace FinPlan.Web.Components.Pages
                     InvestmentReturn = loaded.InvestmentReturn;
                     Inflation = loaded.InflationRate;
                     AnnualWithdrawalBoth = loaded.AnnualWithdrawal;
-                    DebugService.AddMessage("Calendar loaded");
+                    DebugService.AddMessage("loaded");
                     StateHasChanged();
                 }
             }
             catch (Exception ex)
             {
-                DebugService.AddMessage($"Calendar load error: {ex.Message}");
+                DebugService.AddMessage($"load error: {ex.Message}");
             }
         }
 
