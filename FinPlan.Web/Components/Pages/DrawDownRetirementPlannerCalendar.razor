@@ -1,6 +1,7 @@
 @page "/retirement-drawdown-calendar"
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
+@using FinPlan.Web.Components
 @namespace FinPlan.Web.Components.Pages
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
@@ -401,18 +402,18 @@
           <div class="form-row">
             <div>
               <label>Taxable Balance</label>
-              <input type="number" step="100" @bind="TaxableBalance" />
+              <FormattedNumberNew class="form-control" @bind-Value="TaxableBalance" Decimals="0" />
             </div>
             <div>
               <label>Traditional Balance</label>
-              <input type="number" step="100" @bind="TraditionalBalance" />
+              <FormattedNumberNew class="form-control" @bind-Value="TraditionalBalance" Decimals="0" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Roth Balance</label>
-              <input type="number" step="100" @bind="RothBalance" />
+              <FormattedNumberNew class="form-control" @bind-Value="RothBalance" Decimals="0" />
             </div>
             <div>
               <label>Traditional Tax Rate (%)</label>
@@ -438,11 +439,11 @@
           <div class="form-row">
             <div>
               <label>Annual Withdrawal: One Retired</label>
-              <input type="number" step="100" @bind="AnnualWithdrawalOne" />
+              <FormattedNumberNew class="form-control" @bind-Value="AnnualWithdrawalOne" Decimals="0" />
             </div>
             <div>
               <label>Annual Withdrawal: Both Retired</label>
-              <input type="number" step="100" @bind="AnnualWithdrawalBoth" />
+              <FormattedNumberNew class="form-control" @bind-Value="AnnualWithdrawalBoth" Decimals="0" />
             </div>
           </div>
 
@@ -453,7 +454,7 @@
             </div>
             <div>
               <label>Reverse Mortgage Monthly ($)</label>
-              <input class="narrow" type="number" step="50" @bind="ReverseMortgageMonthly" />
+              <FormattedNumberNew class="narrow form-control" @bind-Value="ReverseMortgageMonthly" Decimals="0" />
             </div>
           </div>
 
@@ -469,7 +470,7 @@
             </div>
             <div style="margin-top:6px;">
               <label>Part-time annual income</label>
-              <input type="number" step="100" @bind="PartTimeIncome" />
+              <FormattedNumberNew class="form-control" @bind-Value="PartTimeIncome" Decimals="0" />
             </div>
           </div>
 
