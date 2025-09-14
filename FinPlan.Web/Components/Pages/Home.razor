@@ -1,9 +1,12 @@
-﻿<!-- Audio Guide Button: Option 3 (Face Speaking Icon with Glow) -->
+﻿<!-- Audio Guide Button: speaker image that plays the guide on click -->
 <div class="text-center my-4">
-    <a href="/audio/how-to-use.mp3" target="_blank" class="btn btn-info btn-lg rounded-circle shadow-lg" style="width: 120px; height: 120px; box-shadow: 0 0 30px #0dcaf0; display: inline-flex; align-items: center; justify-content: center;">
-        <i class="bi bi-person-lines-fill" style="font-size: 4rem; color: #fff;"></i>
+    <!-- Hidden audio element (played on user click) -->
+    <audio id="guideAudio" src="/audio/how-to-use.mp3" preload="none"></audio>
+
+    <button type="button" class="btn btn-info btn-lg rounded-circle shadow-lg" style="width: 120px; height: 120px; box-shadow: 0 0 30px #0dcaf0; display: inline-flex; align-items: center; justify-content: center; padding:0; overflow:hidden;" onclick="(function(){ try { var a = document.getElementById('guideAudio'); a.currentTime = 0; a.play(); } catch(e) { console.error(e); } })()" aria-label="Play audio guide">
+        <img src="/images/speaker.png" alt="Play guide" style="max-width:70%; max-height:70%; object-fit:contain; display:block;" />
         <span class="visually-hidden">Listen: How to use this site</span>
-    </a>
+    </button>
 </div>
 <div class="text-center mb-4">
     <div class="alert alert-primary fw-semibold mx-auto" style="max-width: 500px; font-size: 1.15rem; box-shadow: 0 2px 12px #0dcaf033;">
