@@ -22,6 +22,9 @@ namespace FinPlan.Shared.Models.Spending
 
         public int SSStartYearYou { get; set; } = DateTime.Now.Year + 9;
         public int SSStartYearPartner { get; set; } = DateTime.Now.Year + 12;
+        // New: allow user to enter SS start ages; years are computed from current ages
+        public int SSStartAgeYou { get; set; } = 67;
+        public int SSStartAgePartner { get; set; } = 67;
 
         // New: expected Social Security benefit (monthly) for each person
         public decimal SocialSecurityMonthlyYou { get; set; } = 0m;
@@ -67,11 +70,21 @@ namespace FinPlan.Shared.Models.Spending
                 if (RetirementYearYou < nowYear) RetirementYearYou = nowYear;
                 if (RetirementYearPartner < nowYear) RetirementYearPartner = nowYear;
 
-                var earliestRetirement = Math.Min(RetirementYearYou, RetirementYearPartner);
-                var suggestedStart = earliestRetirement - 2;
-                // do not allow start before current year
-                if (suggestedStart < nowYear) suggestedStart = nowYear;
-                SimulationStartYear = suggestedStart;
+                // compute SS start years from ages
+                SSStartYearYou = nowYear + (SSStartAgeYou - CurrentAgeYou);
+                SSStartYearPartner = nowYear + (SSStartAgePartner - CurrentAgePartner);
+                if (SSStartYearYou < nowYear) SSStartYearYou = nowYear;
+                if (SSStartYearPartner < nowYear) SSStartYearPartner = nowYear;
+
+                // If AutoCalculate is enabled, set SimulationStartYear to two years before the earliest retirement year
+                if (AutoCalculate)
+                {
+                    var earliestRetirement = Math.Min(RetirementYearYou, RetirementYearPartner);
+                    var suggestedStart = earliestRetirement - 2;
+                    // do not allow start before current year
+                    if (suggestedStart < nowYear) suggestedStart = nowYear;
+                    SimulationStartYear = suggestedStart;
+                }
             }
             catch
             {

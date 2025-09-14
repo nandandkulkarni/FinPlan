@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,10 @@ namespace FinPlan.Web.Components.Pages
         // debounce timer for auto-calc
         private System.Timers.Timer? debounceTimer;
         private const double DebounceMs = 300; // debounce period agreed
+
+        // track last save time to avoid rapid duplicate saves
+        private DateTime _lastSave = DateTime.MinValue;
+        private readonly TimeSpan _minSaveInterval = TimeSpan.FromMilliseconds(300);
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -158,6 +163,28 @@ namespace FinPlan.Web.Components.Pages
             {
                 debounceTimer.Stop();
                 debounceTimer.Start();
+            }
+        }
+
+        // Called when focus leaves the panel (bubbling from inputs)
+        private async Task HandleFocusOut(FocusEventArgs e)
+        {
+            // debounce quick focus changes
+            if (DateTime.UtcNow - _lastSave < _minSaveInterval) return;
+            _lastSave = DateTime.UtcNow;
+            await Save();
+        }
+
+        // Called when key pressed inside panel; save on Enter
+        private async Task HandleKeyDown(KeyboardEventArgs e)
+        {
+            if (e == null) return;
+            if (e.Key == "Enter")
+            {
+                // prevent multiple saves if already recently saved
+                if (DateTime.UtcNow - _lastSave < _minSaveInterval) return;
+                _lastSave = DateTime.UtcNow;
+                await Save();
             }
         }
 

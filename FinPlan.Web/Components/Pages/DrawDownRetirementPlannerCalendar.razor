@@ -4,6 +4,7 @@
 @using FinPlan.Web.Components
 @using FinPlan.Shared.Models.Spending
 @namespace FinPlan.Web.Components.Pages
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
 <style>
@@ -340,7 +341,7 @@
 
                 <!-- Center-left column (4) -> Inputs -->
                 <div class="col-12 col-md-4">
-                    <div class="panel">
+                    <div class="panel" @onfocusout="HandleFocusOut" @onkeydown="HandleKeyDown">
                         <h4>Inputs (Calendar years)</h4>
 
                         <div class="form-row">
@@ -379,11 +380,24 @@
                         <div class="form-row">
                             <div>
                                 <label>SS Start Year (You)</label>
-                                <input class="narrow" type="number" @bind="Model.SSStartYearYou" />
+                                <input class="narrow" type="number" @bind="Model.SSStartAgeYou" @oninput="(() => OnInputChanged())" />
+                                <div class="small-note">Enter age when Social Security starts; year is calculated below.</div>
                             </div>
                             <div>
                                 <label>SS Start Year (Partner)</label>
-                                <input class="narrow" type="number" @bind="Model.SSStartYearPartner" />
+                                <input class="narrow" type="number" @bind="Model.SSStartAgePartner" @oninput="(() => OnInputChanged())" />
+                                <div class="small-note">Enter age when Social Security starts; year is calculated below.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label>SS Start Year (You)</label>
+                                <input class="narrow" type="text" value="@Model.SSStartYearYou" readonly />
+                            </div>
+                            <div>
+                                <label>SS Start Year (Partner)</label>
+                                <input class="narrow" type="text" value="@Model.SSStartYearPartner" readonly />
                             </div>
                         </div>
 
@@ -435,7 +449,7 @@
 
                 <!-- Center-right column (4) -> Money & flows -->
                 <div class="col-12 col-md-4">
-                    <div class="panel">
+                    <div class="panel" @onfocusout="HandleFocusOut" @onkeydown="HandleKeyDown">
                         <h4>Money & flows (starting balances = at first retire year)</h4>
 
                         <div class="form-row">
