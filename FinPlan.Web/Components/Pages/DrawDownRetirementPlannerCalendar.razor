@@ -1,0 +1,427 @@
+@page "/retirement-drawdown-calendar"
+@using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
+
+<PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
+
+<style>
+  :root{
+    --brand-yellow:#FFD600;
+    --muted:#6c757d;
+    --bg:#f8f9fa;
+    --card-bg:#ffffff;
+    --card-radius:10px;
+    --accent:#6D5DFC;
+    --danger:#F56565;
+    --success:#38B2AC;
+    --info:#4FD1C5;
+  }
+
+  .container-wire {
+    padding:14px;
+  }
+
+  /* Page header */
+  .page-header {
+    text-align:center;
+    font-weight:700;
+    font-size:1.35rem;
+    margin-bottom:12px;
+    color:#111;
+  }
+
+  /* Top area contains sidebars + input panels. Sidebars are only present inside this area so the grid below is full width */
+  .top-area { position:relative; }
+
+  /* Wrapper around the input panels to give a yellow border that stops where the grid starts */
+  .input-panel-wrapper {
+    margin-left:180px; /* leave room for mini sidebars */
+    margin-right:180px;
+    border:2px solid var(--brand-yellow);
+    border-radius:10px;
+    padding:10px;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(22,28,36,0.03);
+  }
+
+  .top-panel{
+    display:flex;
+    gap:12px;
+    align-items:stretch; /* ensure left and right panels have equal height */
+    margin-bottom:0; /* moved spacing to wrapper */
+  }
+
+  .panel {
+    background:var(--card-bg);
+    border-radius:var(--card-radius);
+    box-shadow:0 6px 18px rgba(22,28,36,0.06);
+    padding:12px;
+    border:1px solid rgba(0,0,0,0.03);
+    display:flex; /* make panels flex columns so actions can stick to bottom */
+    flex-direction:column;
+  }
+
+  /* Mini sidebars that only cover the top area */
+  .left-sidebar-mini, .right-sidebar-mini {
+    position:absolute;
+    left:0;
+    right:auto;
+    top:0;
+    bottom:0; /* stretch to top-area height */
+    width:160px;
+    padding:10px;
+    box-shadow:0 6px 18px rgba(22,28,36,0.06);
+    border-radius:8px;
+    background:linear-gradient(180deg, #ffffff, #fbfbfb);
+    border:1px solid rgba(0,0,0,0.03);
+    z-index:10;
+    font-size:0.9rem;
+    overflow:auto;
+  }
+
+  .left-sidebar-mini { left:0; }
+  .right-sidebar-mini { right:0; left:auto; }
+
+  /* Narrower left column so inputs don't feel too wide */
+  .left-col { width:340px; flex:0 0 340px; }
+  .right-col { flex:1; min-width:420px; }
+
+  .panel h4 { margin:0 0 8px 0; font-size:1.02rem; color:#111; }
+  /* Slightly tighter form rows */
+  .form-row { display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px; align-items:start; }
+  label { display:block; font-size:0.82rem; color:var(--muted); margin-bottom:4px; }
+  input[type="number"], input[type="text"], select { width:100%; padding:6px 8px; border-radius:6px; border:1px solid #e6e9ee; background:#fff; font-size:0.92rem; }
+  .money { font-weight:700; color:#0b2545; }
+
+  .small-note { font-size:0.8rem; color:var(--muted); margin-top:4px; }
+
+  .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  /* push actions to bottom of panel */
+  .panel .actions { margin-top:auto; }
+
+  .btn { padding:7px 10px; border-radius:8px; border:0; cursor:pointer; font-weight:600; font-size:0.95rem; }
+  .btn-primary { background:var(--accent); color:white; box-shadow:0 6px 20px rgba(109,93,252,0.12); }
+  .btn-ghost { background:transparent; border:1px solid #e6e9ee; color:#333; }
+
+  .badge { display:inline-block; padding:6px 8px; border-radius:999px; font-size:0.75rem; background:#f1f3f5; color:#222; margin-right:6px; }
+  .badge.milestone { background:var(--brand-yellow); color:#111; font-weight:700; }
+
+  .grid-panel { margin-top:12px; }
+  .grid-header { display:flex; gap:12px; align-items:center; margin-bottom:8px; }
+  .grid { width:100%; border-radius:8px; overflow:auto; background:#fff; border:1px solid #e9ecef; box-shadow:0 8px 24px rgba(12,18,30,0.04); }
+  table { width:100%; border-collapse:collapse; font-size:0.88rem; min-width:1100px; }
+  thead th { position:sticky; top:0; background:#fff; padding:10px 12px; border-bottom:1px solid #eef2f6; text-align:left; font-weight:700; color:#333; }
+  tbody td { padding:8px 12px; border-bottom:1px solid #f2f4f7; vertical-align:middle; }
+  tr.depleted { background: linear-gradient(90deg, rgba(245,101,101,0.05), transparent); color:var(--danger); }
+  tr.milestone-row td { background: linear-gradient(90deg, rgba(255,214,0,0.06), transparent); }
+
+  .col-year { width:80px; font-weight:700; }
+  .col-age { width:70px; color:var(--muted); }
+  .col-milestones { width:200px; }
+  .money-cell { text-align:right; font-variant-numeric: tabular-nums; }
+
+  .legend { margin-left:auto; display:flex; gap:8px; align-items:center; font-size:0.85rem; color:var(--muted); }
+  .legend .swatch { width:14px; height:14px; border-radius:4px; display:inline-block; }
+
+  /* Narrow helper class for year and short numeric fields */
+  .narrow { max-width:140px; }
+
+  @@media (max-width:1024px){
+    .top-panel{flex-direction:column; margin-left:0; margin-right:0}
+    .left-col{width:100%; flex:0 0 auto;}
+    .right-col{min-width:0;}
+    .left-sidebar-mini, .right-sidebar-mini { display:none; }
+    table{min-width:900px;}
+    .input-panel-wrapper { margin-left:0; margin-right:0; }
+  }
+</style>
+
+<div class="container-wire">
+  <div class="page-header">Retirement Drawdown</div>
+
+  <div class="top-area">
+    <nav class="left-sidebar-mini">
+      <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <a href="/" class="badge">Home</a>
+        <a href="/guides/how-to-use-drawdown-calculator" class="badge">How to</a>
+        <a href="/contact" class="badge">Contact</a>
+      </div>
+      <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">Mini summary</div>
+      <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br/><strong>$250k</strong></div>
+    </nav>
+
+    <nav class="right-sidebar-mini">
+      <div style="font-weight:700; margin-bottom:8px;">Debug</div>
+      <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
+      <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
+    </nav>
+
+    <div class="input-panel-wrapper">
+      <div class="top-panel">
+        <div class="panel left-col">
+          <h4>Inputs (Calendar years)</h4>
+
+          <div class="form-row">
+            <div>
+              <label>Current Age (You)</label>
+              <input class="narrow" type="number" placeholder="e.g. 63" />
+            </div>
+            <div>
+              <label>Current Age (Partner)</label>
+              <input class="narrow" type="number" placeholder="e.g. 60" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Retirement Year (You)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2032" />
+            </div>
+            <div>
+              <label>Retirement Year (Partner)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2038" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>SS Start Year (You)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2037" />
+            </div>
+            <div>
+              <label>SS Start Year (Partner)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2040" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Life Expectancy Year (You)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2090" />
+            </div>
+            <div>
+              <label>Life Expectancy Year (Partner)</label>
+              <input class="narrow" type="number" placeholder="e.g. 2095" />
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Simulation Start Year</label>
+            <input class="narrow" type="number" placeholder="min(retirement years)" />
+            <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-ghost">Save (wireframe)</button>
+            <button class="btn btn-primary">Calculate</button>
+          </div>
+        </div>
+
+        <div class="panel right-col">
+          <h4>Money & flows (starting balances = at first retire year)</h4>
+
+          <div class="form-row">
+            <div>
+              <label>Taxable Balance</label>
+              <input type="text" placeholder="$250,000" />
+            </div>
+            <div>
+              <label>Traditional Balance</label>
+              <input type="text" placeholder="$500,000" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Roth Balance</label>
+              <input type="text" placeholder="$250,000" />
+            </div>
+            <div>
+              <label>Traditional Tax Rate (%)</label>
+              <input class="narrow" type="number" step="0.1" placeholder="22.0" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Investment Return (%)</label>
+              <input class="narrow" type="number" step="0.1" placeholder="5.0" />
+            </div>
+            <div>
+              <label>Inflation (%)</label>
+              <input class="narrow" type="number" step="0.1" placeholder="2.5" />
+            </div>
+          </div>
+
+          <hr style="margin:8px 0; border:none; border-top:1px solid #f1f3f5;">
+
+          <h4 style="margin-top:6px;">Phase withdrawals</h4>
+
+          <div class="form-row">
+            <div>
+              <label>Annual Withdrawal: One Retired</label>
+              <input type="text" placeholder="$80,000" />
+            </div>
+            <div>
+              <label>Annual Withdrawal: Both Retired</label>
+              <input type="text" placeholder="$100,000" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Reverse Mortgage Start Year</label>
+              <input class="narrow" type="number" placeholder="e.g. 2042" />
+            </div>
+            <div>
+              <label>Reverse Mortgage Monthly ($)</label>
+              <input class="narrow" type="number" placeholder="$1,500" />
+            </div>
+          </div>
+
+          <div style="margin-top:6px;">
+            <label>Partial retirement (optional)</label>
+            <div class="form-row">
+              <div>
+                <input class="narrow" type="number" placeholder="start year" />
+              </div>
+              <div>
+                <input class="narrow" type="number" placeholder="end year" />
+              </div>
+            </div>
+            <div style="margin-top:6px;">
+              <label>Part-time annual income</label>
+              <input type="text" placeholder="$20,000" />
+            </div>
+          </div>
+
+          <div class="small-note" style="margin-top:8px;">
+              Current ages are requested to show ages in labels/charts but simulation uses calendar years for calculations.
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full-width grid placeholder -->
+  <div class="grid-panel panel">
+    <div class="grid-header">
+      <div style="font-weight:800; font-size:1rem;">Yearly Simulation</div>
+      <div class="legend">
+        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
+        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
+        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <table aria-label="Yearly grid wireframe">
+        <thead>
+          <tr>
+            <th class="col-year">Year</th>
+            <th class="col-age">Age You</th>
+            <th class="col-age">Age Partner</th>
+            <th class="col-milestones">Milestones</th>
+            <th>SS (You)</th>
+            <th>SS (Partner)</th>
+            <th>Reverse Mortgage</th>
+            <th>Withdrawal Taxable</th>
+            <th>Withdrawal Traditional</th>
+            <th>Withdrawal Roth</th>
+            <th>Taxes Paid</th>
+            <th>Growth</th>
+            <th>Ending Taxable</th>
+            <th>Ending Traditional</th>
+            <th>Ending Roth</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="milestone-row">
+            <td class="col-year">2028</td>
+            <td class="col-age">63</td>
+            <td class="col-age">60</td>
+            <td><span class="badge milestone">First Retire</span></td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td class="money-cell">$—</td>
+            <td></td>
+          </tr>
+
+          <tr>
+            <td class="col-year">2029</td>
+            <td class="col-age">64</td>
+            <td class="col-age">61</td>
+            <td></td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td></td>
+          </tr>
+
+          <tr class="depleted">
+            <td class="col-year">2048</td>
+            <td class="col-age">83</td>
+            <td class="col-age">80</td>
+            <td><span class="badge">SS start</span></td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td>Money depleted</td>
+          </tr>
+
+          <tr>
+            <td class="col-year">2050</td>
+            <td class="col-age">85</td>
+            <td class="col-age">82</td>
+            <td><span class="badge">Reverse</span></td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td class="money-cell">—</td>
+            <td></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+@code {
+    // Placeholder models will be added in follow-up iterations when we wire the calculation engine
+}
