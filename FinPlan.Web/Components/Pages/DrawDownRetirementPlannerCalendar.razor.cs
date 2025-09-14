@@ -10,7 +10,7 @@ using FinPlan.Web.Services;
 
 namespace FinPlan.Web.Components.Pages
 {
-    public partial class DrawDownRetirementPlannerCalendar
+    public partial class DrawDownRetirementPlannerCalendar : IDisposable
     {
         // inject services
         [Inject] public DebugMessageService DebugService { get; set; } = default!;
@@ -30,6 +30,10 @@ namespace FinPlan.Web.Components.Pages
 
         // track first render
         private bool hasInitialized = false;
+
+        // debounce timer for auto-calc
+        private System.Timers.Timer? debounceTimer;
+        private const double DebounceMs = 300; // debounce period agreed
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -51,6 +55,21 @@ namespace FinPlan.Web.Components.Pages
 
         protected override Task OnInitializedAsync()
         {
+            // initialize debounce timer
+            debounceTimer = new System.Timers.Timer(DebounceMs) { AutoReset = false };
+            debounceTimer.Elapsed += async (_, __) =>
+            {
+                // run calculate on UI thread if auto-calc enabled
+                await InvokeAsync(() =>
+                {
+                    if (Model.AutoCalculate)
+                    {
+                        Model.Calculate();
+                    }
+                    StateHasChanged();
+                });
+            };
+
             // initialize model defaults from existing defaults
             Model.SimulationStartYear = Math.Min(Model.RetirementYearYou, Model.RetirementYearPartner);
             Model.Calculate();
@@ -127,6 +146,21 @@ namespace FinPlan.Web.Components.Pages
             }
         }
 
+        // Called on many input changes; debounces Calculate when AutoCalculate is enabled
+        private void OnInputChanged()
+        {
+            // always keep retirement years in sync for immediate display
+            Model.SyncRetirementYearsFromAges();
+            StateHasChanged();
+
+            // if auto-calc is enabled, debounce a Calculate call
+            if (Model.AutoCalculate && debounceTimer != null)
+            {
+                debounceTimer.Stop();
+                debounceTimer.Start();
+            }
+        }
+
         private string GetApiBaseUrl()
         {
 #if DEBUG
@@ -134,6 +168,11 @@ namespace FinPlan.Web.Components.Pages
 #else
             return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
 #endif
+        }
+
+        public void Dispose()
+        {
+            try { debounceTimer?.Dispose(); } catch { }
         }
     }
 }

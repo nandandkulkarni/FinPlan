@@ -9,8 +9,16 @@ namespace FinPlan.Shared.Models.Spending
         public int CurrentAgeYou { get; set; } = 63;
         public int CurrentAgePartner { get; set; } = 60;
 
+        // New: retirement ages (user-friendly) — stored so model persists both age and computed year
+        public int RetirementAgeYou { get; set; } = 65;
+        public int RetirementAgePartner { get; set; } = 68;
+
+        // Stored retirement years (kept in sync with ages)
         public int RetirementYearYou { get; set; } = DateTime.Now.Year + 5;
         public int RetirementYearPartner { get; set; } = DateTime.Now.Year + 8;
+
+        // Auto-calc toggle (persisted with model)
+        public bool AutoCalculate { get; set; } = false;
 
         public int SSStartYearYou { get; set; } = DateTime.Now.Year + 9;
         public int SSStartYearPartner { get; set; } = DateTime.Now.Year + 12;
@@ -41,9 +49,32 @@ namespace FinPlan.Shared.Models.Spending
         // Results/grid
         public List<CalendarYearRow> YearRows { get; set; } = new();
 
+        // Sync helper: compute retirement years from ages and current ages
+        public void SyncRetirementYearsFromAges()
+        {
+            try
+            {
+                var nowYear = DateTime.Now.Year;
+                // compute year = nowYear + (retirementAge - currentAge)
+                RetirementYearYou = nowYear + (RetirementAgeYou - CurrentAgeYou);
+                RetirementYearPartner = nowYear + (RetirementAgePartner - CurrentAgePartner);
+
+                // basic bounds
+                if (RetirementYearYou < nowYear) RetirementYearYou = nowYear;
+                if (RetirementYearPartner < nowYear) RetirementYearPartner = nowYear;
+            }
+            catch
+            {
+                // ignore any unexpected errors in sync
+            }
+        }
+
         // Calculate fills YearRows based on current inputs
         public void Calculate()
         {
+            // ensure retirement years are in sync before calculation
+            SyncRetirementYearsFromAges();
+
             YearRows.Clear();
 
             var start = SimulationStartYear;

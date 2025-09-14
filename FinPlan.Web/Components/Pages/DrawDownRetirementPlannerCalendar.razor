@@ -63,6 +63,7 @@
         border: 1px solid rgba(0,0,0,0.03);
         display: flex; /* make panels flex columns so actions can stick to bottom */
         flex-direction: column;
+        flex: 1 1 0%; /* allow panels to grow equally and match height */
     }
 
     /* Mini sidebars that only cover the top area */
@@ -92,15 +93,10 @@
         left: auto;
     }
 
-    /* Narrower left column so inputs don't feel too wide */
-    .left-col {
-        width: 340px;
-        flex: 0 0 340px;
-    }
-
-    .right-col {
-        flex: 1;
-        min-width: 420px;
+    /* Make left and right panels split 50/50 and stay same height */
+    .left-col, .right-col {
+        flex: 1 1 0%;
+        min-width: 320px;
     }
 
     .panel h4 {
@@ -364,22 +360,33 @@
           <div class="form-row">
             <div>
               <label>Current Age (You)</label>
-              <input class="narrow" type="number" @bind="Model.CurrentAgeYou" />
+              <input class="narrow" type="number" @bind="Model.CurrentAgeYou" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Current Age (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.CurrentAgePartner" />
+              <input class="narrow" type="number" @bind="Model.CurrentAgePartner" @oninput="OnInputChanged" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Retirement Age (You)</label>
+              <input class="narrow" type="number" @bind="Model.RetirementAgeYou" @oninput="OnInputChanged" />
+            </div>
+            <div>
+              <label>Retirement Age (Partner)</label>
+              <input class="narrow" type="number" @bind="Model.RetirementAgePartner" @oninput="OnInputChanged" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Retirement Year (You)</label>
-              <input class="narrow" type="number" @bind="Model.RetirementYearYou" />
+              <input class="narrow" type="text" value="@Model.RetirementYearYou" readonly />
             </div>
             <div>
               <label>Retirement Year (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.RetirementYearPartner" />
+              <input class="narrow" type="text" value="@Model.RetirementYearPartner" readonly />
             </div>
           </div>
 
@@ -405,10 +412,19 @@
             </div>
           </div>
 
-          <div style="margin-top:8px;">
-            <label>Simulation Start Year</label>
-            <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
-            <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
+          <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+            <div style="flex:1;">
+              <label>Simulation Start Year</label>
+              <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
+              <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <label style="visibility:hidden">auto</label>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="autocalc" @bind="Model.AutoCalculate" />
+                <label for="autocalc">Auto-calc</label>
+              </div>
+            </div>
           </div>
 
           <div class="actions">
@@ -423,33 +439,33 @@
           <div class="form-row">
             <div>
               <label>Taxable Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.TaxableBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.TaxableBalance" Decimals="0" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Traditional Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" @oninput="OnInputChanged" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Roth Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.RothBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.RothBalance" Decimals="0" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Traditional Tax Rate (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" @oninput="OnInputChanged" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Investment Return (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Inflation (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" @oninput="OnInputChanged" />
             </div>
           </div>
 
@@ -460,22 +476,22 @@
           <div class="form-row">
             <div>
               <label>Annual Withdrawal: One Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Annual Withdrawal: Both Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" @oninput="OnInputChanged" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Reverse Mortgage Start Year</label>
-              <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" />
+              <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" @oninput="OnInputChanged" />
             </div>
             <div>
               <label>Reverse Mortgage Monthly ($)</label>
-              <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" />
+              <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" @oninput="OnInputChanged" />
             </div>
           </div>
 
@@ -483,15 +499,15 @@
             <label>Partial retirement (optional)</label>
             <div class="form-row">
               <div>
-                <input class="narrow" type="number" @bind="Model.PartialRetirementStart" placeholder="start year" />
+                <input class="narrow" type="number" @bind="Model.PartialRetirementStart" placeholder="start year" @oninput="OnInputChanged" />
               </div>
               <div>
-                <input class="narrow" type="number" @bind="Model.PartialRetirementEnd" placeholder="end year" />
+                <input class="narrow" type="number" @bind="Model.PartialRetirementEnd" placeholder="end year" @oninput="OnInputChanged" />
               </div>
             </div>
             <div style="margin-top:6px;">
               <label>Part-time annual income</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.PartTimeIncome" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.PartTimeIncome" Decimals="0" @oninput="OnInputChanged" />
             </div>
           </div>
 
