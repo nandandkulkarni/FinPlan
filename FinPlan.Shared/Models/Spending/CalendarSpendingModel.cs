@@ -88,6 +88,10 @@ namespace FinPlan.Shared.Models.Spending
             decimal tradBal = TraditionalBalance;
             decimal rothBal = RothBalance;
 
+            // State for AmountNeeded inflation tracking
+            int currentPhase = 0; // 0=none,1=one-retired,2=both-retired
+            decimal lastAmountNeeded = 0m;
+
             for (int y = start; y <= end; y++)
             {
                 var row = new CalendarYearRow { Year = y };
@@ -104,9 +108,28 @@ namespace FinPlan.Shared.Models.Spending
                 if (y == SSStartYearPartner) milestones.Add("SS Partner");
                 row.Milestone = string.Join(", ", milestones);
 
-                // Social Security: use expected monthly benefits converted to annual when eligible
-                row.SSYou = (y >= SSStartYearYou) ? SocialSecurityMonthlyYou * 12m : 0m;
-                row.SSPartner = (y >= SSStartYearPartner) ? SocialSecurityMonthlyPartner * 12m : 0m;
+                // Social Security: use expected monthly benefits converted to annual when eligible, inflation-adjusted each year since start
+                if (y >= SSStartYearYou)
+                {
+                    var yearsSince = y - SSStartYearYou;
+                    var factor = (decimal)Math.Pow((double)(1 + (double)(InflationRate / 100m)), yearsSince);
+                    row.SSYou = SocialSecurityMonthlyYou * 12m * factor;
+                }
+                else
+                {
+                    row.SSYou = 0m;
+                }
+
+                if (y >= SSStartYearPartner)
+                {
+                    var yearsSinceP = y - SSStartYearPartner;
+                    var factorP = (decimal)Math.Pow((double)(1 + (double)(InflationRate / 100m)), yearsSinceP);
+                    row.SSPartner = SocialSecurityMonthlyPartner * 12m * factorP;
+                }
+                else
+                {
+                    row.SSPartner = 0m;
+                }
 
                 // withdrawal policy
                 var isYouRetired = y >= RetirementYearYou;
@@ -114,6 +137,38 @@ namespace FinPlan.Shared.Models.Spending
                 decimal withdrawal = 0m;
                 if (isYouRetired && isPartnerRetired) withdrawal = AnnualWithdrawalBoth;
                 else if (isYouRetired || isPartnerRetired) withdrawal = AnnualWithdrawalOne;
+
+                // Determine phase for AmountNeeded computation
+                int phase = 0;
+                if (isYouRetired && isPartnerRetired) phase = 2;
+                else if (isYouRetired || isPartnerRetired) phase = 1;
+
+                // Compute AmountNeeded
+                if (phase == 0)
+                {
+                    lastAmountNeeded = 0m;
+                    row.AmountNeeded = 0m;
+                    currentPhase = 0;
+                }
+                else
+                {
+                    decimal phaseBase = (phase == 1) ? AnnualWithdrawalOne : AnnualWithdrawalBoth;
+
+                    if (phase != currentPhase)
+                    {
+                        // phase just started this year; set base
+                        lastAmountNeeded = phaseBase;
+                        row.AmountNeeded = Math.Round(lastAmountNeeded, 2);
+                        currentPhase = phase;
+                    }
+                    else
+                    {
+                        // continue same phase — inflate previous amount by InflationRate
+                        var factor = 1 + (InflationRate / 100m);
+                        lastAmountNeeded = lastAmountNeeded * factor;
+                        row.AmountNeeded = Math.Round(lastAmountNeeded, 2);
+                    }
+                }
 
                 // reverse mortgage
                 row.ReverseMortgage = (ReverseMortgageStartYear > 0 && y >= ReverseMortgageStartYear) ? ReverseMortgageMonthly * 12m : 0m;
@@ -172,5 +227,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal EndingTraditional { get; set; }
         public decimal EndingRoth { get; set; }
         public string Notes { get; set; } = string.Empty;
+        // New: computed phase withdrawal target (inflation adjusted across years within same phase)
+        public decimal AmountNeeded { get; set; }
     }
 }

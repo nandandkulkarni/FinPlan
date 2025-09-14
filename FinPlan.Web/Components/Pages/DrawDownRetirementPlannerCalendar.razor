@@ -312,204 +312,204 @@
     }
 </style>
 <div class="container-wire">
-  <div class="page-header">Retirement Drawdown</div>
+    <div class="page-header">Retirement Drawdown</div>
 
-  <div class="top-area">
-    <nav class="left-sidebar-mini">
-      <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <a href="/" class="badge">Home</a>
-        <a href="/guides/how-to-use-drawdown-calculator" class="badge">How to</a>
-        <a href="/contact" class="badge">Contact</a>
-      </div>
-      <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">Mini summary</div>
-      <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br/><strong>@Model.TaxableBalance.ToString("C0")</strong></div>
-    </nav>
+    <div class="top-area">
+        <nav class="left-sidebar-mini">
+            <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <a href="/" class="badge">Home</a>
+                <a href="/guides/how-to-use-drawdown-calculator" class="badge">How to</a>
+                <a href="/contact" class="badge">Contact</a>
+            </div>
+            <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">Mini summary</div>
+            <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br /><strong>@Model.TaxableBalance.ToString("C0")</strong></div>
+        </nav>
 
-    <nav class="right-sidebar-mini">
-      <div style="font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-        <div>Debug</div>
-        <div>
-            <button class="btn-ghost" style="padding:4px 6px; font-size:0.8rem;" @onclick="ToggleRightDebug">Toggle</button>
-        </div>
-      </div>
-      <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
-      @if (ShowRightDebug)
-      {
-        <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
-            @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
+        <nav class="right-sidebar-mini">
+            <div style="font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>Debug</div>
+                <div>
+                    <button class="btn-ghost" style="padding:4px 6px; font-size:0.8rem;" @onclick="ToggleRightDebug">Toggle</button>
+                </div>
+            </div>
+            <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
+            @if (ShowRightDebug)
             {
-                <div style="margin-bottom:6px;">
-                    <small style="color:var(--muted);">@msg.MessageTime.ToString("HH:mm:ss")</small>
-                    <div>@msg.MessageText</div>
+                <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
+                    @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
+                    {
+                        <div style="margin-bottom:6px;">
+                            <small style="color:var(--muted);">@msg.MessageTime.ToString("HH:mm:ss")</small>
+                            <div>@msg.MessageText</div>
+                        </div>
+                    }
                 </div>
             }
-        </div>
-      }
-      else
-      {
-        <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
-      }
-    </nav>
+            else
+            {
+                <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
+            }
+        </nav>
 
-    <div class="input-panel-wrapper">
-      <div class="top-panel">
-        <div class="panel left-col">
-          <h4>Inputs (Calendar years)</h4>
+        <div class="input-panel-wrapper">
+            <div class="top-panel">
+                <div class="panel left-col">
+                    <h4>Inputs (Calendar years)</h4>
 
-          <div class="form-row">
-            <div>
-              <label>Current Age (You)</label>
-              <input class="narrow" type="number" @bind="Model.CurrentAgeYou" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Current Age (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.CurrentAgePartner" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Current Age (You)</label>
+                            <input class="narrow" type="number" @bind="Model.CurrentAgeYou" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Current Age (Partner)</label>
+                            <input class="narrow" type="number" @bind="Model.CurrentAgePartner" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Retirement Age (You)</label>
-              <input class="narrow" type="number" @bind="Model.RetirementAgeYou" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Retirement Age (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.RetirementAgePartner" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Retirement Age (You)</label>
+                            <input class="narrow" type="number" @bind="Model.RetirementAgeYou" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Retirement Age (Partner)</label>
+                            <input class="narrow" type="number" @bind="Model.RetirementAgePartner" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Retirement Year (You)</label>
-              <input class="narrow" type="text" value="@Model.RetirementYearYou" readonly />
-            </div>
-            <div>
-              <label>Retirement Year (Partner)</label>
-              <input class="narrow" type="text" value="@Model.RetirementYearPartner" readonly />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Retirement Year (You)</label>
+                            <input class="narrow" type="text" value="@Model.RetirementYearYou" readonly />
+                        </div>
+                        <div>
+                            <label>Retirement Year (Partner)</label>
+                            <input class="narrow" type="text" value="@Model.RetirementYearPartner" readonly />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>SS Start Year (You)</label>
-              <input class="narrow" type="number" @bind="Model.SSStartYearYou" />
-            </div>
-            <div>
-              <label>SS Start Year (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.SSStartYearPartner" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>SS Start Year (You)</label>
+                            <input class="narrow" type="number" @bind="Model.SSStartYearYou" />
+                        </div>
+                        <div>
+                            <label>SS Start Year (Partner)</label>
+                            <input class="narrow" type="number" @bind="Model.SSStartYearPartner" />
+                        </div>
+                    </div>
 
-          <!-- New: expected monthly Social Security inputs -->
-          <div class="form-row">
-            <div>
-              <label>Expected SS monthly (You)</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyYou" Decimals="0" @oninput="OnInputChanged" />
-              <div class="small-note">Enter expected monthly Social Security benefit for you.</div>
-            </div>
-            <div>
-              <label>Expected SS monthly (Partner)</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyPartner" Decimals="0" @oninput="OnInputChanged" />
-              <div class="small-note">Enter expected monthly Social Security benefit for partner.</div>
-            </div>
-          </div>
+                    <!-- New: expected monthly Social Security inputs -->
+                    <div class="form-row">
+                        <div>
+                            <label>Expected SS monthly (You)</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyYou" Decimals="0" @oninput="OnInputChanged" />
+                            <div class="small-note">Enter expected monthly Social Security benefit for you.</div>
+                        </div>
+                        <div>
+                            <label>Expected SS monthly (Partner)</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyPartner" Decimals="0" @oninput="OnInputChanged" />
+                            <div class="small-note">Enter expected monthly Social Security benefit for partner.</div>
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Life Expectancy Year (You)</label>
-              <input class="narrow" type="number" @bind="Model.LifeExpectancyYou" />
-            </div>
-            <div>
-              <label>Life Expectancy Year (Partner)</label>
-              <input class="narrow" type="number" @bind="Model.LifeExpectancyPartner" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Life Expectancy Year (You)</label>
+                            <input class="narrow" type="number" @bind="Model.LifeExpectancyYou" />
+                        </div>
+                        <div>
+                            <label>Life Expectancy Year (Partner)</label>
+                            <input class="narrow" type="number" @bind="Model.LifeExpectancyPartner" />
+                        </div>
+                    </div>
 
-          <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-            <div style="flex:1;">
-              <label>Simulation Start Year</label>
-              <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
-              <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-              <label style="visibility:hidden">auto</label>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <input type="checkbox" id="autocalc" @bind="Model.AutoCalculate" />
-                <label for="autocalc">Auto-calc</label>
-              </div>
-            </div>
-          </div>
+                    <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+                        <div style="flex:1;">
+                            <label>Simulation Start Year</label>
+                            <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
+                            <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <label style="visibility:hidden">auto</label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <input type="checkbox" id="autocalc" @bind="Model.AutoCalculate" />
+                                <label for="autocalc">Auto-calc</label>
+                            </div>
+                        </div>
+                    </div>
 
-          <div class="actions">
-            <button class="btn btn-ghost" @onclick="Save">Save</button>
-            <button class="btn btn-primary" @onclick="Calculate">Calculate</button>
-          </div>
-        </div>
+                    <div class="actions">
+                        <button class="btn btn-ghost" @onclick="Save">Save</button>
+                        <button class="btn btn-primary" @onclick="Calculate">Calculate</button>
+                    </div>
+                </div>
 
-        <div class="panel right-col">
-          <h4>Money & flows (starting balances = at first retire year)</h4>
+                <div class="panel right-col">
+                    <h4>Money & flows (starting balances = at first retire year)</h4>
 
-          <div class="form-row">
-            <div>
-              <label>Taxable Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.TaxableBalance" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Traditional Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Taxable Balance</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.TaxableBalance" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Traditional Balance</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Roth Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.RothBalance" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Traditional Tax Rate (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Roth Balance</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.RothBalance" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Traditional Tax Rate (%)</label>
+                            <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Investment Return (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Inflation (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Investment Return (%)</label>
+                            <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Inflation (%)</label>
+                            <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <hr style="margin:8px 0; border:none; border-top:1px solid #f1f3f5;">
+                    <hr style="margin:8px 0; border:none; border-top:1px solid #f1f3f5;">
 
-          <h4 style="margin-top:6px;">Phase withdrawals</h4>
+                    <h4 style="margin-top:6px;">Phase withdrawals</h4>
 
-          <div class="form-row">
-            <div>
-              <label>Annual Withdrawal: One Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Annual Withdrawal: Both Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Annual Withdrawal: One Retired</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Annual Withdrawal: Both Retired</label>
+                            <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          <div class="form-row">
-            <div>
-              <label>Reverse Mortgage Start Year</label>
-              <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" @oninput="OnInputChanged" />
-            </div>
-            <div>
-              <label>Reverse Mortgage Monthly ($)</label>
-              <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" @oninput="OnInputChanged" />
-            </div>
-          </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Reverse Mortgage Start Year</label>
+                            <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" @oninput="OnInputChanged" />
+                        </div>
+                        <div>
+                            <label>Reverse Mortgage Monthly ($)</label>
+                            <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" @oninput="OnInputChanged" />
+                        </div>
+                    </div>
 
-          @* <div style="margin-top:6px;">
+                    @* <div style="margin-top:6px;">
             <label>Partial retirement (optional)</label>
             <div class="form-row">
               <div>
@@ -525,74 +525,76 @@
             </div>
           </div> *@
 
-          <div class="small-note" style="margin-top:8px;">
-              Current ages are requested to show ages in labels/charts but simulation uses calendar years for calculations.
-          </div>
+                    <div class="small-note" style="margin-top:8px;">
+                        Current ages are requested to show ages in labels/charts but simulation uses calendar years for calculations.
+                    </div>
 
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Full-width grid placeholder -->
-  <div class="grid-panel panel">
-    <div class="grid-header">
-      <div style="font-weight:800; font-size:1rem;">Yearly Simulation</div>
-      <div class="legend">
-        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
-        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
-        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
-      </div>
     </div>
 
-    <div class="grid">
-      <table aria-label="Yearly grid wireframe">
-        <thead>
-          <tr>
-            <th class="col-year">Year</th>
-            <th class="col-age">Age You</th>
-            <th class="col-age">Age Partner</th>
-            <th class="col-milestones">Milestones</th>
-            <th>SS (You)</th>
-            <th>SS (Partner)</th>
-            <th>Reverse Mortgage</th>
-            <th>Withdrawal Taxable</th>
-            <th>Withdrawal Traditional</th>
-            <th>Withdrawal Roth</th>
-            <th>Taxes Paid</th>
-            <th>Growth</th>
-            <th>Ending Taxable</th>
-            <th>Ending Traditional</th>
-            <th>Ending Roth</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach(var row in YearRows)
-          {
-            var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
-            <tr class="@rowClass">
-              <td class="col-year">@row.Year</td>
-              <td class="col-age">@row.AgeYou</td>
-              <td class="col-age">@row.AgePartner</td>
-              <td class="col-milestones">@row.Milestone</td>
-              <td class="money-cell">@row.SSYou.ToString("C0")</td>
-              <td class="money-cell">@row.SSPartner.ToString("C0")</td>
-              <td class="money-cell">@row.ReverseMortgage.ToString("C0")</td>
-              <td class="money-cell">@row.TaxableWithdrawal.ToString("C0")</td>
-              <td class="money-cell">@row.TraditionalWithdrawal.ToString("C0")</td>
-              <td class="money-cell">@row.RothWithdrawal.ToString("C0")</td>
-              <td class="money-cell">@row.TaxesPaid.ToString("C0")</td>
-              <td class="money-cell">@row.Growth.ToString("C0")</td>
-              <td class="money-cell">@row.EndingTaxable.ToString("C0")</td>
-              <td class="money-cell">@row.EndingTraditional.ToString("C0")</td>
-              <td class="money-cell">@row.EndingRoth.ToString("C0")</td>
-              <td>@row.Notes</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <!-- Full-width grid placeholder -->
+    <div class="grid-panel panel">
+        <div class="grid-header">
+            <div style="font-weight:800; font-size:1rem;">Yearly Simulation</div>
+            <div class="legend">
+                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
+                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
+                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <table aria-label="Yearly grid wireframe">
+                <thead>
+                    <tr>
+                        <th class="col-year">Year</th>
+                        <th class="col-age">Age You</th>
+                        <th class="col-age">Age Partner</th>
+                        <th class="col-milestones">Milestones</th>
+                        <th class="text-end">Amount Needed</th>
+                        <th>SS (You)</th>
+                        <th>SS (Partner)</th>
+                        <th>Reverse Mortgage</th>
+                        <th>Withdrawal Taxable</th>
+                        <th>Withdrawal Traditional</th>
+                        <th>Withdrawal Roth</th>
+                        <th>Taxes Paid</th>
+                        <th>Growth</th>
+                        <th>Ending Taxable</th>
+                        <th>Ending Traditional</th>
+                        <th>Ending Roth</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in YearRows)
+                    {
+                        var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
+                        <tr class="@rowClass">
+                            <td class="col-year">@row.Year</td>
+                            <td class="col-age">@row.AgeYou</td>
+                            <td class="col-age">@row.AgePartner</td>
+                            <td class="col-milestones">@row.Milestone</td>
+                            <td class="money-cell">@row.AmountNeeded.ToString("C0")</td>
+                            <td class="money-cell">@row.SSYou.ToString("C0")</td>
+                            <td class="money-cell">@row.SSPartner.ToString("C0")</td>
+                            <td class="money-cell">@row.ReverseMortgage.ToString("C0")</td>
+                            <td class="money-cell">@row.TaxableWithdrawal.ToString("C0")</td>
+                            <td class="money-cell">@row.TraditionalWithdrawal.ToString("C0")</td>
+                            <td class="money-cell">@row.RothWithdrawal.ToString("C0")</td>
+                            <td class="money-cell">@row.TaxesPaid.ToString("C0")</td>
+                            <td class="money-cell">@row.Growth.ToString("C0")</td>
+                            <td class="money-cell">@row.EndingTaxable.ToString("C0")</td>
+                            <td class="money-cell">@row.EndingTraditional.ToString("C0")</td>
+                            <td class="money-cell">@row.EndingRoth.ToString("C0")</td>
+                            <td>@row.Notes</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 
 </div>
