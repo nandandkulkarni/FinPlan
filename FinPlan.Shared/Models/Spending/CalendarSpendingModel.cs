@@ -23,6 +23,10 @@ namespace FinPlan.Shared.Models.Spending
         public int SSStartYearYou { get; set; } = DateTime.Now.Year + 9;
         public int SSStartYearPartner { get; set; } = DateTime.Now.Year + 12;
 
+        // New: expected Social Security benefit (monthly) for each person
+        public decimal SocialSecurityMonthlyYou { get; set; } = 0m;
+        public decimal SocialSecurityMonthlyPartner { get; set; } = 0m;
+
         public int LifeExpectancyYou { get; set; } = 2090;
         public int LifeExpectancyPartner { get; set; } = 2095;
 
@@ -100,9 +104,9 @@ namespace FinPlan.Shared.Models.Spending
                 if (y == SSStartYearPartner) milestones.Add("SS Partner");
                 row.Milestone = string.Join(", ", milestones);
 
-                // simple SS/withdrawal/growth model (placeholder)
-                row.SSYou = (y >= SSStartYearYou) ? 15000m : 0m;
-                row.SSPartner = (y >= SSStartYearPartner) ? 12000m : 0m;
+                // Social Security: use expected monthly benefits converted to annual when eligible
+                row.SSYou = (y >= SSStartYearYou) ? SocialSecurityMonthlyYou * 12m : 0m;
+                row.SSPartner = (y >= SSStartYearPartner) ? SocialSecurityMonthlyPartner * 12m : 0m;
 
                 // withdrawal policy
                 var isYouRetired = y >= RetirementYearYou;

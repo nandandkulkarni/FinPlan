@@ -401,6 +401,20 @@
             </div>
           </div>
 
+          <!-- New: expected monthly Social Security inputs -->
+          <div class="form-row">
+            <div>
+              <label>Expected SS monthly (You)</label>
+              <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyYou" Decimals="0" @oninput="OnInputChanged" />
+              <div class="small-note">Enter expected monthly Social Security benefit for you.</div>
+            </div>
+            <div>
+              <label>Expected SS monthly (Partner)</label>
+              <FormattedNumberNew class="form-control" @bind-Value="Model.SocialSecurityMonthlyPartner" Decimals="0" @oninput="OnInputChanged" />
+              <div class="small-note">Enter expected monthly Social Security benefit for partner.</div>
+            </div>
+          </div>
+
           <div class="form-row">
             <div>
               <label>Life Expectancy Year (You)</label>
