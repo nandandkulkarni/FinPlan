@@ -66,6 +66,12 @@ namespace FinPlan.Shared.Models.Spending
                 // basic bounds
                 if (RetirementYearYou < nowYear) RetirementYearYou = nowYear;
                 if (RetirementYearPartner < nowYear) RetirementYearPartner = nowYear;
+
+                var earliestRetirement = Math.Min(RetirementYearYou, RetirementYearPartner);
+                var suggestedStart = earliestRetirement - 2;
+                // do not allow start before current year
+                if (suggestedStart < nowYear) suggestedStart = nowYear;
+                SimulationStartYear = suggestedStart;
             }
             catch
             {

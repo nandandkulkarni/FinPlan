@@ -88,9 +88,16 @@
         left: 0;
     }
 
+    /* Make the right mini sidebar stick to the viewport right edge */
     .right-sidebar-mini {
-        right: 0;
+        position: fixed;
+        top: 96px; /* offset below top navigation; adjust if header height changes */
+        right: 16px;
         left: auto;
+        bottom: auto;
+        width: 160px;
+        max-height: calc(100vh - 120px);
+        z-index: 1050;
     }
 
     /* Make left and right panels split 50/50 and stay same height */
