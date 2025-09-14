@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
 @using FinPlan.Web.Components
+@using FinPlan.Shared.Models.Spending
 @namespace FinPlan.Web.Components.Pages
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
@@ -326,7 +327,7 @@
         <a href="/contact" class="badge">Contact</a>
       </div>
       <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">Mini summary</div>
-      <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br/><strong>@TaxableBalance.ToString("C0")</strong></div>
+      <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br/><strong>@Model.TaxableBalance.ToString("C0")</strong></div>
     </nav>
 
     <nav class="right-sidebar-mini">
@@ -363,50 +364,50 @@
           <div class="form-row">
             <div>
               <label>Current Age (You)</label>
-              <input class="narrow" type="number" @bind="CurrentAgeYou" />
+              <input class="narrow" type="number" @bind="Model.CurrentAgeYou" />
             </div>
             <div>
               <label>Current Age (Partner)</label>
-              <input class="narrow" type="number" @bind="CurrentAgePartner" />
+              <input class="narrow" type="number" @bind="Model.CurrentAgePartner" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Retirement Year (You)</label>
-              <input class="narrow" type="number" @bind="RetirementYearYou" />
+              <input class="narrow" type="number" @bind="Model.RetirementYearYou" />
             </div>
             <div>
               <label>Retirement Year (Partner)</label>
-              <input class="narrow" type="number" @bind="RetirementYearPartner" />
+              <input class="narrow" type="number" @bind="Model.RetirementYearPartner" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>SS Start Year (You)</label>
-              <input class="narrow" type="number" @bind="SSStartYearYou" />
+              <input class="narrow" type="number" @bind="Model.SSStartYearYou" />
             </div>
             <div>
               <label>SS Start Year (Partner)</label>
-              <input class="narrow" type="number" @bind="SSStartYearPartner" />
+              <input class="narrow" type="number" @bind="Model.SSStartYearPartner" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Life Expectancy Year (You)</label>
-              <input class="narrow" type="number" @bind="LifeExpectancyYou" />
+              <input class="narrow" type="number" @bind="Model.LifeExpectancyYou" />
             </div>
             <div>
               <label>Life Expectancy Year (Partner)</label>
-              <input class="narrow" type="number" @bind="LifeExpectancyPartner" />
+              <input class="narrow" type="number" @bind="Model.LifeExpectancyPartner" />
             </div>
           </div>
 
           <div style="margin-top:8px;">
             <label>Simulation Start Year</label>
-            <input class="narrow" type="number" @bind="SimulationStartYear" />
+            <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
             <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
           </div>
 
@@ -422,33 +423,33 @@
           <div class="form-row">
             <div>
               <label>Taxable Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="TaxableBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.TaxableBalance" Decimals="0" />
             </div>
             <div>
               <label>Traditional Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="TraditionalBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Roth Balance</label>
-              <FormattedNumberNew class="form-control" @bind-Value="RothBalance" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.RothBalance" Decimals="0" />
             </div>
             <div>
               <label>Traditional Tax Rate (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="TraditionalTaxRate" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Investment Return (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="InvestmentReturn" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" />
             </div>
             <div>
               <label>Inflation (%)</label>
-              <input class="narrow" type="number" step="0.1" @bind="Inflation" />
+              <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" />
             </div>
           </div>
 
@@ -459,22 +460,22 @@
           <div class="form-row">
             <div>
               <label>Annual Withdrawal: One Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="AnnualWithdrawalOne" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" />
             </div>
             <div>
               <label>Annual Withdrawal: Both Retired</label>
-              <FormattedNumberNew class="form-control" @bind-Value="AnnualWithdrawalBoth" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" />
             </div>
           </div>
 
           <div class="form-row">
             <div>
               <label>Reverse Mortgage Start Year</label>
-              <input class="narrow" type="number" @bind="ReverseMortgageStartYear" />
+              <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" />
             </div>
             <div>
               <label>Reverse Mortgage Monthly ($)</label>
-              <FormattedNumberNew class="narrow form-control" @bind-Value="ReverseMortgageMonthly" Decimals="0" />
+              <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" />
             </div>
           </div>
 
@@ -482,15 +483,15 @@
             <label>Partial retirement (optional)</label>
             <div class="form-row">
               <div>
-                <input class="narrow" type="number" @bind="PartialRetirementStart" placeholder="start year" />
+                <input class="narrow" type="number" @bind="Model.PartialRetirementStart" placeholder="start year" />
               </div>
               <div>
-                <input class="narrow" type="number" @bind="PartialRetirementEnd" placeholder="end year" />
+                <input class="narrow" type="number" @bind="Model.PartialRetirementEnd" placeholder="end year" />
               </div>
             </div>
             <div style="margin-top:6px;">
               <label>Part-time annual income</label>
-              <FormattedNumberNew class="form-control" @bind-Value="PartTimeIncome" Decimals="0" />
+              <FormattedNumberNew class="form-control" @bind-Value="Model.PartTimeIncome" Decimals="0" />
             </div>
           </div>
 

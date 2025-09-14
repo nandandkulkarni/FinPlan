@@ -41,10 +41,10 @@ namespace FinPlan.ApiService.Controllers
             if (string.IsNullOrWhiteSpace(body))
                 return BadRequest("Empty request body.");
 
-            PersistSpendingRequest? request = null;
+            PersistCalendarSpendingRequest? request = null;
             try
             {
-                request = JsonSerializer.Deserialize<PersistSpendingRequest>(body, new JsonSerializerOptions
+                request = JsonSerializer.Deserialize<PersistCalendarSpendingRequest>(body, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -56,7 +56,7 @@ namespace FinPlan.ApiService.Controllers
             }
 
             if (request == null)
-                return BadRequest("Request could not be deserialized to PersistSpendingRequest.");
+                return BadRequest("Request could not be deserialized to PersistCalendarSpendingRequest.");
 
             // Proceed as before
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
@@ -92,11 +92,16 @@ namespace FinPlan.ApiService.Controllers
             if (entity == null)
                 return NotFound();
 
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SpendingPlanModel>(entity.Data, new System.Text.Json.JsonSerializerOptions
+            // Return raw stored JSON string as application/json so callers can parse it directly
+            try
             {
-                PropertyNameCaseInsensitive = true
-            });
-            return Ok(entity.Data);
+                return Content(entity.Data ?? string.Empty, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error returning stored data: {ex.Message}");
+                return Ok(entity.Data);
+            }
         }
 
     }
