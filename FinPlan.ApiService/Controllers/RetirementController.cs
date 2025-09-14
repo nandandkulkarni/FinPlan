@@ -19,6 +19,14 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
+        // Simple ping for diagnostics
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            try { Console.WriteLine("RetirementController.Ping called"); } catch { }
+            return Ok("pong");
+        }
+
         // Save calculator data - read raw body and deserialize to return clearer errors when JSON is invalid
         [HttpPost("save")]
         public async Task<IActionResult> Save()
@@ -90,8 +98,6 @@ namespace FinPlan.ApiService.Controllers
             });
             return Ok(entity.Data);
         }
-
-  
 
     }
 }
