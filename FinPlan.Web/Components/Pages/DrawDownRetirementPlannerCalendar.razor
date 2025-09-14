@@ -2,6 +2,11 @@
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
 @using FinPlan.Web.Components
+@using FinPlan.Shared.Models.Spending
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject FinPlan.Web.Services.DebugMessageService DebugService
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
 @namespace FinPlan.Web.Components.Pages
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
