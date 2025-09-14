@@ -1,0 +1,65 @@
+/* Baseline typography and local Inter font fallback.
+   Place Inter WOFF2 files in wwwroot/fonts/:
+   - Inter-Regular.woff2
+   - Inter-Light.woff2
+   - Inter-SemiBold.woff2
+   - Inter-Bold.woff2
+
+   If these files are present, the site will use them locally. Otherwise the Google Fonts fallback will be used.
+*/
+@font-face {
+    font-family: 'InterLocal';
+    src: url('/fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'InterLocal';
+    src: url('/fonts/Inter-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'InterLocal';
+    src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'InterLocal';
+    src: url('/fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap
+}
+
+:root {
+    font-size: 16px
+}
+
+html, body {
+    font-family: InterLocal,'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.45;
+    color: #111827;
+}
+
+/* Normalize a few heading sizes to use rems */
+h1 {
+    font-size: 2rem
+}
+
+h2 {
+    font-size: 1.5rem
+}
+
+p, label, .form-text {
+    font-size: 1rem
+}
