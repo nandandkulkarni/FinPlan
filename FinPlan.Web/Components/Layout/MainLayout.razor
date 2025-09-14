@@ -170,6 +170,16 @@
         /* If extremely small, reduce label length (use existing icons + smaller text) */
         .step-badge { width:26px; height:26px; min-width:26px; font-size:0.85rem; margin-right:6px; }
     }
+
+    /* Shift page content inward so it doesn't sit under fixed sidebars */
+    .container-fluid.page-with-sidebars {
+        padding-left: 220px; /* left sidebar width + spacing */
+        padding-right: 220px; /* right sidebar width + spacing */
+        box-sizing: border-box;
+    }
+
+    /* Make content rail use full width inside the container */
+    .content-rail { width: 100%; }
 </style>
 
 <!-- Feedback strip placed above navigation -->
@@ -285,10 +295,12 @@
 }
 
 <main>
-    <div class="content-rail d-flex">
-        <article class="content px-4">
-            @Body
-        </article>
+    <div class="container-fluid page-with-sidebars">
+        <div class="content-rail d-flex">
+            <article class="content px-4">
+                @Body
+            </article>
+        </div>
     </div>
 </main>
 
