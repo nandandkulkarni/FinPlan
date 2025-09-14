@@ -12,6 +12,41 @@ namespace FinPlan.Web.Components.Pages
 {
     public partial class DrawDownRetirementPlannerCalendar
     {
+        // inject services
+        [Inject] public DebugMessageService DebugService { get; set; } = default!;
+        [Inject] public UserGuidService UserGuidService { get; set; } = default!;
+        [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+        [Inject] public IConfiguration Configuration { get; set; } = default!;
+
+        // local UI state for debug toggle
+        public bool ShowRightDebug { get; set; } = false;
+
+        public void ToggleRightDebug()
+        {
+            ShowRightDebug = !ShowRightDebug;
+        }
+
+        // track first render
+        private bool hasInitialized = false;
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender && !hasInitialized)
+            {
+                hasInitialized = true;
+                try
+                {
+                    DebugService.AddMessage("Calendar load started");
+                }
+                catch { }
+
+                await Load();
+                StateHasChanged();
+            }
+
+            await base.OnAfterRenderAsync(firstRender);
+        }
+
         // Inputs
         public int CurrentAgeYou { get; set; } = 63;
         public int CurrentAgePartner { get; set; } = 60;
@@ -206,6 +241,7 @@ namespace FinPlan.Web.Components.Pages
                     InvestmentReturn = loaded.InvestmentReturn;
                     Inflation = loaded.InflationRate;
                     AnnualWithdrawalBoth = loaded.AnnualWithdrawal;
+                    DebugService.AddMessage("Calendar loaded");
                     StateHasChanged();
                 }
             }

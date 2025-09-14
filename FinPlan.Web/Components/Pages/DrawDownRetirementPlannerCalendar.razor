@@ -2,11 +2,6 @@
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
 @using FinPlan.Web.Components
-@using FinPlan.Shared.Models.Spending
-@inject IHttpClientFactory HttpClientFactory
-@inject IConfiguration Configuration
-@inject FinPlan.Web.Services.DebugMessageService DebugService
-@inject FinPlan.Web.Services.UserGuidService UserGuidService
 @namespace FinPlan.Web.Components.Pages
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
@@ -335,9 +330,29 @@
     </nav>
 
     <nav class="right-sidebar-mini">
-      <div style="font-weight:700; margin-bottom:8px;">Debug</div>
+      <div style="font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+        <div>Debug</div>
+        <div>
+            <button class="btn-ghost" style="padding:4px 6px; font-size:0.8rem;" @onclick="ToggleRightDebug">Toggle</button>
+        </div>
+      </div>
       <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
-      <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
+      @if (ShowRightDebug)
+      {
+        <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
+            @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
+            {
+                <div style="margin-bottom:6px;">
+                    <small style="color:var(--muted);">@msg.MessageTime.ToString("HH:mm:ss")</small>
+                    <div>@msg.MessageText</div>
+                </div>
+            }
+        </div>
+      }
+      else
+      {
+        <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
+      }
     </nav>
 
     <div class="input-panel-wrapper">
