@@ -172,10 +172,22 @@
     }
 
     /* Shift page content inward so it doesn't sit under fixed sidebars */
-    .container-fluid.page-with-sidebars {
-        padding-left: 220px; /* left sidebar width + spacing */
-        padding-right: 220px; /* right sidebar width + spacing */
+    /* Use full viewport width for the layout container; center the inner content rail using a max-width.
+       This allows the page to use the full screen but keeps the main content centered on large screens. */
+    .page-with-sidebars {
+        width: 100vw;
+        padding-left: 0;
+        padding-right: 0;
         box-sizing: border-box;
+    }
+
+    /* Constrain and center the primary content area so it appears centered on large screens while
+       allowing background/side elements to use full width. Adjust max-width as needed. */
+    .content {
+        max-width: 1140px; /* Bootstrap container-lg width; adjust for tighter or wider layouts */
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
     }
 
     /* Make content rail use full width inside the container */
@@ -296,13 +308,13 @@
 
 <main>
     <div class="container-fluid page-with-sidebars">
-        <div class="content-rail d-flex">
-            <article class="content px-4">
-                @Body
-            </article>
-        </div>
-    </div>
-</main>
+         <div class="content-rail d-flex">
+             <article class="content px-4">
+                 @Body
+             </article>
+         </div>
+     </div>
+ </main>
 
 <!-- Consent banner -->
 <div id="consent-banner" style="display:none; position:fixed; right:16px; bottom:16px; z-index:1050; max-width:420px;">
