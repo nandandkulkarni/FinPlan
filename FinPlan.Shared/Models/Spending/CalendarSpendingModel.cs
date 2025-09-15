@@ -49,6 +49,9 @@ namespace FinPlan.Shared.Models.Spending
         public int ReverseMortgageStartYear { get; set; }
         public decimal ReverseMortgageMonthly { get; set; }
 
+        // New: age at which primary person would start reverse mortgage (optional)
+        public int ReverseMortgageStartAge { get; set; } = 0;
+
         public int PartialRetirementStart { get; set; }
         public int PartialRetirementEnd { get; set; }
         public decimal PartTimeIncome { get; set; }
@@ -84,6 +87,13 @@ namespace FinPlan.Shared.Models.Spending
                     // do not allow start before current year
                     if (suggestedStart < nowYear) suggestedStart = nowYear;
                     SimulationStartYear = suggestedStart;
+                }
+
+                // If ReverseMortgageStartAge is set, compute ReverseMortgageStartYear
+                if (ReverseMortgageStartAge > 0)
+                {
+                    ReverseMortgageStartYear = nowYear + (ReverseMortgageStartAge - CurrentAgeYou);
+                    if (ReverseMortgageStartYear < nowYear) ReverseMortgageStartYear = nowYear;
                 }
             }
             catch
@@ -235,6 +245,7 @@ namespace FinPlan.Shared.Models.Spending
         }
     }
 
+    // CalendarYearRow moved to top-level so other projects can reference the type directly
     public class CalendarYearRow
     {
         public int Year { get; set; }
