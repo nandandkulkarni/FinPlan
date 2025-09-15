@@ -228,6 +228,10 @@
     [Parameter]
     public EventCallback OnSave { get; set; }
 
+    // Optional: initial step to open the wizard at
+    [Parameter]
+    public int InitialStep { get; set; } = 1;
+
     private int wizardStep = 1;
     private int modalRetirementAgeYou = 0;
     private int modalRetirementAgePartner = 0;
@@ -271,6 +275,12 @@
 
     protected override void OnParametersSet()
     {
+        // If modal just became visible, open at InitialStep when provided
+        if (Visible && InitialStep >= 1 && InitialStep <= 6)
+        {
+            wizardStep = InitialStep;
+        }
+
         // If a model was passed and has sensible values, prefill inputs (best-effort)
         if (Model != null)
         {

@@ -10,7 +10,7 @@
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
 
 <!-- Retirement input wizard: shown when _isDataAvaiableForTheUser is true -->
-<RetirementInputWizard Model="@Model" Visible="@_isDataAvaiableForTheUser" VisibleChanged="@(v => _isDataAvaiableForTheUser = v)" OnFinished="HandleWizardFinished" OnSave="Save" />
+<RetirementInputWizard Model="@Model" Visible="@_isDataAvaiableForTheUser" VisibleChanged="@(v => _isDataAvaiableForTheUser = v)" OnFinished="HandleWizardFinished" OnSave="Save" InitialStep="@_wizardOpenStep" />
 
 <style>
     :root {
@@ -335,7 +335,7 @@
 
     <!-- Prominent actions: Edit and Clear All -->
     <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
-        <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="OpenWizard">Edit assumptions</button>
+        <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="() => OpenWizard(1)">Edit assumptions</button>
         <button class="btn btn-outline-danger" style="padding:10px 16px; font-weight:700;" @onclick="ClearAll">Clear all & reset</button>
         <div style="margin-left:12px; color:#6c757d;">Edit assumptions opens the quick setup wizard to change retirement ages, balances, returns, Social Security and withdrawal settings. Clear all will reset your saved plan then open the wizard so you can re-enter values.</div>
     </div>
@@ -357,169 +357,104 @@
                     </div>
                 </div>
 
-                <!-- Center-left column (4) -> Inputs -->
-                <div class="col-12 col-md-4">
-                    <div class="panel" @onfocusout="HandleFocusOut" @onkeydown="HandleKeyDown">
-                        <h4>Inputs (Calendar years)</h4>
+                <!-- Center combined column (8) -> Sections -->
+                <div class="col-12 col-md-8">
+                    <div class="panel">
+                        <h4>Plan Sections</h4>
 
-                        <div class="form-row">
-                            <div>
-                                <label>Current Age (You)</label>
-                                <input class="narrow" type="number" @bind="Model.CurrentAgeYou" />
+                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;">
+                            @* Section 1: Retirement ages & life expectancy *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">1</span>
+                                        <div>Retirement ages & life expectancy</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou; Partner: @Model.RetirementAgePartner</div>
+                                    <div class="small-note">Life exp (You): @Model.LifeExpectancyYou; Partner: @Model.LifeExpectancyPartner</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(1)">Edit</button>
+                                </div>
                             </div>
-                            <div>
-                                <label>Current Age (Partner)</label>
-                                <input class="narrow" type="number" @bind="Model.CurrentAgePartner" />
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label>Retirement Age (You)</label>
-                                <input class="narrow" type="number" @bind="Model.RetirementAgeYou" />
+                            @* Section 2: Starting balances & returns *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">2</span>
+                                        <div>Starting balances & returns</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
+                                    <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0"); Roth: @Model.RothBalance.ToString("C0")</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(2)">Edit</button>
+                                </div>
                             </div>
-                            <div>
-                                <label>Retirement Age (Partner)</label>
-                                <input class="narrow" type="number" @bind="Model.RetirementAgePartner" />
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label>Retirement Year (You)</label>
-                                <input class="narrow" type="text" value="@Model.RetirementYearYou" readonly />
+                            @* Section 3: Social Security *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">3</span>
+                                        <div>Social Security</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">You SS/mo: @Model.SocialSecurityMonthlyYou.ToString("C0"); Partner: @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
+                                    <div class="small-note">Start ages: @Model.SSStartAgeYou; @Model.SSStartAgePartner</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(3)">Edit</button>
+                                </div>
                             </div>
-                            <div>
-                                <label>Retirement Year (Partner)</label>
-                                <input class="narrow" type="text" value="@Model.RetirementYearPartner" readonly />
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label>SS Start Year (You)</label>
-                                <input class="narrow" type="number" @bind="Model.SSStartAgeYou" @oninput="(() => OnInputChanged())" />
-                                <div class="small-note">Enter age when Social Security starts; year is calculated below.</div>
+                            @* Section 4: Reverse mortgage *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">4</span>
+                                        <div>Reverse mortgage</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear; Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(4)">Edit</button>
+                                </div>
                             </div>
-                            <div>
-                                <label>SS Start Year (Partner)</label>
-                                <input class="narrow" type="number" @bind="Model.SSStartAgePartner" @oninput="(() => OnInputChanged())" />
-                                <div class="small-note">Enter age when Social Security starts; year is calculated below.</div>
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label>Expected SS monthly (You)</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.SocialSecurityMonthlyYou" Decimals="0" />
-                                <div class="small-note">Enter expected monthly Social Security benefit for you.</div>
+                            @* Section 5: Planned annual withdrawals *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">5</span>
+                                        <div>Planned annual withdrawals</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0"); Both: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(5)">Edit</button>
+                                </div>
                             </div>
-                            <div>
-                                <label>Expected SS monthly (Partner)</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.SocialSecurityMonthlyPartner" Decimals="0" />
-                                <div class="small-note">Enter expected monthly Social Security benefit for partner.</div>
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label>Life Expectancy Year (You)</label>
-                                <input class="narrow" type="number" @bind="Model.LifeExpectancyYou" />
-                            </div>
-                            <div>
-                                <label>Life Expectancy Year (Partner)</label>
-                                <input class="narrow" type="number" @bind="Model.LifeExpectancyPartner" />
-                            </div>
-                        </div>
-
-                        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-                            <div style="flex:1;">
-                                <label>Simulation Start Year</label>
-                                <input class="narrow" type="number" @bind="Model.SimulationStartYear" />
-                                <div class="small-note">Simulation runs by calendar year between start and latest life expectancy.</div>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                <label style="visibility:hidden">auto</label>
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <input type="checkbox" id="autocalc" @bind="Model.AutoCalculate" />
-                                    <label for="autocalc">Auto-calc</label>
+                            @* Section 6: Current ages & simulation *@
+                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">6</span>
+                                        <div>Current ages & simulation</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou; Partner: @Model.CurrentAgePartner</div>
+                                    <div class="small-note">Sim start year: @Model.SimulationStartYear; Auto-calc: @(Model.AutoCalculate ? "Yes" : "No")</div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => OpenWizard(6)">Edit</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="actions">
-                            <button class="btn btn-ghost" @onclick="Save">Save</button>
-                            <button class="btn btn-primary" @onclick="Calculate">Calculate</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Center-right column (4) -> Money & flows -->
-                <div class="col-12 col-md-4">
-                    <div class="panel" @onfocusout="HandleFocusOut" @onkeydown="HandleKeyDown">
-                        <h4>Money & flows (starting balances = at first retire year)</h4>
-
-                        <div class="form-row">
-                            <div>
-                                <label>Taxable Balance</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.TaxableBalance" Decimals="0" />
-                            </div>
-                            <div>
-                                <label>Traditional Balance</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.TraditionalBalance" Decimals="0" />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label>Roth Balance</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.RothBalance" Decimals="0" />
-                            </div>
-                            <div>
-                                <label>Traditional Tax Rate (%)</label>
-                                <input class="narrow" type="number" step="0.1" @bind="Model.TraditionalTaxRate" />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label>Investment Return (%)</label>
-                                <input class="narrow" type="number" step="0.1" @bind="Model.InvestmentReturn" />
-                            </div>
-                            <div>
-                                <label>Inflation (%)</label>
-                                <input class="narrow" type="number" step="0.1" @bind="Model.InflationRate" />
-                            </div>
-                        </div>
-
-                        <hr style="margin:8px 0; border:none; border-top:1px solid #f1f3f5;">
-
-                        <h4 style="margin-top:6px;">Phase withdrawals</h4>
-
-                        <div class="form-row">
-                            <div>
-                                <label>Annual Withdrawal: One Retired</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.AnnualWithdrawalOne" Decimals="0" />
-                            </div>
-                            <div>
-                                <label>Annual Withdrawal: Both Retired</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.AnnualWithdrawalBoth" Decimals="0" />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label>Reverse Mortgage Start Year</label>
-                                <input class="narrow" type="number" @bind="Model.ReverseMortgageStartYear" />
-                            </div>
-                            <div>
-                                <label>Reverse Mortgage Monthly ($)</label>
-                                <FormattedNumberNew class="narrow form-control" @bind-Value="Model.ReverseMortgageMonthly" Decimals="0" />
-                            </div>
-                        </div>
-
-                        <div class="small-note" style="margin-top:8px;">
-                            Current ages are requested to show ages in labels/charts but simulation uses calendar years for calculations.
+                        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+                            <button class="btn btn-primary" @onclick="SaveAndClose">Save & Close</button>
+                            <button class="btn btn-ghost" @onclick="Calculate">Calculate</button>
                         </div>
                     </div>
                 </div>
@@ -622,9 +557,11 @@
 </div>
 
 @code {
+    private int _wizardOpenStep = 1;
     // Keep existing code-behind methods in the partial class; helper methods for buttons call into the component's code-behind.
-    private void OpenWizard()
+    private void OpenWizard(int step)
     {
+        _wizardOpenStep = step;
         _isDataAvaiableForTheUser = true;
     }
 
@@ -632,5 +569,12 @@
     {
         // call into the partial class ClearAll implementation (in code-behind)
         await ClearAllAndOpenWizardAsync();
+    }
+
+    private async Task SaveAndClose()
+    {
+        await Save();
+        _isDataAvaiableForTheUser = false;
+        StateHasChanged();
     }
 }
