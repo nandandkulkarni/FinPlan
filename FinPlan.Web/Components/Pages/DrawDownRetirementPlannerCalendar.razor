@@ -3,10 +3,15 @@
 @using System.Collections.Generic
 @using FinPlan.Web.Components
 @using FinPlan.Shared.Models.Spending
+@using FinPlan.Web.Components.Shared
 @namespace FinPlan.Web.Components.Pages
 @using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
+
+<!-- Retirement input wizard: shown when _isDataAvaiableForTheUser is true -->
+<RetirementInputWizard Model="@Model" Visible="@_isDataAvaiableForTheUser" VisibleChanged="@(v => _isDataAvaiableForTheUser = v)" OnFinished="HandleWizardFinished" OnSave="Save" />
+
 <style>
     :root {
         --brand-yellow: #FFD600;
@@ -28,7 +33,7 @@
     .page-header {
         text-align: center;
         font-weight: 700;
-        font-size: 1.35rem;
+        font-size: 1.45rem; /* increased from 1.35rem */
         margin-bottom: 12px;
         color: #111;
     }
@@ -81,7 +86,7 @@
         background: linear-gradient(180deg, #ffffff, #fbfbfb);
         border: 1px solid rgba(0,0,0,0.03);
         z-index: 10;
-        font-size: 0.9rem;
+        font-size: 0.95rem; /* increased slightly */
         overflow: auto;
     }
 
@@ -109,7 +114,7 @@
 
     .panel h4 {
         margin: 0 0 8px 0;
-        font-size: 1.02rem;
+        font-size: 1.12rem; /* increased from 1.02rem */
         color: #111;
     }
     /* Slightly tighter form rows */
@@ -123,7 +128,7 @@
 
     label {
         display: block;
-        font-size: 0.82rem;
+        font-size: 0.92rem; /* increased from 0.82rem */
         color: var(--muted);
         margin-bottom: 4px;
     }
@@ -134,7 +139,7 @@
         border-radius: 6px;
         border: 1px solid #e6e9ee;
         background: #fff;
-        font-size: 0.92rem;
+        font-size: 1.02rem; /* increased from 0.92rem */
     }
 
     .money {
@@ -143,7 +148,7 @@
     }
 
     .small-note {
-        font-size: 0.8rem;
+        font-size: 0.9rem; /* increased from 0.8rem */
         color: var(--muted);
         margin-top: 4px;
     }
@@ -165,7 +170,7 @@
         border: 0;
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 1.05rem; /* increased from 0.95rem */
     }
 
     .btn-primary {
@@ -180,11 +185,17 @@
         color: #333;
     }
 
+    .btn-outline-danger {
+        background: transparent;
+        border: 2px solid #F56565;
+        color: #F56565;
+    }
+
     .badge {
         display: inline-block;
         padding: 6px 8px;
         border-radius: 999px;
-        font-size: 0.75rem;
+        font-size: 0.85rem; /* increased from 0.75rem */
         background: #f1f3f5;
         color: #222;
         margin-right: 6px;
@@ -219,7 +230,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.88rem;
+        font-size: 0.98rem; /* increased from 0.88rem */
         min-width: 1100px;
     }
 
@@ -273,7 +284,7 @@
         display: flex;
         gap: 8px;
         align-items: center;
-        font-size: 0.85rem;
+        font-size: 0.95rem; /* increased from 0.85rem */
         color: var(--muted);
     }
 
@@ -321,6 +332,13 @@
 </style>
 <div class="container-wire">
     <div class="page-header">Retirement Drawdown</div>
+
+    <!-- Prominent actions: Edit and Clear All -->
+    <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+        <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="OpenWizard">Edit assumptions</button>
+        <button class="btn btn-outline-danger" style="padding:10px 16px; font-weight:700;" @onclick="ClearAll">Clear all & reset</button>
+        <div style="margin-left:12px; color:#6c757d;">Edit assumptions opens the quick setup wizard to change retirement ages, balances, returns, Social Security and withdrawal settings. Clear all will reset your saved plan then open the wizard so you can re-enter values.</div>
+    </div>
 
     <div class="top-area">
         <div class="container-fluid">
@@ -387,17 +405,6 @@
                                 <label>SS Start Year (Partner)</label>
                                 <input class="narrow" type="number" @bind="Model.SSStartAgePartner" @oninput="(() => OnInputChanged())" />
                                 <div class="small-note">Enter age when Social Security starts; year is calculated below.</div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label>SS Start Year (You)</label>
-                                <input class="narrow" type="text" value="@Model.SSStartYearYou" readonly />
-                            </div>
-                            <div>
-                                <label>SS Start Year (Partner)</label>
-                                <input class="narrow" type="text" value="@Model.SSStartYearPartner" readonly />
                             </div>
                         </div>
 
@@ -613,3 +620,17 @@
     </div>
 
 </div>
+
+@code {
+    // Keep existing code-behind methods in the partial class; helper methods for buttons call into the component's code-behind.
+    private void OpenWizard()
+    {
+        _isDataAvaiableForTheUser = true;
+    }
+
+    private async Task ClearAll()
+    {
+        // call into the partial class ClearAll implementation (in code-behind)
+        await ClearAllAndOpenWizardAsync();
+    }
+}

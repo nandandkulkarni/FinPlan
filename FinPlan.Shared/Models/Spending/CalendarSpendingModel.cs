@@ -5,11 +5,11 @@ namespace FinPlan.Shared.Models.Spending
 {
     public class CalendarSpendingModel
     {
-        // Inputs — mirror UI fields
+        // Inputs â€“ mirror UI fields
         public int CurrentAgeYou { get; set; } = 63;
         public int CurrentAgePartner { get; set; } = 60;
 
-        // New: retirement ages (user-friendly) — stored so model persists both age and computed year
+        // New: retirement ages (user-friendly) â€“ stored so model persists both age and computed year
         public int RetirementAgeYou { get; set; } = 65;
         public int RetirementAgePartner { get; set; } = 68;
 
@@ -182,7 +182,7 @@ namespace FinPlan.Shared.Models.Spending
                     }
                     else
                     {
-                        // continue same phase — inflate previous amount by InflationRate
+                        // continue same phase â€“ inflate previous amount by InflationRate
                         var factor = 1 + (InflationRate / 100m);
                         lastAmountNeeded = lastAmountNeeded * factor;
                         row.AmountNeeded = Math.Round(lastAmountNeeded, 2);
@@ -192,10 +192,17 @@ namespace FinPlan.Shared.Models.Spending
                 // reverse mortgage
                 row.ReverseMortgage = (ReverseMortgageStartYear > 0 && y >= ReverseMortgageStartYear) ? ReverseMortgageMonthly * 12m : 0m;
 
-                // Withdraw from taxable first, then traditional, then roth
-                var taxableWithdraw = Math.Min(taxBal, withdrawal);
+                // --- Prefer Social Security then Reverse Mortgage, then accounts ---
+                // available income for this year BEFORE touching account balances
+                decimal availableIncome = row.SSYou + row.SSPartner + row.ReverseMortgage;
+
+                // net needed from accounts after SS + reverse mortgage
+                decimal netNeededFromAccounts = Math.Max(0m, withdrawal - availableIncome);
+
+                // Withdraw from taxable first, then traditional, then roth to meet netNeededFromAccounts
+                var taxableWithdraw = Math.Min(taxBal, netNeededFromAccounts);
                 taxBal -= taxableWithdraw;
-                var remaining = withdrawal - taxableWithdraw;
+                var remaining = netNeededFromAccounts - taxableWithdraw;
                 var tradWithdraw = Math.Min(tradBal, remaining);
                 tradBal -= tradWithdraw;
                 remaining -= tradWithdraw;

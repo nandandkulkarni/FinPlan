@@ -39,6 +39,7 @@ namespace FinPlan.Web.Components.Pages
         // track last save time to avoid rapid duplicate saves
         private DateTime _lastSave = DateTime.MinValue;
         private readonly TimeSpan _minSaveInterval = TimeSpan.FromMilliseconds(300);
+        private bool _isDataAvaiableForTheUser= false;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -102,6 +103,7 @@ namespace FinPlan.Web.Components.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     DebugService.AddMessage("Calendar saved");
+                    _isDataAvaiableForTheUser = true;
                 }
                 else
                 {
@@ -142,6 +144,7 @@ namespace FinPlan.Web.Components.Pages
                     Model = stored;
                     Model.Calculate();
                     DebugService.AddMessage("loaded");
+                    _isDataAvaiableForTheUser= true;
                     StateHasChanged();
                 }
             }
@@ -149,6 +152,41 @@ namespace FinPlan.Web.Components.Pages
             {
                 DebugService.AddMessage($"load error: {ex.Message}");
             }
+        }
+
+        // New: Clear server-side saved plan and reset local model, then open wizard for re-entry
+        public async Task ClearAllAndOpenWizardAsync()
+        {
+            try
+            {
+                var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                var apiBaseUrl = GetApiBaseUrl();
+                var url = $"{apiBaseUrl}/api/Retirement/delete?userGuid={userGuid}&calculatorType=CalendarWireframe";
+
+                var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+                var response = await client.DeleteAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    DebugService.AddMessage("Calendar deleted on server.");
+                }
+                else
+                {
+                    DebugService.AddMessage($"Calendar delete returned: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugService.AddMessage($"delete error: {ex.Message}");
+            }
+
+            // Reset local model to a clean instance and open the wizard for quick re-entry
+            Model = new CalendarSpendingModel();
+            Model.Calculate();
+            _isDataAvaiableForTheUser = true;
+            StateHasChanged();
+
+            // Also save the cleared state so server and client are in sync
+            try { await Save(); } catch { }
         }
 
         // Called on many input changes; debounces Calculate when AutoCalculate is enabled
@@ -185,6 +223,30 @@ namespace FinPlan.Web.Components.Pages
                 if (DateTime.UtcNow - _lastSave < _minSaveInterval) return;
                 _lastSave = DateTime.UtcNow;
                 await Save();
+            }
+        }
+
+        // Handler invoked when the RetirementInputWizard finishes
+        public async Task HandleWizardFinished((int AgeYou, int AgePartner) ages)
+        {
+            try
+            {
+                // Apply ages to model and sync years
+                Model.CurrentAgeYou = ages.AgeYou > 0 ? ages.AgeYou : Model.CurrentAgeYou;
+                Model.CurrentAgePartner = ages.AgePartner > 0 ? ages.AgePartner : Model.CurrentAgePartner;
+                Model.SyncRetirementYearsFromAges();
+
+                // hide the modal flag
+                _isDataAvaiableForTheUser = false;
+
+                // Recalculate and save
+                Model.Calculate();
+                await Save();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                try { DebugService.AddMessage($"Wizard finish error: {ex.Message}"); } catch { }
             }
         }
 

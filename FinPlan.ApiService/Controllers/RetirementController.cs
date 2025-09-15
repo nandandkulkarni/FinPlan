@@ -104,5 +104,59 @@ namespace FinPlan.ApiService.Controllers
             }
         }
 
+        // Delete stored plan for a user/calculator
+        [HttpPost("delete")]
+        public async Task<IActionResult> Delete()
+        {
+            string body;
+            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                body = await reader.ReadToEndAsync();
+            }
+
+            if (string.IsNullOrWhiteSpace(body))
+                return BadRequest("Empty request body.");
+
+            // Try to deserialize to known request shapes to extract UserGuid and CalculatorType
+            string? userGuid = null;
+            string? calculatorType = null;
+
+            try
+            {
+                var spReq = JsonSerializer.Deserialize<PersistSpendingRequest>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (spReq != null && !string.IsNullOrWhiteSpace(spReq.UserGuid) && !string.IsNullOrWhiteSpace(spReq.CalculatorType))
+                {
+                    userGuid = spReq.UserGuid;
+                    calculatorType = spReq.CalculatorType;
+                }
+            }
+            catch { /* ignore */ }
+
+            if (userGuid == null || calculatorType == null)
+            {
+                try
+                {
+                    var calReq = JsonSerializer.Deserialize<PersistCalendarSpendingRequest>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (calReq != null && !string.IsNullOrWhiteSpace(calReq.UserGuid) && !string.IsNullOrWhiteSpace(calReq.CalculatorType))
+                    {
+                        userGuid = calReq.UserGuid;
+                        calculatorType = calReq.CalculatorType;
+                    }
+                }
+                catch { /* ignore */ }
+            }
+
+            if (userGuid == null || calculatorType == null)
+                return BadRequest("Request must contain UserGuid and CalculatorType.");
+
+            var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.CalculatorType == calculatorType);
+            if (entity == null)
+                return NotFound();
+
+            _db.FinPlans.Remove(entity);
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
     }
 }
