@@ -336,9 +336,61 @@
     <!-- Prominent actions: Edit and Clear All -->
     <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
         <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="() => OpenWizard(1)">Edit assumptions</button>
-        <button class="btn btn-outline-danger" style="padding:10px 16px; font-weight:700;" @onclick="ClearAll">Clear all & reset</button>
+        <button class="btn btn-outline-danger" style="padding:10px 16px; font-weight:700;" @onclick="ConfirmClearAll">Clear all & reset</button>
         <div style="margin-left:12px; color:#6c757d;">Edit assumptions opens the quick setup wizard to change retirement ages, balances, returns, Social Security and withdrawal settings. Clear all will reset your saved plan then open the wizard so you can re-enter values.</div>
     </div>
+
+    <!-- Confirmation modal for clearing -->
+    @if (showClearConfirm)
+    {
+        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm clear</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="() => showClearConfirm = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to clear all saved values? This will reset your plan and cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" @onclick="() => showClearConfirm = false">Cancel</button>
+                        <button class="btn btn-outline-danger" @onclick="PerformClearAll">Clear all</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Result modal (after clear) -->
+    @if (showClearResult)
+    {
+        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Clear result</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseClearResult"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (clearSucceeded)
+                        {
+                            <p>All saved values were cleared successfully.</p>
+                        }
+                        else
+                        {
+                            <p>Clear failed. Your data may not have been removed from the server. The local plan was reset.</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" @onclick="CloseClearResult">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="top-area">
         <div class="container-fluid">
@@ -558,6 +610,10 @@
 
 @code {
     private int _wizardOpenStep = 1;
+    private bool showClearConfirm = false;
+    private bool showClearResult = false;
+    private bool clearSucceeded = false;
+
     // Keep existing code-behind methods in the partial class; helper methods for buttons call into the component's code-behind.
     private void OpenWizard(int step)
     {
@@ -565,10 +621,43 @@
         _isDataAvaiableForTheUser = true;
     }
 
-    private async Task ClearAll()
+    private void ConfirmClearAll()
     {
-        // call into the partial class ClearAll implementation (in code-behind)
-        await ClearAllAndOpenWizardAsync();
+        // show confirmation modal
+        showClearConfirm = true;
+    }
+
+    private async Task PerformClearAll()
+    {
+        showClearConfirm = false;
+        StateHasChanged();
+
+        try
+        {
+            // call into the partial class ClearAll implementation (in code-behind)
+            clearSucceeded = await ClearAllAndOpenWizardAsync();
+        }
+        catch
+        {
+            clearSucceeded = false;
+        }
+
+        // show result modal
+        showClearResult = true;
+        StateHasChanged();
+    }
+
+    private void CloseClearResult()
+    {
+        showClearResult = false;
+
+        // If clear succeeded, open wizard for re-entry (model already set by code-behind)
+        if (clearSucceeded)
+        {
+            _isDataAvaiableForTheUser = true;
+        }
+
+        StateHasChanged();
     }
 
     private async Task SaveAndClose()

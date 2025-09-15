@@ -82,7 +82,8 @@ namespace FinPlan.Web.Components.Pages
             return base.OnInitializedAsync();
         }
 
-        public async Task Save()
+        // Save now returns success flag so callers can display result
+        public async Task<bool> Save()
         {
             var apiBaseUrl = GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/Retirement/save";
@@ -104,15 +105,18 @@ namespace FinPlan.Web.Components.Pages
                 {
                     DebugService.AddMessage("Calendar saved");
                     _isDataAvaiableForTheUser = true;
+                    return true;
                 }
                 else
                 {
                     DebugService.AddMessage($"Calendar save failed: {response.StatusCode}");
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 DebugService.AddMessage($"Calendar save error: {ex.Message}");
+                return false;
             }
         }
 
@@ -155,8 +159,10 @@ namespace FinPlan.Web.Components.Pages
         }
 
         // New: Clear server-side saved plan and reset local model, then open wizard for re-entry
-        public async Task ClearAllAndOpenWizardAsync()
+        // Returns true if overall operation succeeded (delete + save), false otherwise
+        public async Task<bool> ClearAllAndOpenWizardAsync()
         {
+            var deleteSuccess = false;
             try
             {
                 var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
@@ -168,6 +174,7 @@ namespace FinPlan.Web.Components.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     DebugService.AddMessage("Calendar deleted on server.");
+                    deleteSuccess = true;
                 }
                 else
                 {
@@ -186,7 +193,11 @@ namespace FinPlan.Web.Components.Pages
             StateHasChanged();
 
             // Also save the cleared state so server and client are in sync
-            try { await Save(); } catch { }
+            var saveSuccess = false;
+            try { saveSuccess = await Save(); } catch { saveSuccess = false; }
+
+            // Consider operation successful only if delete and save both succeeded
+            return deleteSuccess && saveSuccess;
         }
 
         // Called on many input changes; debounces Calculate when AutoCalculate is enabled
