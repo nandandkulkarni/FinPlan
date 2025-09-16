@@ -107,15 +107,21 @@
     }
 
     .step-badge {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
         display: inline-flex;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
+        align-items: center;
+        justify-content: center;
+        /* match retirement page: yellow circular fill with dark text for contrast */
         background: var(--brand-yellow);
         color: #111;
         font-weight: 800;
-        align-items: center;
-        justify-content: center;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        margin-right: 8px;
+        flex-shrink: 0;
     }
 
     .small-note {
@@ -287,7 +293,6 @@
                                         <span class="step-badge">5</span>
                                         <div>Tax Treatment</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Use Tax Advantaged: @calculatorModel.UseTaxAdvantaged</div>
                                     <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
                                     <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
                                 </div>
