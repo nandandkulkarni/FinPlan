@@ -409,7 +409,7 @@
         <div class="col-12 col-md-8">
             <h3>Cost of Living Projection</h3>
             <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Totals update automatically.</p>
-
+            <b>Multi-city and City tiered plan coming soon</b>
             <!-- Save status indicator -->
             <div class="d-flex align-items-center mb-2">
                 @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
@@ -448,42 +448,42 @@
                         }
                         else
                         {
-                            <div class="d-flex align-items-center ms-2">
+                            @* <div class="d-flex align-items-center ms-2">
                                 <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)" disabled="@isSaving">
                                     <span class="bi bi-pencil-square"></span>
                                 </button>
                                 <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)" disabled="@isSaving">
                                     <span class="bi bi-trash-fill"></span>
                                 </button>
-                            </div>
+                            </div> *@
                         }
                     </li>
                 }
                 @{
                     // Show up to 3 ghost tabs (Plan B, C, D) if not already present
-                    var ghostTabs = new List<string> { "City-B", "City-C", "City-D" };
-                    foreach (var ghost in ghostTabs)
-                    {
-                        if (!Tabs.Contains(ghost, StringComparer.OrdinalIgnoreCase))
-                        {
-                            <li class="nav-item ms-1">
-                                <button type="button" class="nav-link text-muted bg-light border-0" style="opacity:0.6; cursor:pointer;" title="Create this plan" @onclick="() => PromptCreateTab(ghost)">
-                                    @GetTabLabel(ghost)
-                                </button>
-                            </li>
-                        }
-                    }
+                    // var ghostTabs = new List<string> { "City-B", "City-C", "City-D" };
+                    // foreach (var ghost in ghostTabs)
+                    // {
+                    //     if (!Tabs.Contains(ghost, StringComparer.OrdinalIgnoreCase))
+                    //     {
+                    //         <li class="nav-item ms-1">
+                    //             <button type="button" class="nav-link text-muted bg-light border-0" style="opacity:0.6; cursor:pointer;" title="Create this plan" @onclick="() => PromptCreateTab(ghost)">
+                    //                 @GetTabLabel(ghost)
+                    //             </button>
+                    //         </li>
+                    //     }
+                    // }
                 }
-                <li class="nav-item ms-2">
+                @* <li class="nav-item ms-2">
                     <button type="button" class="nav-link btn btn-sm btn-primary rounded-pill px-3 fw-semibold" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
                         <span class="bi bi-plus-lg me-1"></span> Add Plan/City
                     </button>
-                </li>
-                <li class="nav-item ms-2">
+                </li> *@
+                @* <li class="nav-item ms-2">
                     <button type="button" class="nav-link btn btn-sm btn-danger rounded-pill px-3 fw-semibold" title="Delete all saved plans" @onclick="ConfirmDeleteAll" disabled="@(isAddingTab || isSaving || isDeletingPlans)">
                         <span class="bi bi-trash-fill me-1"></span> Delete All
                     </button>
-                </li>
+                </li> *@
             </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
