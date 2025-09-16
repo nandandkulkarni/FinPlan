@@ -17,8 +17,8 @@
 
 <PageTitle>Savings - Wealth Journey</PageTitle>
 
-<!-- Reuse the RetirementInputWizard for quick setup -->
-<RetirementInputWizard Model="@calculatorModel" Visible="@showWizard" VisibleChanged="@(v => showWizard = v)" OnFinished="HandleWizardFinished" OnSave="SaveUserSavingsAsync" InitialStep="@wizardOpenStep" />
+<!-- Savings quick setup wizard (one page per section) -->
+<SavingsInputWizard Model="@calculatorModel" Visible="@showWizard" VisibleChanged="@(v => showWizard = v)" OnFinished="HandleWizardFinished" OnSave="SaveUserSavingsAsync" InitialStep="@wizardOpenStep" />
 
 <style>
     :root {
@@ -252,7 +252,7 @@
 
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
                                 </div>
                             </div>
 
@@ -267,7 +267,7 @@
                                     <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
                                 </div>
                             </div>
                             <div class="section-card">
@@ -281,7 +281,7 @@
                                     <div class="small-note">Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)</div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
                                 </div>
                             </div>
 
@@ -296,7 +296,7 @@
                                     <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
                                 </div>
                             </div>
                         </div>

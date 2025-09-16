@@ -1,0 +1,470 @@
+@using FinPlan.Shared.Models.Savings
+@using Microsoft.AspNetCore.Components
+@using System.Reflection
+
+<style>
+    .wizard-step-bubble {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #6D5DFC; /* accent color used elsewhere */
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(109,93,252,0.18);
+    }
+
+    .wizard-header-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .wizard-step-text {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+</style>
+
+@if (Visible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1055;">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="wizard-header-row">
+                        <div class="wizard-step-bubble">@wizardStep</div>
+                        <div>
+                            <h5 class="modal-title" style="margin:0;">Quick savings setup</h5>
+                            <div class="wizard-step-text">Step @wizardStep of 6</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseClicked"></button>
+                </div>
+                <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
+                    @if (wizardStep == 1)
+                    {
+                        <label class="form-label">Milestones & ages</label>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Current Age</label>
+                                <input class="form-control" type="number" @bind="modalCurrentAge" min="0" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Planned Retirement Age</label>
+                                <input class="form-control" type="number" @bind="modalRetirementAge" min="40" max="80" />
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Life expectancy (age)</label>
+                                <input class="form-control" type="number" @bind="modalLifeExpectancy" min="55" max="120" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Years until retirement (auto)</label>
+                                <input class="form-control" type="number" value="@ComputeYearsUntilRetirement()" disabled />
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 2)
+                    {
+                        <label class="form-label">Starting Balances</label>
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Taxable ($)</label>
+                                <input class="form-control" type="number" @bind="modalInitialTaxable" step="1" min="0" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Traditional ($)</label>
+                                <input class="form-control" type="number" @bind="modalInitialTraditional" step="1" min="0" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Roth ($)</label>
+                                <input class="form-control" type="number" @bind="modalInitialRoth" step="1" min="0" />
+                            </div>
+                        </div>
+                        <div class="mt-2 p-2" style="background:#f8f9fa; border-radius:6px;">
+                            <strong>Total starting balance:</strong> @TotalStarting.ToString("C0")
+                        </div>
+                    }
+                    else if (wizardStep == 3)
+                    {
+                        <label class="form-label">Monthly Contributions</label>
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Taxable / mo</label>
+                                <input class="form-control" type="number" @bind="modalMonthlyTaxable" step="1" min="0" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Traditional / mo</label>
+                                <input class="form-control" type="number" @bind="modalMonthlyTraditional" step="1" min="0" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Roth / mo</label>
+                                <input class="form-control" type="number" @bind="modalMonthlyRoth" step="1" min="0" />
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 4)
+                    {
+                        <label class="form-label">Estimated Growth Rates (annual %)</label>
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Taxable</label>
+                                <input class="form-control" type="number" @bind="modalGrowthTaxable" step="0.1" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Traditional</label>
+                                <input class="form-control" type="number" @bind="modalGrowthTraditional" step="0.1" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Roth</label>
+                                <input class="form-control" type="number" @bind="modalGrowthRoth" step="0.1" />
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 5)
+                    {
+                        <label class="form-label">Tax treatment</label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="useTaxAdv" @bind="modalUseTaxAdvantaged" />
+                                    <label class="form-check-label" for="useTaxAdv">Use tax advantaged accounts</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Taxable Income Type</label>
+                                <select class="form-select" @bind="modalTaxableIncomeType">
+                                    @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
+                                    {
+                                        <option value="@name">@name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tax Bracket</label>
+                                <select class="form-select" @bind="modalTaxBracket">
+                                    @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.TaxBracket)))
+                                    {
+                                        <option value="@name">@name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 6)
+                    {
+                        <label class="form-label">Projection settings</label>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoCalc" @bind="modalAutoCalculate" />
+                                    <label class="form-check-label" for="autoCalc">Auto calculate projections</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Projection start year</label>
+                                <input class="form-control" type="number" @bind="modalSimulationStartYear" />
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Finish" : "Next")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public object? Model { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback<(int AgeYou, int AgePartner)> OnFinished { get; set; }
+
+    [Parameter]
+    public int InitialStep { get; set; } = 1;
+
+    private int wizardStep = 1;
+
+    // Step 1
+    private int modalCurrentAge = 0;
+    private int modalRetirementAge = 65;
+    private int modalLifeExpectancy = 100;
+
+    // Step 2
+    private decimal modalInitialTaxable = 0m;
+    private decimal modalInitialTraditional = 0m;
+    private decimal modalInitialRoth = 0m;
+
+    // Step 3
+    private decimal modalMonthlyTaxable = 0m;
+    private decimal modalMonthlyTraditional = 0m;
+    private decimal modalMonthlyRoth = 0m;
+
+    // Step 4
+    private decimal modalGrowthTaxable = 5.0m;
+    private decimal modalGrowthTraditional = 5.0m;
+    private decimal modalGrowthRoth = 5.0m;
+
+    // Step 5
+    private bool modalUseTaxAdvantaged = true;
+    private string modalTaxableIncomeType = "Ordinary";
+    private string modalTaxBracket = "Medium";
+
+    // Step 6
+    private bool modalAutoCalculate = true;
+    private int modalSimulationStartYear = DateTime.Now.Year;
+
+    private bool _wasVisible = false;
+    private int _lastInitialStep = 1;
+
+    private decimal TotalStarting => modalInitialTaxable + modalInitialTraditional + modalInitialRoth;
+
+    protected override void OnParametersSet()
+    {
+        if (Visible)
+        {
+            if (!_wasVisible)
+            {
+                if (InitialStep >= 1 && InitialStep <= 6) wizardStep = InitialStep;
+                _lastInitialStep = InitialStep;
+            }
+            else if (InitialStep != _lastInitialStep)
+            {
+                if (InitialStep >= 1 && InitialStep <= 6) wizardStep = InitialStep;
+                _lastInitialStep = InitialStep;
+            }
+        }
+
+        _wasVisible = Visible;
+
+        if (Model != null)
+        {
+            try
+            {
+                var t = Model.GetType();
+
+                // Milestones
+                var pCur = t.GetProperty("CurrentAge") ?? t.GetProperty("CurrentAgeYou");
+                if (pCur != null) { var v = pCur.GetValue(Model); if (v is int iv) modalCurrentAge = iv; }
+                var pRet = t.GetProperty("RetirementAge") ?? t.GetProperty("RetirementAgeYou");
+                if (pRet != null) { var v = pRet.GetValue(Model); if (v is int iv) modalRetirementAge = iv; }
+                var pLife = t.GetProperty("LifeExpectancy") ?? t.GetProperty("LifeExpectancyYou");
+                if (pLife != null) { var v = pLife.GetValue(Model); if (v is int iv) modalLifeExpectancy = iv; }
+
+                // Starting balances
+                var pInitTax = t.GetProperty("InitialTaxableAmount") ?? t.GetProperty("TaxableBalance");
+                if (pInitTax != null) { var v = pInitTax.GetValue(Model); if (v is decimal d) modalInitialTaxable = d; else if (v is double db) modalInitialTaxable = (decimal)db; else if (v is int iv) modalInitialTaxable = iv; }
+                var pInitTrad = t.GetProperty("InitialTraditionalAmount") ?? t.GetProperty("TraditionalBalance");
+                if (pInitTrad != null) { var v = pInitTrad.GetValue(Model); if (v is decimal d) modalInitialTraditional = d; else if (v is double db) modalInitialTraditional = (decimal)db; else if (v is int iv) modalInitialTraditional = iv; }
+                var pInitRoth = t.GetProperty("InitialRothAmount") ?? t.GetProperty("RothBalance");
+                if (pInitRoth != null) { var v = pInitRoth.GetValue(Model); if (v is decimal d) modalInitialRoth = d; else if (v is double db) modalInitialRoth = (decimal)db; else if (v is int iv) modalInitialRoth = iv; }
+
+                // Monthly contributions
+                var pMonTax = t.GetProperty("MonthlyTaxableContribution"); if (pMonTax != null) { var v = pMonTax.GetValue(Model); if (v is decimal d) modalMonthlyTaxable = d; }
+                var pMonTrad = t.GetProperty("MonthlyTraditionalContribution"); if (pMonTrad != null) { var v = pMonTrad.GetValue(Model); if (v is decimal d) modalMonthlyTraditional = d; }
+                var pMonRoth = t.GetProperty("MonthlyRothContribution"); if (pMonRoth != null) { var v = pMonRoth.GetValue(Model); if (v is decimal d) modalMonthlyRoth = d; }
+
+                // Growth rates
+                var pGTax = t.GetProperty("AnnualGrowthRateTaxable"); if (pGTax != null) { var v = pGTax.GetValue(Model); if (v is decimal d) modalGrowthTaxable = d; }
+                var pGTrad = t.GetProperty("AnnualGrowthRateTraditional"); if (pGTrad != null) { var v = pGTrad.GetValue(Model); if (v is decimal d) modalGrowthTraditional = d; }
+                var pGRoth = t.GetProperty("AnnualGrowthRateRoth"); if (pGRoth != null) { var v = pGRoth.GetValue(Model); if (v is decimal d) modalGrowthRoth = d; }
+
+                // Tax treatment
+                var pUseTA = t.GetProperty("UseTaxAdvantaged"); if (pUseTA != null) { var v = pUseTA.GetValue(Model); if (v is bool b) modalUseTaxAdvantaged = b; }
+                var pIncomeType = t.GetProperty("TaxableIncomeType"); if (pIncomeType != null) { var v = pIncomeType.GetValue(Model); if (v != null) modalTaxableIncomeType = v.ToString() ?? modalTaxableIncomeType; }
+                var pBracket = t.GetProperty("TaxBracket"); if (pBracket != null) { var v = pBracket.GetValue(Model); if (v != null) modalTaxBracket = v.ToString() ?? modalTaxBracket; }
+
+                // Projection settings
+                var pAuto = t.GetProperty("AutoCalculate"); if (pAuto != null) { var v = pAuto.GetValue(Model); if (v is bool b) modalAutoCalculate = b; }
+                var pStart = t.GetProperty("SimulationStartYear"); if (pStart != null) { var v = pStart.GetValue(Model); if (v is int iv) modalSimulationStartYear = iv; }
+            }
+            catch { }
+        }
+    }
+
+    private void PrevwizardStep() { if (wizardStep > 1) wizardStep--; }
+
+    private async Task NextOrSubmit()
+    {
+        if (wizardStep < 6)
+        {
+            // minimal validation for step 1
+            if (wizardStep == 1 && modalRetirementAge <= 0) return;
+
+            ApplyStepToModel(wizardStep);
+            wizardStep++;
+            StateHasChanged();
+
+            try { if (OnSave.HasDelegate) _ = OnSave.InvokeAsync(); } catch { }
+            return;
+        }
+
+        // final step: apply all to model, call OnSave and OnFinished then close
+        if (Model != null)
+        {
+            try
+            {
+                var t = Model.GetType();
+                void SetIfExists(string propName, object value)
+                {
+                    var prop = t.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+                    if (prop != null && prop.CanWrite)
+                    {
+                        try
+                        {
+                            if (prop.PropertyType.IsEnum)
+                            {
+                                var enumVal = Enum.Parse(prop.PropertyType, value.ToString() ?? string.Empty);
+                                prop.SetValue(Model, enumVal);
+                            }
+                            else
+                            {
+                                prop.SetValue(Model, Convert.ChangeType(value, prop.PropertyType));
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // write back key values
+                SetIfExists("CurrentAge", modalCurrentAge);
+                SetIfExists("RetirementAge", modalRetirementAge);
+                SetIfExists("LifeExpectancy", modalLifeExpectancy);
+
+                SetIfExists("InitialTaxableAmount", modalInitialTaxable);
+                SetIfExists("InitialTraditionalAmount", modalInitialTraditional);
+                SetIfExists("InitialRothAmount", modalInitialRoth);
+
+                SetIfExists("MonthlyTaxableContribution", modalMonthlyTaxable);
+                SetIfExists("MonthlyTraditionalContribution", modalMonthlyTraditional);
+                SetIfExists("MonthlyRothContribution", modalMonthlyRoth);
+
+                SetIfExists("AnnualGrowthRateTaxable", modalGrowthTaxable);
+                SetIfExists("AnnualGrowthRateTraditional", modalGrowthTraditional);
+                SetIfExists("AnnualGrowthRateRoth", modalGrowthRoth);
+
+                SetIfExists("UseTaxAdvantaged", modalUseTaxAdvantaged);
+                SetIfExists("TaxableIncomeType", modalTaxableIncomeType);
+                SetIfExists("TaxBracket", modalTaxBracket);
+
+                SetIfExists("AutoCalculate", modalAutoCalculate);
+                SetIfExists("SimulationStartYear", modalSimulationStartYear);
+
+                // try to sync or recalc if method exists
+                var sync = t.GetMethod("SyncRetirementYearsFromAges", BindingFlags.Public | BindingFlags.Instance)
+                           ?? t.GetMethod("Calculate", BindingFlags.Public | BindingFlags.Instance);
+                try { sync?.Invoke(Model, null); } catch { }
+            }
+            catch { }
+        }
+
+        if (OnSave.HasDelegate) await OnSave.InvokeAsync();
+        if (OnFinished.HasDelegate)
+        {
+            // send back ages to parent for any additional mapping
+            await OnFinished.InvokeAsync((modalCurrentAge, modalCurrentAge));
+        }
+
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+        wizardStep = 1;
+    }
+
+    private void ApplyStepToModel(int step)
+    {
+        if (Model == null) return;
+        try
+        {
+            var t = Model.GetType();
+            void SetIfExists(string propName, object value)
+            {
+                var prop = t.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+                if (prop != null && prop.CanWrite)
+                {
+                    try
+                    {
+                        if (prop.PropertyType.IsEnum)
+                        {
+                            var enumVal = Enum.Parse(prop.PropertyType, value.ToString() ?? string.Empty);
+                            prop.SetValue(Model, enumVal);
+                        }
+                        else
+                        {
+                            prop.SetValue(Model, Convert.ChangeType(value, prop.PropertyType));
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            if (step == 1)
+            {
+                SetIfExists("CurrentAge", modalCurrentAge);
+                SetIfExists("RetirementAge", modalRetirementAge);
+                SetIfExists("LifeExpectancy", modalLifeExpectancy);
+            }
+            else if (step == 2)
+            {
+                SetIfExists("InitialTaxableAmount", modalInitialTaxable);
+                SetIfExists("InitialTraditionalAmount", modalInitialTraditional);
+                SetIfExists("InitialRothAmount", modalInitialRoth);
+            }
+            else if (step == 3)
+            {
+                SetIfExists("MonthlyTaxableContribution", modalMonthlyTaxable);
+                SetIfExists("MonthlyTraditionalContribution", modalMonthlyTraditional);
+                SetIfExists("MonthlyRothContribution", modalMonthlyRoth);
+            }
+            else if (step == 4)
+            {
+                SetIfExists("AnnualGrowthRateTaxable", modalGrowthTaxable);
+                SetIfExists("AnnualGrowthRateTraditional", modalGrowthTraditional);
+                SetIfExists("AnnualGrowthRateRoth", modalGrowthRoth);
+            }
+            else if (step == 5)
+            {
+                SetIfExists("UseTaxAdvantaged", modalUseTaxAdvantaged);
+                SetIfExists("TaxableIncomeType", modalTaxableIncomeType);
+                SetIfExists("TaxBracket", modalTaxBracket);
+            }
+            else if (step == 6)
+            {
+                SetIfExists("AutoCalculate", modalAutoCalculate);
+                SetIfExists("SimulationStartYear", modalSimulationStartYear);
+            }
+        }
+        catch { }
+    }
+
+    private async Task CloseClicked()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+        wizardStep = 1;
+    }
+
+    private int ComputeYearsUntilRetirement()
+    {
+        if (modalCurrentAge <= 0 || modalRetirementAge <= 0) return 0;
+        return Math.Max(0, modalRetirementAge - modalCurrentAge);
+    }
+}
