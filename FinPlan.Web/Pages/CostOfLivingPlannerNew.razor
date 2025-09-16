@@ -575,8 +575,8 @@
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
                                 <span class="me-2">@groupKey</span>
-                                <span class="badge bg-secondary">Current: @FormatCurrency(groupCurrentTotal)</span>
-                                <span class="badge bg-primary ms-2">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
+                                <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">
                                     @if (catIdx == 0)
