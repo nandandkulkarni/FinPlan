@@ -72,6 +72,44 @@
         flex: 1 1 0%; /* allow panels to grow equally and match height */
     }
 
+    /* Section card variant used inside the Plan Sections grid */
+    .section-card {
+        border: 1px solid #d6dbe0; /* slightly darker professional border */
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        min-height: 92px; /* keep cards a consistent minimum height */
+        background: #fff;
+    }
+
+    .section-card .actions {
+        margin-top: auto; /* push to bottom of the card */
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    /* professional-looking edit button */
+    .btn-edit {
+        background: #1F6FEB; /* professional blue */
+        color: #ffffff;
+        border: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    /* Highlighted rectangular panel with yellow border and subtle shadow */
+    .section-panel {
+        border: 3px solid var(--brand-yellow);
+        border-radius: 10px;
+        box-shadow: 0 12px 30px rgba(13,38,76,0.06), 0 4px 18px rgba(255,214,0,0.08);
+        padding: 14px; /* add extra padding so inner .panel spacing aligns visually */
+        background: linear-gradient(180deg, #fff, #fff);
+    }
+
     /* Mini sidebars that only cover the top area */
     .left-sidebar-mini, .right-sidebar-mini {
         position: absolute;
@@ -411,12 +449,12 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
-                    <div class="panel">
+                    <div class="panel section-panel">
                         <h4>Plan Sections</h4>
 
                         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;">
                             @* Section 1: Retirement ages & life expectancy *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">1</span>
@@ -425,13 +463,13 @@
                                     <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou; Partner: @Model.RetirementAgePartner</div>
                                     <div class="small-note">Life exp (You): @DisplayLifeExpectancyYou; Partner: @DisplayLifeExpectancyPartner</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(1)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                                 </div>
                             </div>
 
                             @* Section 2: Starting balances & returns *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">2</span>
@@ -440,13 +478,13 @@
                                     <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
                                     <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0"); Roth: @Model.RothBalance.ToString("C0")</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(2)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
                                 </div>
                             </div>
 
                             @* Section 3: Social Security *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">3</span>
@@ -455,13 +493,13 @@
                                     <div class="small-note" style="margin-top:8px;">You SS/mo: @Model.SocialSecurityMonthlyYou.ToString("C0"); Partner: @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
                                     <div class="small-note">Start ages: @Model.SSStartAgeYou; @Model.SSStartAgePartner</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(3)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
                                 </div>
                             </div>
 
                             @* Section 4: Reverse mortgage *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">4</span>
@@ -469,13 +507,13 @@
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear; Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(4)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
                                 </div>
                             </div>
 
                             @* Section 5: Planned annual withdrawals *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">5</span>
@@ -483,23 +521,23 @@
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0"); Both: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(5)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
                                 </div>
                             </div>
 
                             @* Section 6: Current ages & simulation *@
-                            <div style="border:1px solid #eef2f6; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">6</span>
                                         <div>Current ages & simulation</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou; Partner: @Model.CurrentAgePartner</div>
-                                    <div class="small-note">Sim start year: @Model.SimulationStartYear; Auto-calc: @(Model.AutoCalculate ? "Yes" : "No")</div>
+                                    <div class="small-note">Projection start year: @Model.SimulationStartYear; Auto-calc: @(Model.AutoCalculate ? "Yes" : "No")</div>
                                 </div>
-                                <div>
-                                    <button class="btn btn-primary" @onclick="() => OpenWizard(6)">Edit</button>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
                                 </div>
                             </div>
                         </div>
@@ -546,7 +584,7 @@
     <!-- Full-width grid placeholder -->
     <div class="grid-panel panel">
         <div class="grid-header">
-            <div style="font-weight:800; font-size:1rem;">Yearly Simulation</div>
+            <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
             <div class="legend">
                 <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
                 <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
