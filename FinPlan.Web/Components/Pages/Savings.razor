@@ -70,7 +70,8 @@
 
     /* Section card variant used inside the Plan Sections grid */
     .section-card {
-        border: 1px solid #d6dbe0;
+        /* darker border for stronger separation from the background */
+        border: 1px solid rgba(16,24,36,0.12);
         padding: 10px;
         border-radius: 8px;
         display: flex;
@@ -224,9 +225,9 @@
                                         <div>Milestones</div>
                                     </div>
 
-                                    <div class="small-note" style="margin-top:8px;">Current Age: calculatorModel.CurrentAge</div>
-                                    <div class="small-note" style="margin-top:8px;">Planned Retirement Age: calculatorModel.RetirementAge</div>
-                                    <div class="small-note" style="margin-top:8px;">Years until Retirement: calculatorModel.Years</div>
+                                    <div class="small-note" style="margin-top:8px;">Current Age: @calculatorModel.CurrentAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Planned Retirement Age: @calculatorModel.RetirementAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Years until Retirement: @calculatorModel.Years</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
