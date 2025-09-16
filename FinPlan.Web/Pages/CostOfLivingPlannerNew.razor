@@ -209,6 +209,35 @@
         }
     }
 
+    /* Grid typography tweaks: smaller, no bold to reduce visual weight */
+    .card-body .table,
+    .grid-yellow-bg .table,
+    .table.table-sm {
+        font-size: 0.88rem; /* slightly smaller than default */
+    }
+
+    .table thead th {
+        font-size: 0.92rem;
+        font-weight: 600; /* keep headers slightly emphasized but not overly bold */
+    }
+
+    .table tbody td,
+    .table tbody th {
+        font-weight: 400 !important; /* remove bold in grid body */
+        color: #222;
+    }
+
+    /* Neutralize utility bold classes inside the grid so markup doesn't force heavy weight */
+    .table .fw-bold,
+    .table .fw-semibold,
+    .table strong,
+    .table b {
+        font-weight: 400 !important;
+    }
+
+    /* Tighten spacing a little so reduced font doesn't create too much white space */
+    .table td, .table th { padding: 0.45rem 0.5rem; }
+
     }
 </style>
 
@@ -474,14 +503,14 @@
                         <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @bind-Value:event="oninput" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
                     </div>
                     <!-- Spacer to push next controls to right -->
-                    <div class="flex-grow-1"></div>
+                    @* <div class="flex-grow-1"></div>
                     <!-- Add Category Button with divider and pill style -->
                     <div class="d-flex align-items-center gap-2 ms-2">
                         <span class="vr mx-2" style="height:32px; background:#e3e3e3; width:2px; display:inline-block;"></span>
                         <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">
                             <span class="bi bi-plus-lg me-1"></span> Add Category
-                        </button>
-                    </div>
+                        </button> *@
+                    @* </div> *@
                 </div>
 
 
