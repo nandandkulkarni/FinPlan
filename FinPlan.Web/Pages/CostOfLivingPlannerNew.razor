@@ -12,18 +12,47 @@
 
 <style>
     /* ----------------------------
-                                               Tweakable values
-                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                               ---------------------------- */
+                                                   Tweakable values
+                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                   ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
         --tab-panel-top-offset: -6px; /* Tweak this to move the panel up/down (more negative => more overlap) */
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
     }
+      .section-card {
+        /* darker border for stronger separation from the background */
+        border: 1px solid rgba(16,24,36,0.12);
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        min-height: 92px;
+        background: #fff;
+    }
 
+        .section-card .actions {
+            margin-top: auto; /* push to bottom of the card */
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+    .btn-edit {
+        background: #1F6FEB; /* professional blue */
+        color: #ffffff;
+        border: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        /* Force left alignment inside the .actions flex container */
+        margin-right: auto;
+        align-self: center; /* keep vertical centering in the flex row */
+    }
     /* ensure tab row doesn't leave default bottom spacing */
     .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
         margin-bottom: 0 !important; /* override bootstrap utility margin */
@@ -33,8 +62,8 @@
     }
 
     /* Panel that encloses everything below the tabs.
-                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                   Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -236,7 +265,9 @@
     }
 
     /* Tighten spacing a little so reduced font doesn't create too much white space */
-    .table td, .table th { padding: 0.45rem 0.5rem; }
+    .table td, .table th {
+        padding: 0.45rem 0.5rem;
+    }
 
     }
 </style>
@@ -490,28 +521,46 @@
             <div class="tab-panel-box">
 
                 <!-- Planner Controls Strip -->
+                <div class="section-card">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                            @* <span class="step-badge">1</span> *@
+                            <div>Assumptions:</div>
+                        </div>
 
-                <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3">
-                    <!-- Years to Retirement -->
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-semibold text-white">Years to Retirement:</span>
-                        <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+                        <div class="small-note" style="margin-top:8px;">
+                            Years to retire: <b>@YearsToRetirement</b>, &nbsp;&nbsp;&nbsp; 
+                            Annual Inflation rate: <b>@InflationRate</b>&nbsp;&nbsp;&nbsp;
+                            <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                        </div>
+
                     </div>
-                    <!-- Inflation Rate -->
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-semibold text-white">Inflation Rate (%):</span>
-                        <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @bind-Value:event="oninput" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
-                    </div>
-                    <!-- Spacer to push next controls to right -->
-                    @* <div class="flex-grow-1"></div>
+                    @* <div class="actions">
+                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                    </div> *@
+                </div>
+                <br />
+                @* <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3"> *@
+                <!-- Years to Retirement -->
+                @* <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold text-white">Years to Retirement:</span>
+                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+                </div>
+                <!-- Inflation Rate -->
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold text-white">Inflation Rate (%):</span>
+                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @bind-Value:event="oninput" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
+                </div>
+                <!-- Spacer to push next controls to right --> *@
+                @* <div class="flex-grow-1"></div>
                     <!-- Add Category Button with divider and pill style -->
                     <div class="d-flex align-items-center gap-2 ms-2">
                         <span class="vr mx-2" style="height:32px; background:#e3e3e3; width:2px; display:inline-block;"></span>
                         <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">
                             <span class="bi bi-plus-lg me-1"></span> Add Category
                         </button> *@
-                    @* </div> *@
-                </div>
+                @* </div> *@
+                @* </div> *@
 
 
                 <!-- Totals Strip: Current and Retirement side by side -->
@@ -1991,5 +2040,10 @@
     {
         var allCategories = Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct();
         return allCategories.Any(c => !collapsed.Contains(c));
+    }
+
+    private void OpenWizard(int section)
+    {
+        
     }
 }

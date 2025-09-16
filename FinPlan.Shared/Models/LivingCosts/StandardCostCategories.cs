@@ -7,21 +7,21 @@ namespace FinPlan.Shared.Models.LivingCosts
             var list = new List<CostItem>
             {
                 // Housing
-                new CostItem { Category = "Housing", Subcategory = "Mortgage/Rent", CurrentValue = 1500m },
+                new CostItem { Category = "Housing", Subcategory = "Mortgage/Rent", CurrentValue = 2500 },
                 new CostItem { Category = "Housing", Subcategory = "Utilities", CurrentValue = 300m },
-                new CostItem { Category = "Housing", Subcategory = "Maintenance", CurrentValue = 100m },
-                new CostItem { Category = "Housing", Subcategory = "Property Tax", CurrentValue = 100m, Frequency = Frequency.Yearly },
+                new CostItem { Category = "Housing", Subcategory = "Maintenance", CurrentValue = 5000m, Frequency= Frequency.Yearly },
+                new CostItem { Category = "Housing", Subcategory = "Property Tax", CurrentValue = 10000m, Frequency = Frequency.Yearly },
+                
                 // Food
                 new CostItem { Category = "Food", Subcategory = "Groceries", CurrentValue = 600m },
-                new CostItem { Category = "Food", Subcategory = "Dining Out", CurrentValue = 200m },
+                new CostItem { Category = "Food", Subcategory = "Dining Out", CurrentValue = 300m },
                 new CostItem { Category = "Food", Subcategory = "Take Out", CurrentValue = 200m },
 
-
                 // Transportation
-                new CostItem { Category = "Transportation", Subcategory = "Car Payment", CurrentValue = 350m },
+                new CostItem { Category = "Transportation", Subcategory = "Car Payment", CurrentValue = 550m },
                 new CostItem { Category = "Transportation", Subcategory = "Fuel", CurrentValue = 150m },
                 new CostItem { Category = "Transportation", Subcategory = "Maintenance", CurrentValue = 150m },
-                new CostItem { Category = "Transportation", Subcategory = "Insurance", CurrentValue = 120m },
+                new CostItem { Category = "Transportation", Subcategory = "Insurance", CurrentValue = 300m },
 
                 // Travel
                 new CostItem { Category = "Travel", Subcategory = "Airfare", CurrentValue = 2000m },
@@ -39,9 +39,8 @@ namespace FinPlan.Shared.Models.LivingCosts
                 new CostItem { Category = "Insurance", Subcategory = "Disability Insurance", CurrentValue = 30m },
 
                 // Taxes & Savings
-                new CostItem { Category = "Taxes & Savings", Subcategory = "Taxes", CurrentValue = 800m },
-                new CostItem { Category = "Taxes & Savings", Subcategory = "Broker/Bank Savings", CurrentValue = 200m },
-                new CostItem { Category = "Taxes & Savings", Subcategory = "Retirement Savings (401k/IRA)", CurrentValue = 600m, IncludeInRetirement = false },
+                new CostItem { Category = "Savings & Investments", Subcategory = "Broker/Bank Savings", CurrentValue = 200m },
+                new CostItem { Category = "Savings & Investments", Subcategory = "Retirement Savings (401k/IRA)", CurrentValue = 600m, IncludeInRetirement = false },
 
                 // Lifestyle
                 new CostItem { Category = "Lifestyle", Subcategory = "Entertainment", CurrentValue = 150m },
