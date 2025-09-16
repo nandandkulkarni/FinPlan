@@ -7,6 +7,7 @@
 @using FinPlan.Shared.Services
 @using FinPlan.Web.Components.Shared
 @using FinPlan.Web.Services
+@using Microsoft.AspNetCore.Components.Forms
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
@@ -35,6 +36,7 @@
     .container-wire { padding: 14px; }
 
     .page-header { text-align: center; font-weight: 700; font-size: 1.45rem; margin-bottom: 12px; color: #111; }
+    .page-header { text-align: center; font-weight: 700,700; font-size: 1.45rem; margin-bottom: 12px; color: #111; }
 
     .top-area { position: relative; }
 
@@ -156,7 +158,25 @@
                                         <span class="step-badge">1</span>
                                         <div>Retirement ages & life expectancy</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Retirement age: @calculatorModel.RetirementAge</div>
+
+                                    <!-- Small EditForm so ValidationMessage has an EditContext -->
+                                    <EditForm Model="@calculatorModel" OnValidSubmit="HandleSection1Valid">
+                                        <DataAnnotationsValidator />
+                                        <div class="row mt-2">
+                                            <div class="col-6 mb-2">
+                                                <label class="form-label">Current Age</label>
+                                                <InputNumber class="form-control" @bind-Value="calculatorModel.CurrentAge" />
+                                                <ValidationMessage For="@(() => calculatorModel.CurrentAge)" />
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label class="form-label">Retirement Age</label>
+                                                <InputNumber class="form-control" @bind-Value="calculatorModel.RetirementAge" />
+                                                <ValidationMessage For="@(() => calculatorModel.RetirementAge)" />
+                                            </div>
+                                        </div>
+                                    </EditForm>
+
+                                    <div class="small-note">Years until retirement: @calculatorModel.Years</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
@@ -171,6 +191,36 @@
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.InitialTaxableAmount.ToString("C0")</div>
                                     <div class="small-note">Traditional: @calculatorModel.InitialTraditionalAmount.ToString("C0"); Roth: @calculatorModel.InitialRothAmount.ToString("C0")</div>
+
+                                    <div class="row mt-2">
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Post-tax (Brokerage/Savings)</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialTaxableAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Traditional (401k/IRA)</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialTraditionalAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Roth</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.InitialRothAmount" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-1">
+                                        <div class="col-4">
+                                            <label class="form-label">Taxable Growth %</label>
+                                            <input type="number" step="0.1" class="form-control" @bind="calculatorModel.AnnualGrowthRateTaxable" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">Traditional Growth %</label>
+                                            <input type="number" step="0.1" class="form-control" @bind="calculatorModel.AnnualGrowthRateTraditional" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">Roth Growth %</label>
+                                            <input type="number" step="0.1" class="form-control" @bind="calculatorModel.AnnualGrowthRateRoth" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
@@ -182,6 +232,68 @@
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">3</span>
                                         <div>Social Security</div>
+                                        <div>Social Security & Contributions</div>
+                                    </div>
+
+                                    <div class="row mt-2">
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Monthly Post-tax Contribution</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyTaxableContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Monthly Traditional Contribution</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyTraditionalContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">Monthly Roth Contribution</label>
+                                            <FormattedNumberNew class="form-control" @bind-Value="calculatorModel.MonthlyRothContribution" Decimals="0" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-1">
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Use Tax-Advantaged Accounts</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked="@calculatorModel.UseTaxAdvantaged" @onchange="OnUseTaxAdvantagedChanged" />
+                                                <label class="form-check-label">Enable</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Annual Tax-Deferred Contribution</label>
+                                            <input type="number" step="1" class="form-control" @bind="calculatorModel.AnnualTaxDeferredContribution" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-1">
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Annual Taxable Contribution</label>
+                                            <input type="number" step="1" class="form-control" @bind="calculatorModel.AnnualTaxableContribution" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Taxable Income Type</label>
+                                            <select class="form-select" @onchange="OnTaxableIncomeTypeChanged">
+                                                @foreach (var t in Enum.GetValues(typeof(IncomeType)).Cast<IncomeType>())
+                                                {
+                                                    <option value="@t" selected="@(calculatorModel.TaxableIncomeType == t)">@t</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-1">
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Tax Bracket</label>
+                                            <select class="form-select" @onchange="OnTaxBracketChanged">
+                                                @foreach (var b in Enum.GetValues(typeof(TaxBracket)).Cast<TaxBracket>())
+                                                {
+                                                    <option value="@b" selected="@(calculatorModel.TaxBracket == b)">@b</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Estimated SS impact</label>
+                                            <div class="form-control-plaintext">@((results?.EstimatedTaxSavings ?? 0m).ToString("C0"))</div>
+                                        </div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Est. SS (combined): @((results?.EstimatedTaxSavings ?? 0m).ToString("C0"))</div>
                                 </div>
@@ -197,6 +309,8 @@
                                         <div>Reverse mortgage</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Start: N/A • Monthly: N/A</div>
+
+                                    <div class="small-note mt-2">No reverse mortgage inputs on this calculator. Use wizard for advanced options.</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
@@ -210,6 +324,8 @@
                                         <div>Planned annual withdrawals</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">One/Both: N/A</div>
+
+                                    <div class="small-note mt-2">This planner focuses on savings projection; withdrawals configured in wizard.</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
@@ -223,6 +339,21 @@
                                         <div>Current ages & projection</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Current age: @calculatorModel.CurrentAge</div>
+
+                                    <div class="row mt-2">
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Compounding Frequency</label>
+                                            <input type="number" class="form-control" @bind="calculatorModel.CompoundingFrequency" @onblur="SaveUserSavingsAsync" />
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label class="form-label">Auto Calculate</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @bind="calculatorModel.AutoCalculate" />
+                                                <label class="form-check-label">Auto-calc on change</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
@@ -234,7 +365,7 @@
                             <button class="btn btn-primary" @onclick="SaveAndClose">Save & Close</button>
                         </div>
 
-                        <div class="tab-panel-box">
+                        <div class="tab-panel-box mt-3">
                             <EditForm Model="@calculatorModel" OnValidSubmit="Calculate">
                                 <DataAnnotationsValidator />
 
@@ -281,7 +412,7 @@
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4><p class="mb-0">Growth (Taxable/Traditional/Roth)</p></div></div></div>
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%,", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4><p class="mb-0">Growth (Taxable/Traditional/Roth)</p></div></div></div>
                                 </div>
                             </div>
                         }
@@ -532,6 +663,14 @@
         catch { }
     }
 
+    private async Task HandleSection1Valid()
+    {
+        // Save and recalc after section 1 validation
+        await SaveUserSavingsAsync();
+        Calculate();
+        StateHasChanged();
+    }
+
     private void ToggleRightDebug() { showRightDebug = !showRightDebug; StateHasChanged(); }
 
     private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
@@ -547,5 +686,32 @@
         await SaveUserSavingsAsync();
         // Optionally, close any open wizards or perform additional actions
         showWizard = false;
+    }
+
+    private async Task OnUseTaxAdvantagedChanged(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked))
+        {
+            calculatorModel.UseTaxAdvantaged = isChecked;
+            await SaveUserSavingsAsync();
+        }
+    }
+
+    private async Task OnTaxableIncomeTypeChanged(ChangeEventArgs e)
+    {
+        if (Enum.TryParse(typeof(IncomeType), e.Value?.ToString(), out var selectedValue))
+        {
+            calculatorModel.TaxableIncomeType = (IncomeType)selectedValue;
+            await SaveUserSavingsAsync();
+        }
+    }
+
+    private async Task OnTaxBracketChanged(ChangeEventArgs e)
+    {
+        if (Enum.TryParse(typeof(TaxBracket), e.Value?.ToString(), out var selectedValue))
+        {
+            calculatorModel.TaxBracket = (TaxBracket)selectedValue;
+            await SaveUserSavingsAsync();
+        }
     }
 }
