@@ -1,4 +1,4 @@
-@page "/cost-of-living-old"
+@page "/cost-of-living"
 @using FinPlan.Shared.Models.LivingCosts
 @using FinPlan.Web.Components
 @using Microsoft.AspNetCore.Components.Forms
@@ -98,56 +98,18 @@
         padding: 1.25rem 1rem;
     }
 
-    /* Left and right sidebars (shared layout used by WealthJourneyPlanner) */
-    .left-sidebar, .right-sidebar {
-        position: fixed;
-        top: 70px;
-        bottom: 20px;
-        width: 180px;
-        padding: 12px 8px;
-        overflow-y: auto;
-        background: rgba(255,255,255,0.98);
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        border-radius: 8px;
-        z-index: 1050;
-        font-size: 0.95rem;
-    }
+    /* Use Bootstrap grid for layout (2-8-2). Left and right column styling intentionally minimal so Bootstrap handles spacing. */
+    /* Remove fixed sidebars; layout is now responsive using Bootstrap classes in the markup. */
 
-    .left-sidebar {
-        left: 12px;
-    }
 
-    .right-sidebar {
-        right: 12px;
-    }
-
-        .left-sidebar .sidebar-link, .right-sidebar .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 10px;
-            color: #222;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 6px;
-        }
-
-            .left-sidebar .sidebar-link:hover, .right-sidebar .sidebar-link:hover {
-                background: rgba(0,0,0,0.04);
-            }
-
-    .container-fluid.page-with-sidebars {
-        padding-left: 220px;
-        padding-right: 220px;
+    .container-fluid {
+        padding-left: 16px;
+        padding-right: 16px;
         box-sizing: border-box;
     }
 
     @@media (max-width: 992px) {
-        .left-sidebar, .right-sidebar {
-            display: none !important;
-        }
-
-        .container-fluid.page-with-sidebars {
+        .container-fluid {
             padding-left: 16px !important;
             padding-right: 16px !important;
         }
@@ -403,58 +365,19 @@
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
 
-<nav class="left-sidebar" aria-label="Left menu">
-    <ul class="list-unstyled mb-0">
-        @* <li><a class="sidebar-link" href="#" @onclick="ToggleCollapseAllCategories"><i class="bi bi-list"></i> Collapse/Expand</a></li>
-        <li><a class="sidebar-link" href="#" @onclick="OpenAddCategoryModal"><i class="bi bi-plus-circle"></i> Add Category</a></li> *@
-        <li><a class="sidebar-link" href="/"><i class="bi bi-house"></i> Home</a></li>
-    </ul>
-</nav>
+<!-- Removed left sidebar nav; content moved to main container -->
 
-<nav class="right-sidebar" aria-label="Right menu">
-    <ul class="list-unstyled mb-0">
-        <!-- Replace the existing right-sidebar link line with this improved, more prominent link -->
-        <li>&nbsp; </li>
-        <li>&nbsp; </li>
-        <li>&nbsp; </li>
-        <li>&nbsp; </li>
-        <li>&nbsp; </li>
-        @* <li>
-            <a class="sidebar-link sidebar-link-highlight"
-               href="/guides/how-to-use-cost-of-living-calculator"
-               title="How to use this planner"
-               aria-label="How to use this planner — guide">
-                <i class="bi bi-graph-up" aria-hidden="true"></i>
-                <span>How to use this planner</span>
-            </a>
-        </li> *@
-        <!-- Replace the current prominent link <li> in the right-sidebar with this -->
-        <li>
-            <a class="sidebar-link sidebar-link-highlight attention-wrapper"
-               href="/guides/how-to-use-cost-of-living-calculator"
-               title="How to use this planner"
-               aria-label="How to use this planner — guide">
-                <span class="attention-arrow" aria-hidden="true">
-                    <!-- Small animated arrow (SVG) -->
-                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true" role="img">
-                        <path d="M4 12h12.59L11.3 6.71a1 1 0 111.41-1.41l6 6a1 1 0 010 1.41l-6 6a1 1 0 11-1.41-1.41L16.59 13H4a1 1 0 110-2z" />
-                    </svg>
-                </span>
-
-                <i class="bi bi-graph-up" aria-hidden="true"></i>
-                <span>How to use this planner</span>
-            </a>
-        </li>
-        <li><a class="sidebar-link" href="/cost-of-living/2025-bangalore-2BHK">Cost of Living - Bangalore</a></li>
-        @* <li><a class="sidebar-link" href="/retirement-fire"><i class="bi bi-wallet2"></i> Retirement</a></li>
-        <li><a class="sidebar-link" href="/wealth-journey"><i class="bi bi-graph-up"></i> Wealth Journey</a></li>
-        <li><a class="sidebar-link" href="/privacy-policy"><i class="bi bi-file-earmark-text"></i> Privacy</a></li> *@
-    </ul>
-</nav>
-
-<div class="container-fluid page-with-sidebars">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <!-- Left column (2) - moved from previous left-sidebar nav -->
+        <div class="col-12 col-md-2">
+            <ul class="list-unstyled mb-0">
+                <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
+            </ul>
+        </div>
+
+        <!-- Center column (8) - main planner content -->
+        <div class="col-12 col-md-8">
             <h3>Cost of Living Projection</h3>
             <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Totals update automatically.</p>
 
@@ -1986,7 +1909,7 @@
                 Log("User triggered retry: LoadTabsAsync");
                 await LoadTabsAsync();
                 // if tabs loaded and activeTab missing, ensure selection
-                if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "City-A";
+                if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
                 calculatorType = MapTabToCalculatorType(activeTab);
                 // After reloading tabs, try loading data for the active tab
                 await LoadFromApi();
