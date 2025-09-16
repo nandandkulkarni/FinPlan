@@ -221,14 +221,12 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">1</span>
-                                        <div>Starting Balances</div>
+                                        <div>Milestones</div>
                                     </div>
 
-                                    <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)</div>
-                                    <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)</div>
-                                    <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)</div>
-
-                                    <div class="small-note">Growth (Taxable/Traditional/Roth): @string.Format("{0:F1}% / {1:F1}% / {2:F1}%", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</div>
+                                    <div class="small-note" style="margin-top:8px;">Current Age: calculatorModel.CurrentAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Planned Retirement Age: calculatorModel.RetirementAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Years until Retirement: calculatorModel.Years</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
@@ -239,6 +237,23 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">2</span>
+                                        <div>Starting Balances</div>
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)</div>
+                                    <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)</div>
+                                    <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)</div>
+
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">3</span>
                                         <div>Monthly Contributions</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
@@ -252,7 +267,7 @@
                             <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">3</span>
+                                        <span class="step-badge">4</span>
                                         <div>Estimated Growth Rate</div>
                                     </div>
                                     <div class="small-note">Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)</div>
@@ -268,89 +283,15 @@
                             <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">3</span>
-                                        <div>Social Security</div>
-                                        <div>Social Security & Contributions</div>
+                                        <span class="step-badge">5</span>
+                                        <div>Tax Treatment</div>
                                     </div>
-                                    <div class="row mt-1">
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Use Tax-Advantaged Accounts</label>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" checked="@calculatorModel.UseTaxAdvantaged" @onchange="OnUseTaxAdvantagedChanged" />
-                                                <label class="form-check-label">Enable</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Annual Tax-Deferred Contribution</label>
-                                            <input type="number" step="1" class="form-control" @bind="calculatorModel.AnnualTaxDeferredContribution" @onblur="SaveUserSavingsAsync" />
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-1">
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Annual Taxable Contribution</label>
-                                            <input type="number" step="1" class="form-control" @bind="calculatorModel.AnnualTaxableContribution" @onblur="SaveUserSavingsAsync" />
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Taxable Income Type</label>
-                                            <select class="form-select" @onchange="OnTaxableIncomeTypeChanged">
-                                                @foreach (var t in Enum.GetValues(typeof(IncomeType)).Cast<IncomeType>())
-                                                {
-                                                    <option value="@t" selected="@(calculatorModel.TaxableIncomeType == t)">@t</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-1">
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Tax Bracket</label>
-                                            <select class="form-select" @onchange="OnTaxBracketChanged">
-                                                @foreach (var b in Enum.GetValues(typeof(TaxBracket)).Cast<TaxBracket>())
-                                                {
-                                                    <option value="@b" selected="@(calculatorModel.TaxBracket == b)">@b</option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label class="form-label">Estimated SS impact</label>
-                                            <div class="form-control-plaintext">@((results?.EstimatedTaxSavings ?? 0m).ToString("C0"))</div>
-                                        </div>
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">Est. SS (combined): @((results?.EstimatedTaxSavings ?? 0m).ToString("C0"))</div>
+                                    <div class="small-note" style="margin-top:8px;">Use Tax Advantaged: @calculatorModel.UseTaxAdvantaged</div>
+                                    <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
+                                    <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
-                                </div>
-                            </div>
-
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">4</span>
-                                        <div>Reverse mortgage</div>
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">Start: N/A • Monthly: N/A</div>
-
-                                    <div class="small-note mt-2">No reverse mortgage inputs on this calculator. Use wizard for advanced options.</div>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
-                                </div>
-                            </div>
-
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">5</span>
-                                        <div>Planned annual withdrawals</div>
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">One/Both: N/A</div>
-
-                                    <div class="small-note mt-2">This planner focuses on savings projection; withdrawals configured in wizard.</div>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
                                 </div>
                             </div>
                         </div>
