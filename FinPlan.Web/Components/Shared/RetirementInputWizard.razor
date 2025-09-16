@@ -203,13 +203,13 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
-                    <button class="btn btn-primary" @onclick="NextOrSubmitAge">@(wizardStep == 6 ? "Finish" : "Next")</button>
+                    <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmitAge">@(wizardStep == 6 ? "Finish" : "Next")</button>
                 </div>
-            </div>
-        </div>
-    </div>
-}
+             </div>
+         </div>
+     </div>
+ }
 
 @code {
     [Parameter]
@@ -273,13 +273,36 @@
 
     private decimal TotalSavings => modalTaxable + modalTraditional + modalRoth;
 
+    // track previous visible state and last initial step to avoid resetting wizardStep during normal updates
+    private bool _wasVisible = false;
+    private int _lastInitialStep = 1;
+
     protected override void OnParametersSet()
     {
-        // If modal just became visible, open at InitialStep when provided
-        if (Visible && InitialStep >= 1 && InitialStep <= 6)
+        // Only set wizardStep when the modal becomes visible or when InitialStep changes explicitly.
+        if (Visible)
         {
-            wizardStep = InitialStep;
+            if (!_wasVisible)
+            {
+                // modal just opened - initialize to requested initial step
+                if (InitialStep >= 1 && InitialStep <= 6)
+                {
+                    wizardStep = InitialStep;
+                }
+                _lastInitialStep = InitialStep;
+            }
+            else if (InitialStep != _lastInitialStep)
+            {
+                // parent explicitly changed the initial step while modal is open
+                if (InitialStep >= 1 && InitialStep <= 6)
+                {
+                    wizardStep = InitialStep;
+                }
+                _lastInitialStep = InitialStep;
+            }
         }
+
+        _wasVisible = Visible;
 
         // If a model was passed and has sensible values, prefill inputs (best-effort)
         if (Model != null)
@@ -520,13 +543,22 @@
             // apply interim value for this step to the Model so parent Save will persist it
             ApplyStepToModel(wizardStep);
 
-            // request parent to save this partial data
-            if (OnSave.HasDelegate)
-            {
-                await OnSave.InvokeAsync();
-            }
-
+            // Advance UI immediately so the user sees the next slide while parent save runs
             wizardStep++;
+            StateHasChanged();
+
+            // request parent to save this partial data (fire-and-forget so UI remains responsive)
+            try
+            {
+                if (OnSave.HasDelegate)
+                {
+                    _ = OnSave.InvokeAsync();
+                }
+            }
+            catch
+            {
+                // ignore background save errors here to avoid blocking UI
+            }
             return;
         }
 

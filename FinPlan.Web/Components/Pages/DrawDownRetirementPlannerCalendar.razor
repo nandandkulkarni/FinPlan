@@ -423,7 +423,7 @@
                                         <div>Retirement ages & life expectancy</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou; Partner: @Model.RetirementAgePartner</div>
-                                    <div class="small-note">Life exp (You): @Model.LifeExpectancyYou; Partner: @Model.LifeExpectancyPartner</div>
+                                    <div class="small-note">Life exp (You): @DisplayLifeExpectancyYou; Partner: @DisplayLifeExpectancyPartner</div>
                                 </div>
                                 <div>
                                     <button class="btn btn-primary" @onclick="() => OpenWizard(1)">Edit</button>
@@ -613,6 +613,31 @@
     private bool showClearConfirm = false;
     private bool showClearResult = false;
     private bool clearSucceeded = false;
+
+    // Helper properties to display life expectancy as age not calendar year
+    private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
+    private int DisplayLifeExpectancyPartner => ComputeLifeExpectancyAge(Model?.LifeExpectancyPartner ?? 0, Model?.CurrentAgePartner ?? 0);
+
+    private int ComputeLifeExpectancyAge(int lifeValue, int currentAge)
+    {
+        if (lifeValue <= 0) return 0;
+        if (lifeValue > 1900)
+        {
+            // stored as a calendar year; convert to age if currentAge available, otherwise estimate from year
+            if (currentAge > 0)
+            {
+                return currentAge + (lifeValue - DateTime.Now.Year);
+            }
+            else
+            {
+                // fallback: compute naive age as year - now
+                return Math.Max(0, lifeValue - DateTime.Now.Year);
+            }
+        }
+
+        // already an age
+        return lifeValue;
+    }
 
     // Keep existing code-behind methods in the partial class; helper methods for buttons call into the component's code-behind.
     private void OpenWizard(int step)
