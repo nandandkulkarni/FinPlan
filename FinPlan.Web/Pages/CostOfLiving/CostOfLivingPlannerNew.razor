@@ -485,30 +485,8 @@
                         <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == t ? "true" : "false")" tabindex="0" @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)" @onclick="() => OnTabClick(t)">
                             @GetTabLabel(t)
                         </button>
-
-                        <!-- Edit / header input and delete controls placed outside the tab button but inside the li so highlight wraps them -->
-                        @if (IsEditing(t))
-                        {
-                            <div class="d-flex align-items-center ms-2">
-                                <input class="form-control form-control-sm" style="width:160px;" @bind="TabHeaders[t]" @onkeydown="(KeyboardEventArgs e) => HandleHeaderKey(e, t)" />
-                                <button class="btn tab-action-btn btn-primary ms-2" @onclick="() => SaveTabHeader(t)" disabled="@isSaving">Save</button>
-                                <button class="btn tab-action-btn btn-secondary ms-1" @onclick="() => CancelEdit(t)" disabled="@isSaving">Cancel</button>
-                            </div>
-                        }
-                        else
-                        {
-                            @* <div class="d-flex align-items-center ms-2">
-                                <button class="btn tab-action-btn btn-link p-0" title="Edit tab header" @onclick="() => ToggleEdit(t)" disabled="@isSaving">
-                                    <span class="bi bi-pencil-square"></span>
-                                </button>
-                                <button class="btn tab-action-btn btn-soft-danger ms-2" title="Delete tab" @onclick="() => ConfirmDeleteTab(t)" disabled="@isSaving">
-                                    <span class="bi bi-trash-fill"></span>
-                                </button>
-                            </div> *@
-                        }
                     </li>
                 }
-          
             </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
