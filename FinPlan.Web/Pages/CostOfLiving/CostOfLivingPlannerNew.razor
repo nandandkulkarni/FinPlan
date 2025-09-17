@@ -1,6 +1,7 @@
 @page "/cost-of-living"
 @using FinPlan.Shared.Models.LivingCosts
 @using FinPlan.Web.Components
+@using FinPlan.Web.Pages.CostOfLiving.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
@@ -271,6 +272,23 @@
 
     }
 </style>
+
+@* Replace the inline modal with the reusable component *@
+@* Replace previous component invocation with explicit C# expressions so Blazor doesn't emit invalid attribute names *@
+<EditAssumptionsModal Visible="@showAssumptionsModal"
+                      YearsToRetirement="@YearsToRetirement"
+                      InflationRate="@InflationRate"
+                      OnSave="@(values => OnAssumptionsSaved(values))"
+                      OnClose="@( () => CloseAssumptions() )" />
+
+@*                       <!-- Savings quick setup wizard (one page per section) -->
+<SavingsInputWizard 
+    Model="@calculatorModel" 
+    Visible="@showWizard" 
+    VisibleChanged="@(v => showWizard = v)" 
+    OnFinished="HandleWizardFinished" 
+    OnSave="SaveUserSavingsAsync" 
+    InitialStep="@wizardOpenStep" /> *@
 
 @if (showDetailsModal)
 {
@@ -1995,8 +2013,38 @@
         return allCategories.Any(c => !collapsed.Contains(c));
     }
 
+    // Add inside the existing @code { ... } block of CostOfLivingPlannerNew.razor
+
+    // Modal visibility
+    private bool showAssumptionsModal = false;
+
+    // Called when user saves from the modal. Receives (Years, Inflation).
+    private async Task OnAssumptionsSaved((int Years, decimal Inflation) values)
+    {
+        // apply values
+        YearsToRetirement = values.Years;
+        InflationRate = values.Inflation;
+
+        // recalc and persist
+        RecalculateAll(save: true);
+        ScheduleAutosave();
+
+        // close modal and update UI
+        showAssumptionsModal = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CloseAssumptions()
+    {
+        showAssumptionsModal = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // Open the modal from UI
     private void OpenWizard(int section)
     {
-        
+        // reuse same modal for quick assumptions edits
+        // copy current values into modal via component parameters (component reads YearsToRetirement/InflationRate)
+        showAssumptionsModal = true;
     }
 }

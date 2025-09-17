@@ -18,7 +18,13 @@
 <PageTitle>Savings - Wealth Journey</PageTitle>
 
 <!-- Savings quick setup wizard (one page per section) -->
-<SavingsInputWizard Model="@calculatorModel" Visible="@showWizard" VisibleChanged="@(v => showWizard = v)" OnFinished="HandleWizardFinished" OnSave="SaveUserSavingsAsync" InitialStep="@wizardOpenStep" />
+<SavingsInputWizard 
+    Model="@calculatorModel" 
+    Visible="@showWizard" 
+    VisibleChanged="@(v => showWizard = v)" 
+    OnFinished="HandleWizardFinished" 
+    OnSave="SaveUserSavingsAsync" 
+    InitialStep="@wizardOpenStep" />
 
 <style>
     :root {

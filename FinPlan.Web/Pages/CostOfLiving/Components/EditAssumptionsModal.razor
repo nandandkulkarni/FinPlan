@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using FinPlan.Web.Components
+@using System.Globalization
+
+@if (Visible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Assumptions</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="HandleClose"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Years to Retirement</label>
+                        <input class="form-control" @bind="wizardYearsInput" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Inflation Rate (%)</label>
+                        <input class="form-control" @bind="wizardInflationInput" />
+                    </div>
+                    @if (!string.IsNullOrEmpty(wizardValidationMessage))
+                    {
+                        <div class="text-danger small mb-2">@wizardValidationMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" @onclick="HandleClose">Cancel</button>
+                    <button class="btn btn-primary btn-sm" @onclick="HandleSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index:1999;"></div>
+}
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public int YearsToRetirement { get; set; }
+
+    [Parameter]
+    public decimal InflationRate { get; set; }
+
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    // returns (Years, Inflation)
+    [Parameter]
+    public EventCallback<(int Years, decimal Inflation)> OnSave { get; set; }
+
+    private int wizardYearsToRetirement;
+    private decimal wizardInflationRate;
+    private string wizardValidationMessage = string.Empty;
+
+    // simple string-backed inputs (no formatted InputNumber)
+    private string wizardYearsInput = string.Empty;
+    private string wizardInflationInput = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        // populate local fields only when showing so inputs keep last user edits while modal open
+        if (Visible)
+        {
+            wizardYearsToRetirement = YearsToRetirement;
+            wizardInflationRate = InflationRate;
+            wizardYearsInput = YearsToRetirement.ToString(CultureInfo.CurrentCulture);
+            // show a simple one-decimal representation for inflation but keep as plain text input
+            wizardInflationInput = InflationRate.ToString("0.0", CultureInfo.CurrentCulture);
+            wizardValidationMessage = string.Empty;
+        }
+    }
+
+    private async Task HandleSave()
+    {
+        wizardValidationMessage = string.Empty;
+
+        // parse years (allow user to type freely)
+        if (string.IsNullOrWhiteSpace(wizardYearsInput) || !int.TryParse(wizardYearsInput.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out var parsedYears))
+        {
+            wizardValidationMessage = "Enter a valid integer for years to retirement.";
+            return;
+        }
+
+        // parse inflation as decimal (percent)
+        if (string.IsNullOrWhiteSpace(wizardInflationInput) || !decimal.TryParse(wizardInflationInput.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out var parsedInflation))
+        {
+            wizardValidationMessage = "Enter a valid number for inflation rate.";
+            return;
+        }
+
+        if (parsedYears < 0)
+        {
+            wizardValidationMessage = "Years to retirement must be 0 or greater.";
+            return;
+        }
+
+        if (parsedInflation < 0)
+        {
+            wizardValidationMessage = "Inflation rate must be 0 or greater.";
+            return;
+        }
+
+        // update backing values
+        wizardYearsToRetirement = parsedYears;
+        wizardInflationRate = parsedInflation;
+
+        if (OnSave.HasDelegate)
+        {
+            await OnSave.InvokeAsync((wizardYearsToRetirement, wizardInflationRate));
+        }
+    }
+
+    private async Task HandleClose()
+    {
+        Visible = false;
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();
+        }
+    }
+}
