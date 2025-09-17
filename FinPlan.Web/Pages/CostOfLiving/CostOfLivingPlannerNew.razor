@@ -452,6 +452,11 @@
             <ul class="list-unstyled mb-0">
                 <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
             </ul>
+
+            <!-- Ad container for long Adsterra banner in left column -->
+            <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
+                @((MarkupString)AdHtmlLeft)
+            </div>
         </div>
 
         <!-- Center column (8) - main planner content -->
@@ -2025,4 +2030,7 @@
         // copy current values into modal via component parameters (component reads YearsToRetirement/InflationRate)
         showAssumptionsModal = true;
     }
+
+    // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
+    private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }

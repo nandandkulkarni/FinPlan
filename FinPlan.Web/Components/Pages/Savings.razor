@@ -44,6 +44,50 @@
         padding: 14px;
     }
 
+    .col-taxable, th.col-taxable {
+        background-color: rgba(31,111,235,0.06);
+    }
+
+    th.col-taxable {
+        color: #1F6FEB;
+        font-weight: 700;
+    }
+
+    .col-traditional, th.col-traditional {
+        background-color: rgba(56,178,172,0.06);
+    }
+
+    .col-roth, th.col-roth {
+        background-color: rgba(109,93,252,0.06);
+    }
+
+    th.col-roth {
+        color: #6D5DFC;
+        font-weight: 700;
+    }
+
+    .col-totals, th.col-totals {
+        background-color: rgba(255,214,0,0.06);
+    }
+
+    th.col-totals {
+        color: #FFD600;
+        font-weight: 700;
+    }
+
+
+    th.col-traditional {
+        color: #38B2AC;
+        font-weight: 700;
+    }
+    /* small touch to keep numeric alignment and readability */
+    .table td.col-taxable,
+    .table td.col-traditional,
+    .table td.col-roth,
+    .table td.col-totals {
+        font-variant-numeric: tabular-nums;
+    }
+
     .page-header {
         text-align: center;
         font-weight: 700;
@@ -371,19 +415,22 @@
                     <tr>
                         <th>Year</th>
                         <th>Age</th>
-                        <th>Taxable BOY</th>
-                        <th>Taxable Growth</th>
-                        <th>Taxes</th>
-                        <th>Taxable EOY</th>
-                        <th>Traditional BOY</th>
-                        <th>Traditional Growth</th>
-                        <th>Traditional EOY</th>
-                        <th>Roth BOY</th>
-                        <th>Roth Growth</th>
-                        <th>Roth EOY</th>
-                        <th class="text-end">Total Contributions</th>
-                        <th class="text-end">Total Growth</th>
-                        <th class="text-end">Total EOY</th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable BOY</th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable Growth</th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxes</th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable EOY</th>
+
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional BOY</th>
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional Growth</th>
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional EOY</th>
+
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth BOY</th>
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth Growth</th>
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth EOY</th>
+
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total Contributions</th>
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total Growth</th>
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total EOY</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -401,19 +448,67 @@
                             <tr>
                                 <td>@r.Year</td>
                                 <td>@age</td>
-                                <td class="text-end">@FormatMoneySafe(r.TaxableBOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TaxableInterest)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TaxesPaid)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TaxableEOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TraditionalBOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TraditionalInterest)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TraditionalEOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.RothBOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.RothInterest)</td>
-                                <td class="text-end">@FormatMoneySafe(r.RothEOYBalance)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TotalContributions)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TotalGrowth)</td>
-                                <td class="text-end">@FormatMoneySafe(r.TotalEOYBalance)</td>
+
+                                <!-- Taxable columns -->
+                                <!-- Taxable columns with inline styles -->
+                                <td class="text-end col-taxable"
+                                    style="background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TaxableBOYBalance)
+                                </td>
+                                <td class="text-end col-taxable"
+                                    style="background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TaxableInterest)
+                                </td>
+                                <td class="text-end col-taxable"
+                                    style="background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TaxesPaid)
+                                </td>
+                                <td class="text-end col-taxable"
+                                    style="background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TaxableEOYBalance)
+                                </td>
+
+                                <!-- Traditional columns with inline styles -->
+                                <td class="text-end col-traditional"
+                                    style="background-color: rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TraditionalBOYBalance)
+                                </td>
+                                <td class="text-end col-traditional"
+                                    style="background-color: rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TraditionalInterest)
+                                </td>
+                                <td class="text-end col-traditional"
+                                    style="background-color: rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TraditionalEOYBalance)
+                                </td>
+
+                                <!-- Roth columns with inline styles -->
+                                <td class="text-end col-roth"
+                                    style="background-color: rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.RothBOYBalance)
+                                </td>
+                                <td class="text-end col-roth"
+                                    style="background-color: rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.RothInterest)
+                                </td>
+                                <td class="text-end col-roth"
+                                    style="background-color: rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.RothEOYBalance)
+                                </td>
+
+                                <!-- Totals columns with inline styles -->
+                                <td class="text-end col-totals"
+                                    style="background-color: rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TotalContributions)
+                                </td>
+                                <td class="text-end col-totals"
+                                    style="background-color: rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TotalGrowth)
+                                </td>
+                                <td class="text-end col-totals"
+                                    style="background-color: rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @FormatMoneySafe(r.TotalEOYBalance)
+                                </td>
                             </tr>
                         }
                     }
