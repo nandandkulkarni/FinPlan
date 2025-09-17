@@ -19,33 +19,46 @@ namespace FinPlan.Shared.Models.LivingCosts
         public string Category { get; set; } = string.Empty;
         public string Subcategory { get; set; } = string.Empty;
         public decimal CurrentValue { get; set; }
-        // How CurrentValue is expressed (monthly, yearly, etc.)
         public Frequency Frequency { get; set; } = Frequency.Monthly;
         public RetirementAdjustOption AdjustOption { get; set; } = RetirementAdjustOption.Same;
-        // Optional per-item inflation percent (e.g., 2.5 for 2.5%). If null, use global inflation.
         public decimal? PerItemInflationPercent { get; set; }
-        // Whether to use global inflation or the per-item percent
         public InflationSource PerItemInflationSource { get; set; } = InflationSource.UseGlobal;
-        // For CustomPercentage option: enter multiplier as percentage (e.g., 50 for 50%)
         public decimal CustomPercentage { get; set; } = 100m;
-        // For Manual option: specify the retirement monthly amount directly
         public decimal? ManualRetirementValue { get; set; }
         public bool IncludeInRetirement { get; set; } = true;
 
         // Convert CurrentValue (expressed in the configured Frequency) to a per-month amount
-        public decimal GetMonthlyEquivalent()
+        //public decimal GetMonthlyEquivalent()
+        //{
+        //    var amount = CurrentValue;
+        //    decimal perMonth = Frequency switch
+        //    {
+        //        Frequency.Monthly => amount,
+        //        Frequency.Yearly => amount / 12m,
+        //        Frequency.Quarterly => amount / 3m,
+        //        Frequency.BiWeekly => amount * 26m / 12m,
+        //        Frequency.Weekly => amount * 52m / 12m,
+        //        _ => amount
+        //    };
+        //    return Math.Round(perMonth, 2);
+        //}
+
+        public decimal GetMonthlyEquivalent
         {
-            var amount = CurrentValue;
-            decimal perMonth = Frequency switch
+            get
             {
-                Frequency.Monthly => amount,
-                Frequency.Yearly => amount / 12m,
-                Frequency.Quarterly => amount / 3m,
-                Frequency.BiWeekly => amount * 26m / 12m,
-                Frequency.Weekly => amount * 52m / 12m,
-                _ => amount
-            };
-            return Math.Round(perMonth, 2);
+                var amount = CurrentValue;
+                decimal perMonth = Frequency switch
+                {
+                    Frequency.Monthly => amount,
+                    Frequency.Yearly => amount / 12m,
+                    Frequency.Quarterly => amount / 3m,
+                    Frequency.BiWeekly => amount * 26m / 12m,
+                    Frequency.Weekly => amount * 52m / 12m,
+                    _ => amount
+                };
+                return Math.Round(perMonth, 2);
+            }
         }
 
         public decimal GetRetirementValue(int yearsToRetirement, decimal inflationRate)
@@ -64,7 +77,7 @@ namespace FinPlan.Shared.Models.LivingCosts
             }
 
             // Use the monthly-equivalent as the base for retirement projections
-            var baseMonthly = GetMonthlyEquivalent();
+            var baseMonthly = GetMonthlyEquivalent;
 
             return AdjustOption switch
             {

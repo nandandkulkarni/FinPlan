@@ -706,7 +706,7 @@
 
                                                     <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
                                                     <td class="text-end align-middle" style="width:140px;">
-                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</span>
+                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                                                     </td>
                                                     <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
                                                     <td class="text-center align-middle" style="width:160px;">
@@ -1563,7 +1563,7 @@
 
     private decimal TotalCurrent => Math.Round(Items.Sum(i => i.CurrentValue), 2);
 
-    private decimal TotalPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent()), 2);
+    private decimal TotalPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent), 2);
 
     private decimal TotalRetirement => Math.Round(Items.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate)), 2);
 

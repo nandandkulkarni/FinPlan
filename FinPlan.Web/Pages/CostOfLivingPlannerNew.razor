@@ -440,7 +440,7 @@
         <div class="col-12 col-md-8">
             <h3>Cost of Living Projection</h3>
             <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Totals update automatically.</p>
-            <b>Multi-city and City tiered plan coming soon</b>
+            @* <b>Multi-city and City tiered plan coming soon</b> *@
             <!-- Save status indicator -->
             <div class="d-flex align-items-center mb-2">
                 @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
@@ -490,31 +490,7 @@
                         }
                     </li>
                 }
-                @{
-                    // Show up to 3 ghost tabs (Plan B, C, D) if not already present
-                    // var ghostTabs = new List<string> { "City-B", "City-C", "City-D" };
-                    // foreach (var ghost in ghostTabs)
-                    // {
-                    //     if (!Tabs.Contains(ghost, StringComparer.OrdinalIgnoreCase))
-                    //     {
-                    //         <li class="nav-item ms-1">
-                    //             <button type="button" class="nav-link text-muted bg-light border-0" style="opacity:0.6; cursor:pointer;" title="Create this plan" @onclick="() => PromptCreateTab(ghost)">
-                    //                 @GetTabLabel(ghost)
-                    //             </button>
-                    //         </li>
-                    //     }
-                    // }
-                }
-                @* <li class="nav-item ms-2">
-                    <button type="button" class="nav-link btn btn-sm btn-primary rounded-pill px-3 fw-semibold" title="Add new tab" @onclick="AddNewTab" disabled="@(isAddingTab || isSaving)">
-                        <span class="bi bi-plus-lg me-1"></span> Add Plan/City
-                    </button>
-                </li> *@
-                @* <li class="nav-item ms-2">
-                    <button type="button" class="nav-link btn btn-sm btn-danger rounded-pill px-3 fw-semibold" title="Delete all saved plans" @onclick="ConfirmDeleteAll" disabled="@(isAddingTab || isSaving || isDeletingPlans)">
-                        <span class="bi bi-trash-fill me-1"></span> Delete All
-                    </button>
-                </li> *@
+          
             </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
@@ -535,39 +511,16 @@
                         </div>
 
                     </div>
-                    @* <div class="actions">
-                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
-                    </div> *@
-                </div>
+                  </div>
                 <br />
-                @* <div class="planner-strip bg-primary bg-opacity-10 rounded-3 px-3 py-3 mb-4 d-flex flex-wrap align-items-center gap-3"> *@
-                <!-- Years to Retirement -->
-                @* <div class="d-flex align-items-center gap-2">
-                    <span class="fw-semibold text-white">Years to Retirement:</span>
-                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="YearsToRetirement" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
-                </div>
-                <!-- Inflation Rate -->
-                <div class="d-flex align-items-center gap-2">
-                    <span class="fw-semibold text-white">Inflation Rate (%):</span>
-                    <InputNumber class="form-control form-control-sm" style="width:56px;" @bind-Value="InflationRate" @bind-Value:event="oninput" @onblur="() => ScheduleAutosave()" @onkeydown="(KeyboardEventArgs e) => HandleNumericKey(e)" />
-                </div>
-                <!-- Spacer to push next controls to right --> *@
-                @* <div class="flex-grow-1"></div>
-                    <!-- Add Category Button with divider and pill style -->
-                    <div class="d-flex align-items-center gap-2 ms-2">
-                        <span class="vr mx-2" style="height:32px; background:#e3e3e3; width:2px; display:inline-block;"></span>
-                        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;" type="button" @onclick="OpenAddCategoryModal" disabled="@isSaving">
-                            <span class="bi bi-plus-lg me-1"></span> Add Category
-                        </button> *@
-                @* </div> *@
-                @* </div> *@
+
 
 
                 <!-- Totals Strip: Current and Retirement side by side -->
                 <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
                     <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
                         <span class="totals-label">Current Total</span>
-                        <span class="totals-value">@FormatCurrency(TotalCurrent)</span>
+                        <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
                     </div>
                     <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
                         <span class="totals-label">Retirement Total</span>
@@ -643,7 +596,7 @@
                     @foreach (var group in groups)
                     {
                         var groupKey = group.Key ?? string.Empty;
-                        var groupCurrentTotal = group.Sum(i => i.CurrentValue);
+                        var groupCurrentTotal = group.Sum(i => i.GetMonthlyEquivalent);
                         var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
                         var expanded = !IsCollapsed(groupKey);
                         var collapseId = $"catCollapse_{catIdx}";
@@ -707,7 +660,7 @@
 
                                                     <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
                                                     <td class="text-end align-middle" style="width:140px;">
-                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent())</span>
+                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                                                     </td>
                                                     <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
                                                     <td class="text-center align-middle" style="width:160px;">
@@ -1564,7 +1517,7 @@
 
     private decimal TotalCurrent => Math.Round(Items.Sum(i => i.CurrentValue), 2);
 
-    private decimal TotalPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent()), 2);
+    private decimal TotalCurrentPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent), 2);
 
     private decimal TotalRetirement => Math.Round(Items.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate)), 2);
 
