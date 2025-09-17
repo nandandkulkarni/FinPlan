@@ -1,12 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
 @using FinPlan.Web.Components
 @using System.Globalization
 
 @if (Visible)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
-        <div class="modal-dialog modal-sm" role="document">
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.25); z-index:2000;"
+         role="dialog">
+        <!-- removed @onclick:stopPropagation (caused runtime InvalidCharacterError) -->
+        <div class="modal-dialog modal-sm" role="document" style="pointer-events:auto;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Assumptions</h5>
@@ -27,13 +32,17 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary btn-sm" @onclick="HandleClose">Cancel</button>
-                    <button class="btn btn-primary btn-sm" @onclick="HandleSave">Save</button>
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="HandleClose">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="HandleSave">Save</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal-backdrop fade show" style="z-index:1999;"></div>
+
+    @* Backdrop placed after modal; clicking it closes the dialog. Ensure its z-index is under the modal wrapper. *@
+    <div class="modal-backdrop fade show"
+         style="position:fixed; inset:0; z-index:1999;"
+         @onclick="HandleClose"></div>
 }
 
 @code {
@@ -45,7 +54,6 @@
 
     [Parameter]
     public decimal InflationRate { get; set; }
-
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -118,7 +126,6 @@
 
     private async Task HandleClose()
     {
-        Visible = false;
         if (OnClose.HasDelegate)
         {
             await OnClose.InvokeAsync();
