@@ -8,6 +8,7 @@
 @using FinPlan.Web.Components.Shared
 @using FinPlan.Web.Services
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Threading
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
@@ -18,13 +19,13 @@
 <PageTitle>Savings - Wealth Journey</PageTitle>
 
 <!-- Savings quick setup wizard (one page per section) -->
-<SavingsInputWizard 
-    Model="@calculatorModel" 
-    Visible="@showWizard" 
-    VisibleChanged="@(v => showWizard = v)" 
-    OnFinished="HandleWizardFinished" 
-    OnSave="SaveUserSavingsAsync" 
-    InitialStep="@wizardOpenStep" />
+<!-- Change OnSave binding so every save (including intermediate step saves) runs Save then Calculate -->
+<SavingsInputWizard Model="@calculatorModel"
+                    Visible="@showWizard"
+                    VisibleChanged="@(v => showWizard = v)"
+                    OnFinished="HandleWizardFinished"
+                    OnSave="@(async () => { await SaveUserSavingsAsync(); Calculate(); StateHasChanged(); })"
+                    InitialStep="@wizardOpenStep" />
 
 <style>
     :root {
@@ -394,24 +395,26 @@
                     {
                         foreach (var r in yearlyBreakdown)
                         {
+
                             var age = calculatorModel.CurrentAge + r.Year; // approximate
-                                                                           <tr>
-                                                                               <td>@r.Year</td>
-                                                                               <td>@age</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TaxableBOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TaxableInterest)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TaxesPaid)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TaxableEOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TraditionalBOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.Traditionalnterest)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TraditionalEOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.RothBOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.RothInterest)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.RothEOYBalance)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TotalContributions)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TotalGrowth)</td>
-                                                                               <td class="text-end">@FormatMoneySafe(r.TotalEOYBalance)</td>
-                                                                           </tr>
+
+                            <tr>
+                                <td>@r.Year</td>
+                                <td>@age</td>
+                                <td class="text-end">@FormatMoneySafe(r.TaxableBOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TaxableInterest)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TaxesPaid)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TaxableEOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TraditionalBOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TraditionalInterest)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TraditionalEOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.RothBOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.RothInterest)</td>
+                                <td class="text-end">@FormatMoneySafe(r.RothEOYBalance)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TotalContributions)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TotalGrowth)</td>
+                                <td class="text-end">@FormatMoneySafe(r.TotalEOYBalance)</td>
+                            </tr>
                         }
                     }
                 </tbody>
@@ -437,6 +440,7 @@
     private bool showRightDebug = false;
     private string calculatorType = "TestSavings_yours";
     private string userGuid = string.Empty;
+    private readonly SemaphoreSlim _calculateSemaphore = new(1, 1);
 
     protected override async Task OnInitializedAsync()
     {
@@ -454,18 +458,32 @@
             StateHasChanged();
         }
     }
-
-    private void Calculate()
+    // add this inside the existing @code { ... } block
+    private async Task Calculate()
     {
+        // forward to the async, semaphore-protected implementation
+        await CalculateAsync();
+    }
+
+    private async Task CalculateAsync()
+    {
+        await _calculateSemaphore.WaitAsync();
         try
         {
-            var calculator = new SavingsCalculationEngine();
-            results = calculator.Calculate(calculatorModel);
-            yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+            try
+            {
+                var calculator = new SavingsCalculationEngine();
+                results = calculator.Calculate(calculatorModel);
+                yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+            }
+            catch (Exception ex)
+            {
+                DebugService.AddMessage($"Calc error: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            DebugService.AddMessage($"Calc error: {ex.Message}");
+            _calculateSemaphore.Release();
         }
     }
 

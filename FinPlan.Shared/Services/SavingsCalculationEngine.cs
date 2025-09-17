@@ -64,7 +64,7 @@ namespace FinPlan.Shared.Services
                 totalTraditionalContributions += yearData.TraditionalContribution;
                 totalRothContributions += yearData.RothContribution;
                 totalTaxableInterest += yearData.TaxableInterest;
-                totalTraditionalInterest += yearData.Traditionalnterest;
+                totalTraditionalInterest += yearData.TraditionalInterest;
                 totalRothInterest += yearData.RothInterest;
                 totalQualifiedDividendIncome += yearData.QualifiedDividendIncome;
                 totalNonQualifiedIncome += yearData.NonQualifiedIncome;
@@ -306,7 +306,7 @@ namespace FinPlan.Shared.Services
 
                     TraditionalBOYBalance = Math.Round(traditionalBOYBalance, 2),
                     TraditionalContribution = Math.Round(yearlyTraditionalContribution, 2),
-                    Traditionalnterest = Math.Round(yearlyTraditionalInterest, 2),
+                    TraditionalInterest = Math.Round(yearlyTraditionalInterest, 2),
                     TraditionalEOYBalance = Math.Round(traditionalEOYBalance, 2),
 
                     RothBOYBalance = Math.Round(rothBOYBalance, 2),

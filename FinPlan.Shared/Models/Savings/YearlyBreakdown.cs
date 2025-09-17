@@ -3,11 +3,7 @@
     public class YearlyBreakdown
     {
         public int Year { get; set; }
-        //public decimal InterestEarned { get; set; }
-        ////public decimal ContributionsThisYear { get; set; }
-        //public decimal TaxDeferredBalance { get; set; }
-        //public decimal TaxableBalance { get; set; }
-        public decimal Traditionalnterest { get; set; }
+        public decimal TraditionalInterest { get; set; }
         public decimal TaxableInterest { get; set; }
         public decimal RothInterest { get; set; }
         public decimal TraditionalContribution { get; set; }
@@ -35,7 +31,7 @@
 
 
         public decimal TotalContributions => TaxableContribution + TraditionalContribution + RothContribution;
-        public decimal TotalGrowth => TaxableInterest + Traditionalnterest + RothInterest;
+        public decimal TotalGrowth => TaxableInterest + TraditionalInterest + RothInterest;
 
         public decimal TotalTaxesPaid=> TaxesPaid;
         public decimal TotalEOYBalance => TaxableEOYBalance + TraditionalEOYBalance + RothEOYBalance;

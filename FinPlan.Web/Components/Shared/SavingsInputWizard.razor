@@ -301,8 +301,25 @@
         }
     }
 
-    private void PrevwizardStep() { if (wizardStep > 1) wizardStep--; }
+    private async Task PrevwizardStep()
+    {
+        if (wizardStep > 1)
+        {
+            // persist current step to the model and notify parent
+            ApplyStepToModel(wizardStep);
+            try
+            {
+                if (OnSave.HasDelegate)
+                {
+                    await OnSave.InvokeAsync();
+                }
+            }
+            catch { /* swallow - original code ignored errors */ }
 
+            wizardStep--;
+            StateHasChanged();
+        }
+    }
     private async Task NextOrSubmit()
     {
         if (wizardStep < 6)
@@ -311,10 +328,19 @@
             if (wizardStep == 1 && modalRetirementAge <= 0) return;
 
             ApplyStepToModel(wizardStep);
+
+            // Await parent save so callers can run Calculate after save completes
+            try
+            {
+                if (OnSave.HasDelegate)
+                {
+                    await OnSave.InvokeAsync();
+                }
+            }
+            catch { }
+
             wizardStep++;
             StateHasChanged();
-
-            try { if (OnSave.HasDelegate) _ = OnSave.InvokeAsync(); } catch { }
             return;
         }
 
