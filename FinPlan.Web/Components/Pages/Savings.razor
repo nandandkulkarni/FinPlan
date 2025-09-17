@@ -134,8 +134,9 @@
         .section-card .actions {
             margin-top: auto; /* push to bottom of the card */
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start; /* left align actions */
             gap: 8px;
+            padding-top: 6px; /* extra breathing room above the Edit button */
         }
 
     .btn-edit {
@@ -273,7 +274,7 @@
                     <div class="panel section-panel">
                         <h4>Plan Sections</h4>
 
-                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;">
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                             <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
@@ -352,9 +353,9 @@
                             </div>
                         </div>
 
-                        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+                        @* <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
                             <button class="btn btn-primary" @onclick="SaveAndClose">Save & Close</button>
-                        </div>
+                        </div> *@
 
                         @if (results != null)
                         {
