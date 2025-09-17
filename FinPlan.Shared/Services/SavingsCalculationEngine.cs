@@ -5,6 +5,8 @@ namespace FinPlan.Shared.Services
 {
     public class SavingsCalculationEngine
     {
+        private readonly object _breakdownLock = new();
+
         private decimal GetOrdinaryTaxRate(TaxBracket bracket)
         {
             return bracket switch
@@ -216,117 +218,119 @@ namespace FinPlan.Shared.Services
 
         public List<YearlyBreakdown> GetYearlyBreakdown(SavingsCalculatorModel model)
         {
-            var breakdown = new List<YearlyBreakdown>();
-            decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
-            decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
-            var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) =
-                GetIncomeDistribution(model.TaxableIncomeType);
-
-            // Use independent monthly rates for each bucket
-            decimal monthlyRateTaxable = model.AnnualGrowthRateTaxable / 100m / 12m;
-            decimal monthlyRateTraditional = model.AnnualGrowthRateTraditional / 100m / 12m;
-            decimal monthlyRateRoth = model.AnnualGrowthRateRoth / 100m / 12m;
-
-            decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
-            decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
-            decimal monthlyRothContribution = model.MonthlyRothContribution;
-
-            for (int year = 1; year <= model.Years; year++)
+            lock (_breakdownLock)
             {
-                // Beginning-of-Year Balances
-                decimal rothBOYBalance = year == 1 ? model.InitialRothAmount : breakdown[year - 2].RothEOYBalance;
-                decimal taxableBOYBalance = year == 1 ? model.InitialTaxableAmount : breakdown[year - 2].TaxableEOYBalance;
-                decimal traditionalBOYBalance = year == 1 ? model.InitialTraditionalAmount : breakdown[year - 2].TraditionalEOYBalance;
+                var breakdown = new List<YearlyBreakdown>();
+                decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
+                decimal longTermGainsTaxRate = GetLongTermGainsTaxRate(model.TaxBracket);
+                var (qualifiedPercent, nonQualifiedPercent, longTermPercent, shortTermPercent) =
+                    GetIncomeDistribution(model.TaxableIncomeType);
 
-                // Roth
-                decimal yearlyRothInterest = 0;
-                decimal yearlyRothContribution = monthlyRothContribution * 12;
-                decimal rothEOYBalance = rothBOYBalance;
-                for (int month = 1; month <= 12; month++)
+                // Use independent monthly rates for each bucket
+                decimal monthlyRateTaxable = model.AnnualGrowthRateTaxable / 100m / 12m;
+                decimal monthlyRateTraditional = model.AnnualGrowthRateTraditional / 100m / 12m;
+                decimal monthlyRateRoth = model.AnnualGrowthRateRoth / 100m / 12m;
+
+                decimal monthlyTaxableContribution = model.MonthlyTaxableContribution;
+                decimal monthlyTraditionalContribution = model.MonthlyTraditionalContribution;
+                decimal monthlyRothContribution = model.MonthlyRothContribution;
+
+                for (int year = 1; year <= model.Years; year++)
                 {
-                    decimal rothMonthlyGrowth = rothEOYBalance * monthlyRateRoth;
-                    yearlyRothInterest += rothMonthlyGrowth;
-                    rothEOYBalance += rothMonthlyGrowth + monthlyRothContribution;
+                    // Beginning-of-Year Balances
+                    decimal rothBOYBalance = year == 1 ? model.InitialRothAmount : breakdown[year - 2].RothEOYBalance;
+                    decimal taxableBOYBalance = year == 1 ? model.InitialTaxableAmount : breakdown[year - 2].TaxableEOYBalance;
+                    decimal traditionalBOYBalance = year == 1 ? model.InitialTraditionalAmount : breakdown[year - 2].TraditionalEOYBalance;
+
+                    // Roth
+                    decimal yearlyRothInterest = 0;
+                    decimal yearlyRothContribution = monthlyRothContribution * 12;
+                    decimal rothEOYBalance = rothBOYBalance;
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        decimal rothMonthlyGrowth = rothEOYBalance * monthlyRateRoth;
+                        yearlyRothInterest += rothMonthlyGrowth;
+                        rothEOYBalance += rothMonthlyGrowth + monthlyRothContribution;
+                    }
+
+                    // Traditional (Tax-Deferred)
+                    decimal yearlyTraditionalInterest = 0;
+                    decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
+                    decimal traditionalEOYBalance = traditionalBOYBalance;
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        decimal monthlyInterest = traditionalEOYBalance * monthlyRateTraditional;
+                        yearlyTraditionalInterest += monthlyInterest;
+                        traditionalEOYBalance += monthlyInterest + monthlyTraditionalContribution;
+                    }
+
+                    // Taxable
+                    decimal yearlyTaxableInterest = 0;
+                    decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
+                    decimal taxableEOYBalance = taxableBOYBalance;
+
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        decimal monthlyInterest = taxableEOYBalance * monthlyRateTaxable;
+                        yearlyTaxableInterest += monthlyInterest;
+                        taxableEOYBalance += monthlyInterest + monthlyTaxableContribution;
+                    }
+
+                    // Taxes
+                    decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
+                    decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
+                    decimal longTermGains = yearlyTaxableInterest * longTermPercent;
+                    decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
+
+                    decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate;
+                    decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
+                    decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
+                    decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
+
+                    decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
+
+                    taxableEOYBalance -= yearlyTaxes;
+
+                    // Totals
+                    decimal totalBalance = taxableEOYBalance + traditionalEOYBalance + rothEOYBalance;
+                    decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
+                    decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
+
+                    breakdown.Add(new YearlyBreakdown
+                    {
+                        Year = year,
+                        //Balance = Math.Round(totalBalance, 2),
+                        //InterestEarned = Math.Round(totalYearlyInterest, 2),
+                        //ContributionsThisYear = totalYearlyContributions,
+
+                        TaxableBOYBalance = Math.Round(taxableBOYBalance, 2),
+                        TaxableContribution = Math.Round(yearlyTaxableContribution, 2),
+                        TaxableInterest = Math.Round(yearlyTaxableInterest, 2),
+                        TaxableEOYBalance = Math.Round(taxableEOYBalance, 2),
+
+                        TraditionalBOYBalance = Math.Round(traditionalBOYBalance, 2),
+                        TraditionalContribution = Math.Round(yearlyTraditionalContribution, 2),
+                        TraditionalInterest = Math.Round(yearlyTraditionalInterest, 2),
+                        TraditionalEOYBalance = Math.Round(traditionalEOYBalance, 2),
+
+                        RothBOYBalance = Math.Round(rothBOYBalance, 2),
+                        RothContribution = Math.Round(yearlyRothContribution, 2),
+                        RothInterest = Math.Round(yearlyRothInterest, 2),
+                        RothEOYBalance = Math.Round(rothEOYBalance, 2),
+
+                        QualifiedDividendIncome = Math.Round(qualifiedDividends, 2),
+                        NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
+                        LongTermGains = Math.Round(longTermGains, 2),
+                        ShortTermGains = Math.Round(shortTermGains, 2),
+                        TaxesPaid = Math.Round(yearlyTaxes, 2),
+
+
+
+                    });
                 }
 
-                // Traditional (Tax-Deferred)
-                decimal yearlyTraditionalInterest = 0;
-                decimal yearlyTraditionalContribution = monthlyTraditionalContribution * 12;
-                decimal traditionalEOYBalance = traditionalBOYBalance;
-                for (int month = 1; month <= 12; month++)
-                {
-                    decimal monthlyInterest = traditionalEOYBalance * monthlyRateTraditional;
-                    yearlyTraditionalInterest += monthlyInterest;
-                    traditionalEOYBalance += monthlyInterest + monthlyTraditionalContribution;
-                }
-
-                // Taxable
-                decimal yearlyTaxableInterest = 0;
-                decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
-                decimal taxableEOYBalance = taxableBOYBalance;
-
-                for (int month = 1; month <= 12; month++)
-                {
-                    decimal monthlyInterest = taxableEOYBalance * monthlyRateTaxable;
-                    yearlyTaxableInterest += monthlyInterest;
-                    taxableEOYBalance += monthlyInterest + monthlyTaxableContribution;
-                }
-
-                // Taxes
-                decimal qualifiedDividends = yearlyTaxableInterest * qualifiedPercent;
-                decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
-                decimal longTermGains = yearlyTaxableInterest * longTermPercent;
-                decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
-
-                decimal qualifiedDividendsTax = qualifiedDividends * longTermGainsTaxRate;
-                decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
-                decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
-                decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
-
-                 decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
-
-                taxableEOYBalance -= yearlyTaxes;
-
-                // Totals
-                decimal totalBalance = taxableEOYBalance + traditionalEOYBalance + rothEOYBalance;
-                decimal totalYearlyInterest = yearlyTaxableInterest + yearlyTraditionalInterest + yearlyRothInterest - yearlyTaxes;
-                decimal totalYearlyContributions = yearlyTaxableContribution + yearlyTraditionalContribution + yearlyRothContribution;
-
-                breakdown.Add(new YearlyBreakdown
-                {
-                    Year = year,
-                    //Balance = Math.Round(totalBalance, 2),
-                    //InterestEarned = Math.Round(totalYearlyInterest, 2),
-                    //ContributionsThisYear = totalYearlyContributions,
-
-                    TaxableBOYBalance = Math.Round(taxableBOYBalance, 2),
-                    TaxableContribution = Math.Round(yearlyTaxableContribution, 2),
-                    TaxableInterest = Math.Round(yearlyTaxableInterest - yearlyTaxes, 2),
-                    TaxableEOYBalance = Math.Round(taxableEOYBalance, 2),
-
-                    TraditionalBOYBalance = Math.Round(traditionalBOYBalance, 2),
-                    TraditionalContribution = Math.Round(yearlyTraditionalContribution, 2),
-                    TraditionalInterest = Math.Round(yearlyTraditionalInterest, 2),
-                    TraditionalEOYBalance = Math.Round(traditionalEOYBalance, 2),
-
-                    RothBOYBalance = Math.Round(rothBOYBalance, 2),
-                    RothContribution = Math.Round(yearlyRothContribution, 2),
-                    RothInterest = Math.Round(yearlyRothInterest, 2),
-                    RothEOYBalance = Math.Round(rothEOYBalance, 2),
-
-                    QualifiedDividendIncome = Math.Round(qualifiedDividends, 2),
-                    NonQualifiedIncome = Math.Round(nonQualifiedIncome, 2),
-                    LongTermGains = Math.Round(longTermGains, 2),
-                    ShortTermGains = Math.Round(shortTermGains, 2),
-                    TaxesPaid = Math.Round(yearlyTaxes, 2),
-
-
-
-                });
+                return breakdown;
             }
-
-            return breakdown;
         }
     }
-
 }
