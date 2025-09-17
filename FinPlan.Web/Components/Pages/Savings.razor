@@ -413,24 +413,90 @@
             <table class="table table-sm table-bordered" aria-label="Yearly projection">
                 <thead class="table-light">
                     <tr>
-                        <th>Year</th>
-                        <th>Age</th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable BOY</th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable Growth</th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxes</th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700;">Taxable EOY</th>
+                        <th style="text-align:right; width:120px; padding:18px 12px; font-size:1.0rem;">Year</th>
+                        <th style="text-align:right; width:90px; padding:18px 12px; font-size:1.0rem;">Age</th>
 
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional BOY</th>
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional Growth</th>
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700;">Traditional EOY</th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">BOY</span>
+                            </div>
+                        </th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                            </div>
+                        </th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Tax</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Paid</span>
+                            </div>
+                        </th>
+                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">EOY</span>
+                            </div>
+                        </th>
 
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth BOY</th>
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth Growth</th>
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700;">Roth EOY</th>
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">BOY</span>
+                            </div>
+                        </th>
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                            </div>
+                        </th>
+                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">EOY</span>
+                            </div>
+                        </th>
 
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total Contributions</th>
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total Growth</th>
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700;">Total EOY</th>
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">BOY</span>
+                            </div>
+                        </th>
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                            </div>
+                        </th>
+                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">EOY</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contributions</span>
+                            </div>
+                        </th>
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                            </div>
+                        </th>
+                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">EOY</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
