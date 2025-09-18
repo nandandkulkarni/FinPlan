@@ -207,6 +207,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
+                    <button type="button" class="btn btn-success" @onclick="SaveAndClose">Save & Close</button>
                     <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Finish" : "Next")</button>
                 </div>
             </div>
@@ -311,6 +312,16 @@
             await OnFinished.InvokeAsync((Model.RetirementAgeYou, Model.RetirementAgePartner));
         }
 
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+        wizardStep = 1;
+    }
+
+    private async Task SaveAndClose()
+    {
+        // ensure derived fields are synced and ask parent to save, then close the modal
+        TrySyncModel();
+        await InvokeOnSaveSafe();
         Visible = false;
         await VisibleChanged.InvokeAsync(false);
         wizardStep = 1;
