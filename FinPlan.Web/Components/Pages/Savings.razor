@@ -315,8 +315,8 @@
                                         <div>Monthly Contributions</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
@@ -364,7 +364,8 @@
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
                                     <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%,", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4><p class="mb-0">Growth (Taxable/Traditional/Roth)</p></div></div></div>
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
+                                    @* <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%,", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4><p class="mb-0">Growth (Taxable/Traditional/Roth)</p></div></div></div> *@
                                 </div>
                             </div>
                         }
