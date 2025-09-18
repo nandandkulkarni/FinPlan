@@ -609,25 +609,126 @@
 
         <div class="grid">
             <table aria-label="Yearly grid wireframe">
-                <thead>
+                <thead class="table-light">
                     <tr>
-                        <th class="col-year">Year</th>
-                        <th class="col-age">Age You</th>
-                        <th class="col-age">Age Partner</th>
-                        <th class="col-milestones">Milestones</th>
-                        <th class="text-end">Amount Needed</th>
-                        <th>SS (You)</th>
-                        <th>SS (Partner)</th>
-                        <th>Reverse Mortgage</th>
-                        <th>Withdrawal Taxable</th>
-                        <th>Withdrawal Traditional</th>
-                        <th>Withdrawal Roth</th>
-                        <th>Taxes Paid</th>
-                        <th>Growth</th>
-                        <th>Ending Taxable</th>
-                        <th>Ending Traditional</th>
-                        <th>Ending Roth</th>
-                        <th>Notes</th>
+                        <th class="col-year" style="text-align:right; width:120px; padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);"></span>
+                            </div>
+                        </th>
+
+                        <th class="col-age" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Age</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">You</span>
+                            </div>
+                        </th>
+
+                        <th class="col-age" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Age</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Partner</span>
+                            </div>
+                        </th>
+
+                        <th class="col-milestones" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);"></span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount Needed</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);"></span>
+                            </div>
+                        </th>
+
+                        <th style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">SS</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">You</span>
+                            </div>
+                        </th>
+
+                        <th style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">SS</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Partner</span>
+                            </div>
+                        </th>
+
+                        <th style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Mortgage</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#1F6FEB;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Taxable</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#38B2AC;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Traditional</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#6D5DFC;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Roth</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#F56565;">Taxes</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Paid</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);"></span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#1F6FEB;">Ending</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Taxable</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#38B2AC;">Ending</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Traditional</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#6D5DFC;">Ending</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Roth</span>
+                            </div>
+                        </th>
+
+                        <th style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Notes</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);"></span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -639,18 +740,67 @@
                             <td class="col-age">@row.AgeYou</td>
                             <td class="col-age">@row.AgePartner</td>
                             <td class="col-milestones">@row.Milestone</td>
-                            <td class="money-cell">@row.AmountNeeded.ToString("C0")</td>
-                            <td class="money-cell">@row.SSYou.ToString("C0")</td>
-                            <td class="money-cell">@row.SSPartner.ToString("C0")</td>
-                            <td class="money-cell">@row.ReverseMortgage.ToString("C0")</td>
-                            <td class="money-cell">@row.TaxableWithdrawal.ToString("C0")</td>
-                            <td class="money-cell">@row.TraditionalWithdrawal.ToString("C0")</td>
-                            <td class="money-cell">@row.RothWithdrawal.ToString("C0")</td>
-                            <td class="money-cell">@row.TaxesPaid.ToString("C0")</td>
-                            <td class="money-cell">@row.Growth.ToString("C0")</td>
-                            <td class="money-cell">@row.EndingTaxable.ToString("C0")</td>
-                            <td class="money-cell">@row.EndingTraditional.ToString("C0")</td>
-                            <td class="money-cell">@row.EndingRoth.ToString("C0")</td>
+
+                            <td class="text-end col-totals"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.AmountNeeded.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.SSYou.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.SSPartner.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.ReverseMortgage.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.TaxableWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-traditional"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.TraditionalWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-roth"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.RothWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="color:#F56565; font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.TaxesPaid.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-totals"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.Growth.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-taxable"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.EndingTaxable.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-traditional"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.EndingTraditional.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-roth"
+                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.EndingRoth.ToString("C0")
+                            </td>
+
                             <td>@row.Notes</td>
                         </tr>
                     }
