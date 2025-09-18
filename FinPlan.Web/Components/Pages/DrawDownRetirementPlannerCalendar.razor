@@ -74,23 +74,24 @@
 
     /* Section card variant used inside the Plan Sections grid */
     .section-card {
-        border: 1px solid #d6dbe0; /* slightly darker professional border */
+        /* darker border for stronger separation from the background */
+        border: 1px solid rgba(16,24,36,0.12);
         padding: 10px;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        min-height: 92px; /* keep cards a consistent minimum height */
+        min-height: 92px;
         background: #fff;
     }
 
-    .section-card .actions {
-        margin-top: auto; /* push to bottom of the card */
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-    }
+        .section-card .actions {
+            margin-top: auto; /* push to bottom of the card */
+            display: flex;
+            justify-content: flex-start; /* left align actions */
+            gap: 8px;
+            padding-top: 6px; /* extra breathing room above the Edit button */
+        }
 
-    /* professional-looking edit button */
     .btn-edit {
         background: #1F6FEB; /* professional blue */
         color: #ffffff;
@@ -100,6 +101,7 @@
         cursor: pointer;
         font-weight: 600;
     }
+
 
     /* Highlighted rectangular panel with yellow border and subtle shadow */
     .section-panel {
@@ -468,9 +470,9 @@
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
                     <div class="panel section-panel">
-                        <h4>Plan Sections</h4>
+                        <h4>Plan Input Data</h4>
 
-                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;">
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                             @* Section 1: Retirement ages & life expectancy *@
                             <div class="section-card">
                                 <div>
@@ -552,17 +554,12 @@
                                         <div>Current ages & simulation</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou; Partner: @Model.CurrentAgePartner</div>
-                                    <div class="small-note">Projection start year: @Model.SimulationStartYear; Auto-calc: @(Model.AutoCalculate ? "Yes" : "No")</div>
+                                    <div class="small-note">Projection start year: @Model.SimulationStartYear; </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
                                 </div>
                             </div>
-                        </div>
-
-                        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
-                            <button class="btn btn-primary" @onclick="SaveAndClose">Save & Close</button>
-                            @* <button class="btn btn-ghost" @onclick="Calculate">Calculate</button> *@
                         </div>
                     </div>
                 </div>
