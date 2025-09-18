@@ -1,4 +1,5 @@
 ﻿@using FinPlan.Shared.Models
+@using FinPlan.Shared.Models.Spending
 @using Microsoft.AspNetCore.Components
 @using System.Reflection
 
@@ -49,123 +50,113 @@
                     @if (wizardStep == 1)
                     {
                         <label class="form-label">When do you plan to retire? (age)</label>
-                        <div class="row g-2">
+                        <div class="row g-2 mt-3">
                             <div class="col-md-6">
-                                <input class="form-control" type="number" @bind="modalRetirementAgeYou" min="40" max="80" />
-                                <div class="small-note">Your planned retirement age.</div>
+                                <label class="form-label">Retirement age (You)</label>
+                                <input class="form-control" type="number" @bind="Model.RetirementAgeYou" min="40" max="120" />
                             </div>
                             <div class="col-md-6">
-                                <input class="form-control" type="number" @bind="modalRetirementAgePartner" min="40" max="80" />
-                                <div class="small-note">Partner planned retirement age (optional).</div>
+                                <label class="form-label">Retirement age (Partner)</label>
+                                <input class="form-control" type="number" @bind="Model.RetirementAgePartner" min="40" max="120" />
                             </div>
                         </div>
 
                         <div class="row g-2 mt-3">
                             <div class="col-md-6">
-                                <label class="form-label">Life expectancy (age)</label>
-                                <input class="form-control" type="number" @bind="modalLifeExpectancyYou" min="55" max="120" />
-                                <div class="small-note">Default is 100. This is the age used to stop the simulation for you.</div>
+                                <label class="form-label">Life expectancy (age, optional)</label>
+                                <input class="form-control" type="number" @bind="LifeExpectancyAgeYou" min="55" max="120" />
+                                <div class="small-note">Default is computed from model. This controls simulation end age for you.</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Partner life expectancy (age, optional)</label>
-                                <input class="form-control" type="number" @bind="modalLifeExpectancyPartner" min="55" max="120" />
-                                <div class="small-note">Optional — leave blank to use same life expectancy as you.</div>
+                                <input class="form-control" type="number" @bind="LifeExpectancyAgePartner" min="55" max="120" />
+                                <div class="small-note">Leave blank (0) to use same life expectancy as you.</div>
                             </div>
                         </div>
-
-                        <div class="small-note mt-2">Typical retirement ages: 60–67. Enter the age you expect to stop working.</div>
                     }
                     else if (wizardStep == 2)
                     {
-                        <label class="form-label">Starting Balances & expected return</label>
+                        <label class="form-label">Starting Balances & Expected return</label>
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <label class="form-label">Post-Tax Balance ($)</label>
-                                <input class="form-control" type="number" @bind="modalTaxable" step="1" min="0" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Expected Return (%)</label>
-                                <input class="form-control" type="number" @bind="modalTaxableReturn" step="0.1" min="-50" max="50" />
+                                <input class="form-control" type="number" @bind="Model.TaxableBalance" step="1000" min="0" />
                             </div>
                         </div>
 
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <label class="form-label">Traditional Balance ($)</label>
-                                <input class="form-control" type="number" @bind="modalTraditional" step="1" min="0" />
+                                <input class="form-control" type="number" @bind="Model.TraditionalBalance" step="1000" min="0" />
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Expected Return (%)</label>
-                                <input class="form-control" type="number" @bind="modalTraditionalReturn" step="0.1" min="-50" max="50" />
-                            </div>
+
                         </div>
 
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <label class="form-label">Roth Balance ($)</label>
-                                <input class="form-control" type="number" @bind="modalRoth" step="1" min="0" />
+                                <input class="form-control" type="number" @bind="Model.RothBalance" step="1000" min="0" />
                             </div>
+                        </div>
+                        <div class="row mb-2">
                             <div class="col-md-6">
-                                <label class="form-label">Expected Return (%)</label>
-                                <input class="form-control" type="number" @bind="modalRothReturn" step="0.1" min="-50" max="50" />
+                                <label class="form-label">Average Expected Return (%)</label>
+                                <input class="form-control" type="number" @bind="Model.InvestmentReturn" step="0.1" min="-50" max="50" />
                             </div>
                         </div>
-
-                        <div class="mt-3 p-2" style="background:#f8f9fa; border-radius:6px;">
-                            <strong>Total starting savings:</strong> @TotalSavings.ToString("C0")
-                            <div class="small-note">Breakdown: @GetBreakdownText()</div>
-                            <div class="small-note mt-1">Tip: Returns vary by asset mix; enter conservative estimates.</div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Average Expected Inflation (%)</label>
+                                <input class="form-control" type="number" @bind="Model.InflationRate" step="0.1" min="-50" max="50" />
+                            </div>
                         </div>
+         
                     }
                     else if (wizardStep == 3)
                     {
                         <label class="form-label">Social Security</label>
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">SS Start Age (You) <span title="Age you expect to begin receiving Social Security benefits." style="cursor:help">🛈</span></label>
-                                <input class="form-control" type="number" @bind="modalSSStartAgeYou" min="50" max="100" />
+                                <label class="form-label">SS Start Age (You)</label>
+                                <input class="form-control" type="number" @bind="Model.SSStartAgeYou" min="50" max="100" />
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Expected SS monthly (You) <span title="Estimated monthly Social Security benefit for you." style="cursor:help">🛈</span></label>
-                                <input class="form-control" type="number" @bind="modalSSMonthlyYou" step="1" min="0" />
+                                <label class="form-label">Expected SS monthly (You)</label>
+                                <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyYou" step="100" min="0" />
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">SS Start Age (Partner) <span title="Age partner expects to begin receiving Social Security benefits." style="cursor:help">🛈</span></label>
-                                <input class="form-control" type="number" @bind="modalSSStartAgePartner" min="50" max="100" />
+                                <label class="form-label">SS Start Age (Partner)</label>
+                                <input class="form-control" type="number" @bind="Model.SSStartAgePartner" min="50" max="100" />
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Expected SS monthly (Partner) <span title="Estimated monthly Social Security benefit for partner." style="cursor:help">🛈</span></label>
-                                <input class="form-control" type="number" @bind="modalSSMonthlyPartner" step="1" min="0" />
+                                <label class="form-label">Expected SS monthly (Partner)</label>
+                                <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyPartner" step="100" min="0" />
                             </div>
                         </div>
 
-                        <div class="mt-3 p-2" style="background:#f8f9fa; border-radius:6px;">
-                            <strong>Estimate:</strong>
-                            <div class="small-note">Combined SS monthly: @((modalSSMonthlyYou + modalSSMonthlyPartner).ToString("C0")) — consider delaying SS to increase benefit if you can cover expenses from savings.</div>
-                        </div>
                     }
                     else if (wizardStep == 4)
                     {
                         <label class="form-label">Reverse mortgage & withdrawals</label>
                         <div class="mb-2 form-check">
-                            <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="modalReverseMortgageEnabled" />
+                            <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="ReverseMortgageEnabled" />
                             <label class="form-check-label" for="rmEnabled">Enable reverse mortgage</label>
                             <div class="small-note">If enabled, reverse mortgage income will begin at the age below for the primary person.</div>
                         </div>
 
-                        @if (modalReverseMortgageEnabled)
+                        @if (ReverseMortgageEnabled)
                         {
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label">Reverse mortgage start age (you)</label>
-                                    <input class="form-control" type="number" @bind="modalReverseMortgageStartAge" min="60" max="120" />
+                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageStartAge" min="60" max="120" />
                                     <div class="small-note">Age when primary person starts receiving reverse mortgage proceeds.</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Reverse mortgage monthly ($)</label>
-                                    <input class="form-control" type="number" @bind="modalReverseMortgageMonthly" step="1" min="0" />
+                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageMonthly" step="1" min="0" />
                                 </div>
                             </div>
                         }
@@ -175,45 +166,57 @@
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <label class="form-label">Planned Annual Withdrawal: One Retired</label>
-                                <input class="form-control" type="number" @bind="modalAnnualWithdrawalOne" step="1" min="0" />
+                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalOne" step="1" min="0" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Planned Annual Withdrawal: Both Retired</label>
-                                <input class="form-control" type="number" @bind="modalAnnualWithdrawalBoth" step="1" min="0" />
+                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalBoth" step="1" min="0" />
                             </div>
                         </div>
                     }
                     else if (wizardStep == 6)
                     {
 
-                        <label class="form-label">Current Age</label>
+                        <label class="form-label">Current Age / Simulation</label>
 
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <label class="form-label">Your current age (OPTIONAL)</label>
-                                <input class="form-control" type="number" @bind="modalAgeYou" min="0" />
-                                <div class="small-note">Optional — enter current age to display calendar year in the simulation.</div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <input class="form-control" type="number" @bind="Model.CurrentAgeYou" min="40" />
+                                        <div class="small-note">Your current age.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input class="form-control" type="number" @bind="Model.CurrentAgePartner" min="0" />
+                                        <div class="small-note">Partner current age (optional).</div>
+                                    </div>
+                                </div>
+                                <label class="form-label">Projection start year</label>
+                                <input class="form-control" type="number" @bind="Model.SimulationStartYear" />
+                                <div class="small-note">Optional — enter start year for the simulation.</div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Partner current age (OPTIONAL)</label>
-                                <input class="form-control" type="number" @bind="modalAgePartner" min="0" />
-                                <div class="small-note">Optional — enter current age to display calendar year in the simulation.</div>
-                            </div>
+                            @* <div class="col-md-6">
+                                <label class="form-label">Auto calculate simulation start</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoCalc" @bind="Model.AutoCalculate" />
+                                    <label class="form-check-label" for="autoCalc">Auto calculate start year</label>
+                                </div>
+                            </div> *@
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
-                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmitAge">@(wizardStep == 6 ? "Finish" : "Next")</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Finish" : "Next")</button>
                 </div>
-             </div>
-         </div>
-     </div>
- }
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]
-    public object? Model { get; set; }
+    public CalendarSpendingModel? Model { get; set; }
 
     [Parameter]
     public bool Visible { get; set; }
@@ -233,52 +236,17 @@
     public int InitialStep { get; set; } = 1;
 
     private int wizardStep = 1;
-    private int modalRetirementAgeYou = 0;
-    private int modalRetirementAgePartner = 0;
-    private int modalAgeYou = 0;
-    private int modalAgePartner = 0;
-    private int modalLifeExpectancyYou = 100;
-    private int modalLifeExpectancyPartner = 100;
-
-    // balances
-    private decimal modalTaxable = 0m;
-    private decimal modalTraditional = 0m;
-    private decimal modalRoth = 0m;
-
-    // per-account returns
-    private decimal modalTaxableReturn = 5.0m;
-    private decimal modalTraditionalReturn = 5.0m;
-    private decimal modalRothReturn = 5.0m;
-
-    // social security
-    private int modalSSStartAgeYou = 67;
-    private int modalSSStartAgePartner = 67;
-    private decimal modalSSMonthlyYou = 0m;
-    private decimal modalSSMonthlyPartner = 0m;
-
-    // reverse mortgage
-    private bool modalReverseMortgageEnabled = false;
-    private int modalReverseMortgageStartAge = 0;
-    private decimal modalReverseMortgageMonthly = 0m;
-
-    // annual withdrawals
-    private decimal modalAnnualWithdrawalOne = 0m;
-    private decimal modalAnnualWithdrawalBoth = 0m;
-
-    // assumptions
-    private decimal modalInflation = 2.5m;
-    private decimal modalTraditionalTaxRate = 22m;
-    private string modalWithdrawalStrategy = "InflationAdjusted";
-    private string modalPriorityStrategy = "TaxOptimized";
-
-    private decimal TotalSavings => modalTaxable + modalTraditional + modalRoth;
-
-    // track previous visible state and last initial step to avoid resetting wizardStep during normal updates
     private bool _wasVisible = false;
     private int _lastInitialStep = 1;
 
     protected override void OnParametersSet()
     {
+        // ensure we have a concrete model to bind to
+        if (Model == null)
+        {
+            Model = new CalendarSpendingModel();
+        }
+
         // Only set wizardStep when the modal becomes visible or when InitialStep changes explicitly.
         if (Visible)
         {
@@ -303,554 +271,145 @@
         }
 
         _wasVisible = Visible;
-
-        // If a model was passed and has sensible values, prefill inputs (best-effort)
-        if (Model != null)
-        {
-            try
-            {
-                var t = Model.GetType();
-
-                // Retirement age prefilling
-                var pRetireYou = t.GetProperty("RetirementAgeYou") ?? t.GetProperty("RetirementAge");
-                if (pRetireYou != null)
-                {
-                    var v = pRetireYou.GetValue(Model);
-                    if (v is int ri) modalRetirementAgeYou = ri;
-                }
-
-                var pRetirePartner = t.GetProperty("RetirementAgePartner") ?? t.GetProperty("RetirementAge2");
-                if (pRetirePartner != null)
-                {
-                    var v = pRetirePartner.GetValue(Model);
-                    if (v is int rp) modalRetirementAgePartner = rp;
-                }
-
-                var propYou = t.GetProperty("CurrentAgeYou") ?? t.GetProperty("CurrentAge");
-                if (propYou != null)
-                {
-                    var val = propYou.GetValue(Model);
-                    if (val is int y && y > 0) modalAgeYou = y;
-                }
-
-                var propPartner = t.GetProperty("CurrentAgePartner") ?? t.GetProperty("PartnerCurrentAge");
-                if (propPartner != null)
-                {
-                    var val = propPartner.GetValue(Model);
-                    if (val is int p && p > 0) modalAgePartner = p;
-                }
-
-                // Prefill life expectancy defaults from model where possible
-                var pLife = t.GetProperty("LifeExpectancy");
-                if (pLife != null)
-                {
-                    var v = pLife.GetValue(Model);
-                    if (v is int le) modalLifeExpectancyYou = le;
-                }
-
-                var pLifeYou = t.GetProperty("LifeExpectancyYou");
-                if (pLifeYou != null)
-                {
-                    var v = pLifeYou.GetValue(Model);
-                    if (v is int ly)
-                    {
-                        // If model stores a year (e.g. 2090), convert to age when possible
-                        if (ly > 1900)
-                        {
-                            var currentAge = modalAgeYou > 0 ? modalAgeYou : 0;
-                            modalLifeExpectancyYou = currentAge > 0 ? currentAge + (ly - DateTime.Now.Year) : 100;
-                        }
-                        else
-                        {
-                            modalLifeExpectancyYou = ly;
-                        }
-                    }
-                }
-
-                var pLifePartner = t.GetProperty("LifeExpectancyPartner");
-                if (pLifePartner != null)
-                {
-                    var v = pLifePartner.GetValue(Model);
-                    if (v is int lp)
-                    {
-                        if (lp > 1900)
-                        {
-                            var currentAgeP = modalAgePartner > 0 ? modalAgePartner : 0;
-                            modalLifeExpectancyPartner = currentAgeP > 0 ? currentAgeP + (lp - DateTime.Now.Year) : 100;
-                        }
-                        else
-                        {
-                            modalLifeExpectancyPartner = lp;
-                        }
-                    }
-                }
-
-                // Try to prefill balances if properties exist
-                var pTax = t.GetProperty("TaxableBalance");
-                if (pTax != null)
-                {
-                    var v = pTax.GetValue(Model);
-                    if (v is decimal d) modalTaxable = d;
-                    else if (v is double db) modalTaxable = (decimal)db;
-                    else if (v is int iv) modalTaxable = iv;
-                }
-                var pTrad = t.GetProperty("TraditionalBalance");
-                if (pTrad != null)
-                {
-                    var v = pTrad.GetValue(Model);
-                    if (v is decimal d) modalTraditional = d;
-                    else if (v is double db) modalTraditional = (decimal)db;
-                    else if (v is int iv) modalTraditional = iv;
-                }
-                var pRoth = t.GetProperty("RothBalance");
-                if (pRoth != null)
-                {
-                    var v = pRoth.GetValue(Model);
-                    if (v is decimal d) modalRoth = d;
-                    else if (v is double db) modalRoth = (decimal)db;
-                    else if (v is int iv) modalRoth = iv;
-                }
-
-                // Try to prefill per-account returns if available
-                var pTaxReturn = t.GetProperty("TaxableReturn") ?? t.GetProperty("TaxableExpectedReturn");
-                if (pTaxReturn != null)
-                {
-                    var v = pTaxReturn.GetValue(Model);
-                    if (v is decimal d) modalTaxableReturn = d;
-                    else if (v is double db) modalTaxableReturn = (decimal)db;
-                }
-                var pTradReturn = t.GetProperty("TraditionalReturn") ?? t.GetProperty("TraditionalExpectedReturn");
-                if (pTradReturn != null)
-                {
-                    var v = pTradReturn.GetValue(Model);
-                    if (v is decimal d) modalTraditionalReturn = d;
-                    else if (v is double db) modalTraditionalReturn = (decimal)db;
-                }
-                var pRothReturn = t.GetProperty("RothReturn") ?? t.GetProperty("RothExpectedReturn");
-                if (pRothReturn != null)
-                {
-                    var v = pRothReturn.GetValue(Model);
-                    if (v is decimal d) modalRothReturn = d;
-                    else if (v is double db) modalRothReturn = (decimal)db;
-                }
-
-                // Social security
-                var pSSStartYou = t.GetProperty("SocialSecurityMonthlyYou") ?? t.GetProperty("SSStartAgeYou") ?? t.GetProperty("SSStartAge");
-                if (pSSStartYou != null)
-                {
-                    var v = pSSStartYou.GetValue(Model);
-                    if (v is int si) modalSSStartAgeYou = si;
-                }
-                var pSSStartPartner = t.GetProperty("SocialSecurityStartAgePartner") ?? t.GetProperty("SSStartAgePartner");
-                if (pSSStartPartner != null)
-                {
-                    var v = pSSStartPartner.GetValue(Model);
-                    if (v is int sp) modalSSStartAgePartner = sp;
-                }
-                var pSSMonthlyYou = t.GetProperty("SocialSecurityMonthlyYour") ?? t.GetProperty("SocialSecurityMonthly");
-                if (pSSMonthlyYou != null)
-                {
-                    var v = pSSMonthlyYou.GetValue(Model);
-                    if (v is decimal d) modalSSMonthlyYou = d;
-                    else if (v is double db) modalSSMonthlyYou = (decimal)db;
-                    else if (v is int iv) modalSSMonthlyYou = iv;
-                }
-                var pSSMonthlyPartner = t.GetProperty("SocialSecurityMonthlyPartner");
-                if (pSSMonthlyPartner != null)
-                {
-                    var v = pSSMonthlyPartner.GetValue(Model);
-                    if (v is decimal d) modalSSMonthlyPartner = d;
-                    else if (v is double db) modalSSMonthlyPartner = (decimal)db;
-                    else if (v is int iv) modalSSMonthlyPartner = iv;
-                }
-
-                // Reverse mortgage and withdrawals
-                var pReverseAge = t.GetProperty("ReverseMortgageStartAge");
-                if (pReverseAge != null)
-                {
-                    var v = pReverseAge.GetValue(Model);
-                    if (v is int ra) modalReverseMortgageStartAge = ra;
-                }
-                var pReverseMonthly = t.GetProperty("ReverseMortgageMonthly");
-                if (pReverseMonthly != null)
-                {
-                    var v = pReverseMonthly.GetValue(Model);
-                    if (v is decimal dm) modalReverseMortgageMonthly = dm;
-                    else if (v is double db) modalReverseMortgageMonthly = (decimal)db;
-                }
-                var pAnnualOne = t.GetProperty("AnnualWithdrawalOne");
-                if (pAnnualOne != null)
-                {
-                    var v = pAnnualOne.GetValue(Model);
-                    if (v is decimal a1) modalAnnualWithdrawalOne = a1;
-                    else if (v is double db) modalAnnualWithdrawalOne = (decimal)db;
-                }
-                var pAnnualBoth = t.GetProperty("AnnualWithdrawalBoth");
-                if (pAnnualBoth != null)
-                {
-                    var v = pAnnualBoth.GetValue(Model);
-                    if (v is decimal a2) modalAnnualWithdrawalBoth = a2;
-                    else if (v is double db) modalAnnualWithdrawalBoth = (decimal)db;
-                }
-
-                // assumptions
-                var pInfl = t.GetProperty("InflationRate");
-                if (pInfl != null)
-                {
-                    var v = pInfl.GetValue(Model);
-                    if (v is decimal d) modalInflation = d;
-                    else if (v is double db) modalInflation = (decimal)db;
-                }
-                var pTaxRate = t.GetProperty("TraditionalTaxRate");
-                if (pTaxRate != null)
-                {
-                    var v = pTaxRate.GetValue(Model);
-                    if (v is decimal d) modalTraditionalTaxRate = d;
-                    else if (v is double db) modalTraditionalTaxRate = (decimal)db;
-                }
-                var pStrategy = t.GetProperty("Strategy") ?? t.GetProperty("WithdrawalStrategy");
-                if (pStrategy != null)
-                {
-                    var v = pStrategy.GetValue(Model);
-                    if (v != null) modalWithdrawalStrategy = v.ToString() ?? modalWithdrawalStrategy;
-                }
-                var pPriority = t.GetProperty("PriorityStrategy") ?? t.GetProperty("WithdrawalPriorityStrategy") ?? t.GetProperty("Priority");
-                if (pPriority != null)
-                {
-                    var v = pPriority.GetValue(Model);
-                    if (v != null) modalPriorityStrategy = v.ToString() ?? modalPriorityStrategy;
-                }
-            }
-            catch
-            {
-                // ignore reflection errors
-            }
-        }
     }
 
     private void PrevwizardStep()
     {
         if (wizardStep > 1) wizardStep--;
+        // persist sync after change (model is already updated by bindings)
+        TrySyncModel();
+        _ = InvokeOnSaveSafe();
     }
 
-    private async Task NextOrSubmitAge()
+    private async Task NextOrSubmit()
     {
         if (wizardStep < 6)
         {
-            // validation: ensure retirement age (step 1) is set
-            if (wizardStep == 1 && modalRetirementAgeYou <= 0) return;
+            // minimal validation for step 1
+            if (wizardStep == 1 && (Model?.RetirementAgeYou ?? 0) <= 0) return;
 
-            // apply interim value for this step to the Model so parent Save will persist it
-            ApplyStepToModel(wizardStep);
+            // model already updated through bindings; ensure derived fields synced
+            TrySyncModel();
 
-            // Advance UI immediately so the user sees the next slide while parent save runs
+            // Await parent save so callers can run Calculate after save completes
+            await InvokeOnSaveSafe();
+
             wizardStep++;
             StateHasChanged();
-
-            // request parent to save this partial data (fire-and-forget so UI remains responsive)
-            try
-            {
-                if (OnSave.HasDelegate)
-                {
-                    _ = OnSave.InvokeAsync();
-                }
-            }
-            catch
-            {
-                // ignore background save errors here to avoid blocking UI
-            }
             return;
         }
 
-        // last step finish -> apply data to Model if possible, notify parent ages, then close
-        if (Model != null)
-        {
-            try
-            {
-                var t = Model.GetType();
-                void SetIfExists(string propName, object value)
-                {
-                    var prop = t.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
-                    if (prop != null && prop.CanWrite)
-                    {
-                        try
-                        {
-                            if (prop.PropertyType.IsEnum)
-                            {
-                                var enumVal = Enum.Parse(prop.PropertyType, value.ToString() ?? string.Empty);
-                                prop.SetValue(Model, enumVal);
-                            }
-                            else
-                            {
-                                prop.SetValue(Model, Convert.ChangeType(value, prop.PropertyType));
-                            }
-                        }
-                        catch { }
-                    }
-                }
+        // final step: ensure model sync and notify parent then close
+        TrySyncModel();
 
-                // finalize values
-                SetIfExists("RetirementAgeYou", modalRetirementAgeYou);
-                SetIfExists("RetirementAgePartner", modalRetirementAgePartner);
-                SetIfExists("CurrentAgeYou", modalAgeYou);
-                SetIfExists("CurrentAgePartner", modalAgePartner);
-
-                // Life expectancy: write both generic and per-person where supported
-                SetIfExists("LifeExpectancy", modalLifeExpectancyYou);
-
-                // if model exposes per-person life expectancy as an age, set that too
-                var p = t.GetProperty("LifeExpectancyYou");
-                if (p != null && p.CanWrite)
-                {
-                    try
-                    {
-                        // if the model stores a year (value > 1900) convert age to year using available current age
-                        var existing = p.GetValue(Model);
-                        if (existing is int ex && ex > 1900)
-                        {
-                            var baseAge = modalAgeYou > 0 ? modalAgeYou : (int?)null;
-                            var year = DateTime.Now.Year + (modalLifeExpectancyYou - (baseAge ?? modalLifeExpectancyYou));
-                            p.SetValue(Model, year);
-                        }
-                        else
-                        {
-                            p.SetValue(Model, modalLifeExpectancyYou);
-                        }
-                    }
-                    catch { }
-                }
-
-                var pp = t.GetProperty("LifeExpectancyPartner");
-                if (pp != null && pp.CanWrite)
-                {
-                    try
-                    {
-                        var existing = pp.GetValue(Model);
-                        if (existing is int ex && ex > 1900)
-                        {
-                            var baseAgeP = modalAgePartner > 0 ? modalAgePartner : (int?)null;
-                            var year = DateTime.Now.Year + (modalLifeExpectancyPartner - (baseAgeP ?? modalLifeExpectancyPartner));
-                            pp.SetValue(Model, year);
-                        }
-                        else
-                        {
-                            pp.SetValue(Model, modalLifeExpectancyPartner);
-                        }
-                    }
-                    catch { }
-                }
-
-                // Reverse mortgage persistence
-                if (modalReverseMortgageEnabled)
-                {
-                    SetIfExists("ReverseMortgageStartAge", modalReverseMortgageStartAge);
-                    SetIfExists("ReverseMortgageMonthly", modalReverseMortgageMonthly);
-                }
-                else
-                {
-                    SetIfExists("ReverseMortgageStartAge", 0);
-                    SetIfExists("ReverseMortgageMonthly", 0m);
-                }
-
-                // Annual withdrawals
-                SetIfExists("AnnualWithdrawalOne", modalAnnualWithdrawalOne);
-                SetIfExists("AnnualWithdrawalBoth", modalAnnualWithdrawalBoth);
-
-                SetIfExists("TaxableBalance", modalTaxable);
-                SetIfExists("TraditionalBalance", modalTraditional);
-                SetIfExists("RothBalance", modalRoth);
-
-                // per-account returns if model supports them
-                SetIfExists("TaxableReturn", modalTaxableReturn);
-                SetIfExists("TraditionalReturn", modalTraditionalReturn);
-                SetIfExists("RothReturn", modalRothReturn);
-
-                // set overall InvestmentReturn as weighted average if property exists
-                var total = TotalSavings;
-                if (total > 0)
-                {
-                    var overall = (modalTaxable * modalTaxableReturn + modalTraditional * modalTraditionalReturn + modalRoth * modalRothReturn) / total;
-                    SetIfExists("InvestmentReturn", overall);
-                }
-
-                SetIfExists("SocialSecurityMonthlyYou", modalSSStartAgeYou);
-                SetIfExists("SocialSecurityStartAgePartner", modalSSStartAgePartner);
-                SetIfExists("SocialSecurityMonthlyYour", modalSSMonthlyYou);
-                SetIfExists("SocialSecurityMonthlyPartner", modalSSMonthlyPartner);
-
-                SetIfExists("InflationRate", modalInflation);
-                SetIfExists("TraditionalTaxRate", modalTraditionalTaxRate);
-                SetIfExists("Strategy", modalWithdrawalStrategy);
-                SetIfExists("PriorityStrategy", modalPriorityStrategy);
-                SetIfExists("WithdrawalPriorityStrategy", modalPriorityStrategy);
-
-                // Attempt to sync retirement-year helpers if present
-                var sync = t.GetMethod("SyncRetirementYearsFromAges", BindingFlags.Public | BindingFlags.Instance);
-                try { sync?.Invoke(Model, null); } catch { }
-            }
-            catch { }
-        }
-
-        // request parent save for final step before finishing
         if (OnSave.HasDelegate)
         {
             await OnSave.InvokeAsync();
         }
-
-        if (OnFinished.HasDelegate)
+        if (OnFinished.HasDelegate && Model != null)
         {
-            // send retirement ages for both people
-            await OnFinished.InvokeAsync((modalRetirementAgeYou, modalRetirementAgePartner));
+            await OnFinished.InvokeAsync((Model.RetirementAgeYou, Model.RetirementAgePartner));
         }
 
-        // hide modal
         Visible = false;
         await VisibleChanged.InvokeAsync(false);
-
-        // reset step for next time
         wizardStep = 1;
     }
 
-    private void ApplyStepToModel(int step)
+    private void TrySyncModel()
     {
-        if (Model == null) return;
         try
         {
-            var t = Model.GetType();
-            void SetIfExists(string propName, object value)
+            Model?.SyncRetirementYearsFromAges();
+        }
+        catch { }
+    }
+
+    private async Task InvokeOnSaveSafe()
+    {
+        try
+        {
+            if (OnSave.HasDelegate)
             {
-                var prop = t.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
-                if (prop != null && prop.CanWrite)
-                {
-                    try
-                    {
-                        if (prop.PropertyType.IsEnum)
-                        {
-                            var enumVal = Enum.Parse(prop.PropertyType, value.ToString() ?? string.Empty);
-                            prop.SetValue(Model, enumVal);
-                        }
-                        else
-                        {
-                            prop.SetValue(Model, Convert.ChangeType(value, prop.PropertyType));
-                        }
-                    }
-                    catch { }
-                }
-            }
-
-            if (step == 1)
-            {
-                SetIfExists("RetirementAgeYou", modalRetirementAgeYou);
-                SetIfExists("RetirementAgePartner", modalRetirementAgePartner);
-                SetIfExists("LifeExpectancy", modalLifeExpectancyYou);
-                var p = t.GetProperty("LifeExpectancyYou");
-                if (p != null && p.CanWrite)
-                {
-                    try
-                    {
-                        var existing = p.GetValue(Model);
-                        if (existing is int ex && ex > 1900)
-                        {
-                            var baseAge = modalAgeYou > 0 ? modalAgeYou : (int?)null;
-                            var year = DateTime.Now.Year + (modalLifeExpectancyYou - (baseAge ?? modalLifeExpectancyYou));
-                            p.SetValue(Model, year);
-                        }
-                        else
-                        {
-                            p.SetValue(Model, modalLifeExpectancyYou);
-                        }
-                    }
-                    catch { }
-                }
-
-                var pp = t.GetProperty("LifeExpectancyPartner");
-                if (pp != null && pp.CanWrite)
-                {
-                    try
-                    {
-                        var existing = pp.GetValue(Model);
-                        if (existing is int ex && ex > 1900)
-                        {
-                            var baseAgeP = modalAgePartner > 0 ? modalAgePartner : (int?)null;
-                            var year = DateTime.Now.Year + (modalLifeExpectancyPartner - (baseAgeP ?? modalLifeExpectancyPartner));
-                            pp.SetValue(Model, year);
-                        }
-                        else
-                        {
-                            pp.SetValue(Model, modalLifeExpectancyPartner);
-                        }
-                    }
-                    catch { }
-                }
-            }
-            else if (step == 2)
-            {
-                SetIfExists("TaxableBalance", modalTaxable);
-                SetIfExists("TraditionalBalance", modalTraditional);
-                SetIfExists("RothBalance", modalRoth);
-
-                
-            }
-            else if (step == 3)
-            {
-                SetIfExists("SocialSecurityMonthlyYou", modalSSStartAgeYou);
-                SetIfExists("SocialSecurityStartAgePartner", modalSSStartAgePartner);
-                SetIfExists("SocialSecurityMonthlyYour", modalSSMonthlyYou);
-                SetIfExists("SocialSecurityMonthlyPartner", modalSSMonthlyPartner);
-
- 
-
-                var total = TotalSavings;
-                if (total > 0)
-                {
-                    var overall = (modalTaxable * modalTaxableReturn + modalTraditional * modalTraditionalReturn + modalRoth * modalRothReturn) / total;
-                    SetIfExists("InvestmentReturn", overall);
-                }
-            }
-            else if (step == 4)
-            {
-                if (modalReverseMortgageEnabled)
-                {
-                    SetIfExists("ReverseMortgageStartAge", modalReverseMortgageStartAge);
-                    SetIfExists("ReverseMortgageMonthly", modalReverseMortgageMonthly);
-                }
-                else
-                {
-                    SetIfExists("ReverseMortgageStartAge", 0);
-                    SetIfExists("ReverseMortgageMonthly", 0m);
-                }
-
-
-                SetIfExists("TaxableReturn", modalTaxableReturn);
-                SetIfExists("TraditionalReturn", modalTraditionalReturn);
-                SetIfExists("RothReturn", modalRothReturn);
-
-            }
-            else if (step == 5)
-            {
-                SetIfExists("AnnualWithdrawalOne", modalAnnualWithdrawalOne);
-                SetIfExists("AnnualWithdrawalBoth", modalAnnualWithdrawalBoth);
-
-          
-                SetIfExists("InflationRate", modalInflation);
-                SetIfExists("TraditionalTaxRate", modalTraditionalTaxRate);
-                SetIfExists("Strategy", modalWithdrawalStrategy);
-                SetIfExists("PriorityStrategy", modalPriorityStrategy);
-                SetIfExists("WithdrawalPriorityStrategy", modalPriorityStrategy);
-            }
-            else if (step == 6)
-            {
-                SetIfExists("CurrentAgeYou", modalAgeYou);
-                SetIfExists("CurrentAgePartner", modalAgePartner);
-
-                // SetIfExists("InflationRate", modalInflation);
-                // SetIfExists("TraditionalTaxRate", modalTraditionalTaxRate);
-                // SetIfExists("Strategy", modalWithdrawalStrategy);
-                // SetIfExists("PriorityStrategy", modalPriorityStrategy);
-                // SetIfExists("WithdrawalPriorityStrategy", modalPriorityStrategy);
+                await OnSave.InvokeAsync();
             }
         }
         catch { }
+    }
+
+    // conversion helpers to keep the UX showing "age" for life expectancy while the model stores either an age or a year
+    private int LifeExpectancyAgeYou
+    {
+        get
+        {
+            if (Model == null) return 100;
+            var v = Model.LifeExpectancyYou;
+            if (v > 1900)
+            {
+                var currentAge = Model.CurrentAgeYou > 0 ? Model.CurrentAgeYou : 0;
+                return currentAge > 0 ? currentAge + (v - DateTime.Now.Year) : v - DateTime.Now.Year;
+            }
+            return v;
+        }
+        set
+        {
+            if (Model == null) return;
+            // if model currently stores a year (>1900) convert age back to year using current age
+            if (Model.LifeExpectancyYou > 1900)
+            {
+                var baseAge = Model.CurrentAgeYou > 0 ? Model.CurrentAgeYou : 0;
+                Model.LifeExpectancyYou = DateTime.Now.Year + (value - baseAge);
+            }
+            else
+            {
+                Model.LifeExpectancyYou = value;
+            }
+        }
+    }
+
+    private int LifeExpectancyAgePartner
+    {
+        get
+        {
+            if (Model == null) return 100;
+            var v = Model.LifeExpectancyPartner;
+            if (v > 1900)
+            {
+                var currentAge = Model.CurrentAgePartner > 0 ? Model.CurrentAgePartner : 0;
+                return currentAge > 0 ? currentAge + (v - DateTime.Now.Year) : v - DateTime.Now.Year;
+            }
+            return v;
+        }
+        set
+        {
+            if (Model == null) return;
+            if (Model.LifeExpectancyPartner > 1900)
+            {
+                var baseAge = Model.CurrentAgePartner > 0 ? Model.CurrentAgePartner : 0;
+                Model.LifeExpectancyPartner = DateTime.Now.Year + (value - baseAge);
+            }
+            else
+            {
+                Model.LifeExpectancyPartner = value;
+            }
+        }
+    }
+
+    private bool ReverseMortgageEnabled
+    {
+        get => Model != null && Model.ReverseMortgageStartAge > 0;
+        set
+        {
+            if (Model == null) return;
+            if (value)
+            {
+                if (Model.ReverseMortgageStartAge == 0) Model.ReverseMortgageStartAge = Math.Max(60, Model.CurrentAgeYou);
+            }
+            else
+            {
+                Model.ReverseMortgageStartAge = 0;
+            }
+        }
     }
 
     private async Task CloseClicked()
@@ -863,11 +422,12 @@
 
     private string GetBreakdownText()
     {
-        if (TotalSavings <= 0) return "No starting savings entered.";
-        var t = TotalSavings;
-        var pt = modalTaxable / t * 100;
-        var tr = modalTraditional / t * 100;
-        var ro = modalRoth / t * 100;
+        if (Model == null) return "No starting savings entered.";
+        var t = Model.TaxableBalance + Model.TraditionalBalance + Model.RothBalance;
+        if (t <= 0) return "No starting savings entered.";
+        var pt = Model.TaxableBalance / t * 100;
+        var tr = Model.TraditionalBalance / t * 100;
+        var ro = Model.RothBalance / t * 100;
         return $"Post-Tax {pt:F0}% • Traditional {tr:F0}% • Roth {ro:F0}%";
     }
 }
