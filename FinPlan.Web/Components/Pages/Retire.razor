@@ -480,8 +480,11 @@
                                         <span class="step-badge">1</span>
                                         <div>Retirement ages & life expectancy</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou; Partner: @Model.RetirementAgePartner</div>
-                                    <div class="small-note">Life exp (You): @DisplayLifeExpectancyYou; Partner: @DisplayLifeExpectancyPartner</div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
+                                    <div class="small-note" style="margin-top:8px;">Life exp (You): @DisplayLifeExpectancyYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Life exp (Partner): @DisplayLifeExpectancyPartner</div>
+
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
@@ -493,10 +496,11 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">2</span>
-                                        <div>Starting balances & returns</div>
+                                        <div>Starting Balances</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
-                                    <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0"); Roth: @Model.RothBalance.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Roth: @Model.RothBalance.ToString("C0")</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
@@ -510,8 +514,11 @@
                                         <span class="step-badge">3</span>
                                         <div>Social Security</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">You SS/mo: @Model.SocialSecurityMonthlyYou.ToString("C0"); Partner: @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
-                                    <div class="small-note">Start ages: @Model.SSStartAgeYou; @Model.SSStartAgePartner</div>
+                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
+
+                                    <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
+                                    <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
@@ -525,7 +532,9 @@
                                         <span class="step-badge">4</span>
                                         <div>Reverse mortgage</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear; Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
+                                    <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
@@ -537,9 +546,11 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">5</span>
-                                        <div>Planned annual withdrawals</div>
+                                        <div>Planned Annual Withdrawals</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0"); Both: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
@@ -551,10 +562,11 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">6</span>
-                                        <div>Current ages & simulation</div>
+                                        <div>Current Ages & Simulation</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou; Partner: @Model.CurrentAgePartner</div>
-                                    <div class="small-note">Projection start year: @Model.SimulationStartYear; </div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
+                                    <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
