@@ -414,7 +414,10 @@
 
     private async Task CloseClicked()
     {
-        // simply hide modal without saving
+        // ensure model-derived fields are synced and call parent save before hiding
+        TrySyncModel();
+        await InvokeOnSaveSafe();
+
         Visible = false;
         await VisibleChanged.InvokeAsync(false);
         wizardStep = 1;
