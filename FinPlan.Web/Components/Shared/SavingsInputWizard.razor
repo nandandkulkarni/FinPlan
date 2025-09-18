@@ -483,6 +483,17 @@
 
     private async Task CloseClicked()
     {
+        // apply current step to model then call parent save when closing
+        ApplyStepToModel(wizardStep);
+        try
+        {
+            if (OnSave.HasDelegate)
+            {
+                await OnSave.InvokeAsync();
+            }
+        }
+        catch { }
+
         Visible = false;
         await VisibleChanged.InvokeAsync(false);
         wizardStep = 1;

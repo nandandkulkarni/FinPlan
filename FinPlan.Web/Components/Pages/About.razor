@@ -18,14 +18,6 @@
 
 <PageTitle>About - Rewealthen</PageTitle>
 
-<!-- Savings quick setup wizard (one page per section) -->
-<!-- Change OnSave binding so every save (including intermediate step saves) runs Save then Calculate -->
-<SavingsInputWizard Model="@calculatorModel"
-                    Visible="@showWizard"
-                    VisibleChanged="@(v => showWizard = v)"
-                    OnFinished="HandleWizardFinished"
-                    OnSave="@(async () => { await SaveUserSavingsAsync(); Calculate(); StateHasChanged(); })"
-                    InitialStep="@wizardOpenStep" />
 
 <style>
     :root {
@@ -249,7 +241,7 @@
 
 <div class="container-wire">
     <div class="page-header">
-        <h3>Wealth Building</h3>
+        <h3>About ReWealth-en</h3>
     </div>
 
     <div class="top-area">
@@ -259,21 +251,23 @@
                 <div class="col-12 col-md-2">
                     <div class="panel">
                         <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
+                        <a href="/privacy-policy">Privacy Policy</a>
+
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <a href="/" class="badge">Home</a>
                             <a href="/guides/how-to-use-wealth-journey-calculator" class="badge">How to</a>
                             <a href="/contact" class="badge">Contact</a>
                         </div>
-                        <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">Mini summary</div>
-                        <div style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:6px;">Post-Tax <br /><strong>@(results?.TaxableBalance.ToString("C0") ?? "-")</strong></div>
+                        <div style="margin-top:10px; font-size:0.85rem; color:var(--muted);">
+                            <a href="/privacy-policy" class="badge">Privacy Policy</a>
+
+                        </div>
                     </div>
                 </div>
 
                 <!-- Center combined column (8) -->
                 <div class="col-12 col-md-8">
                     <div class="panel section-panel">
-                        <h4>Plan Sections</h4>
-
                         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;">
                             <div class="section-card">
                                 <div>
@@ -301,9 +295,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
-                                </div>
                             </div>
 
                             <div class="section-card">
@@ -312,9 +303,8 @@
                                         <span class="step-badge">2</span>
                                         <div>Team</div>
                                     </div>
-
-                                    <h2>Our Team</h2>
-
+                                    <div class="card p-3">
+                                        <div class="card-body">
                                     <p>At REWealth-en, our team is a blend of passionate professionals from diverse backgrounds, working together to deliver the best financial planning experience for our users.</p>
 
                                     <ul>
@@ -326,10 +316,8 @@
 
                                     <p>Together, we are committed to empowering you with the tools and knowledge to make informed financial decisions.</p>
 
-
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -337,28 +325,45 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">3</span>
-                                        <div>Monthly Contributions</div>
+                                        <div>Disclaimer Contributions</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+
+                                    <div class="card p-3">
+                                        <div class="card-body">
+                                            <p>
+                                                FinPlan provides financial tools and calculators for educational purposes. None of the content on this site is
+                                                intended as financial, tax, legal or investment advice. Always consult a qualified professional before making decisions
+                                                that could affect your finances.
+                                            </p>
+
+                                            <p>We strive to provide accurate, up-to-date information but make no guarantees regarding completeness or accuracy.</p>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="section-card">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">4</span>
-                                        <div>Estimated Growth Rate</div>
+                                        <div>Terms of Use</div>
                                     </div>
-                                    <div class="small-note">Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)</div>
-                                    <div class="small-note">Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)</div>
-                                    <div class="small-note">Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)</div>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+
+                                    <div class="card p-3">
+                                        <div class="card-body">
+                                            <p>
+                                                By using FinPlan, you agree to these terms. The site and its calculators are provided "as is" without warranties of
+                                                any kind. We are not liable for any losses resulting from use of the site or reliance on the calculators.
+                                            </p>
+
+                                            <p>
+                                                Calculators are for illustrative and educational purposes only. Results are estimates and depend on the accuracy of
+                                                inputs. Do not rely solely on our calculators for financial decisions.
+                                            </p>
+
+                                            <p>If you disagree with these terms, please do not use the site.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -367,494 +372,69 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">5</span>
-                                        <div>Tax Treatment</div>
+                                        <div>Contact</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
-                                    <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
+                                    <div class="card p-3 mb-4">
+                                        <div class="card-body">
+                                            <h4>Send us a message</h4>
+                                            <p class="text-muted">We aim to respond within a few business days.</p>
+
+                                            <EditForm Model="contactModel" OnValidSubmit="Submit">
+                                                <div class="mb-2">
+                                                    <label class="form-label">Name</label>
+                                                    <InputText class="form-control" @bind-Value="contactModel.Name" />
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label">Email</label>
+                                                    <InputText class="form-control" @bind-Value="contactModel.Email" />
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label">Message</label>
+                                                    <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
+                                                </div>
+                                                <button class="btn btn-primary" type="submit">Send</button>
+                                            </EditForm>
+
+                                            @if (sent)
+                                            {
+                                                <div class="alert alert-success mt-2">Thanks — your message has been sent.</div>
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
-                                </div>
-                            </div>
+                                      </div>
                         </div>
 
-                        @* <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
-                            <button class="btn btn-primary" @onclick="SaveAndClose">Save & Close</button>
-                        </div> *@
 
-                        @if (results != null)
-                        {
-                            <div class="mt-3">
-                                <div class="row mb-3">
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
-                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
-                                    @* <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-warning summary-money">@string.Format("{0:F1}%/{1:F1}%/{2:F1}%,", calculatorModel.AnnualGrowthRateTaxable, calculatorModel.AnnualGrowthRateTraditional, calculatorModel.AnnualGrowthRateRoth)</h4><p class="mb-0">Growth (Taxable/Traditional/Roth)</p></div></div></div> *@
-                                </div>
-                            </div>
-                        }
                     </div>
                 </div>
 
                 <!-- Right column (2) -->
                 <div class="col-12 col-md-2">
                     <div class="panel">
-                        <div style="font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                            <div>Debug</div>
-                            <div>
-                                <button class="btn-ghost" style="padding:4px 6px; font-size:0.8rem;" @onclick="ToggleRightDebug">Toggle</button>
-                            </div>
-                        </div>
-                        <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
-                        @if (showRightDebug)
-                        {
-                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
-                                @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
-                                {
-                                    <div style="margin-bottom:6px;"><small style="color:var(--muted);">@msg.MessageTime.ToString("HH:mm:ss")</small><div>@msg.MessageText</div></div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
-                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    @* Yearly Projection grid - uses same bootstrap/table styling as retirement page *@
-    <div class="grid-panel panel mt-3">
-        <div class="grid-header">
-            <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
-            <div class="legend">
-                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
-                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:#38B2AC"></span><small> Growth</small></div>
-            </div>
-        </div>
-
-        <div class="grid">
-            <table class="table table-sm table-bordered" aria-label="Yearly projection">
-                <thead class="table-light">
-                    <tr>
-                        <th style="text-align:right; width:120px; padding:18px 12px; font-size:1.0rem;">Year</th>
-                        <th style="text-align:right; width:90px; padding:18px 12px; font-size:1.0rem;">Age</th>
-
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                            </div>
-                        </th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                            </div>
-                        </th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                            </div>
-                        </th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Tax</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Paid</span>
-                            </div>
-                        </th>
-                        <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                            </div>
-                        </th>
-
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                            </div>
-                        </th>
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                            </div>
-                        </th>
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                            </div>
-                        </th>
-                        <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                            </div>
-                        </th>
-
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                            </div>
-                        </th>
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                            </div>
-                        </th>
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                            </div>
-                        </th>
-                        <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contributions</span>
-                            </div>
-                        </th>
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                            </div>
-                        </th>
-                        <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (yearlyBreakdown == null || !yearlyBreakdown.Any())
-                    {
-                        <tr><td colspan="15" class="text-center text-muted">No projection rows available. Run Calculate to generate projections.</td></tr>
-                    }
-                    else
-                    {
-                        foreach (var r in yearlyBreakdown)
-                        {
-
-                            var age = calculatorModel.CurrentAge + r.Year; // approximate
-
-                            <tr>
-                                <td>@r.Year</td>
-                                <td>@age</td>
-
-                                <!-- Taxable columns -->
-                                <!-- Taxable columns with inline styles -->
-                                <td class="text-end col-taxable"
-                                    style="font-size:0.78rem;font-weight:600;background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TaxableBOYBalance)
-                                </td>
-                                <td class="text-end col-taxable"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TaxableContribution)
-                                </td>
-                                <td class="text-end col-taxable"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TaxableInterest)
-                                </td>
-                                <td class="text-end col-taxable"
-                                    style="color:#F56565; font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TaxesPaid)
-                                </td>
-                                <td class="text-end col-taxable"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TaxableEOYBalance)
-                                </td>
-
-                                <!-- Traditional columns with inline styles -->
-                                <td class="text-end col-traditional"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TraditionalBOYBalance)
-                                </td>
-                                <td class="text-end col-traditional"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TraditionalContribution)
-                                </td>
-
-                                <td class="text-end col-traditional"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TraditionalInterest)
-                                </td>
-                                <td class="text-end col-traditional"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TraditionalEOYBalance)
-                                </td>
-
-                                <!-- Roth columns with inline styles -->
-                                <td class="text-end col-roth"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.RothBOYBalance)
-                                </td>
-                                <td class="text-end col-roth"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.RothContribution)
-                                </td>
-                                <td class="text-end col-roth"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.RothInterest)
-                                </td>
-                                <td class="text-end col-roth"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.RothEOYBalance)
-                                </td>
-
-                                <!-- Totals columns with inline styles -->
-                                <td class="text-end col-totals"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TotalContributions)
-                                </td>
-                                <td class="text-end col-totals"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TotalGrowth)
-                                </td>
-                                <td class="text-end col-totals"
-                                    style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @FormatMoneySafe(r.TotalEOYBalance)
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
 
 @code {
-    // Wizard control
-    private bool showWizard = false;
-    private int wizardOpenStep = 1;
+    private ContactModel contactModel = new();
+    private bool sent = false;
 
-    // State copied from WealthJourmeyPlanner
-    [SupplyParameterFromForm]
-    public SavingsCalculatorModel calculatorModel { get; set; } = new();
-    private SavingsResults? results;
-    private FinPlan.Shared.Models.Savings.SavingsResults? youResults;
-    private FinPlan.Shared.Models.Savings.SavingsResults? partnerResults;
-    private List<YearlyBreakdown> yearlyBreakdown = new();
-    private List<IntervalSummary> intervalSummaries = new();
-    private bool showRightDebug = false;
-    private string calculatorType = "TestSavings_yours";
-    private string userGuid = string.Empty;
-    private readonly SemaphoreSlim _calculateSemaphore = new(1, 1);
-
-    protected override async Task OnInitializedAsync()
+    private Task Submit()
     {
-        // noop
+        // For now, just mark sent. In a real app we'd POST to an API or send an email.
+        sent = true;
+        return Task.CompletedTask;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private class ContactModel
     {
-        if (firstRender)
-        {
-            try { userGuid = await UserGuidService.GetOrCreateUserGuidAsync(); } catch { }
-            await LoadUserSavingsAsync();
-            Calculate();
-            await LoadMiniSummariesAsync();
-            StateHasChanged();
-        }
-    }
-    // add this inside the existing @code { ... } block
-    private async Task Calculate()
-    {
-        // forward to the async, semaphore-protected implementation
-        await CalculateAsync();
-    }
-
-    private async Task CalculateAsync()
-    {
-        await _calculateSemaphore.WaitAsync();
-        try
-        {
-            try
-            {
-                var calculator = new SavingsCalculationEngine();
-                results = calculator.Calculate(calculatorModel);
-                yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
-            }
-            catch (Exception ex)
-            {
-                DebugService.AddMessage($"Calc error: {ex.Message}");
-            }
-        }
-        finally
-        {
-            _calculateSemaphore.Release();
-        }
-    }
-
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api.finplan.example";
-#endif
-    }
-
-    private async Task LoadUserSavingsAsync()
-    {
-        try
-        {
-            var apiBaseUrl = GetApiBaseUrl();
-            var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.GetAsync(url);
-            if (!response.IsSuccessStatusCode) return;
-            var json = await response.Content.ReadAsStringAsync();
-            var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (loadedModel != null)
-            {
-                calculatorModel = loadedModel;
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugService.AddMessage($"Load failed: {ex.Message}");
-        }
-    }
-
-    private async Task LoadMiniSummariesAsync()
-    {
-        try
-        {
-            var apiBaseUrl = GetApiBaseUrl();
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            async Task<FinPlan.Shared.Models.Savings.SavingsResults?> LoadFor(string calcType)
-            {
-                try
-                {
-                    var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calcType}";
-                    var response = await client.GetAsync(url);
-                    if (!response.IsSuccessStatusCode) return null;
-                    var json = await response.Content.ReadAsStringAsync();
-                    var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (loadedModel == null) return null;
-                    var calc = new FinPlan.Shared.Services.SavingsCalculationEngine();
-                    return calc.Calculate(loadedModel);
-                }
-                catch { return null; }
-            }
-
-            var yourTask = LoadFor("TestSavings_yours");
-            var partnerTask = LoadFor("TestSavings_partners");
-            await Task.WhenAll(yourTask, partnerTask);
-            youResults = await yourTask;
-            partnerResults = await partnerTask;
-        }
-        catch (Exception ex)
-        {
-            DebugService.AddMessage($"Mini summaries load failed: {ex.Message}");
-        }
-    }
-
-    private async Task SaveUserSavingsAsync()
-    {
-        try
-        {
-            calculatorModel.LastUpdateDate = DateTime.UtcNow;
-            var saveRequest = new PersistSavingsRequest { UserGuid = userGuid, CalculatorType = calculatorType, Data = calculatorModel };
-            var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
-            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.PostAsync($"{GetApiBaseUrl()}/api/FinPlan/save", content);
-            if (!response.IsSuccessStatusCode)
-            {
-                DebugService.AddMessage($"Save failed: {response.StatusCode}");
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugService.AddMessage($"Save error: {ex.Message}");
-        }
-    }
-
-    private async Task HandleWizardFinished((int AgeYou, int AgePartner) ages)
-    {
-        // map retirement age to model if present
-        try
-        {
-            if (ages.AgeYou > 0) calculatorModel.RetirementAge = ages.AgeYou;
-            // Save and recalc
-            await SaveUserSavingsAsync();
-            Calculate();
-            StateHasChanged();
-        }
-        catch { }
-    }
-
-    private async Task HandleSection1Valid()
-    {
-        // Save and recalc after section 1 validation
-        await SaveUserSavingsAsync();
-        Calculate();
-        StateHasChanged();
-    }
-
-    private void ToggleRightDebug() { showRightDebug = !showRightDebug; StateHasChanged(); }
-
-    private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
-
-    private void OpenWizard(int step)
-    {
-        wizardOpenStep = step;
-        showWizard = true;
-    }
-
-    private async Task SaveAndClose()
-    {
-        await SaveUserSavingsAsync();
-        // Optionally, close any open wizards or perform additional actions
-        showWizard = false;
-    }
-
-    private async Task OnUseTaxAdvantagedChanged(ChangeEventArgs e)
-    {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked))
-        {
-            calculatorModel.UseTaxAdvantaged = isChecked;
-            await SaveUserSavingsAsync();
-        }
-    }
-
-    private async Task OnTaxableIncomeTypeChanged(ChangeEventArgs e)
-    {
-        if (Enum.TryParse(typeof(IncomeType), e.Value?.ToString(), out var selectedValue))
-        {
-            calculatorModel.TaxableIncomeType = (IncomeType)selectedValue;
-            await SaveUserSavingsAsync();
-        }
-    }
-
-    private async Task OnTaxBracketChanged(ChangeEventArgs e)
-    {
-        if (Enum.TryParse(typeof(TaxBracket), e.Value?.ToString(), out var selectedValue))
-        {
-            calculatorModel.TaxBracket = (TaxBracket)selectedValue;
-            await SaveUserSavingsAsync();
-        }
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Message { get; set; }
     }
 }
+
