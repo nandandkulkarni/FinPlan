@@ -144,7 +144,12 @@
 
     /* Slightly larger badge for emphasis on desktop */
     @@media (min-width: 1200px) {
-        .step-badge { width:40px; height:40px; min-width:40px; font-size:1.05rem; }
+        .step-badge {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            font-size: 1.05rem;
+        }
     }
 
     /* When the menu-link is active, invert badge so it matches active background */
@@ -162,18 +167,34 @@
 
     /* On smaller screens scale down the badge */
     @@media (max-width: 768px) {
-        .step-badge { width:30px; height:30px; min-width:30px; font-size:0.95rem; margin-right:6px; }
-        .top-strip .menu-link { padding: 6px 8px; font-size: .92rem; }
+        .step-badge {
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            font-size: 0.95rem;
+            margin-right: 6px;
+        }
+
+        .top-strip .menu-link {
+            padding: 6px 8px;
+            font-size: .92rem;
+        }
     }
 
     @@media (max-width: 480px) {
         /* If extremely small, reduce label length (use existing icons + smaller text) */
-        .step-badge { width:26px; height:26px; min-width:26px; font-size:0.85rem; margin-right:6px; }
+        .step-badge {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            font-size: 0.85rem;
+            margin-right: 6px;
+        }
     }
 
     /* Shift page content inward so it doesn't sit under fixed sidebars */
     /* Use full viewport width for the layout container; center the inner content rail using a max-width.
-       This allows the page to use the full screen but keeps the main content centered on large screens. */
+           This allows the page to use the full screen but keeps the main content centered on large screens. */
     .page-with-sidebars {
         width: 100vw;
         padding-left: 0;
@@ -182,16 +203,18 @@
     }
 
     /* Constrain and center the primary content area so it appears centered on large screens while
-       allowing background/side elements to use full width. Adjust max-width as needed. */
+           allowing background/side elements to use full width. Adjust max-width as needed. */
     .content {
-/*         max-width: 1140px; /* Bootstrap container-lg width; adjust for tighter or wider layouts */
- */        margin-left: auto;
+        /*         max-width: 1140px; /* Bootstrap container-lg width; adjust for tighter or wider layouts */
+        */ margin-left: auto;
         margin-right: auto;
         width: 100%;
     }
 
     /* Make content rail use full width inside the container */
-    .content-rail { width: 100%; }
+    .content-rail {
+        width: 100%;
+    }
 </style>
 
 <!-- Feedback strip placed above navigation -->
@@ -211,18 +234,27 @@
 
 <div class="top-strip">
     <div class="container menu-container">
+
         <div class="menu-links">
+
+            <NavLink class="menu-link" href="/home">
+                <span class="bi bi-house-door" aria-hidden="true"></span>
+                <span>Home</span>
+            </NavLink>
+
+
             <NavLink class="menu-link" href="/cost-of-living">
                 <span class="step-badge" aria-hidden="true">1</span>
                 <span class="bi bi-list-ul" aria-hidden="true"></span>
                 <span>Cost of Living Projection</span>
             </NavLink>
 
-          @*   <NavLink class="menu-link" href="/retirement-drawdown-calendar">
+            @*   <NavLink class="menu-link" href="/retirement-drawdown-calendar">
                 <span class="step-badge" aria-hidden="true">4</span>
                 <span class="bi bi-calendar" aria-hidden="true"></span>
                 <span>Retirement - New</span>
             </NavLink>   *@
+
 
             <NavLink class="menu-link" href="/wealth-building">
                 <span class="step-badge" aria-hidden="true">2</span>
@@ -236,8 +268,6 @@
                 <span>Retirement Drawdown</span>
             </NavLink>
             <NavLink class="menu-link" href="/about-rewealthen">
-                <span class="step-badge" aria-hidden="true">3</span>
-                <span class="bi bi-wallet2" aria-hidden="true"></span>
                 <span>About</span>
             </NavLink>
         </div>
@@ -313,13 +343,13 @@
 
 <main>
     <div class="container-fluid page-with-sidebars">
-         <div class="content-rail d-flex">
-             <article class="content px-4">
-                 @Body
-             </article>
-         </div>
-     </div>
- </main>
+        <div class="content-rail d-flex">
+            <article class="content px-4">
+                @Body
+            </article>
+        </div>
+    </div>
+</main>
 
 <!-- Consent banner -->
 <div id="consent-banner" style="display:none; position:fixed; right:16px; bottom:16px; z-index:1050; max-width:420px;">
