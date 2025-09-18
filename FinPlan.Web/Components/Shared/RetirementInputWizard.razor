@@ -435,7 +435,7 @@
                 }
 
                 // Social security
-                var pSSStartYou = t.GetProperty("SocialSecurityStartAgeYour") ?? t.GetProperty("SSStartAgeYou") ?? t.GetProperty("SSStartAge");
+                var pSSStartYou = t.GetProperty("SocialSecurityMonthlyYou") ?? t.GetProperty("SSStartAgeYou") ?? t.GetProperty("SSStartAge");
                 if (pSSStartYou != null)
                 {
                     var v = pSSStartYou.GetValue(Model);
@@ -673,7 +673,7 @@
                     SetIfExists("InvestmentReturn", overall);
                 }
 
-                SetIfExists("SocialSecurityStartAgeYour", modalSSStartAgeYou);
+                SetIfExists("SocialSecurityMonthlyYou", modalSSStartAgeYou);
                 SetIfExists("SocialSecurityStartAgePartner", modalSSStartAgePartner);
                 SetIfExists("SocialSecurityMonthlyYour", modalSSMonthlyYou);
                 SetIfExists("SocialSecurityMonthlyPartner", modalSSMonthlyPartner);
@@ -742,9 +742,7 @@
             {
                 SetIfExists("RetirementAgeYou", modalRetirementAgeYou);
                 SetIfExists("RetirementAgePartner", modalRetirementAgePartner);
-
                 SetIfExists("LifeExpectancy", modalLifeExpectancyYou);
-
                 var p = t.GetProperty("LifeExpectancyYou");
                 if (p != null && p.CanWrite)
                 {
@@ -787,17 +785,20 @@
             }
             else if (step == 2)
             {
-                SetIfExists("CurrentAgePartner", modalAgePartner);
-            }
-            else if (step == 3)
-            {
                 SetIfExists("TaxableBalance", modalTaxable);
                 SetIfExists("TraditionalBalance", modalTraditional);
                 SetIfExists("RothBalance", modalRoth);
 
-                SetIfExists("TaxableReturn", modalTaxableReturn);
-                SetIfExists("TraditionalReturn", modalTraditionalReturn);
-                SetIfExists("RothReturn", modalRothReturn);
+                
+            }
+            else if (step == 3)
+            {
+                SetIfExists("SocialSecurityMonthlyYou", modalSSStartAgeYou);
+                SetIfExists("SocialSecurityStartAgePartner", modalSSStartAgePartner);
+                SetIfExists("SocialSecurityMonthlyYour", modalSSMonthlyYou);
+                SetIfExists("SocialSecurityMonthlyPartner", modalSSMonthlyPartner);
+
+ 
 
                 var total = TotalSavings;
                 if (total > 0)
@@ -819,24 +820,34 @@
                     SetIfExists("ReverseMortgageMonthly", 0m);
                 }
 
-                SetIfExists("AnnualWithdrawalOne", modalAnnualWithdrawalOne);
-                SetIfExists("AnnualWithdrawalBoth", modalAnnualWithdrawalBoth);
 
-                SetIfExists("SocialSecurityStartAgeYour", modalSSStartAgeYou);
-                SetIfExists("SocialSecurityStartAgePartner", modalSSStartAgePartner);
-                SetIfExists("SocialSecurityMonthlyYour", modalSSMonthlyYou);
-                SetIfExists("SocialSecurityMonthlyPartner", modalSSMonthlyPartner);
+                SetIfExists("TaxableReturn", modalTaxableReturn);
+                SetIfExists("TraditionalReturn", modalTraditionalReturn);
+                SetIfExists("RothReturn", modalRothReturn);
+
             }
             else if (step == 5)
             {
-                SetIfExists("CurrentAgeYou", modalAgeYou);
-                SetIfExists("CurrentAgePartner", modalAgePartner);
+                SetIfExists("AnnualWithdrawalOne", modalAnnualWithdrawalOne);
+                SetIfExists("AnnualWithdrawalBoth", modalAnnualWithdrawalBoth);
 
+          
                 SetIfExists("InflationRate", modalInflation);
                 SetIfExists("TraditionalTaxRate", modalTraditionalTaxRate);
                 SetIfExists("Strategy", modalWithdrawalStrategy);
                 SetIfExists("PriorityStrategy", modalPriorityStrategy);
                 SetIfExists("WithdrawalPriorityStrategy", modalPriorityStrategy);
+            }
+            else if (step == 6)
+            {
+                SetIfExists("CurrentAgeYou", modalAgeYou);
+                SetIfExists("CurrentAgePartner", modalAgePartner);
+
+                // SetIfExists("InflationRate", modalInflation);
+                // SetIfExists("TraditionalTaxRate", modalTraditionalTaxRate);
+                // SetIfExists("Strategy", modalWithdrawalStrategy);
+                // SetIfExists("PriorityStrategy", modalPriorityStrategy);
+                // SetIfExists("WithdrawalPriorityStrategy", modalPriorityStrategy);
             }
         }
         catch { }
