@@ -1,0 +1,134 @@
+@page "/about-rewealthen-new"
+@using Microsoft.AspNetCore.Components.Forms
+@namespace FinPlan.Web.Components.Pages
+
+<PageTitle>About Us - ReWealth-en</PageTitle>
+
+<style>
+    :root {
+        --brand-yellow: #FFD600;
+        --muted: #6c757d;
+        --bg: #f8f9fa;
+        --card-bg: #ffffff;
+        --card-radius: 10px;
+        --accent: #6D5DFC;
+        --danger: #F56565;
+        --success: #38B2AC;
+    }
+
+    .about-container {
+        padding: 20px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .hero {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        background: linear-gradient(180deg,#fff,#fff);
+        border-left: 6px solid var(--brand-yellow);
+        padding: 18px;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(12,18,30,0.04);
+    }
+
+    .hero h1 { margin: 0 0 6px 0; font-size: 1.5rem; }
+    .hero p { margin: 0; color: var(--muted); }
+
+    .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 16px; }
+
+    .card { background: var(--card-bg); border-radius: 8px; padding: 14px; box-shadow: 0 6px 18px rgba(22,28,36,0.04); }
+    .card h4 { margin-top:0; }
+
+    .badge-yellow { background: var(--brand-yellow); color: #111; padding: 6px 8px; border-radius: 6px; font-weight:700; }
+
+    .contact-form { margin-top: 8px; }
+
+    @@media (max-width:900px) {
+        .grid { grid-template-columns: 1fr; }
+        .hero { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+
+<div class="about-container">
+    <div class="hero">
+        <div>
+            <div class="badge-yellow">About</div>
+            <h1>ReWealth-en — practical planning tools</h1>
+            <p>We build lightweight calculators and scenario tools to help you explore savings, retirement drawdown and cost-of-living decisions.</p>
+        </div>
+        <div style="margin-left:auto; text-align:right; color:var(--muted)">
+            <div style="font-weight:700">Designed for clarity</div>
+            <small>Simple assumptions • Transparent math • Exportable results</small>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h4>What we provide</h4>
+            <ul>
+                <li>Interactive savings growth and retirement drawdown calculators</li>
+                <li>Year-by-year projections with per-account detail</li>
+                <li>Small, shareable datasets and export options</li>
+            </ul>
+            <p style="color:var(--muted)">Tools are illustrative and educational — they are not financial advice. Consider working with a licensed professional for decisions that affect your finances.</p>
+        </div>
+
+        <div class="card">
+            <h4>Who we are</h4>
+            <p>We are a small team of engineers and financial enthusiasts who care about making planning approachable. Our focus is clarity: few inputs, clear outputs.</p>
+            <p style="color:var(--muted)">Contributions are welcome — file issues or pull requests on the project's repository.</p>
+        </div>
+
+        <div class="card">
+            <h4>Terms & disclaimer</h4>
+            <p>By using these tools you accept they are provided as-is. We make no guarantees about accuracy — outcomes depend on your inputs and assumptions.</p>
+            <p style="color:var(--muted)">Use the tools to inform, not to decide. Seek professional advice when appropriate.</p>
+        </div>
+
+        <div class="card">
+            <h4>Contact</h4>
+            <p class="text-muted">Questions or feedback? Send us a short message and we'll respond when we can.</p>
+
+            <EditForm Model="contactModel" OnValidSubmit="HandleSubmit" class="contact-form">
+                <div class="mb-2">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="contactModel.Name" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" @bind-Value="contactModel.Email" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Message</label>
+                    <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
+                </div>
+                <button class="btn btn-primary" type="submit">Send</button>
+
+                @if (sent)
+                {
+                    <div class="alert alert-success mt-2">Thanks — your message has been sent.</div>
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ContactModel contactModel = new();
+    private bool sent = false;
+
+    private Task HandleSubmit()
+    {
+        sent = true;
+        return Task.CompletedTask;
+    }
+
+    private class ContactModel
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Message { get; set; }
+    }
+}
