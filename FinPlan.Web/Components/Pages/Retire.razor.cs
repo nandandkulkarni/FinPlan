@@ -11,7 +11,7 @@ using FinPlan.Web.Services;
 
 namespace FinPlan.Web.Components.Pages
 {
-    public partial class DrawDownRetirementPlannerCalendar : IDisposable
+    public partial class Retire : IDisposable
     {
         // inject services
         [Inject] public DebugMessageService DebugService { get; set; } = default!;
