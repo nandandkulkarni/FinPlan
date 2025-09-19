@@ -198,7 +198,9 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
+
+                    <button type="button" class="btn btn-primary" aria-label="Save & Close" @onclick="CloseClicked">Save & Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
                     <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Save & Finish" : "Save & Next")</button>
                 </div>
             </div>
