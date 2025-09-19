@@ -39,11 +39,11 @@
                     <div class="wizard-header-row">
                         <div class="wizard-step-bubble">@wizardStep</div>
                         <div>
-                            <h5 class="modal-title" style="margin:0;">Quick savings setup</h5>
+                            <h5 class="modal-title" style="margin:0;">Savings Plan Inputs</h5>
                             <div class="wizard-step-text">Step @wizardStep of 6</div>
                         </div>
                     </div>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseClicked"></button>
+                    <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
                 </div>
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
                     @if (wizardStep == 1)
@@ -175,8 +175,9 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
-                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Finish" : "Next")</button>
+                    <button type="button" class="btn btn-primary" aria-label="Save & Close" @onclick="CloseClicked">Save & Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Save & Finish" : "Save & Next")</button>
                 </div>
             </div>
         </div>
