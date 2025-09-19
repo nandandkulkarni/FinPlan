@@ -28,6 +28,12 @@
         color: var(--muted);
         font-size: 0.9rem;
     }
+
+    .small-note {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 4px;
+    }
 </style>
 
 @if (Visible)
@@ -40,17 +46,17 @@
                     <div class="wizard-header-row">
                         <div class="wizard-step-bubble">@wizardStep</div>
                         <div>
-                            <h5 class="modal-title" style="margin:0;">Quick setup</h5>
+                            <h5 class="modal-title" style="margin:0;">Retirement Plan Inputs</h5>
                             <div class="wizard-step-text">Step @wizardStep of 6</div>
                         </div>
                     </div>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseClicked"></button>
+                    <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
                 </div>
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
                     @if (wizardStep == 1)
                     {
-                        <label class="form-label">When do you plan to retire? (age)</label>
-                        <div class="row g-2 mt-3">
+                        <label class="form-label">Retirement Ages & Life Expectancy</label>
+                        <div class="row g-2">
                             <div class="col-md-6">
                                 <label class="form-label">Retirement age (You)</label>
                                 <input class="form-control" type="number" @bind="Model.RetirementAgeYou" min="40" max="120" />
@@ -63,54 +69,48 @@
 
                         <div class="row g-2 mt-3">
                             <div class="col-md-6">
-                                <label class="form-label">Life expectancy (age, optional)</label>
+                                <label class="form-label">Life expectancy (You)</label>
                                 <input class="form-control" type="number" @bind="LifeExpectancyAgeYou" min="55" max="120" />
-                                <div class="small-note">Default is computed from model. This controls simulation end age for you.</div>
+                                <div class="small-note">Controls simulation end age for you</div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Partner life expectancy (age, optional)</label>
+                                <label class="form-label">Life expectancy (Partner)</label>
                                 <input class="form-control" type="number" @bind="LifeExpectancyAgePartner" min="55" max="120" />
-                                <div class="small-note">Leave blank (0) to use same life expectancy as you.</div>
+                                <div class="small-note">Leave blank (0) to use same life expectancy as you</div>
                             </div>
                         </div>
                     }
                     else if (wizardStep == 2)
                     {
-                        <label class="form-label">Starting Balances & Expected return</label>
+                        <label class="form-label">Starting Balances & Expected Returns</label>
                         <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Post-Tax Balance ($)</label>
+                            <div class="col-md-4">
+                                <label class="form-label">Taxable ($)</label>
                                 <input class="form-control" type="number" @bind="Model.TaxableBalance" step="1000" min="0" />
                             </div>
-                        </div>
-
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Traditional Balance ($)</label>
+                            <div class="col-md-4">
+                                <label class="form-label">Traditional ($)</label>
                                 <input class="form-control" type="number" @bind="Model.TraditionalBalance" step="1000" min="0" />
                             </div>
-
-                        </div>
-
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Roth Balance ($)</label>
+                            <div class="col-md-4">
+                                <label class="form-label">Roth ($)</label>
                                 <input class="form-control" type="number" @bind="Model.RothBalance" step="1000" min="0" />
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="mt-2 p-2" style="background:#f8f9fa; border-radius:6px;">
+                            <strong>Total starting balance:</strong> @TotalStarting.ToString("C0")
+                        </div>
+
+                        <div class="row mb-2 mt-3">
                             <div class="col-md-6">
-                                <label class="form-label">Average Expected Return (%)</label>
+                                <label class="form-label">Expected Return (%)</label>
                                 <input class="form-control" type="number" @bind="Model.InvestmentReturn" step="0.1" min="-50" max="50" />
                             </div>
-                        </div>
-                        <div class="row mb-2">
                             <div class="col-md-6">
-                                <label class="form-label">Average Expected Inflation (%)</label>
+                                <label class="form-label">Expected Inflation (%)</label>
                                 <input class="form-control" type="number" @bind="Model.InflationRate" step="0.1" min="-50" max="50" />
                             </div>
                         </div>
-         
                     }
                     else if (wizardStep == 3)
                     {
@@ -121,7 +121,7 @@
                                 <input class="form-control" type="number" @bind="Model.SSStartAgeYou" min="50" max="100" />
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Expected SS monthly (You)</label>
+                                <label class="form-label">Expected SS Monthly (You)</label>
                                 <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyYou" step="100" min="0" />
                             </div>
                         </div>
@@ -131,84 +131,75 @@
                                 <input class="form-control" type="number" @bind="Model.SSStartAgePartner" min="50" max="100" />
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Expected SS monthly (Partner)</label>
+                                <label class="form-label">Expected SS Monthly (Partner)</label>
                                 <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyPartner" step="100" min="0" />
                             </div>
                         </div>
-
                     }
                     else if (wizardStep == 4)
                     {
-                        <label class="form-label">Reverse mortgage & withdrawals</label>
+                        <label class="form-label">Reverse Mortgage</label>
                         <div class="mb-2 form-check">
                             <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="ReverseMortgageEnabled" />
                             <label class="form-check-label" for="rmEnabled">Enable reverse mortgage</label>
-                            <div class="small-note">If enabled, reverse mortgage income will begin at the age below for the primary person.</div>
+                            <div class="small-note">If enabled, reverse mortgage income will begin at the age below</div>
                         </div>
 
                         @if (ReverseMortgageEnabled)
                         {
                             <div class="row mb-2">
                                 <div class="col-md-6">
-                                    <label class="form-label">Reverse mortgage start age (you)</label>
+                                    <label class="form-label">Reverse Mortgage Start Age</label>
                                     <input class="form-control" type="number" @bind="Model.ReverseMortgageStartAge" min="60" max="120" />
-                                    <div class="small-note">Age when primary person starts receiving reverse mortgage proceeds.</div>
+                                    <div class="small-note">Age when you start receiving reverse mortgage proceeds</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Reverse mortgage monthly ($)</label>
-                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageMonthly" step="1" min="0" />
+                                    <label class="form-label">Reverse Mortgage Monthly ($)</label>
+                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageMonthly" step="100" min="0" />
                                 </div>
                             </div>
                         }
                     }
                     else if (wizardStep == 5)
                     {
+                        <label class="form-label">Withdrawal Strategy</label>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <label class="form-label">Planned Annual Withdrawal: One Retired</label>
-                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalOne" step="1" min="0" />
+                                <label class="form-label">Annual Withdrawal: One Retired</label>
+                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalOne" step="1000" min="0" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Planned Annual Withdrawal: Both Retired</label>
-                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalBoth" step="1" min="0" />
+                                <label class="form-label">Annual Withdrawal: Both Retired</label>
+                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalBoth" step="1000" min="0" />
                             </div>
                         </div>
                     }
                     else if (wizardStep == 6)
                     {
-
-                        <label class="form-label">Current Age / Simulation</label>
-
-                        <div class="row mb-2">
+                        <label class="form-label">Current Ages & Simulation Settings</label>
+                        <div class="row g-2">
                             <div class="col-md-6">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="number" @bind="Model.CurrentAgeYou" min="40" />
-                                        <div class="small-note">Your current age.</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="number" @bind="Model.CurrentAgePartner" min="0" />
-                                        <div class="small-note">Partner current age (optional).</div>
-                                    </div>
-                                </div>
-                                <label class="form-label">Projection start year</label>
-                                <input class="form-control" type="number" @bind="Model.SimulationStartYear" />
-                                <div class="small-note">Optional — enter start year for the simulation.</div>
+                                <label class="form-label">Current Age (You)</label>
+                                <input class="form-control" type="number" @bind="Model.CurrentAgeYou" min="18" max="120" />
                             </div>
-                            @* <div class="col-md-6">
-                                <label class="form-label">Auto calculate simulation start</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="autoCalc" @bind="Model.AutoCalculate" />
-                                    <label class="form-check-label" for="autoCalc">Auto calculate start year</label>
-                                </div>
-                            </div> *@
+                            <div class="col-md-6">
+                                <label class="form-label">Current Age (Partner)</label>
+                                <input class="form-control" type="number" @bind="Model.CurrentAgePartner" min="0" max="120" />
+                                <div class="small-note">Leave as 0 if no partner</div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Projection Start Year</label>
+                                <input class="form-control" type="number" @bind="Model.SimulationStartYear" />
+                                <div class="small-note">Year to begin the retirement simulation</div>
+                            </div>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
-                    <button type="button" class="btn btn-success" @onclick="SaveAndClose">Save & Close</button>
-                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Finish" : "Next")</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Save & Finish" : "Save & Next")</button>
                 </div>
             </div>
         </div>
@@ -228,11 +219,9 @@
     [Parameter]
     public EventCallback<(int AgeYou, int AgePartner)> OnFinished { get; set; }
 
-    // New callback to request parent save when stepping between tabs
     [Parameter]
     public EventCallback OnSave { get; set; }
 
-    // Optional: initial step to open the wizard at
     [Parameter]
     public int InitialStep { get; set; } = 1;
 
@@ -240,20 +229,19 @@
     private bool _wasVisible = false;
     private int _lastInitialStep = 1;
 
+    private decimal TotalStarting => (Model?.TaxableBalance ?? 0) + (Model?.TraditionalBalance ?? 0) + (Model?.RothBalance ?? 0);
+
     protected override void OnParametersSet()
     {
-        // ensure we have a concrete model to bind to
         if (Model == null)
         {
             Model = new CalendarSpendingModel();
         }
 
-        // Only set wizardStep when the modal becomes visible or when InitialStep changes explicitly.
         if (Visible)
         {
             if (!_wasVisible)
             {
-                // modal just opened - initialize to requested initial step
                 if (InitialStep >= 1 && InitialStep <= 6)
                 {
                     wizardStep = InitialStep;
@@ -262,7 +250,6 @@
             }
             else if (InitialStep != _lastInitialStep)
             {
-                // parent explicitly changed the initial step while modal is open
                 if (InitialStep >= 1 && InitialStep <= 6)
                 {
                     wizardStep = InitialStep;
@@ -274,12 +261,15 @@
         _wasVisible = Visible;
     }
 
-    private void PrevwizardStep()
+    private async Task PrevwizardStep()
     {
-        if (wizardStep > 1) wizardStep--;
-        // persist sync after change (model is already updated by bindings)
-        TrySyncModel();
-        _ = InvokeOnSaveSafe();
+        if (wizardStep > 1)
+        {
+            TrySyncModel();
+            await InvokeOnSaveSafe();
+            wizardStep--;
+            StateHasChanged();
+        }
     }
 
     private async Task NextOrSubmit()
@@ -289,10 +279,7 @@
             // minimal validation for step 1
             if (wizardStep == 1 && (Model?.RetirementAgeYou ?? 0) <= 0) return;
 
-            // model already updated through bindings; ensure derived fields synced
             TrySyncModel();
-
-            // Await parent save so callers can run Calculate after save completes
             await InvokeOnSaveSafe();
 
             wizardStep++;
@@ -300,7 +287,7 @@
             return;
         }
 
-        // final step: ensure model sync and notify parent then close
+        // final step: sync, save, and close
         TrySyncModel();
 
         if (OnSave.HasDelegate)
@@ -317,11 +304,11 @@
         wizardStep = 1;
     }
 
-    private async Task SaveAndClose()
+    private async Task CloseClicked()
     {
-        // ensure derived fields are synced and ask parent to save, then close the modal
         TrySyncModel();
         await InvokeOnSaveSafe();
+
         Visible = false;
         await VisibleChanged.InvokeAsync(false);
         wizardStep = 1;
@@ -348,7 +335,7 @@
         catch { }
     }
 
-    // conversion helpers to keep the UX showing "age" for life expectancy while the model stores either an age or a year
+    // Conversion helpers for life expectancy (age vs year)
     private int LifeExpectancyAgeYou
     {
         get
@@ -365,7 +352,6 @@
         set
         {
             if (Model == null) return;
-            // if model currently stores a year (>1900) convert age back to year using current age
             if (Model.LifeExpectancyYou > 1900)
             {
                 var baseAge = Model.CurrentAgeYou > 0 ? Model.CurrentAgeYou : 0;
@@ -421,27 +407,5 @@
                 Model.ReverseMortgageStartAge = 0;
             }
         }
-    }
-
-    private async Task CloseClicked()
-    {
-        // ensure model-derived fields are synced and call parent save before hiding
-        TrySyncModel();
-        await InvokeOnSaveSafe();
-
-        Visible = false;
-        await VisibleChanged.InvokeAsync(false);
-        wizardStep = 1;
-    }
-
-    private string GetBreakdownText()
-    {
-        if (Model == null) return "No starting savings entered.";
-        var t = Model.TaxableBalance + Model.TraditionalBalance + Model.RothBalance;
-        if (t <= 0) return "No starting savings entered.";
-        var pt = Model.TaxableBalance / t * 100;
-        var tr = Model.TraditionalBalance / t * 100;
-        var ro = Model.RothBalance / t * 100;
-        return $"Post-Tax {pt:F0}% • Traditional {tr:F0}% • Roth {ro:F0}%";
     }
 }
