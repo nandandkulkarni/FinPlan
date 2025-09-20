@@ -447,17 +447,32 @@
     private bool hasError = false;
     private string errorMessage = string.Empty;
     private string userGuid = string.Empty;
+    private bool hasInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        // Use safe method that works during prerendering
+        userGuid = UserGuidService.GetTemporaryUserGuid();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasInitialized)
         {
-            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            hasInitialized = true;
+            try
+            {
+                // Now we can safely use JavaScript interop
+                userGuid = await UserGuidService.GetOrCreateUserGuidWithJSAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                // Fallback if JS still fails
+                Console.WriteLine($"Error getting user GUID: {ex.Message}");
+            }
         }
-        catch
-        {
-            userGuid = Guid.NewGuid().ToString();
-        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task Submit()

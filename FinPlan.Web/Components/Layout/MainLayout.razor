@@ -598,7 +598,8 @@
             var name = currentUser.FindFirst(ClaimTypes.Name)?.Value ?? currentUser.FindFirst("name")?.Value ?? ((firstName ?? string.Empty) + " " + (lastName ?? string.Empty)).Trim();
 
             // include client's cookie-guid so server can detect local data
-            var cookieGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            // Use the JS-safe method since this runs after authentication (not during prerender)
+            var cookieGuid = await UserGuidService.GetOrCreateUserGuidWithJSAsync();
 
             var request = new
             {
