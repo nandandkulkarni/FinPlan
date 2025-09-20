@@ -645,9 +645,9 @@
                                                 <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Unit<br /><span class="small">($)</span></th>
                                                 <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Month<br /><span class="small">($)</span></th>
                                                 <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Include In<br /><span class="small">Retirement</span></th>
-                                                <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">Retirement<br />Adjustment</th>
+                                                <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
                                                 <th class="fw-bold text-center align-middle" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">Retirement<br />Value ($)</th>
+                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">Retirement<br /><span class="small">Value</span></th>
                                             </tr>
                                         </thead>
 
@@ -808,6 +808,28 @@
                         <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
                         <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Important Disclaimers -->
+    <div class="mt-4 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
+        <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <div style="color: #856404; margin-top: 2px;">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.1rem;"></i>
+            </div>
+            <div>
+                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
+                <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
+                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational and planning purposes only. Results are projections based on your inputs and assumptions. This is not personalized financial, tax, or investment advice.</p>
+
+                    <p style="margin-bottom: 8px;"><strong>Inflation Assumptions:</strong> Actual inflation rates vary significantly over time and by category. Real-world cost changes for housing, healthcare, food, and other expenses may differ substantially from the uniform inflation rates used in this calculator.</p>
+
+                    <p style="margin-bottom: 8px;"><strong>Life Changes:</strong> Job transitions, family changes, health issues, geographic moves, and lifestyle adjustments are not modeled but can materially impact your actual cost of living in retirement.</p>
+
+                    <p style="margin-bottom: 8px;"><strong>Economic Factors:</strong> Economic conditions, policy changes, technological advances, and other external factors may significantly alter future costs in ways not captured by simple inflation projections.</p>
+
+                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors, tax professionals, and retirement planning specialists who can provide personalized advice for your complete financial situation and retirement planning needs.</p>
                 </div>
             </div>
         </div>
@@ -1783,7 +1805,7 @@
             {
                 await JSRuntime.InvokeVoidAsync("console.log", "Saved Cost of Living");
                 Log("SaveToApi success");
-                lastSaveMessage = $"Saved {DateTime.Now:T}";
+                //lastSaveMessage = $"Saved {DateTime.Now:T}";
             }
             else
             {
