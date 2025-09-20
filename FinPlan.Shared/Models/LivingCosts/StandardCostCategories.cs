@@ -35,7 +35,7 @@ namespace FinPlan.Shared.Models.LivingCosts
                 new CostItem { Category = "Healthcare", Subcategory = "Out-of-pocket", CurrentValue = 50m , AdjustOption = RetirementAdjustOption.Inflation },
 
                 // Insurance
-                new CostItem { Category = "Insurance", Subcategory = "Life Insurance", CurrentValue = 50m , AdjustOption = RetirementAdjustOption.Inflation },
+                new CostItem { Category = "Insurance", Subcategory = "Term Life Insurance", CurrentValue = 50m , AdjustOption = RetirementAdjustOption.Same },
                 new CostItem { Category = "Insurance", Subcategory = "Disability Insurance", CurrentValue = 30m , AdjustOption = RetirementAdjustOption.Inflation },
 
                 // Taxes & Savings
@@ -44,7 +44,7 @@ namespace FinPlan.Shared.Models.LivingCosts
 
                 // Lifestyle
                 new CostItem { Category = "Lifestyle", Subcategory = "Entertainment", CurrentValue = 150m , AdjustOption = RetirementAdjustOption.Inflation },
-                new CostItem { Category = "Lifestyle", Subcategory = "Education", CurrentValue = 100m , AdjustOption = RetirementAdjustOption.Inflation },
+                new CostItem { Category = "Lifestyle", Subcategory = "Education", CurrentValue = 100m , IncludeInRetirement=false},
                 new CostItem { Category = "Lifestyle", Subcategory = "Miscellaneous", CurrentValue = 100m , AdjustOption = RetirementAdjustOption.Inflation },
 
                 
