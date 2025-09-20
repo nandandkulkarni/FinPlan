@@ -1,10 +1,125 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FinPlan.Shared.Models.Spending
 {
+    public class MissingFieldInfo
+    {
+        public string FieldName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int WizardStep { get; set; }
+        public bool IsRequired { get; set; } = true;
+    }
+
+    public class SetupSection
+    {
+        public int StepNumber { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public bool IsComplete { get; set; }
+        public List<MissingFieldInfo> MissingFields { get; set; } = new();
+        public int CompletedFields { get; set; }
+        public int TotalFields { get; set; }
+    }
+
     public class CalendarSpendingModel
     {
+        /// <summary>
+        /// Gets a list of setup sections with completion status and missing fields
+        /// </summary>
+        public List<SetupSection> GetSetupSections()
+        {
+            var sections = new List<SetupSection>();
+
+            // Step 1: Ages & Life Expectancy
+            var step1Missing = new List<MissingFieldInfo>();
+            if (CurrentAgeYou == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Your current age", Description = "Required for retirement timeline calculations", WizardStep = 1 });
+            if (CurrentAgePartner == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Partner's current age", Description = "Required for joint retirement planning", WizardStep = 1 });
+            if (RetirementAgeYou == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Your retirement age", Description = "When do you plan to retire?", WizardStep = 1 });
+            if (RetirementAgePartner == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Partner's retirement age", Description = "When does your partner plan to retire?", WizardStep = 1 });
+            if (LifeExpectancyYou == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Your life expectancy", Description = "How long should your money last?", WizardStep = 1 });
+            if (LifeExpectancyPartner == 0) step1Missing.Add(new MissingFieldInfo { DisplayName = "Partner's life expectancy", Description = "Planning horizon for joint finances", WizardStep = 1 });
+
+            sections.Add(new SetupSection 
+            { 
+                StepNumber = 1, 
+                Title = "Ages & Life Expectancy", 
+                IsComplete = step1Missing.Count == 0,
+                MissingFields = step1Missing,
+                CompletedFields = 6 - step1Missing.Count,
+                TotalFields = 6
+            });
+
+            // Step 2: Starting Balances
+            var step2Missing = new List<MissingFieldInfo>();
+            if (TaxableBalance == 0 && TraditionalBalance == 0 && RothBalance == 0) 
+                step2Missing.Add(new MissingFieldInfo { DisplayName = "Starting account balances", Description = "At least one account balance is required", WizardStep = 2 });
+
+            sections.Add(new SetupSection 
+            { 
+                StepNumber = 2, 
+                Title = "Starting Balances & Returns", 
+                IsComplete = step2Missing.Count == 0,
+                MissingFields = step2Missing,
+                CompletedFields = 1 - step2Missing.Count,
+                TotalFields = 1
+            });
+
+            // Step 3: Social Security
+            var step3Missing = new List<MissingFieldInfo>();
+            if (SocialSecurityMonthlyYou == 0) step3Missing.Add(new MissingFieldInfo { DisplayName = "Your Social Security benefit", Description = "Expected monthly benefit amount", WizardStep = 3 });
+            if (SocialSecurityMonthlyPartner == 0) step3Missing.Add(new MissingFieldInfo { DisplayName = "Partner's Social Security benefit", Description = "Expected monthly benefit amount", WizardStep = 3 });
+
+            sections.Add(new SetupSection 
+            { 
+                StepNumber = 3, 
+                Title = "Social Security", 
+                IsComplete = step3Missing.Count == 0,
+                MissingFields = step3Missing,
+                CompletedFields = 2 - step3Missing.Count,
+                TotalFields = 2
+            });
+
+            // Step 5: Withdrawal Strategy
+            var step5Missing = new List<MissingFieldInfo>();
+            if (AnnualWithdrawalOne == 0) step5Missing.Add(new MissingFieldInfo { DisplayName = "Withdrawal (one retired)", Description = "Annual spending when one person is retired", WizardStep = 5 });
+            if (AnnualWithdrawalBoth == 0) step5Missing.Add(new MissingFieldInfo { DisplayName = "Withdrawal (both retired)", Description = "Annual spending when both are retired", WizardStep = 5 });
+
+            sections.Add(new SetupSection 
+            { 
+                StepNumber = 5, 
+                Title = "Withdrawal Strategy", 
+                IsComplete = step5Missing.Count == 0,
+                MissingFields = step5Missing,
+                CompletedFields = 2 - step5Missing.Count,
+                TotalFields = 2
+            });
+
+            return sections;
+        }
+
+        /// <summary>
+        /// Gets the overall completion percentage across all sections
+        /// </summary>
+        public int GetOverallCompletionPercentage()
+        {
+            var sections = GetSetupSections();
+            var totalFields = sections.Sum(s => s.TotalFields);
+            var completedFields = sections.Sum(s => s.CompletedFields);
+            return totalFields > 0 ? (int)((double)completedFields / totalFields * 100) : 0;
+        }
+
+        /// <summary>
+        /// Gets the next incomplete step number for smart navigation
+        /// </summary>
+        public int GetNextIncompleteStep()
+        {
+            var sections = GetSetupSections();
+            var nextIncomplete = sections.FirstOrDefault(s => !s.IsComplete);
+            return nextIncomplete?.StepNumber ?? 1;
+        }
+
         /// <summary>
         /// Determines if the model is completely empty (first-time user state)
         /// </summary>
@@ -46,16 +161,15 @@ namespace FinPlan.Shared.Models.Spending
         public bool IsModelComplete()
         {
             // Essential requirements for a complete retirement model
-            bool hasValidAges = CurrentAgeYou > 0 && 
+            bool hasValidAges = CurrentAgeYou > 0 &&
                                CurrentAgePartner > 0 &&
-                               RetirementAgeYou > 0 && 
+                               RetirementAgeYou > 0 &&
                                RetirementAgePartner > 0 &&
-                               CurrentAgeYou >= 18 && 
+                               CurrentAgeYou >= 18 &&
                                CurrentAgePartner >= 18 &&
-                               CurrentAgeYou < RetirementAgeYou && 
-                               CurrentAgePartner < RetirementAgePartner &&
-                               RetirementAgeYou <= 100 && 
-                               RetirementAgePartner <= 100;
+                               CurrentAgeYou < RetirementAgeYou &&
+                               CurrentAgePartner < RetirementAgePartner;
+
             
             bool hasRetirementMoney = TaxableBalance > 0 || 
                                      TraditionalBalance > 0 || 
@@ -64,13 +178,10 @@ namespace FinPlan.Shared.Models.Spending
             bool hasWithdrawalStrategy = AnnualWithdrawalOne > 0 && 
                                         AnnualWithdrawalBoth > 0 &&
                                         AnnualWithdrawalBoth >= AnnualWithdrawalOne; // logical constraint
-            
-            bool hasReasonableRates = InvestmentReturn >= 0 && 
-                                     InvestmentReturn <= 30 &&
-                                     InflationRate >= 0 && 
-                                     InflationRate <= 15 &&
-                                     TraditionalTaxRate >= 0 && 
-                                     TraditionalTaxRate <= 50;
+
+            bool hasReasonableRates = InvestmentReturn >= 0 &&
+                                     TraditionalTaxRate >= 0;
+
             
             bool hasLifeExpectancy = LifeExpectancyYou > RetirementAgeYou && 
                                     LifeExpectancyPartner > RetirementAgePartner;

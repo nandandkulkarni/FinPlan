@@ -1,0 +1,347 @@
+﻿@using FinPlan.Shared.Models.Spending
+@using Microsoft.AspNetCore.Components
+@using System.Linq
+
+<style>
+    /* Setup Checklist Modal Styles */
+    .setup-checklist-modal {
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border: none;
+    }
+
+    .setup-checklist-modal .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 24px 24px 16px 24px;
+    }
+
+    .header-content {
+        width: 100%;
+    }
+
+    .setup-checklist-modal .modal-title {
+        margin: 0 0 16px 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+
+    .progress-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .progress-container {
+        flex: 1;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .checklist-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #38a169 0%, #48bb78 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .setup-checklist-modal .modal-body {
+        padding: 24px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .setup-section {
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        margin-bottom: 16px;
+        transition: all 0.2s ease;
+    }
+
+    .setup-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .setup-section.completed {
+        border-color: #38a169;
+        background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+    }
+
+    .setup-section.incomplete:hover {
+        border-color: #cbd5e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .checklist-step-indicator {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        color: #718096;
+        transition: all 0.2s ease;
+    }
+
+    .checklist-step-indicator.complete {
+        background: #38a169;
+        border-color: #38a169;
+        color: white;
+    }
+
+    .section-info {
+        flex: 1;
+    }
+
+    .section-title {
+        margin: 0 0 4px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .section-title.text-success {
+        color: #38a169 !important;
+    }
+
+    .section-subtitle {
+        color: #718096;
+        font-size: 0.85rem;
+    }
+
+    .section-actions {
+        flex-shrink: 0;
+    }
+
+    .completion-badge {
+        background: #38a169;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .missing-fields {
+        margin-top: 16px;
+        margin-left: 52px;
+        padding-left: 20px;
+        border-left: 2px solid #e2e8f0;
+    }
+
+    .missing-field-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 0;
+        font-size: 0.9rem;
+    }
+
+    .missing-field-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .missing-field-item i {
+        margin-top: 2px;
+        color: #a0aec0;
+    }
+
+    .field-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .field-info strong {
+        color: #2d3748;
+        font-weight: 600;
+    }
+
+    .field-description {
+        color: #718096;
+        line-height: 1.4;
+    }
+
+    .setup-checklist-modal .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .checklist-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .checklist-btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .checklist-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .checklist-btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .checklist-btn-secondary:hover {
+        background: #cbd5e0;
+    }
+
+    .checklist-btn-success {
+        background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+        color: white;
+    }
+
+    .checklist-btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+    }
+
+    .checklist-btn-sm {
+        padding: 6px 14px;
+        font-size: 0.85rem;
+    }
+</style>
+
+@if (Visible)
+{
+    <div class="modal-backdrop fade show" style="z-index:1060;"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1070;">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content setup-checklist-modal">
+                <div class="modal-header">
+                    <div class="header-content">
+                        <h4 class="modal-title">What's still missing</h4>
+                        <div class="progress-section">
+                            <div class="progress-container">
+                                <div class="checklist-progress-bar" style="width: @(Model.GetOverallCompletionPercentage())%"></div>
+                            </div>
+                            <span class="progress-text">@Model.GetOverallCompletionPercentage()% Complete</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => OnClose.InvokeAsync()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @foreach (var setupItem in Model.GetSetupSections())
+                    {
+                        <div class="setup-section @(setupItem.IsComplete ? "completed" : "incomplete")">
+                            <div class="section-header">
+                                <div class="checklist-step-indicator @(setupItem.IsComplete ? "complete" : "")">
+                                    @if (setupItem.IsComplete)
+                                    {
+                                        <i class="bi bi-check-lg"></i>
+                                    }
+                                    else
+                                    {
+                                        <span>@setupItem.StepNumber</span>
+                                    }
+                                </div>
+                                <div class="section-info">
+                                    <h6 class="section-title @(setupItem.IsComplete ? "text-success" : "")">@setupItem.Title</h6>
+                                    <small class="section-subtitle">@setupItem.CompletedFields of @setupItem.TotalFields fields completed</small>
+                                </div>
+                                <div class="section-actions">
+                                    @if (!setupItem.IsComplete)
+                                    {
+                                        <button class="checklist-btn checklist-btn-primary checklist-btn-sm" @onclick="() => OnCompleteSection.InvokeAsync(setupItem.StepNumber)">
+                                            Complete
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="completion-badge">✓ Done</span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            @if (!setupItem.IsComplete && setupItem.MissingFields.Any())
+                            {
+                                <div class="missing-fields">
+                                    @foreach (var field in setupItem.MissingFields)
+                                    {
+                                        <div class="missing-field-item">
+                                            <i class="bi bi-arrow-right text-muted"></i>
+                                            <div class="field-info">
+                                                <strong>@field.DisplayName</strong>
+                                                <small class="field-description">@field.Description</small>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="checklist-btn checklist-btn-secondary" @onclick="() => OnClose.InvokeAsync()">
+                        Close
+                    </button>
+                    @if (Model.GetOverallCompletionPercentage() < 100)
+                    {
+                        <button class="checklist-btn checklist-btn-primary" @onclick="() => OnContinueSetup.InvokeAsync()">
+                            Continue Setup
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="checklist-btn checklist-btn-success" @onclick="() => OnClose.InvokeAsync()">
+                            <i class="bi bi-check-circle" style="margin-right: 8px;"></i>
+                            All Complete!
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public CalendarSpendingModel Model { get; set; } = new();
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnCompleteSection { get; set; }
+
+    [Parameter]
+    public EventCallback OnContinueSetup { get; set; }
+}
