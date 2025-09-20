@@ -54,10 +54,15 @@
                 </div>
                 <div class="modal-body" style="padding: 24px;">
                     <div style="margin-bottom: 24px;">
-                        <label style="font-weight: 600; color: #374151; margin-bottom: 16px; display: block;">
-                            Choose a scenario that's closest to your situation:
-                        </label>
-
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <label style="font-weight: 600; color: #374151; margin: 0;">
+                                Choose a scenario that's closest to your situation:
+                            </label>
+                            <button type="button" class="btn btn-primary" @onclick="LoadSelectedSampleData" disabled="@(selectedSampleData == 0)">
+                                @* <i class="bi bi-download" style="margin-right: 8px;"></i> *@
+                                Load Sample Data
+                            </button>
+                        </div>
                         <div style="display: flex; flex-direction: column; gap: 16px;">
                             <!-- 30s Option -->
                             <label class="sample-option @(selectedSampleData == 30 ? "selected" : "")">
@@ -141,8 +146,8 @@
                         Cancel
                     </button>
                     <button type="button" class="btn btn-primary" @onclick="LoadSelectedSampleData" disabled="@(selectedSampleData == 0)">
-                        <i class="bi bi-download" style="margin-right: 8px;"></i>
-                        Load @(selectedSampleData.ToString().ToUpper()) Sample Data
+                        @* <i class="bi bi-download" style="margin-right: 8px;"></i> *@
+                        Load Sample Data
                     </button>
                 </div>
             </div>
