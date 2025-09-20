@@ -15,3 +15,5 @@ namespace FinPlan.ApiService.Data
         public string Data { get; set; } = string.Empty;
     }
 }
+
+

@@ -1,3 +1,4 @@
+using FinPlan.ApiService.Data.FinPlan.ApiService.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinPlan.ApiService.Data
@@ -11,6 +12,7 @@ namespace FinPlan.ApiService.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserRegistration> UserRegistrations { get; set; }
         public DbSet<SurveyResponse> SurveyResponses { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +33,15 @@ namespace FinPlan.ApiService.Data
                 // Make sure CreatedAt/UpdatedAt are treated as regular properties (not computed)
                 b.Property(e => e.CreatedAt).ValueGeneratedNever();
                 b.Property(e => e.UpdatedAt).ValueGeneratedNever();
+            });
+
+            // Configure ContactMessage entity
+            modelBuilder.Entity<ContactMessage>(b =>
+            {
+                b.ToTable("ContactMessages");
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.CreatedAt).ValueGeneratedNever();
             });
 
             base.OnModelCreating(modelBuilder);

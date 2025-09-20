@@ -18,7 +18,6 @@
 
 <PageTitle>About - Rewealthen</PageTitle>
 
-
 <style>
     :root {
         --brand-yellow: #FFD600;
@@ -233,9 +232,12 @@
     }
 
     @@media (max-width:1024px) {
-        .top-area .row {
-            gap: 12px;
-        }
+        .top-area .row
+
+    {
+        gap: 12px;
+    }
+
     }
 </style>
 
@@ -310,19 +312,19 @@
                                     <div class="card p-3">
                                         <div class="card-body">
                                             <p>
-                                                We’re a small but dedicated team of engineers and financial enthusiasts who believe that planning for the future shouldn’t feel overwhelming.
+                                                We're a small but dedicated team of engineers and financial enthusiasts who believe that planning for the future shouldn't feel overwhelming.
                                             </p>
                                             <p>
-                                                With backgrounds spanning software development, data analysis, and personal finance, we’ve come together around a simple idea: to make financial planning clear, approachable, and empowering for everyone.
+                                                With backgrounds spanning software development, data analysis, and personal finance, we've come together around a simple idea: to make financial planning clear, approachable, and empowering for everyone.
                                             </p>
                                             <p>
-                                                Our focus is on building tools that take the guesswork out of financial decisions—whether it’s saving for retirement, managing day-to-day expenses, or planning for
+                                                Our focus is on building tools that take the guesswork out of financial decisions—whether it's saving for retirement, managing day-to-day expenses, or planning for
                                                 long-term goals.
                                             </p>
 
                                             <p>
                                                 We combine technical expertise with a genuine passion for helping people make smarter, more confident choices about their money.
-                                                At the heart of what we do is a commitment to simplicity, transparency, and user-first design. We know that behind every calculation is a real person with real goals, and we’re here to help make those goals feel achievable.
+                                                At the heart of what we do is a commitment to simplicity, transparency, and user-first design. We know that behind every calculation is a real person with real goals, and we're here to help make those goals feel achievable.
                                             </p>
 
                                             <p>Together, we are committed to empowering you with the tools and knowledge to make informed financial decisions.</p>
@@ -354,7 +356,7 @@
                                             </p>
 
                                             <p>
-                                                The site and its calculators are provided “as is,” without warranties of any kind. We are not liable for any losses or
+                                                The site and its calculators are provided "as is," without warranties of any kind. We are not liable for any losses or
                                                 damages resulting from use of the site or reliance on the calculators.
                                             </p>
 
@@ -376,7 +378,7 @@
                                     </div>
                                     <div class="card p-3 mb-4">
                                         <div class="card-body">
-                                            <p>We’d love to hear from you. Send us a message below, and we’ll get back to you within a few business days.</p>
+                                            <p>We'd love to hear from you. Send us a message below, and we'll get back to you within a few business days.</p>
                                             <p>
                                                 Prefer email? Reach us directly at
                                                 <a href="mailto:engineering@rewealthen.com">engineering@rewealthen.com</a>.
@@ -385,22 +387,37 @@
                                             <EditForm Model="contactModel" OnValidSubmit="Submit">
                                                 <div class="mb-2">
                                                     <label class="form-label">Name</label>
-                                                    <InputText class="form-control" @bind-Value="contactModel.Name" />
+                                                    <InputText class="form-control" @bind-Value="contactModel.Name" disabled="@isSubmitting" />
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="form-label">Email</label>
-                                                    <InputText class="form-control" @bind-Value="contactModel.Email" />
+                                                    <InputText class="form-control" @bind-Value="contactModel.Email" disabled="@isSubmitting" />
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="form-label">Message</label>
-                                                    <InputTextArea class="form-control" @bind-Value="contactModel.Message" />
+                                                    <InputTextArea class="form-control" @bind-Value="contactModel.Message" disabled="@isSubmitting" />
                                                 </div>
-                                                <button class="btn btn-primary" type="submit">Send</button>
+                                                <button class="btn btn-primary" type="submit" disabled="@isSubmitting">
+                                                    @if (isSubmitting)
+                                                    {
+                                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                        <span>Sending...</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Send</span>
+                                                    }
+                                                </button>
                                             </EditForm>
 
-                                            @if (sent)
+                                            @if (submitted && !hasError)
                                             {
-                                                <div class="alert alert-success mt-2">Thanks — your message has been sent.</div>
+                                                <div class="alert alert-success mt-2">Thanks — your feedback has been submitted successfully!</div>
+                                            }
+
+                                            @if (hasError)
+                                            {
+                                                <div class="alert alert-danger mt-2">@errorMessage</div>
                                             }
                                         </div>
                                     </div>
@@ -425,13 +442,84 @@
 
 @code {
     private ContactModel contactModel = new();
-    private bool sent = false;
+    private bool submitted = false;
+    private bool isSubmitting = false;
+    private bool hasError = false;
+    private string errorMessage = string.Empty;
+    private string userGuid = string.Empty;
 
-    private Task Submit()
+    protected override async Task OnInitializedAsync()
     {
-        // For now, just mark sent. In a real app we'd POST to an API or send an email.
-        sent = true;
-        return Task.CompletedTask;
+        try
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        }
+        catch
+        {
+            userGuid = Guid.NewGuid().ToString();
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (isSubmitting) return;
+
+        isSubmitting = true;
+        hasError = false;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/Contact/save";
+
+            var request = new
+            {
+                Name = contactModel.Name,
+                Email = contactModel.Email,
+                Message = contactModel.Message,
+                UserGuid = userGuid
+            };
+
+            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(request);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                submitted = true;
+                // Reset the form
+                contactModel = new ContactModel();
+            }
+            else
+            {
+                hasError = true;
+                errorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error submitting contact form: {ex.Message}");
+            hasError = true;
+            errorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
     }
 
     private class ContactModel
@@ -441,4 +529,3 @@
         public string? Message { get; set; }
     }
 }
-
