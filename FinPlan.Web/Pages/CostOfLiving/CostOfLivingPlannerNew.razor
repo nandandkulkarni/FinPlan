@@ -363,7 +363,7 @@
                                     <option value="Same">Same</option>
                                     <option value="CustomPercentage">Custom %</option>
                                     <option value="Manual">Manual</option>
-                                    <option value="AdjustForInflation">Adjust for Inflation</option>
+                                    <option value="Inflation">Adjust for Inflation</option>
                                 </select>
                             }
                             else
@@ -402,7 +402,7 @@
                     }
                     @if (modalIncludeInRetirement)
                     {
-                        @if (modalAdjustOption == "AdjustForInflation")
+                        @if (modalAdjustOption == "Inflation")
                         {
                             <div class="mb-3">
                                 <label class="form-label">Inflation Source</label>
@@ -684,16 +684,35 @@
                                                     <td class="text-center align-middle" style="width:320px;">
                                                         @if (item.IncludeInRetirement)
                                                         {
-                                                            @item.AdjustOption
+                                                            @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                            {
+                                                                <span>@item.CustomPercentage%</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                                            {
+                                                                <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Same)
+                                                            {
+                                                                <span>No change</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                            {
+                                                                <span>Inflation</span>
+                                                            }
                                                         }
                                                     </td>
                                                     <td class="text-center align-middle" style="width:160px;">
-                                                        @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
+                                                        @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
                                                         {
-                                                            @item.PerItemInflationSource
-                                                            @if (item.PerItemInflationSource == InflationSource.Custom)
+                                                            @if(@item.PerItemInflationSource== InflationSource.UseGlobal)
                                                             {
-                                                                <span>: @item.PerItemInflationPercent%</span>
+                                                                <span>@InflationRate%</span>
+                                                                
+                                                            }
+                                                            else if (item.PerItemInflationSource == InflationSource.Custom)
+                                                            {
+                                                                <span>@item.PerItemInflationPercent%</span>
                                                             }
                                                         }
                                                     </td>
@@ -1507,7 +1526,7 @@
             Category = cat,
             Subcategory = GenerateNewItemName(cat),
             CurrentValue = 0m,
-            AdjustOption = RetirementAdjustOption.AdjustForInflation,
+            AdjustOption = RetirementAdjustOption.Inflation,
             IncludeInRetirement = true
         };
 
@@ -1594,7 +1613,7 @@
             Category = newCat,
             Subcategory = GenerateNewItemName(newCat),
             CurrentValue = 0m,
-            AdjustOption = RetirementAdjustOption.AdjustForInflation,
+            AdjustOption = RetirementAdjustOption.Inflation,
             IncludeInRetirement = true
         };
 
@@ -1614,7 +1633,7 @@
     private void AddRow()
     {
         var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
-        var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m, AdjustOption = RetirementAdjustOption.AdjustForInflation, IncludeInRetirement = true };
+        var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m, AdjustOption = RetirementAdjustOption.Inflation, IncludeInRetirement = true };
         Items.Add(newItem);
         if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
         {

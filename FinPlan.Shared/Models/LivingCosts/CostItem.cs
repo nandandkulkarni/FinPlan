@@ -82,7 +82,7 @@ namespace FinPlan.Shared.Models.LivingCosts
             return AdjustOption switch
             {
                 RetirementAdjustOption.Same => Math.Round(baseMonthly, 2),
-                RetirementAdjustOption.AdjustForInflation =>
+                RetirementAdjustOption.Inflation =>
                     CalculateInflationAdjusted(baseMonthly, yearsToRetirement, effectiveInflation),
                 RetirementAdjustOption.CustomPercentage => Math.Round(baseMonthly * (CustomPercentage / 100m), 2),
                 RetirementAdjustOption.Manual => ManualRetirementValue.HasValue ? Math.Round(ManualRetirementValue.Value, 2) : Math.Round(baseMonthly, 2),
