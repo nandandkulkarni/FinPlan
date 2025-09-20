@@ -262,6 +262,45 @@
         border-radius: 10px;
     }
 
+    /* Field Preview Styles */
+    .field-preview {
+        filter: grayscale(10%);
+        opacity: 1.00;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .preview-card {
+        background: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+    }
+
+        .preview-card .step-badge {
+            opacity: 0.9;
+        }
+
+    .start-planning-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(1px);
+        z-index: 10;
+    }
+
+        .start-planning-overlay .empty-state {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--brand-yellow);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 20px;
+        }
+
     @@media (max-width:1024px) {
         table {
             min-width: 900px;
@@ -347,20 +386,123 @@
                 <div class="col-12 col-md-8">
                     @if (Model.IsModelEmpty())
                     {
-                        <!-- Empty State for First-Time Users -->
-                        <div class="panel empty-state">
-                            <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
-                            <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
-                            <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
-                                Social Security, and withdrawal strategy in just a few quick steps.
-                            </p>
-                            <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
-                                <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                                Start Planning
-                            </button>
-                            <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
-                                Takes about 2-3 minutes to complete
+                        <!-- Empty State with Field Preview in Background -->
+                        <div style="position: relative;">
+                            <!-- Background Preview Fields (Grayed Out) -->
+                            <div class="panel section-panel field-preview">
+                                <h4 style="opacity: 0.4;">Plan Input Data</h4>
+                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">1</span>
+                                                <div>Retirement ages & life expectancy</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">You: [Your Age]</div>
+                                            <div class="small-note" style="margin-top:8px;">Partner: [Partner Age]</div>
+                                            <div class="small-note" style="margin-top:8px;">Life exp (You): [Life Expectancy]</div>
+                                            <div class="small-note" style="margin-top:8px;">Life exp (Partner): [Life Expectancy]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">2</span>
+                                                <div>Starting Balances & Returns</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">Taxable: $[Amount]</div>
+                                            <div class="small-note">Traditional: $[Amount]</div>
+                                            <div class="small-note">Roth: $[Amount]</div>
+                                            <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: [%]</div>
+                                            <div class="small-note">Expected Inflation: [%]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">3</span>
+                                                <div>Social Security</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): $[Amount]</div>
+                                            <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): $[Amount]</div>
+                                            <div class="small-note" style="margin-top:8px;">SS Start Age (You): [Age]</div>
+                                            <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): [Age]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">4</span>
+                                                <div>Reverse mortgage</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">Start year: [Year]</div>
+                                            <div class="small-note" style="margin-top:8px;">Monthly: $[Amount]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">5</span>
+                                                <div>Withdrawal Strategy</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">One retired: $[Amount]</div>
+                                            <div class="small-note" style="margin-top:8px;">Both retired: $[Amount]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                                <span class="step-badge">6</span>
+                                                <div>Current Ages & Simulation</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px;">You: [Age]</div>
+                                            <div class="small-note" style="margin-top:8px;">Partner: [Age]</div>
+                                            <div class="small-note" style="margin-top:8px;">Projection start year: [Year]</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Overlay with Start Planning Button -->
+                            <div class="start-planning-overlay">
+                                <div class="empty-state">
+                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
+                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
+                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                        Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
+                                        Social Security, and withdrawal strategy in just a few quick steps.
+                                    </p>
+                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
+                                        <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                                        Start Planning
+                                    </button>
+                                    <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
+                                        Takes about 2-3 minutes to complete
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
