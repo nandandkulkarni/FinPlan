@@ -1,4 +1,4 @@
-@page "/retirement-income-planner"
+﻿@page "/retirement-income-planner"
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
 @using FinPlan.Web.Components
@@ -28,8 +28,6 @@
         --financial-green: #059669;
         --financial-amber: #D97706;
         --background-subtle: #F8FAFC;
-
-
     }
 
     thead th {
@@ -43,17 +41,16 @@
         color: #333;
     }
 
-    /* Professional column styling with subtle backgrounds and left borders */
     .col-income-sources {
         background-color: rgba(5, 150, 105, 0.02);
         border-left: 1px solid #059669;
     }
-    
+
     .col-account-activity {
         background-color: rgba(37, 99, 235, 0.02);
         border-left: 1px solid #2563EB;
     }
-    
+
     .col-ending-balances {
         background-color: rgba(107, 114, 128, 0.02);
         border-left: 1px solid #6B7280;
@@ -63,36 +60,16 @@
         padding: 14px;
     }
 
-    /* Page header */
     .page-header {
         text-align: center;
         font-weight: 700;
-        font-size: 1.45rem; /* increased from 1.35rem */
+        font-size: 1.45rem;
         margin-bottom: 12px;
         color: #111;
     }
 
-    /* Top area contains sidebars + input panels. Sidebars are only present inside this area so the grid below is full width */
     .top-area {
         position: relative;
-    }
-
-    /* Wrapper around the input panels to give a yellow border that stops where the grid starts */
-    .input-panel-wrapper {
-        margin-left: 180px; /* leave room for mini sidebars */
-        margin-right: 180px;
-        border: 2px solid var(--brand-yellow);
-        border-radius: 10px;
-        padding: 10px;
-        background: #ffffff;
-        box-shadow: 0 6px 18px rgba(22,28,36,0.03);
-    }
-
-    .top-panel {
-        display: flex;
-        gap: 12px;
-        align-items: stretch; /* ensure left and right panels have equal height */
-        margin-bottom: 0; /* moved spacing to wrapper */
     }
 
     .panel {
@@ -101,14 +78,12 @@
         box-shadow: 0 6px 18px rgba(22,28,36,0.06);
         padding: 12px;
         border: 1px solid rgba(0,0,0,0.03);
-        display: flex; /* make panels flex columns so actions can stick to bottom */
+        display: flex;
         flex-direction: column;
-        flex: 1 1 0%; /* allow panels to grow equally and match height */
+        flex: 1 1 0%;
     }
 
-    /* Section card variant used inside the Plan Sections grid */
     .section-card {
-        /* darker border for stronger separation from the background */
         border: 1px solid rgba(16,24,36,0.12);
         padding: 10px;
         border-radius: 8px;
@@ -119,15 +94,15 @@
     }
 
         .section-card .actions {
-            margin-top: auto; /* push to bottom of the card */
+            margin-top: auto;
             display: flex;
-            justify-content: flex-start; /* left align actions */
+            justify-content: flex-start;
             gap: 8px;
-            padding-top: 6px; /* extra breathing room above the Edit button */
+            padding-top: 6px;
         }
 
     .btn-edit {
-        background: #1F6FEB; /* professional blue */
+        background: #1F6FEB;
         color: #ffffff;
         border: 0;
         padding: 7px 12px;
@@ -136,106 +111,24 @@
         font-weight: 600;
     }
 
-
-    /* Highlighted rectangular panel with yellow border and subtle shadow */
     .section-panel {
         border: 3px solid var(--brand-yellow);
         border-radius: 10px;
         box-shadow: 0 12px 30px rgba(13,38,76,0.06), 0 4px 18px rgba(255,214,0,0.08);
-        padding: 14px; /* add extra padding so inner .panel spacing aligns visually */
+        padding: 14px;
         background: linear-gradient(180deg, #fff, #fff);
-    }
-
-    /* Mini sidebars that only cover the top area */
-    .left-sidebar-mini, .right-sidebar-mini {
-        position: absolute;
-        left: 0;
-        right: auto;
-        top: 0;
-        bottom: 0; /* stretch to top-area height */
-        width: 160px;
-        padding: 10px;
-        box-shadow: 0 6px 18px rgba(22,28,36,0.06);
-        border-radius: 8px;
-        background: linear-gradient(180deg, #ffffff, #fbfbfb);
-        border: 1px solid rgba(0,0,0,0.03);
-        z-index: 10;
-        font-size: 0.95rem; /* increased slightly */
-        overflow: auto;
-    }
-
-    .left-sidebar-mini {
-        left: 0;
-    }
-
-    /* Make the right mini sidebar stick to the viewport right edge */
-    .right-sidebar-mini {
-        position: fixed;
-        top: 96px; /* offset below top navigation; adjust if header height changes */
-        right: 16px;
-        left: auto;
-        bottom: auto;
-        width: 160px;
-        max-height: calc(100vh - 120px);
-        z-index: 1050;
-    }
-
-    /* Make left and right panels split 50/50 and stay same height */
-    .left-col, .right-col {
-        flex: 1 1 0%;
-        min-width: 320px;
     }
 
     .panel h4 {
         margin: 0 0 8px 0;
-        font-size: 1.12rem; /* increased from 1.02rem */
+        font-size: 1.12rem;
         color: #111;
-    }
-    /* Slightly tighter form rows */
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        margin-bottom: 6px;
-        align-items: start;
-    }
-
-    label {
-        display: block;
-        font-size: 0.92rem; /* increased from 0.82rem */
-        color: var(--muted);
-        margin-bottom: 4px;
-    }
-
-    input[type="number"], input[type="text"], select {
-        width: 100%;
-        padding: 6px 8px;
-        border-radius: 6px;
-        border: 1px solid #e6e9ee;
-        background: #fff;
-        font-size: 1.02rem; /* increased from 0.92rem */
-    }
-
-    .money {
-        font-weight: 700;
-        color: #0b2545;
     }
 
     .small-note {
-        font-size: 0.9rem; /* increased from 0.8rem */
+        font-size: 0.9rem;
         color: var(--muted);
         margin-top: 4px;
-    }
-
-    .actions {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-        margin-top: 8px;
-    }
-    /* push actions to bottom of panel */
-    .panel .actions {
-        margin-top: auto;
     }
 
     .btn {
@@ -244,7 +137,7 @@
         border: 0;
         cursor: pointer;
         font-weight: 600;
-        font-size: 1.05rem; /* increased from 0.95rem */
+        font-size: 1.05rem;
     }
 
     .btn-primary {
@@ -269,17 +162,11 @@
         display: inline-block;
         padding: 6px 8px;
         border-radius: 999px;
-        font-size: 0.85rem; /* increased from 0.75rem */
+        font-size: 0.85rem;
         background: #f1f3f5;
         color: #222;
         margin-right: 6px;
     }
-
-        .badge.milestone {
-            background: var(--brand-yellow);
-            color: #111;
-            font-weight: 700;
-        }
 
     .grid-panel {
         margin-top: 12px;
@@ -304,34 +191,14 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.98rem; /* increased from 0.88rem */
+        font-size: 0.98rem;
         min-width: 1100px;
     }
-
-    /* thead th {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        padding: 10px 12px;
-        border-bottom: 1px solid #eef2f6;
-        text-align: left;
-        font-weight: 700;
-        color: #333;
-    } */
 
     tbody td {
         padding: 8px 12px;
         border-bottom: 1px solid #f2f4f7;
         vertical-align: middle;
-    }
-
-    tr.depleted {
-        background: linear-gradient(90deg, rgba(245,101,101,0.05), transparent);
-        color: var(--danger);
-    }
-
-    tr.milestone-row td {
-        background: linear-gradient(90deg, rgba(255,214,0,0.06), transparent);
     }
 
     .col-year {
@@ -348,17 +215,12 @@
         width: 200px;
     }
 
-    .money-cell {
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-    }
-
     .legend {
         margin-left: auto;
         display: flex;
         gap: 8px;
         align-items: center;
-        font-size: 0.95rem; /* increased from 0.85rem */
+        font-size: 0.95rem;
         color: var(--muted);
     }
 
@@ -369,41 +231,6 @@
             display: inline-block;
         }
 
-    /* Narrow helper class for year and short numeric fields */
-    .narrow {
-        max-width: 140px;
-    }
-
-    @@media (max-width:1024px) {
-        .top-panel {
-            flex-direction: column;
-            margin-left: 0;
-            margin-right: 0
-        }
-
-        .left-col {
-            width: 100%;
-            flex: 0 0 auto;
-        }
-
-        .right-col {
-            min-width: 0;
-        }
-
-        .left-sidebar-mini, .right-sidebar-mini {
-            display: none;
-        }
-
-        table {
-            min-width: 900px;
-        }
-
-        .input-panel-wrapper {
-            margin-left: 0;
-            margin-right: 0;
-        }
-    }
-
     .step-badge {
         width: 36px;
         height: 36px;
@@ -412,26 +239,40 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        /* Use yellow fill for retirement page for consistency with section highlight */
         background: var(--brand-yellow);
-        color: #111; /* dark text on yellow */
+        color: #111;
         font-weight: 800;
         font-size: 1rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         margin-right: 8px;
         flex-shrink: 0;
     }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+    }
+
+    .partial-state {
+        border: 2px solid #ffc107;
+        background: #fff3cd;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    @@media (max-width:1024px) {
+        table {
+            min-width: 900px;
+        }
+    }
 </style>
+
 <div class="container-wire">
     <div class="page-header">
-        <h3>Retire Income Planner</h3>
+        <h3>Retirement Income Planner</h3>
     </div>
-    @* <!-- Prominent actions: Edit and Clear All -->
-    <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
-        <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="() => OpenWizard(1)">Edit assumptions</button>
-        <button class="btn btn-outline-danger" style="padding:10px 16px; font-weight:700;" @onclick="ConfirmClearAll">Clear all & reset</button>
-        <div style="margin-left:12px; color:#6c757d;">Edit assumptions opens the quick setup wizard to change retirement ages, balances, returns, Social Security and withdrawal settings. Clear all will reset your saved plan then open the wizard so you can re-enter values.</div>
-    </div> *@
 
     <!-- Confirmation modal for clearing -->
     @if (showClearConfirm)
@@ -504,113 +345,155 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
-                    <div class="panel section-panel">
-                        <h4>Plan Input Data</h4>
-
-                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                            @* Section 1: Retirement ages & life expectancy *@
-                            <div class="section-card">
+                    @if (Model.IsModelEmpty())
+                    {
+                        <!-- Empty State for First-Time Users -->
+                        <div class="panel empty-state">
+                            <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
+                            <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
+                            <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
+                                Social Security, and withdrawal strategy in just a few quick steps.
+                            </p>
+                            <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
+                                <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                                Start Planning
+                            </button>
+                            <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
+                                Takes about 2-3 minutes to complete
+                            </div>
+                        </div>
+                    }
+                    else if (Model.IsModelPartiallyComplete())
+                    {
+                        <!-- Partial State - Encourage Completion -->
+                        <div class="panel partial-state">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <div style="font-size: 2rem;">⚠️</div>
                                 <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">1</span>
-                                        <div>Retirement ages & life expectancy</div>
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
-                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
-                                    <div class="small-note" style="margin-top:8px;">Life exp (You): @DisplayLifeExpectancyYou</div>
-                                    <div class="small-note" style="margin-top:8px;">Life exp (Partner): @DisplayLifeExpectancyPartner</div>
-
+                                    <h4 style="margin: 0; color: #856404;">Almost Ready!</h4>
+                                    <p style="margin: 0; color: #856404; font-size: 0.95rem;">Your retirement plan needs a few more details to generate accurate projections.</p>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                            </div>
+                            <button class="btn btn-primary" style="background: #ffc107; border-color: #ffc107; color: #000;" @onclick="() => OpenWizard(1)">
+                                <i class="bi bi-gear" style="margin-right: 8px;"></i>
+                                Complete Setup
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Complete State - Normal View -->
+                        <div class="panel section-panel">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h4>Plan Input Data</h4>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                        <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                        Edit Plan
+                                    </button>
+                                    <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ConfirmClearAll">
+                                        <i class="bi bi-arrow-clockwise" style="margin-right: 6px;"></i>
+                                        Reset
+                                    </button>
                                 </div>
                             </div>
 
-                            @* Section 2: Starting balances & returns *@
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">2</span>
-                                        <div>Starting Balances & Returns</div>
+                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">1</span>
+                                            <div>Retirement ages & life expectancy</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
+                                        <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
+                                        <div class="small-note" style="margin-top:8px;">Life exp (You): @DisplayLifeExpectancyYou</div>
+                                        <div class="small-note" style="margin-top:8px;">Life exp (Partner): @DisplayLifeExpectancyPartner</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
-                                    <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
-                                    <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
-                                    <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
-                                </div>
-                            </div>
-
-                            @* Section 3: Social Security *@
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">3</span>
-                                        <div>Social Security</div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
-
-                                    <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
-                                    <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
-                                </div>
-                            </div>
 
-                            @* Section 4: Reverse mortgage *@
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">4</span>
-                                        <div>Reverse mortgage</div>
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">2</span>
+                                            <div>Starting Balances & Returns</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
+                                        <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
+                                        <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
+                                        <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
+                                        <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
-                                    <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
-
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
-                                </div>
-                            </div>
-
-                            @* Section 5: Planned annual withdrawals *@
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">5</span>
-                                        <div>Withdrawal Strategy</div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
-
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
-                                </div>
-                            </div>
 
-                            @* Section 6: Current ages & simulation *@
-                            <div class="section-card">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">6</span>
-                                        <div>Current Ages & Simulation</div>
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">3</span>
+                                            <div>Social Security</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
+                                        <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
+                                        <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
+                                        <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
-                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
-                                    <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+                                    </div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
+
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">4</span>
+                                            <div>Reverse mortgage</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
+                                        <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+                                    </div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+                                    </div>
+                                </div>
+
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">5</span>
+                                            <div>Withdrawal Strategy</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
+                                        <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+                                    </div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
+                                    </div>
+                                </div>
+
+                                <div class="section-card">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">6</span>
+                                            <div>Current Ages & Simulation</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
+                                        <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
+                                        <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
+                                    </div>
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
 
                 <!-- Right column (2) -->
@@ -645,203 +528,216 @@
         </div>
     </div>
 
-    <!-- Full-width grid placeholder -->
+    <!-- Yearly Projection Grid -->
     <div class="grid-panel panel">
         <div class="grid-header">
             <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
-            <div class="legend">
-                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
-                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
-                <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+            @if (!Model.IsModelEmpty())
+            {
+                <div class="legend">
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+                </div>
+            }
+        </div>
+
+        @if (Model.IsModelEmpty())
+        {
+            <!-- Empty State Message for Grid -->
+            <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
+                <h5 style="color: #495057; margin-bottom: 12px;">No Projection Available</h5>
+                <p style="margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    Complete your retirement plan setup to see year-by-year projections of your income and account balances.
+                </p>
+                <button class="btn btn-primary" @onclick="() => OpenWizard(1)">
+                    <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                    Get Started
+                </button>
             </div>
-        </div>
-        <div class="grid">
-            <table aria-label="Yearly grid wireframe">
-                <thead class="table-light">
-                    <tr>
-                        <!-- Basic Info -->
-                        <th class="col-year" style="text-align:right; width:120px; padding:18px 12px; background-color: var(--background-subtle);">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Calendar</span>
-                            </div>
-                        </th>
-
-                        <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Your</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
-                            </div>
-                        </th>
-
-                        <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Partner</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
-                            </div>
-                        </th>
-
-                        <th class="col-milestones" style="padding:18px 12px; background-color: var(--background-subtle);">
-                            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Events</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle);">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Needed</span>
-                            </div>
-                        </th>
-
-                        <!-- Income Sources -->
-                        <th class="col-income-sources" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">You</span>
-                            </div>
-                        </th>
-
-                        <th class="col-income-sources" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Partner</span>
-                            </div>
-                        </th>
-
-                        <th class="col-income-sources" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Mortgage</span>
-                            </div>
-                        </th>
-
-                        <!-- Account Activity -->
-                        <th class="text-end col-account-activity" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Investment</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-account-activity" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Taxable</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-account-activity" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Traditional</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-account-activity" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Roth</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle); border-left: 1px solid #e9ecef;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxes</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Paid</span>
-                            </div>
-                        </th>
-
-                        <!-- Ending Balances -->
-                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in YearRows)
-                    {
-                        var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
-                        <tr class="@rowClass">
-                            <td class="col-year">@row.Year</td>
-                            <td class="col-age">@row.AgeYou</td>
-                            <td class="col-age">@row.AgePartner</td>
-                            <td class="col-milestones">@row.Milestone</td>
-
-                            <td class="text-end" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.AmountNeeded.ToString("C0")
-                            </td>
-
-                            <!-- Income Sources -->
-                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.SSYou.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.SSPartner.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.ReverseMortgage.ToString("C0")
-                            </td>
-
-                            <!-- Account Activity -->
-                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.Growth.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.TaxableWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.TraditionalWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.RothWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end" style="color:#F56565; font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-left: 1px solid #f2f4f7;">
-                                @row.TaxesPaid.ToString("C0")
-                            </td>
-
-                            <!-- Ending Balances -->
-                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.EndingTaxable.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.EndingTraditional.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.EndingRoth.ToString("C0")
-                            </td>
+        }
+        else if (Model.IsModelPartiallyComplete())
+        {
+            <!-- Partial State Message -->
+            <div style="text-align: center; padding: 40px 20px; background: #fff3cd; border-radius: 8px; color: #856404;">
+                <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
+                <h6 style="margin-bottom: 12px;">Projection Incomplete</h6>
+                <p style="margin-bottom: 16px;">
+                    Add missing information to your retirement plan to generate accurate year-by-year projections.
+                </p>
+                <button class="btn" style="background: #ffc107; border-color: #ffc107; color: #000;" @onclick="() => OpenWizard(1)">
+                    Complete Setup
+                </button>
+            </div>
+        }
+        else if (!YearRows.Any())
+        {
+            <!-- No Data Generated Yet -->
+            <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
+                <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
+                <h6 style="color: #495057; margin-bottom: 12px;">Generating Projections...</h6>
+                <p>Please wait while we calculate your retirement projections.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Normal Grid View -->
+            <div class="grid">
+                <table aria-label="Yearly grid wireframe">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="col-year" style="text-align:right; width:120px; padding:18px 12px; background-color: var(--background-subtle);">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Calendar</span>
+                                </div>
+                            </th>
+                            <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Your</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
+                                </div>
+                            </th>
+                            <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Partner</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
+                                </div>
+                            </th>
+                            <th class="col-milestones" style="padding:18px 12px; background-color: var(--background-subtle);">
+                                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Events</span>
+                                </div>
+                            </th>
+                            <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle);">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Needed</span>
+                                </div>
+                            </th>
+                            <th class="col-income-sources" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">You</span>
+                                </div>
+                            </th>
+                            <th class="col-income-sources" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Partner</span>
+                                </div>
+                            </th>
+                            <th class="col-income-sources" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Mortgage</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-account-activity" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Investment</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-account-activity" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Taxable</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-account-activity" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Traditional</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-account-activity" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Roth</span>
+                                </div>
+                            </th>
+                            <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle); border-left: 1px solid #e9ecef;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxes</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Paid</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxable</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Traditional</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Roth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                </div>
+                            </th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in YearRows)
+                        {
+                            var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
+                            <tr class="@rowClass">
+                                <td class="col-year">@row.Year</td>
+                                <td class="col-age">@row.AgeYou</td>
+                                <td class="col-age">@row.AgePartner</td>
+                                <td class="col-milestones">@row.Milestone</td>
+                                <td class="text-end" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.AmountNeeded.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.SSYou.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.SSPartner.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.ReverseMortgage.ToString("C0")
+                                </td>
+                                <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.Growth.ToString("C0")
+                                </td>
+                                <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.TaxableWithdrawal.ToString("C0")
+                                </td>
+                                <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.TraditionalWithdrawal.ToString("C0")
+                                </td>
+                                <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.RothWithdrawal.ToString("C0")
+                                </td>
+                                <td class="text-end" style="color:#F56565; font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-left: 1px solid #f2f4f7;">
+                                    @row.TaxesPaid.ToString("C0")
+                                </td>
+                                <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.EndingTaxable.ToString("C0")
+                                </td>
+                                <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.EndingTraditional.ToString("C0")
+                                </td>
+                                <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.EndingRoth.ToString("C0")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
+
     <!-- RMD Notice -->
     <div class="mt-3 p-3" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
         <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -858,6 +754,7 @@
             </div>
         </div>
     </div>
+
     <!-- Important Disclaimers -->
     <div class="mt-3 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
         <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -868,13 +765,9 @@
                 <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
                 <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
                     <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational and planning purposes only. Results are estimates based on your inputs and assumptions. This is not personalized financial, tax, or investment advice.</p>
-
                     <p style="margin-bottom: 8px;"><strong>Market Risk:</strong> Actual investment returns will vary and may be negative. Past performance does not guarantee future results. Market conditions, economic changes, and other factors can significantly impact outcomes.</p>
-
                     <p style="margin-bottom: 8px;"><strong>Tax Considerations:</strong> Tax laws are complex and subject to change. This calculator uses simplified tax calculations that may not reflect your actual tax situation, including state taxes, tax bracket changes, or future legislation.</p>
-
                     <p style="margin-bottom: 8px;"><strong>Health Care Costs:</strong> Medicare premiums, long-term care, and rising healthcare costs are not specifically modeled and could significantly impact your retirement expenses.</p>
-
                     <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial, tax, and legal professionals who can provide personalized advice based on your complete financial situation.</p>
                 </div>
             </div>
@@ -966,4 +859,3 @@
         StateHasChanged();
     }
 }
-

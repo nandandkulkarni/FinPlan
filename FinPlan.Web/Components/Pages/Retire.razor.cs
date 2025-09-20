@@ -39,7 +39,7 @@ namespace FinPlan.Web.Components.Pages
         // track last save time to avoid rapid duplicate saves
         private DateTime _lastSave = DateTime.MinValue;
         private readonly TimeSpan _minSaveInterval = TimeSpan.FromMilliseconds(300);
-        private bool _isDataAvaiableForTheUser= false;
+        private bool _isDataAvaiableForTheUser = false;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -53,6 +53,10 @@ namespace FinPlan.Web.Components.Pages
                 catch { }
 
                 await Load();
+
+                // REMOVED: Auto-opening wizard for empty model
+                // The empty state UI in the Razor page will handle first-time user experience
+
                 StateHasChanged();
             }
 
@@ -76,7 +80,6 @@ namespace FinPlan.Web.Components.Pages
                 });
             };
 
-            // Only initialize model defaults if not loaded from server
             // With empty state management, we let the model start empty and Load() will populate it
             // if there's saved data, otherwise it remains empty for first-time users
             if (Model.RetirementYearYou == 0 && Model.RetirementYearPartner == 0)
@@ -93,13 +96,13 @@ namespace FinPlan.Web.Components.Pages
                     Model.RetirementYearPartner = DateTime.Now.Year + 8;
                 }
             }
-            
+
             // Only calculate if the model has meaningful data
             if (!Model.IsModelEmpty())
             {
                 Model.Calculate();
             }
-            
+
             return base.OnInitializedAsync();
         }
 
@@ -125,7 +128,6 @@ namespace FinPlan.Web.Components.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     DebugService.AddMessage("Calendar saved");
-                    _isDataAvaiableForTheUser = true;
                     return true;
                 }
                 else
@@ -169,7 +171,6 @@ namespace FinPlan.Web.Components.Pages
                     Model = stored;
                     Model.Calculate();
                     DebugService.AddMessage("loaded");
-                    _isDataAvaiableForTheUser= true;
                     StateHasChanged();
                 }
             }
