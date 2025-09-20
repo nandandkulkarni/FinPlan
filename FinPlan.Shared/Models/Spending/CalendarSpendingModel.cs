@@ -5,13 +5,87 @@ namespace FinPlan.Shared.Models.Spending
 {
     public class CalendarSpendingModel
     {
-        // Inputs – mirror UI fields
-        public int CurrentAgeYou { get; set; } = 63;
-        public int CurrentAgePartner { get; set; } = 60;
+        /// <summary>
+        /// Determines if the model is completely empty (first-time user state)
+        /// </summary>
+        public bool IsModelEmpty()
+        {
+            return CurrentAgeYou == 0 || 
+                   CurrentAgePartner == 0 ||
+                   RetirementAgeYou == 0 || 
+                   RetirementAgePartner == 0 ||
+                   (TaxableBalance == 0 && TraditionalBalance == 0 && RothBalance == 0) ||
+                   (AnnualWithdrawalOne == 0 && AnnualWithdrawalBoth == 0);
+        }
+
+        /// <summary>
+        /// Determines if the model has some data but is not complete (partial state)
+        /// </summary>
+        public bool IsModelPartiallyComplete()
+        {
+            if (IsModelEmpty()) return false;
+            if (IsModelComplete()) return false;
+            
+            // Has some basic data but missing essential components
+            bool hasValidAges = CurrentAgeYou > 0 && CurrentAgePartner > 0 && 
+                               RetirementAgeYou > 0 && RetirementAgePartner > 0;
+            bool hasAnyMoney = TaxableBalance > 0 || TraditionalBalance > 0 || RothBalance > 0;
+            bool hasWithdrawalStrategy = AnnualWithdrawalOne > 0 || AnnualWithdrawalBoth > 0;
+            bool hasLifeExpectancy = LifeExpectancyYou > 0 && LifeExpectancyPartner > 0;
+            
+            // Partial if has some but not all essential elements
+            return (hasValidAges && !hasAnyMoney) || 
+                   (hasValidAges && !hasWithdrawalStrategy) ||
+                   (hasAnyMoney && !hasValidAges) ||
+                   (hasValidAges && hasAnyMoney && !hasLifeExpectancy);
+        }
+
+        /// <summary>
+        /// Determines if the model has all essential data for meaningful retirement calculations
+        /// </summary>
+        public bool IsModelComplete()
+        {
+            // Essential requirements for a complete retirement model
+            bool hasValidAges = CurrentAgeYou > 0 && 
+                               CurrentAgePartner > 0 &&
+                               RetirementAgeYou > 0 && 
+                               RetirementAgePartner > 0 &&
+                               CurrentAgeYou >= 18 && 
+                               CurrentAgePartner >= 18 &&
+                               CurrentAgeYou < RetirementAgeYou && 
+                               CurrentAgePartner < RetirementAgePartner &&
+                               RetirementAgeYou <= 100 && 
+                               RetirementAgePartner <= 100;
+            
+            bool hasRetirementMoney = TaxableBalance > 0 || 
+                                     TraditionalBalance > 0 || 
+                                     RothBalance > 0;
+            
+            bool hasWithdrawalStrategy = AnnualWithdrawalOne > 0 && 
+                                        AnnualWithdrawalBoth > 0 &&
+                                        AnnualWithdrawalBoth >= AnnualWithdrawalOne; // logical constraint
+            
+            bool hasReasonableRates = InvestmentReturn >= 0 && 
+                                     InvestmentReturn <= 30 &&
+                                     InflationRate >= 0 && 
+                                     InflationRate <= 15 &&
+                                     TraditionalTaxRate >= 0 && 
+                                     TraditionalTaxRate <= 50;
+            
+            bool hasLifeExpectancy = LifeExpectancyYou > RetirementAgeYou && 
+                                    LifeExpectancyPartner > RetirementAgePartner;
+            
+            return hasValidAges && hasRetirementMoney && hasWithdrawalStrategy && 
+                   hasReasonableRates && hasLifeExpectancy;
+        }
+
+        // Inputs – mirror UI fields - Updated for empty state management
+        public int CurrentAgeYou { get; set; } = 0; // Changed from 63 to 0 for empty state
+        public int CurrentAgePartner { get; set; } = 0; // Changed from 60 to 0 for empty state
 
         // New: retirement ages (user-friendly) – stored so model persists both age and computed year
-        public int RetirementAgeYou { get; set; } = 65;
-        public int RetirementAgePartner { get; set; } = 68;
+        public int RetirementAgeYou { get; set; } = 0; // Changed from 65 to 0 for empty state
+        public int RetirementAgePartner { get; set; } = 0; // Changed from 68 to 0 for empty state
 
         // Stored retirement years (kept in sync with ages)
         public int RetirementYearYou { get; set; } = DateTime.Now.Year + 5;
@@ -23,29 +97,29 @@ namespace FinPlan.Shared.Models.Spending
         public int SSStartYearYou { get; set; } = DateTime.Now.Year + 9;
         public int SSStartYearPartner { get; set; } = DateTime.Now.Year + 12;
         // New: allow user to enter SS start ages; years are computed from current ages
-        public int SSStartAgeYou { get; set; } = 67;
-        public int SSStartAgePartner { get; set; } = 67;
+        public int SSStartAgeYou { get; set; } = 67; // Keep reasonable defaults for SS ages
+        public int SSStartAgePartner { get; set; } = 67; // Keep reasonable defaults for SS ages
 
         // New: expected Social Security benefit (monthly) for each person
         public decimal SocialSecurityMonthlyYou { get; set; } = 0m;
         public decimal SocialSecurityMonthlyPartner { get; set; } = 0m;
 
-        public int LifeExpectancyYou { get; set; } = 2090;
-        public int LifeExpectancyPartner { get; set; } = 2095;
+        public int LifeExpectancyYou { get; set; } = 0; // Changed from 2090 to 0 for empty state
+        public int LifeExpectancyPartner { get; set; } = 0; // Changed from 2095 to 0 for empty state
 
         public int SimulationStartYear { get; set; } = DateTime.Now.Year;
 
-        // Money
-        public decimal TaxableBalance { get; set; } = 250_000m;
-        public decimal TraditionalBalance { get; set; } = 500_000m;
-        public decimal RothBalance { get; set; } = 250_000m;
-        public decimal TraditionalTaxRate { get; set; } = 22.0m;
-        public decimal InvestmentReturn { get; set; } = 5.0m;
-        public decimal InflationRate { get; set; } = 2.5m;
+        // Money - Updated for empty state management
+        public decimal TaxableBalance { get; set; } = 0m; // Changed from 250_000m to 0 for empty state
+        public decimal TraditionalBalance { get; set; } = 0m; // Changed from 500_000m to 0 for empty state
+        public decimal RothBalance { get; set; } = 0m; // Changed from 250_000m to 0 for empty state
+        public decimal TraditionalTaxRate { get; set; } = 22.0m; // Keep reasonable default for tax rate
+        public decimal InvestmentReturn { get; set; } = 5.0m; // Keep reasonable default for investment return
+        public decimal InflationRate { get; set; } = 2.5m; // Keep reasonable default for inflation
 
-        // Withdrawals
-        public decimal AnnualWithdrawalOne { get; set; } = 80_000m;
-        public decimal AnnualWithdrawalBoth { get; set; } = 100_000m;
+        // Withdrawals - Updated for empty state management
+        public decimal AnnualWithdrawalOne { get; set; } = 0m; // Changed from 80_000m to 0 for empty state
+        public decimal AnnualWithdrawalBoth { get; set; } = 0m; // Changed from 100_000m to 0 for empty state
         public int ReverseMortgageStartYear { get; set; }
         public decimal ReverseMortgageMonthly { get; set; }
 

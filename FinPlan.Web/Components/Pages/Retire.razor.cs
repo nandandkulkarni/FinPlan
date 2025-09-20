@@ -76,9 +76,30 @@ namespace FinPlan.Web.Components.Pages
                 });
             };
 
-            // initialize model defaults from existing defaults
-            Model.SimulationStartYear = Math.Min(Model.RetirementYearYou, Model.RetirementYearPartner);
-            Model.Calculate();
+            // Only initialize model defaults if not loaded from server
+            // With empty state management, we let the model start empty and Load() will populate it
+            // if there's saved data, otherwise it remains empty for first-time users
+            if (Model.RetirementYearYou == 0 && Model.RetirementYearPartner == 0)
+            {
+                // Set reasonable year defaults only if ages are provided
+                if (Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0)
+                {
+                    Model.SyncRetirementYearsFromAges();
+                }
+                else
+                {
+                    // For empty state, set default years but keep ages at 0
+                    Model.RetirementYearYou = DateTime.Now.Year + 5;
+                    Model.RetirementYearPartner = DateTime.Now.Year + 8;
+                }
+            }
+            
+            // Only calculate if the model has meaningful data
+            if (!Model.IsModelEmpty())
+            {
+                Model.Calculate();
+            }
+            
             return base.OnInitializedAsync();
         }
 
