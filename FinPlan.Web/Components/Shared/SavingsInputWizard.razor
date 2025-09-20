@@ -40,7 +40,7 @@
                         <div class="wizard-step-bubble">@wizardStep</div>
                         <div>
                             <h5 class="modal-title" style="margin:0;">Savings Plan Inputs</h5>
-                            <div class="wizard-step-text">Step @wizardStep of 6</div>
+                            <div class="wizard-step-text">Step @wizardStep of 5</div>
                         </div>
                     </div>
                     <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
@@ -157,27 +157,11 @@
                             </div>
                         </div>
                     }
-                    else if (wizardStep == 6)
-                    {
-                        <label class="form-label">Projection settings</label>
-                        <div class="row g-2">
-                            <div class="col-md-6 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="autoCalc" @bind="modalAutoCalculate" />
-                                    <label class="form-check-label" for="autoCalc">Auto calculate projections</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Projection start year</label>
-                                <input class="form-control" type="number" @bind="modalSimulationStartYear" />
-                            </div>
-                        </div>
-                    }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" aria-label="Save & Close" @onclick="CloseClicked">Save & Close</button>
                     <button type="button" class="btn btn-primary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
-                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 6 ? "Save & Finish" : "Save & Next")</button>
+                    <button type="button" class="btn btn-primary" @onclick="NextOrSubmit">@(wizardStep == 5 ? "Save & Finish" : "Save & Next")</button>
                 </div>
             </div>
         </div>

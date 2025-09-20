@@ -496,11 +496,13 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">2</span>
-                                        <div>Starting Balances</div>
+                                        <div>Starting Balances & Returns</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Roth: @Model.RothBalance.ToString("C0")</div>
+                                    <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
+                                    <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
+                                    <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
@@ -546,7 +548,7 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">5</span>
-                                        <div>Planned Annual Withdrawals</div>
+                                        <div>Withdrawal Strategy</div>
                                     </div>
                                     <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
                                     <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
