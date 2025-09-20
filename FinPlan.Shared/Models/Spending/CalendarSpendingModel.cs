@@ -226,13 +226,18 @@ namespace FinPlan.Shared.Models.Spending
                 // taxes paid on traditional withdrawal
                 row.TaxesPaid = tradWithdraw * (TraditionalTaxRate / 100m);
 
-                // growth
-                row.Growth = (taxBal + tradBal + rothBal) * (InvestmentReturn / 100m);
+                // FIXED: Calculate growth for each account based on its actual balance
+                decimal taxableGrowth = taxBal * (InvestmentReturn / 100m);
+                decimal traditionalGrowth = tradBal * (InvestmentReturn / 100m);
+                decimal rothGrowth = rothBal * (InvestmentReturn / 100m);
 
-                // ending balances (distribute growth)
-                taxBal += row.Growth * 0.4m;
-                tradBal += row.Growth * 0.4m;
-                rothBal += row.Growth * 0.2m;
+                // Apply growth to each account
+                taxBal += taxableGrowth;
+                tradBal += traditionalGrowth;
+                rothBal += rothGrowth;
+
+                // Total growth for display
+                row.Growth = taxableGrowth + traditionalGrowth + rothGrowth;
 
                 row.EndingTaxable = taxBal;
                 row.EndingTraditional = tradBal;
