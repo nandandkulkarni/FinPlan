@@ -1,0 +1,254 @@
+﻿@using FinPlan.Shared.Models.Spending
+@using Microsoft.AspNetCore.Components
+
+<style>
+    .sample-data-modal {
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border: none;
+    }
+
+    .sample-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .sample-option:hover {
+            border-color: #9ca3af;
+            background-color: #f9fafb;
+        }
+
+        .sample-option.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+            .sample-option.selected:hover {
+                border-color: #3b82f6;
+                background-color: #eff6ff;
+            }
+</style>
+
+@if (Visible)
+{
+    <div class="modal-backdrop fade show" style="z-index:1080;"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1090;">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content sample-data-modal">
+                <div class="modal-header" style="border-bottom: 1px solid #e9ecef; padding: 24px;">
+                    <div>
+                        <h4 class="modal-title" style="margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 700; color: #1a202c;">
+                            Try with Sample Data
+                        </h4>
+                        <p style="margin: 0; color: #6c757d; font-size: 0.95rem;">
+                            See how the retirement planner works with realistic scenarios based on American averages
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => OnClose.InvokeAsync()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="margin-bottom: 24px;">
+                        <label style="font-weight: 600; color: #374151; margin-bottom: 16px; display: block;">
+                            Choose a scenario that's closest to your situation:
+                        </label>
+
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- 30s Option -->
+                            <label class="sample-option @(selectedSampleData == 30 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="30s" @onchange="() => selectedSampleData = 30" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        🌱 Couple in their 30s - Starting to Save Seriously
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Ages:</strong> You 32, Partner 30</div>
+                                        <div><strong>Retirement:</strong> 65 & 67</div>
+                                        <div><strong>Total Savings:</strong> $85K</div>
+                                        <div><strong>Social Security:</strong> $2,500 & $2,200/mo</div>
+                                        <div><strong>Spending Goal:</strong> $75K-$90K/year</div>
+                                        <div><strong>Life Expectancy:</strong> 90 & 92</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Early career professionals building their retirement foundation
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 40s Option -->
+                            <label class="sample-option @(selectedSampleData == 40 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="40s" @onchange="() => selectedSampleData = 40" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        🎯 Couple in their 40s - Peak Earning Years
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Ages:</strong> You 42, Partner 40</div>
+                                        <div><strong>Retirement:</strong> 65 & 67</div>
+                                        <div><strong>Total Savings:</strong> $425K</div>
+                                        <div><strong>Social Security:</strong> $2,800 & $2,600/mo</div>
+                                        <div><strong>Spending Goal:</strong> $85K-$105K/year</div>
+                                        <div><strong>Life Expectancy:</strong> 88 & 90</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Mid-career with substantial savings and higher income
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 50s Option -->
+                            <label class="sample-option @(selectedSampleData == 50 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="50s" @onchange="() => selectedSampleData = 50" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        🏆 Couple in their 50s - Pre-Retirement Planning
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Ages:</strong> You 52, Partner 50</div>
+                                        <div><strong>Retirement:</strong> 65 & 67</div>
+                                        <div><strong>Total Savings:</strong> $750K</div>
+                                        <div><strong>Social Security:</strong> $3,100 & $2,900/mo</div>
+                                        <div><strong>Spending Goal:</strong> $95K-$115K/year</div>
+                                        <div><strong>Life Expectancy:</strong> 87 & 89</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Experienced professionals with significant retirement savings
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">
+                            💡 Why use sample data?
+                        </div>
+                        <ul style="margin: 0; padding-left: 16px; color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                            <li>See realistic retirement projections instantly</li>
+                            <li>Understand what inputs the calculator needs</li>
+                            <li>Compare your situation to national averages</li>
+                            <li>You can modify any values after loading</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnClose.InvokeAsync()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="LoadSelectedSampleData" disabled="@(selectedSampleData == 0)">
+                        <i class="bi bi-download" style="margin-right: 8px;"></i>
+                        Load @(selectedSampleData.ToString().ToUpper()) Sample Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<CalendarSpendingModel> OnSampleDataSelected { get; set; }
+
+    private int selectedSampleData = 0;
+
+    private async Task LoadSelectedSampleData()
+    {
+        if (selectedSampleData == 0)
+            return;
+
+        var sampleModel = GetSampleData(selectedSampleData);
+        selectedSampleData = 0;
+
+        await OnSampleDataSelected.InvokeAsync(sampleModel);
+        await OnClose.InvokeAsync();
+    }
+
+    private CalendarSpendingModel GetSampleData(int ageGroup)
+    {
+        var model = new CalendarSpendingModel();
+
+        switch (ageGroup)
+        {
+            case 30:
+                model.CurrentAgeYou = 32;
+                model.CurrentAgePartner = 30;
+                model.RetirementAgeYou = 65;
+                model.RetirementAgePartner = 67;
+                model.LifeExpectancyYou = 90;
+                model.LifeExpectancyPartner = 92;
+
+                model.TaxableBalance = 25_000m;
+                model.TraditionalBalance = 45_000m;
+                model.RothBalance = 15_000m;
+
+                model.SocialSecurityMonthlyYou = 2_500m;
+                model.SocialSecurityMonthlyPartner = 2_200m;
+
+                model.AnnualWithdrawalOne = 75_000m;
+                model.AnnualWithdrawalBoth = 90_000m;
+
+                model.InvestmentReturn = 6.0m;
+                model.InflationRate = 2.5m;
+                model.TraditionalTaxRate = 22.0m;
+                break;
+
+            case 40:
+                model.CurrentAgeYou = 42;
+                model.CurrentAgePartner = 40;
+                model.RetirementAgeYou = 65;
+                model.RetirementAgePartner = 67;
+                model.LifeExpectancyYou = 88;
+                model.LifeExpectancyPartner = 90;
+
+                model.TaxableBalance = 125_000m;
+                model.TraditionalBalance = 225_000m;
+                model.RothBalance = 75_000m;
+
+                model.SocialSecurityMonthlyYou = 2_800m;
+                model.SocialSecurityMonthlyPartner = 2_600m;
+
+                model.AnnualWithdrawalOne = 85_000m;
+                model.AnnualWithdrawalBoth = 105_000m;
+
+                model.InvestmentReturn = 5.5m;
+                model.InflationRate = 2.5m;
+                model.TraditionalTaxRate = 24.0m;
+                break;
+
+            case 50:
+                model.CurrentAgeYou = 52;
+                model.CurrentAgePartner = 50;
+                model.RetirementAgeYou = 65;
+                model.RetirementAgePartner = 67;
+                model.LifeExpectancyYou = 87;
+                model.LifeExpectancyPartner = 89;
+
+                model.TaxableBalance = 200_000m;
+                model.TraditionalBalance = 425_000m;
+                model.RothBalance = 125_000m;
+
+                model.SocialSecurityMonthlyYou = 3_100m;
+                model.SocialSecurityMonthlyPartner = 2_900m;
+
+                model.AnnualWithdrawalOne = 95_000m;
+                model.AnnualWithdrawalBoth = 115_000m;
+
+                model.InvestmentReturn = 5.0m;
+                model.InflationRate = 2.5m;
+                model.TraditionalTaxRate = 24.0m;
+                break;
+        }
+
+        model.SSStartAgeYou = 67;
+        model.SSStartAgePartner = 67;
+        model.SyncRetirementYearsFromAges();
+
+        return model;
+    }
+}

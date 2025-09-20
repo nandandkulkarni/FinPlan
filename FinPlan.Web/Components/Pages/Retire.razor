@@ -24,6 +24,11 @@
                      OnCompleteSection="CompleteSection"
                      OnContinueSetup="ContinueSetup" />
 
+<!-- Sample Data Modal -->
+<SetupRetirementSampeData Visible="@showSampleDataModal"
+                 OnClose="@(() => showSampleDataModal = false)"
+                 OnSampleDataSelected="HandleSampleDataSelected" />
+
 <style>
     :root {
         --brand-yellow: #FFD600;
@@ -513,6 +518,16 @@
                                     </button>
                                     <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
                                         Takes about 2-3 minutes to complete
+                                    </div>
+                                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
+                                            <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
+                                            Want to try with sample data? Click here
+                                        </button>
+                                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
+                                            <i class="bi bi-list-check" style="margin-right: 6px;"></i>
+                                            What's still missing
+                                        </button>
                                     </div>
                                     <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
                                         <i class="bi bi-list-check" style="margin-right: 6px;"></i>
@@ -1064,5 +1079,15 @@
         var nextStep = Model.GetNextIncompleteStep();
         showSetupChecklist = false;
         OpenWizard(nextStep);
+    }
+
+    private bool showSampleDataModal = false;
+
+    private async Task HandleSampleDataSelected(CalendarSpendingModel sampleModel)
+    {
+        Model = sampleModel;
+        Model.Calculate();
+        await Save();
+        StateHasChanged();
     }
 }
