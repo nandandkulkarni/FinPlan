@@ -23,6 +23,40 @@
         --danger: #F56565;
         --success: #38B2AC;
         --info: #4FD1C5;
+        --financial-blue: #2563EB;
+        --financial-gray: #6B7280;
+        --financial-green: #059669;
+        --financial-amber: #D97706;
+        --background-subtle: #F8FAFC;
+
+
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        padding: 10px 12px;
+        border-bottom: 2px solid #d1d5db;
+        text-align: left;
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* Professional column styling with subtle backgrounds and left borders */
+    .col-income-sources {
+        background-color: rgba(5, 150, 105, 0.02);
+        border-left: 1px solid #059669;
+    }
+    
+    .col-account-activity {
+        background-color: rgba(37, 99, 235, 0.02);
+        border-left: 1px solid #2563EB;
+    }
+    
+    .col-ending-balances {
+        background-color: rgba(107, 114, 128, 0.02);
+        border-left: 1px solid #6B7280;
     }
 
     .container-wire {
@@ -274,7 +308,7 @@
         min-width: 1100px;
     }
 
-    thead th {
+    /* thead th {
         position: sticky;
         top: 0;
         background: #fff;
@@ -283,7 +317,7 @@
         text-align: left;
         font-weight: 700;
         color: #333;
-    }
+    } */
 
     tbody td {
         padding: 8px 12px;
@@ -620,120 +654,123 @@
                 <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
             </div>
         </div>
-
         <div class="grid">
             <table aria-label="Yearly grid wireframe">
                 <thead class="table-light">
                     <tr>
-                        <th class="col-year" style="text-align:right; width:120px; padding:18px 12px;">
+                        <!-- Basic Info -->
+                        <th class="col-year" style="text-align:right; width:120px; padding:18px 12px; background-color: var(--background-subtle);">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">&nbsp;</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Calendar</span>
                             </div>
                         </th>
 
-                        <th class="col-age" style="padding:18px 12px;">
+                        <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Your</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Age</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
                             </div>
                         </th>
 
-                        <th class="col-age" style="padding:18px 12px;">
+                        <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Partner</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Age</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
                             </div>
                         </th>
 
-                        <th class="col-milestones" style="padding:18px 12px;">
+                        <th class="col-milestones" style="padding:18px 12px; background-color: var(--background-subtle);">
                             <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">&nbsp;</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Events</span>
                             </div>
                         </th>
 
-                        <th class="text-end" style="padding:18px 12px;">
+                        <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle);">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount </span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Needed</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Needed</span>
                             </div>
                         </th>
 
-                        <th style="padding:18px 12px;">
+                        <!-- Income Sources -->
+                        <th class="col-income-sources" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Security-You</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">You</span>
                             </div>
                         </th>
 
-                        <th style="padding:18px 12px;">
+                        <th class="col-income-sources" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Security-Partner</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Partner</span>
                             </div>
                         </th>
 
-                        <th style="padding:18px 12px;">
+                        <th class="col-income-sources" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Mortgage</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Mortgage</span>
                             </div>
                         </th>
 
-                        <th class="text-end" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#1F6FEB;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Taxable</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#38B2AC;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Traditional</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#6D5DFC;">Withdrawal</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Roth</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#F56565;">Taxes</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Paid</span>
-                            </div>
-                        </th>
-
-                        <th class="text-end" style="padding:18px 12px;">
+                        <!-- Account Activity -->
+                        <th class="text-end col-account-activity" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
                                 <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">&nbsp;</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Investment</span>
                             </div>
                         </th>
 
-                        <th class="text-end" style="padding:18px 12px;">
+                        <th class="text-end col-account-activity" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#1F6FEB;">Taxable</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Ending</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Taxable</span>
                             </div>
                         </th>
 
-                        <th class="text-end" style="padding:18px 12px;">
+                        <th class="text-end col-account-activity" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#38B2AC;">Traditional</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Ending</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Traditional</span>
                             </div>
                         </th>
 
-                        <th class="text-end" style="padding:18px 12px;">
+                        <th class="text-end col-account-activity" style="padding:18px 12px;">
                             <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                <span style="font-size:1.05rem;font-weight:800;color:#6D5DFC;">Roth</span>
-                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:var(--muted);">Ending</span>
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Roth</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle); border-left: 1px solid #e9ecef;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxes</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Paid</span>
+                            </div>
+                        </th>
+
+                        <!-- Ending Balances -->
+                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxable</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Traditional</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                            </div>
+                        </th>
+
+                        <th class="text-end col-ending-balances" style="padding:18px 12px;">
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                <span style="font-size:1.05rem;font-weight:800;color:#111;">Roth</span>
+                                <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
                             </div>
                         </th>
                     </tr>
@@ -748,63 +785,54 @@
                             <td class="col-age">@row.AgePartner</td>
                             <td class="col-milestones">@row.Milestone</td>
 
-                            <td class="text-end col-totals"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.AmountNeeded.ToString("C0")
                             </td>
 
-                            <td class="text-end col-taxable"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <!-- Income Sources -->
+                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.SSYou.ToString("C0")
                             </td>
 
-                            <td class="text-end col-taxable"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.SSPartner.ToString("C0")
                             </td>
 
-                            <td class="text-end col-taxable"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end col-income-sources" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.ReverseMortgage.ToString("C0")
                             </td>
 
-                            <td class="text-end col-taxable"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.TaxableWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-traditional"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.TraditionalWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-roth"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.RothWithdrawal.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-taxable"
-                                style="color:#F56565; font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
-                                @row.TaxesPaid.ToString("C0")
-                            </td>
-
-                            <td class="text-end col-totals"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <!-- Account Activity -->
+                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.Growth.ToString("C0")
                             </td>
 
-                            <td class="text-end col-taxable"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.TaxableWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.TraditionalWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end col-account-activity" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                @row.RothWithdrawal.ToString("C0")
+                            </td>
+
+                            <td class="text-end" style="color:#F56565; font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-left: 1px solid #f2f4f7;">
+                                @row.TaxesPaid.ToString("C0")
+                            </td>
+
+                            <!-- Ending Balances -->
+                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.EndingTaxable.ToString("C0")
                             </td>
 
-                            <td class="text-end col-traditional"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.EndingTraditional.ToString("C0")
                             </td>
 
-                            <td class="text-end col-roth"
-                                style="font-size:0.78rem; font-weight:600; background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                            <td class="text-end col-ending-balances" style="font-size:0.78rem; font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                 @row.EndingRoth.ToString("C0")
                             </td>
                         </tr>
@@ -900,3 +928,4 @@
         StateHasChanged();
     }
 }
+
