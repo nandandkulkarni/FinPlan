@@ -38,7 +38,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddOutputCache();
 
 // Register the Excel Export Service
-builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
+//builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
 
 // Register the DebugMessageService as singleton
 builder.Services.AddScoped<FinPlan.Web.Services.DebugMessageService>();

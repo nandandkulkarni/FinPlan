@@ -1,11 +1,10 @@
-@inject IExcelExportService ExcelService
+@* @* @inject IExcelExportService ExcelService
 @inject IJSRuntime JSRuntime
 @using FinPlan.Shared
 @using FinPlan.Shared.Models
 @using FinPlan.Shared.Models.Savings
 @using FinPlan.Web.Services
 @using FinPlan.Web.Services
-rvices
 @using FinPlan.Web.Services
 
 <button @onclick="ExportToExcel" class="@CssClass">
@@ -55,4 +54,5 @@ rvices
             // You could add a more user-friendly error notification here
         }
     }
-}
+} *@
+ 
