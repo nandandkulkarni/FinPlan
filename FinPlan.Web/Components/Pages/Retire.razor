@@ -26,8 +26,8 @@
 
 <!-- Sample Data Modal -->
 <SetupRetirementSampeData Visible="@showSampleDataModal"
-                 OnClose="@(() => showSampleDataModal = false)"
-                 OnSampleDataSelected="HandleSampleDataSelected" />
+                          OnClose="@(() => showSampleDataModal = false)"
+                          OnSampleDataSelected="HandleSampleDataSelected" />
 
 <style>
     :root {
@@ -713,6 +713,12 @@
                             </div>
                         </div>
                         <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
+                        <div style="margin-top:8px;">
+                            <button class="btn-ghost" style="padding:4px 8px; font-size:0.8rem; width:100%;" @onclick="TestCalculation">
+                                <i class="bi bi-calculator" style="margin-right: 4px;"></i>
+                                Test Calc
+                            </button>
+                        </div>                        
                         @if (ShowRightDebug)
                         {
                             <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
@@ -1089,5 +1095,71 @@
         Model.Calculate();
         await Save();
         StateHasChanged();
+    }
+
+    private void TestCalculation()
+    {
+        try
+        {
+            DebugService.AddMessage("=== Test calculation started ===");
+
+            // Log current model state
+            DebugService.AddMessage($"Model empty: {Model.IsModelEmpty()}");
+            DebugService.AddMessage($"Model partial: {Model.IsModelPartiallyComplete()}");
+            DebugService.AddMessage($"Model complete: {Model.IsModelComplete()}");
+
+            // Log key values before calculation
+            DebugService.AddMessage($"Current ages: You={Model.CurrentAgeYou}, Partner={Model.CurrentAgePartner}");
+            DebugService.AddMessage($"Retirement ages: You={Model.RetirementAgeYou}, Partner={Model.RetirementAgePartner}");
+            DebugService.AddMessage($"Life expectancy: You={Model.LifeExpectancyYou}, Partner={Model.LifeExpectancyPartner}");
+            DebugService.AddMessage($"Simulation start year: {Model.SimulationStartYear}");
+
+            // FIX: Convert life expectancy from ages to calendar years
+            var currentYear = DateTime.Now.Year;
+            var lifeExpectancyYearYou = currentYear + (Model.LifeExpectancyYou - Model.CurrentAgeYou);
+            var lifeExpectancyYearPartner = currentYear + (Model.LifeExpectancyPartner - Model.CurrentAgePartner);
+
+            DebugService.AddMessage($"Converted life expectancy years: You={lifeExpectancyYearYou}, Partner={lifeExpectancyYearPartner}");
+
+            // Temporarily update the model with calendar years
+            var originalLifeYou = Model.LifeExpectancyYou;
+            var originalLifePartner = Model.LifeExpectancyPartner;
+
+            Model.LifeExpectancyYou = lifeExpectancyYearYou;
+            Model.LifeExpectancyPartner = lifeExpectancyYearPartner;
+
+            DebugService.AddMessage($"Balances: Tax={Model.TaxableBalance:C0}, Trad={Model.TraditionalBalance:C0}, Roth={Model.RothBalance:C0}");
+            DebugService.AddMessage($"Withdrawals: One={Model.AnnualWithdrawalOne:C0}, Both={Model.AnnualWithdrawalBoth:C0}");
+
+            // Clear existing rows
+            Model.YearRows.Clear();
+            DebugService.AddMessage("Cleared existing YearRows");
+
+            // Call the calculation
+            Model.Calculate();
+
+            DebugService.AddMessage($"=== Calculation completed. YearRows count: {Model.YearRows.Count} ===");
+
+            // Restore original values
+            Model.LifeExpectancyYou = originalLifeYou;
+            Model.LifeExpectancyPartner = originalLifePartner;
+
+            // Log first few rows if any exist
+            if (Model.YearRows.Count > 0)
+            {
+                for (int i = 0; i < Math.Min(3, Model.YearRows.Count); i++)
+                {
+                    var row = Model.YearRows[i];
+                    DebugService.AddMessage($"Row {i}: Year={row.Year}, AgeYou={row.AgeYou}, AgePartner={row.AgePartner}");
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Calculation error: {ex.Message}");
+            DebugService.AddMessage($"Stack trace: {ex.StackTrace}");
+        }
     }
 }
