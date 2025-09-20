@@ -7,7 +7,7 @@
 @namespace FinPlan.Web.Components.Pages
 @using Microsoft.AspNetCore.Components.Web
 
-<PageTitle>Retirement Income Planner (Calendar Years) - Wireframe</PageTitle>
+<PageTitle>Retirement Income Planner</PageTitle>
 
 <!-- Retirement input wizard: shown when _isDataAvaiableForTheUser is true -->
 <RetirementInputWizard Model="@Model" Visible="@_isDataAvaiableForTheUser" VisibleChanged="@(v => _isDataAvaiableForTheUser = v)" OnFinished="HandleWizardFinished" OnSave="Save" InitialStep="@_wizardOpenStep" />
@@ -423,8 +423,9 @@
     }
 </style>
 <div class="container-wire">
-    <div class="page-header">Retirement Drawdown</div>
-
+    <div class="page-header">
+        <h3>Retire Income Planner</h3>
+    </div>
     @* <!-- Prominent actions: Edit and Clear All -->
     <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
         <button class="btn btn-primary" style="padding:10px 16px; font-weight:700;" @onclick="() => OpenWizard(1)">Edit assumptions</button>
