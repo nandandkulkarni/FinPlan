@@ -617,8 +617,7 @@
                                 <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
-                                <span class="me-2">@groupKey</span>
-                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
+                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
                                 <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">
@@ -640,18 +639,18 @@
                                     <table class="table table-sm mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="fw-semibold text-center align-middle" style="width:40px;">&nbsp;</th>
-                                                <th class="fw-semibold text-center align-middle" style="width:140px;">Item</th>
-                                                <th class="fw-semibold text-center align-middle" style="width:120px;">Frequency<br /><span class="small">(Units)</span></th>
-                                                <th class="fw-semibold text-end align-middle" style="width:140px;">Per Unit<br /><span class="small">($)</span></th>
-                                                <th class="fw-semibold text-end align-middle" style="width:140px;">Per Month<br /><span class="small">($)</span></th>
-                                                <th class="fw-semibold text-center align-middle" style="width:120px;">Include In<br /><span class="small">Retirement</span></th>
-
-                                                <th class="fw-semibold text-center align-middle" style="width:320px;">Retirement<br />Adjustment</th>
-                                                <th class="fw-semibold text-center align-middle" style="width:160px;">Inflation<br /><span class="small">Rate (%)</span></th>
-                                                <th class="fw-semibold text-end align-middle" style="width:180px;">Retirement<br />Value ($)</th>
+                                                <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
+                                                <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">Item</th>
+                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Frequency<br /><span class="small">(Units)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Unit<br /><span class="small">($)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Month<br /><span class="small">($)</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Include In<br /><span class="small">Retirement</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">Retirement<br />Adjustment</th>
+                                                <th class="fw-bold text-center align-middle" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">Retirement<br />Value ($)</th>
                                             </tr>
                                         </thead>
+
                                         <tbody>
                                             @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
                                             {
