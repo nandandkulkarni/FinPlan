@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                               Tweakable values
-                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                               ---------------------------- */
+                                                                   Tweakable values
+                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                   ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -64,8 +64,8 @@
     }
 
     /* Panel that encloses everything below the tabs.
-                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                   Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -676,11 +676,23 @@
                                                         <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                                                     </td>
                                                     <td class="text-center align-middle" style="width:60px;">
-                                                        <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
+                                                        @if (item.IncludeInRetirement)
+                                                        {
+                                                            <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
+                                                        }
                                                     </td>
-                                                    <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
+                                                    <td class="text-center align-middle" style="width:320px;">
+                                                        @if (item.IncludeInRetirement)
+                                                        {
+                                                            @item.AdjustOption
+                                                        }
+                                                    </td>
                                                     <td class="text-center align-middle" style="width:160px;">
-                                                        @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
+                                                        @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
                                                         {
                                                             @item.PerItemInflationSource
                                                             @if (item.PerItemInflationSource == InflationSource.Custom)
