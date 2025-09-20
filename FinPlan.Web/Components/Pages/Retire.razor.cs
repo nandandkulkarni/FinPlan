@@ -65,7 +65,6 @@ namespace FinPlan.Web.Components.Pages
 
         protected override Task OnInitializedAsync()
         {
-            // initialize debounce timer
             debounceTimer = new System.Timers.Timer(DebounceMs) { AutoReset = false };
             debounceTimer.Elapsed += async (_, __) =>
             {
@@ -96,6 +95,9 @@ namespace FinPlan.Web.Components.Pages
                     Model.RetirementYearPartner = DateTime.Now.Year + 8;
                 }
             }
+
+            // Enable AutoCalculate by default for better user experience
+            Model.AutoCalculate = true;
 
             // Only calculate if the model has meaningful data
             if (!Model.IsModelEmpty())
@@ -169,8 +171,9 @@ namespace FinPlan.Web.Components.Pages
                 if (stored != null)
                 {
                     Model = stored;
-                    Model.Calculate();
-                    DebugService.AddMessage("loaded");
+                    Model.AutoCalculate = true; // Ensure auto-calculate is enabled
+                    Model.Calculate(); // Trigger calculation after loading
+                    DebugService.AddMessage($"loaded and calculated. YearRows count: {Model.YearRows.Count}");
                     StateHasChanged();
                 }
             }
@@ -264,22 +267,34 @@ namespace FinPlan.Web.Components.Pages
         {
             try
             {
+                DebugService.AddMessage("Wizard finished - applying data and calculating");
+
                 // Apply ages to model and sync years
                 Model.CurrentAgeYou = ages.AgeYou > 0 ? ages.AgeYou : Model.CurrentAgeYou;
                 Model.CurrentAgePartner = ages.AgePartner > 0 ? ages.AgePartner : Model.CurrentAgePartner;
                 Model.SyncRetirementYearsFromAges();
 
+                // Ensure AutoCalculate is enabled
+                Model.AutoCalculate = true;
+
                 // hide the modal flag
                 _isDataAvaiableForTheUser = false;
 
-                // Recalculate and save
+                // Force immediate recalculation
                 Model.Calculate();
+                DebugService.AddMessage($"Calculation completed. YearRows count: {Model.YearRows.Count}");
+
+                // Save the updated model
                 await Save();
+
+                // Force UI update
                 StateHasChanged();
+
+                DebugService.AddMessage("Wizard completion finished successfully");
             }
             catch (Exception ex)
             {
-                try { DebugService.AddMessage($"Wizard finish error: {ex.Message}"); } catch { }
+                DebugService.AddMessage($"Wizard finish error: {ex.Message}");
             }
         }
 

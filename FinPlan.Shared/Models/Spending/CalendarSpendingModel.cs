@@ -296,7 +296,12 @@ namespace FinPlan.Shared.Models.Spending
             YearRows.Clear();
 
             var start = SimulationStartYear;
-            var end = Math.Max(LifeExpectancyYou, LifeExpectancyPartner);
+
+            // FIXED: Convert life expectancy ages to calendar years
+            var currentYear = DateTime.Now.Year;
+            var lifeExpectancyYearYou = currentYear + (LifeExpectancyYou - CurrentAgeYou);
+            var lifeExpectancyYearPartner = currentYear + (LifeExpectancyPartner - CurrentAgePartner);
+            var end = Math.Max(lifeExpectancyYearYou, lifeExpectancyYearPartner);
 
             decimal taxBal = TaxableBalance;
             decimal tradBal = TraditionalBalance;
