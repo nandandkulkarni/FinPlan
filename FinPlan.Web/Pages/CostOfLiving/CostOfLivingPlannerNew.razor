@@ -13,18 +13,19 @@
 
 <style>
     /* ----------------------------
-                                                   Tweakable values
-                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                   ---------------------------- */
+                                                               Tweakable values
+                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
         --tab-panel-top-offset: -6px; /* Tweak this to move the panel up/down (more negative => more overlap) */
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
     }
-      .section-card {
+
+    .section-card {
         /* darker border for stronger separation from the background */
         border: 1px solid rgba(16,24,36,0.12);
         padding: 10px;
@@ -63,8 +64,8 @@
     }
 
     /* Panel that encloses everything below the tabs.
-                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                   Tweak the CSS variables above to adjust placement and padding. */
+                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -326,6 +327,7 @@
                             <div class="form-control-plaintext">@modalFrequency</div>
                         }
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Current Value</label>
                         @if (detailsEditMode)
@@ -337,23 +339,40 @@
                             <div class="form-control-plaintext">@FormatCurrency(modalCurrentValue)</div>
                         }
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Retirement Adjust</label>
+                    <div class="mb-3 form-check">
                         @if (detailsEditMode)
                         {
-                            <select class="form-select" @bind="modalAdjustOption">
-                                <option value="Same">Same</option>
-                                <option value="CustomPercentage">Custom %</option>
-                                <option value="Manual">Manual</option>
-                                <option value="AdjustForInflation">Adjust for Inflation</option>
-                            </select>
+                            <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
+                            <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
                         }
                         else
                         {
-                            <div class="form-control-plaintext">@modalAdjustOption</div>
+                            <label class="form-check-label">Include in Retirement:</label>
+                            <span class="ms-2">@(modalIncludeInRetirement ? "Yes" : "No")</span>
                         }
                     </div>
-                    @if (modalAdjustOption == "CustomPercentage")
+
+                    <div class="mb-3">
+                        @if (modalIncludeInRetirement)
+                        {
+                            @if (detailsEditMode)
+                            {
+                                <label class="form-label">Retirement Adjust</label>
+
+                                <select class="form-select" @bind="modalAdjustOption">
+                                    <option value="Same">Same</option>
+                                    <option value="CustomPercentage">Custom %</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="AdjustForInflation">Adjust for Inflation</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@modalAdjustOption</div>
+                            }
+                        }
+                    </div>
+                    @if (modalAdjustOption == "CustomPercentage" && modalIncludeInRetirement)
                     {
                         <div class="mb-3">
                             <label class="form-label">Custom %</label>
@@ -367,7 +386,7 @@
                             }
                         </div>
                     }
-                    @if (modalAdjustOption == "Manual")
+                    @if (modalAdjustOption == "Manual" && modalIncludeInRetirement)
                     {
                         <div class="mb-3">
                             <label class="form-label">Manual Retirement Value</label>
@@ -381,49 +400,41 @@
                             }
                         </div>
                     }
-                    @if (modalAdjustOption == "AdjustForInflation")
+                    @if (modalIncludeInRetirement)
                     {
-                        <div class="mb-3">
-                            <label class="form-label">Inflation Source</label>
-                            @if (detailsEditMode)
-                            {
-                                <select class="form-select" @bind="modalPerItemInflationSource">
-                                    <option value="UseGlobal">Global</option>
-                                    <option value="Custom">Custom</option>
-                                </select>
-                            }
-                            else
-                            {
-                                <div class="form-control-plaintext">@modalPerItemInflationSource</div>
-                            }
-                        </div>
-                        @if (modalPerItemInflationSource == "Custom")
+                        @if (modalAdjustOption == "AdjustForInflation")
                         {
                             <div class="mb-3">
-                                <label class="form-label">Custom Inflation %</label>
+                                <label class="form-label">Inflation Source</label>
                                 @if (detailsEditMode)
                                 {
-                                    <input class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+                                    <select class="form-select" @bind="modalPerItemInflationSource">
+                                        <option value="UseGlobal">Global</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
                                 }
                                 else
                                 {
-                                    <div class="form-control-plaintext">@modalPerItemInflationPercent %</div>
+                                    <div class="form-control-plaintext">@modalPerItemInflationSource</div>
                                 }
                             </div>
+                            @if (modalPerItemInflationSource == "Custom")
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Custom Inflation %</label>
+                                    @if (detailsEditMode)
+                                    {
+                                        <input class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control-plaintext">@modalPerItemInflationPercent %</div>
+                                    }
+                                </div>
+                            }
                         }
                     }
-                    <div class="mb-3 form-check">
-                        @if (detailsEditMode)
-                        {
-                            <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
-                            <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
-                        }
-                        else
-                        {
-                            <label class="form-check-label">Include in Retirement:</label>
-                            <span class="ms-2">@(modalIncludeInRetirement ? "Yes" : "No")</span>
-                        }
-                    </div>
+
                 </div>
                 <div class="modal-footer">
                     @if (detailsEditMode)
@@ -506,13 +517,13 @@
                         </div>
 
                         <div class="small-note" style="margin-top:8px;">
-                            Years to retire: <b>@YearsToRetirement</b>, &nbsp;&nbsp;&nbsp; 
+                            Years to retire: <b>@YearsToRetirement</b>, &nbsp;&nbsp;&nbsp;
                             Annual Inflation rate: <b>@InflationRate</b>&nbsp;&nbsp;&nbsp;
                             <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                         </div>
 
                     </div>
-                  </div>
+                </div>
                 <br />
 
 
@@ -634,9 +645,10 @@
                                                 <th class="fw-semibold text-center align-middle" style="width:120px;">Frequency<br /><span class="small">(Units)</span></th>
                                                 <th class="fw-semibold text-end align-middle" style="width:140px;">Per Unit<br /><span class="small">($)</span></th>
                                                 <th class="fw-semibold text-end align-middle" style="width:140px;">Per Month<br /><span class="small">($)</span></th>
+                                                <th class="fw-semibold text-center align-middle" style="width:120px;">Include In<br /><span class="small">Retirement</span></th>
+
                                                 <th class="fw-semibold text-center align-middle" style="width:320px;">Retirement<br />Adjustment</th>
                                                 <th class="fw-semibold text-center align-middle" style="width:160px;">Inflation<br /><span class="small">Rate (%)</span></th>
-                                                <th class="fw-semibold text-center align-middle" style="width:60px;">Included?</th>
                                                 <th class="fw-semibold text-end align-middle" style="width:180px;">Retirement<br />Value ($)</th>
                                             </tr>
                                         </thead>
@@ -663,6 +675,9 @@
                                                     <td class="text-end align-middle" style="width:140px;">
                                                         <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                                                     </td>
+                                                    <td class="text-center align-middle" style="width:60px;">
+                                                        <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
+                                                    </td>
                                                     <td class="text-center align-middle" style="width:320px;">@item.AdjustOption</td>
                                                     <td class="text-center align-middle" style="width:160px;">
                                                         @if (item.AdjustOption == RetirementAdjustOption.AdjustForInflation)
@@ -674,9 +689,7 @@
                                                             }
                                                         }
                                                     </td>
-                                                    <td class="text-center align-middle" style="width:60px;">
-                                                        <input class="form-check-input" type="checkbox" checked="@item.IncludeInRetirement" disabled />
-                                                    </td>
+
                                                     <td class="text-end align-middle" style="width:180px;">
                                                         <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
                                                     </td>
