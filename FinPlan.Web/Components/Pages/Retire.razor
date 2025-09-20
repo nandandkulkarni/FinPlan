@@ -1,4 +1,4 @@
-@page "/retirement-drawdown"
+@page "/retirement-income-planner"
 @using Microsoft.AspNetCore.Components
 @using System.Collections.Generic
 @using FinPlan.Web.Components
@@ -7,7 +7,7 @@
 @namespace FinPlan.Web.Components.Pages
 @using Microsoft.AspNetCore.Components.Web
 
-<PageTitle>Retirement Drawdown Planner (Calendar Years) - Wireframe</PageTitle>
+<PageTitle>Retirement Income Planner (Calendar Years) - Wireframe</PageTitle>
 
 <!-- Retirement input wizard: shown when _isDataAvaiableForTheUser is true -->
 <RetirementInputWizard Model="@Model" Visible="@_isDataAvaiableForTheUser" VisibleChanged="@(v => _isDataAvaiableForTheUser = v)" OnFinished="HandleWizardFinished" OnSave="Save" InitialStep="@_wizardOpenStep" />
