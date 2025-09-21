@@ -1,0 +1,103 @@
+﻿@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Models
+
+<div class="panel section-panel">
+    <h4>Plan Sections</h4>
+
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">1</span>
+                    <div>Milestones & ages</div>
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">Current Age: @Model.CurrentAge</div>
+                <div class="small-note" style="margin-top:8px;">Planned Retirement Age: @Model.RetirementAge</div>
+                <div class="small-note" style="margin-top:8px;">Years until Retirement: @Model.Years</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OnEditSection.InvokeAsync(1)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">2</span>
+                    <div>Starting Balances</div>
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(Model.InitialTaxableAmount)</div>
+                <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(Model.InitialTraditionalAmount)</div>
+                <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(Model.InitialRothAmount)</div>
+
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OnEditSection.InvokeAsync(2)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">3</span>
+                    <div>Monthly Contributions</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">Taxable: @Model.MonthlyTaxableContribution.ToString("C0")</div>
+                <div class="small-note" style="margin-top:8px;">Traditional: @Model.MonthlyTraditionalContribution.ToString("C0")</div>
+                <div class="small-note" style="margin-top:8px;">Roth: @Model.MonthlyRothContribution.ToString("C0")</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OnEditSection.InvokeAsync(3)">Edit</button>
+            </div>
+        </div>
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">4</span>
+                    <div>Estimated Growth Rate</div>
+                </div>
+                <div class="small-note">Taxable: @string.Format("{0:F1}%", Model.AnnualGrowthRateTaxable)</div>
+                <div class="small-note">Traditional: @string.Format("{0:F1}%", Model.AnnualGrowthRateTraditional)</div>
+                <div class="small-note">Roth: @string.Format("{0:F1}%", Model.AnnualGrowthRateRoth)</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OnEditSection.InvokeAsync(4)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">5</span>
+                    <div>Tax Treatment</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @Model.TaxableIncomeType</div>
+                <div class="small-note" style="margin-top:8px;">Tax Bracket: @Model.TaxBracket</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OnEditSection.InvokeAsync(5)">Edit</button>
+            </div>
+        </div>
+    </div>
+    @if (Results != null)
+    {
+        <div class="mt-3">
+            <div class="row mb-3">
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@Results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@Results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@Results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@Results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public SavingsCalculatorModel Model { get; set; } = new();
+    [Parameter] public SavingsResults? Results { get; set; }
+    [Parameter] public EventCallback<int> OnEditSection { get; set; }
+
+    private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
+}

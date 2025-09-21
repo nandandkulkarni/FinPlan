@@ -1,4 +1,6 @@
-﻿/* CSS Variables - convert to actual values for better compatibility */
+﻿body {
+}
+/* CSS Variables - convert to actual values for better compatibility */
 .container-wire {
     padding: 14px;
 }

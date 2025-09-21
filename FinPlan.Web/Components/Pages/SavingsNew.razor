@@ -1,0 +1,351 @@
+﻿@page "/savings-wealth-building"
+@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Services
+@using FinPlan.Web.Components.Shared
+@using FinPlan.Web.Services
+@namespace FinPlan.Web.Components.Pages
+
+@inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject DebugMessageService DebugService
+@inject UserGuidService UserGuidService
+
+<PageTitle>Savings & Wealth Building</PageTitle>
+
+<link href="~/css/savings.css" rel="stylesheet" />
+
+<SavingsInputWizard Model="@calculatorModel"
+                    Visible="@showWizard"
+                    VisibleChanged="@(v => showWizard = v)"
+                    OnFinished="HandleWizardFinished"
+                    OnSave="SaveAsync"
+                    InitialStep="@wizardOpenStep" />
+
+<SetupSavingsSampleData Visible="@showSampleDataModal"
+                        OnClose="@(() => showSampleDataModal = false)"
+                        OnSampleDataSelected="HandleSampleDataSelected" />
+
+<div class="container-wire">
+    <div class="page-header">
+        <h3>Savings & Wealth Building</h3>
+    </div>
+
+    <div class="top-area">
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-12 col-md-2">
+                    <div class="panel">
+                        <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <a href="/" class="badge">Home</a>
+                            <a href="/contact" class="badge">Contact</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-8">
+                    @if (calculatorModel.IsModelEmpty())
+                    {
+                        <div style="position: relative;">
+                            <div class="panel section-panel field-preview">
+                                <h4 style="opacity: 0.4;">Plan Sections</h4>
+                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
+                                                <span class="step-badge">1</span>
+                                                <div>Ages & Timeline</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Current Age: 0</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
+                                        </div>
+                                    </div>
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
+                                                <span class="step-badge">2</span>
+                                                <div>Starting Balances</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Taxable: $0</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
+                                        </div>
+                                    </div>
+                                    <div class="section-card preview-card">
+                                        <div>
+                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
+                                                <span class="step-badge">3</span>
+                                                <div>Monthly Contributions</div>
+                                            </div>
+                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Monthly: $0</div>
+                                        </div>
+                                        <div class="actions">
+                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="start-planning-overlay">
+                                <div class="empty-state">
+                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">💰</div>
+                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Savings Planning!</h4>
+                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                        Let's create your personalized savings plan. We'll walk you through setting up your timeline, 
+                                        starting balances, and monthly contributions to project your wealth building journey.
+                                    </p>
+                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
+                                        <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                                        Start Planning
+                                    </button>
+                                    <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
+                                        Takes about 2-3 minutes to complete
+                                    </div>
+                                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
+                                            <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
+                                            Try with sample data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <SavingsPlanSections Model="@calculatorModel"
+                                             Results="@results"
+                                             OnEditSection="OpenWizard" />
+                    }
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="panel">
+                        <div style="font-weight:700; margin-bottom:8px;">Debug</div>
+                        <button class="btn-ghost" @onclick="ToggleRightDebug">Toggle</button>
+                        @if (showRightDebug)
+                        {
+                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
+                                @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime).Take(5))
+                                {
+                                    <div style="margin-bottom:6px;">
+                                        <small style="color:#6c757d;">@msg.MessageTime.ToString("HH:mm:ss")</small>
+                                        <div>@msg.MessageText</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-panel panel mt-3">
+        <div class="grid-header">
+            <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
+        </div>
+
+        @if (calculatorModel.IsModelEmpty())
+        {
+            <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
+                <h5 style="color: #495057; margin-bottom: 12px;">No Projection Available</h5>
+                <p style="margin-bottom: 20px;">Complete your savings plan setup to see projections.</p>
+                <button class="btn btn-primary" @onclick="() => OpenWizard(1)">Get Started</button>
+            </div>
+        }
+        else if (yearlyBreakdown?.Any() == true)
+        {
+            <div class="grid">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Age</th>
+                            <th class="col-taxable">Taxable</th>
+                            <th class="col-traditional">Traditional</th>
+                            <th class="col-roth">Roth</th>
+                            <th class="col-totals">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in yearlyBreakdown.Take(10))
+                        {
+                            var age = calculatorModel.CurrentAge + r.Year;
+                            <tr>
+                                <td>@r.Year</td>
+                                <td>@age</td>
+                                <td class="text-end col-taxable money-cell">@FormatMoney(r.TaxableEOYBalance)</td>
+                                <td class="text-end col-traditional money-cell">@FormatMoney(r.TraditionalEOYBalance)</td>
+                                <td class="text-end col-roth money-cell">@FormatMoney(r.RothEOYBalance)</td>
+                                <td class="text-end col-totals money-cell">@FormatMoney(r.TotalEOYBalance)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="mt-3 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
+        <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <div style="color: #856404; margin-top: 2px;">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.1rem;"></i>
+            </div>
+            <div>
+                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
+                <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
+                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational purposes only. Results are projections based on your inputs and assumptions.</p>
+                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors who can provide personalized advice for your complete financial situation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showWizard = false;
+    private int wizardOpenStep = 1;
+    private bool showSampleDataModal = false;
+    private bool showRightDebug = false;
+
+    public SavingsCalculatorModel calculatorModel { get; set; } = new();
+    private SavingsResults? results;
+    private List<YearlyBreakdown> yearlyBreakdown = new();
+    private string userGuid = string.Empty;
+    private string calculatorType = "TestSavings_yours";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try 
+            { 
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync(); 
+                await LoadAsync();
+                Calculate();
+                StateHasChanged();
+            } 
+            catch (Exception ex) 
+            { 
+                DebugService.AddMessage($"Init error: {ex.Message}"); 
+            }
+        }
+    }
+
+    private void Calculate()
+    {
+        try
+        {
+            var calculator = new SavingsCalculationEngine();
+            results = calculator.Calculate(calculatorModel);
+            yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Calc error: {ex.Message}");
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var loadedModel = System.Text.Json.JsonSerializer.Deserialize<SavingsCalculatorModel>(json, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (loadedModel != null)
+                {
+                    calculatorModel = loadedModel;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Load error: {ex.Message}");
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            calculatorModel.LastUpdateDate = DateTime.UtcNow;
+            var saveRequest = new PersistSavingsRequest 
+            { 
+                UserGuid = userGuid, 
+                CalculatorType = calculatorType, 
+                Data = calculatorModel 
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync($"{GetApiBaseUrl()}/api/FinPlan/save", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                DebugService.AddMessage($"Save failed: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Save error: {ex.Message}");
+        }
+    }
+
+    private async Task HandleWizardFinished((int AgeYou, int AgePartner) ages)
+    {
+        try
+        {
+            if (ages.AgeYou > 0) calculatorModel.RetirementAge = ages.AgeYou;
+            await SaveAsync();
+            Calculate();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Wizard finish error: {ex.Message}");
+        }
+    }
+
+    private async Task HandleSampleDataSelected(SavingsCalculatorModel sampleModel)
+    {
+        calculatorModel = sampleModel;
+        await SaveAsync();
+        Calculate();
+        StateHasChanged();
+    }
+
+    private void OpenWizard(int step)
+    {
+        wizardOpenStep = step;
+        showWizard = true;
+    }
+
+    private void ToggleRightDebug() 
+    { 
+        showRightDebug = !showRightDebug; 
+        StateHasChanged(); 
+    }
+
+    private string FormatMoney(decimal? value) => value?.ToString("C0") ?? "-";
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api.finplan.example";
+#endif
+    }
+}

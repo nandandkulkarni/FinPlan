@@ -1,0 +1,268 @@
+@using FinPlan.Shared.Models.Savings
+@using Microsoft.AspNetCore.Components
+
+<style>
+    .sample-data-modal {
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border: none;
+    }
+
+    .sample-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .sample-option:hover {
+            border-color: #9ca3af;
+            background-color: #f9fafb;
+        }
+
+        .sample-option.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+            .sample-option.selected:hover {
+                border-color: #3b82f6;
+                background-color: #eff6ff;
+            }
+</style>
+
+@if (Visible)
+{
+    <div class="modal-backdrop fade show" style="z-index:1080;"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1090;">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content sample-data-modal">
+                <div class="modal-header" style="border-bottom: 1px solid #e9ecef; padding: 24px;">
+                    <div>
+                        <h4 class="modal-title" style="margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 700; color: #1a202c;">
+                            Try with Sample Data
+                        </h4>
+                        <p style="margin: 0; color: #6c757d; font-size: 0.95rem;">
+                            See how the savings calculator works with realistic scenarios based on American averages
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => OnClose.InvokeAsync()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <label style="font-weight: 600; color: #374151; margin: 0;">
+                                Choose a scenario that's closest to your situation:
+                            </label>
+                            <button type="button" class="btn btn-primary" @onclick="LoadSelectedSampleData" disabled="@(selectedSampleData == 0)">
+                                Load Sample Data
+                            </button>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- 30s Option -->
+                            <label class="sample-option @(selectedSampleData == 30 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="30s" @onchange="() => selectedSampleData = 30" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        ?? Individual in their 30s - Building Wealth Foundation
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Current Age:</strong> 32</div>
+                                        <div><strong>Retirement Age:</strong> 65</div>
+                                        <div><strong>Starting Savings:</strong> $45K</div>
+                                        <div><strong>Monthly Contributions:</strong> $1,800/mo</div>
+                                        <div><strong>Growth Rate:</strong> 7% annual</div>
+                                        <div><strong>Tax Strategy:</strong> Balanced approach</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Early career professional focused on consistent saving and growth
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 40s Option -->
+                            <label class="sample-option @(selectedSampleData == 40 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="40s" @onchange="() => selectedSampleData = 40" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        ?? Individual in their 40s - Peak Earning & Saving Years
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Current Age:</strong> 42</div>
+                                        <div><strong>Retirement Age:</strong> 65</div>
+                                        <div><strong>Starting Savings:</strong> $285K</div>
+                                        <div><strong>Monthly Contributions:</strong> $3,200/mo</div>
+                                        <div><strong>Growth Rate:</strong> 6.5% annual</div>
+                                        <div><strong>Tax Strategy:</strong> Tax-advantaged focus</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Mid-career with substantial savings and maximizing contributions
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 50s Option -->
+                            <label class="sample-option @(selectedSampleData == 50 ? "selected" : "")">
+                                <input type="radio" name="sampleData" value="50s" @onchange="() => selectedSampleData = 50" style="margin-top: 4px;" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 1.1rem;">
+                                        ?? Individual in their 50s - Pre-Retirement Optimization
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #6b7280;">
+                                        <div><strong>Current Age:</strong> 52</div>
+                                        <div><strong>Retirement Age:</strong> 67</div>
+                                        <div><strong>Starting Savings:</strong> $650K</div>
+                                        <div><strong>Monthly Contributions:</strong> $4,500/mo</div>
+                                        <div><strong>Growth Rate:</strong> 6% annual</div>
+                                        <div><strong>Tax Strategy:</strong> Catch-up contributions</div>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.85rem; color: #9ca3af; font-style: italic;">
+                                        Experienced professional with significant savings and catch-up opportunities
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">
+                            ?? Why use sample data?
+                        </div>
+                        <ul style="margin: 0; padding-left: 16px; color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                            <li>See realistic savings projections instantly</li>
+                            <li>Understand what inputs the calculator needs</li>
+                            <li>Compare your situation to national averages</li>
+                            <li>You can modify any values after loading</li>
+                            <li>Explore different tax-advantaged strategies</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="() => OnClose.InvokeAsync()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="LoadSelectedSampleData" disabled="@(selectedSampleData == 0)">
+                        Load Sample Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<SavingsCalculatorModel> OnSampleDataSelected { get; set; }
+
+    private int selectedSampleData = 0;
+
+    private async Task LoadSelectedSampleData()
+    {
+        if (selectedSampleData == 0)
+            return;
+
+        var sampleModel = GetSampleData(selectedSampleData);
+        selectedSampleData = 0;
+
+        await OnSampleDataSelected.InvokeAsync(sampleModel);
+        await OnClose.InvokeAsync();
+    }
+
+    private SavingsCalculatorModel GetSampleData(int ageGroup)
+    {
+        var model = new SavingsCalculatorModel();
+
+        switch (ageGroup)
+        {
+            case 30:
+                // 30s: Building Foundation
+                model.CurrentAge = 32;
+                model.RetirementAge = 65;
+                
+                // Starting balances - modest but growing
+                model.InitialTaxableAmount = 15_000m;
+                model.InitialTraditionalAmount = 25_000m;
+                model.InitialRothAmount = 5_000m;
+                
+                // Monthly contributions - aggressive but realistic for 30s
+                model.MonthlyTaxableContribution = 500m;
+                model.MonthlyTraditionalContribution = 800m;
+                model.MonthlyRothContribution = 500m;
+                
+                // Growth rates
+                model.AnnualGrowthRateTaxable = 7.0m;
+                model.AnnualGrowthRateTraditional = 7.2m;
+                model.AnnualGrowthRateRoth = 7.5m;
+                
+                // Tax settings
+                model.UseTaxAdvantaged = true;
+                model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
+                model.TaxBracket = FinPlan.Shared.Enums.TaxBracket.Medium;
+                break;
+
+            case 40:
+                // 40s: Peak Earning Years
+                model.CurrentAge = 42;
+                model.RetirementAge = 65;
+                
+                // Starting balances - substantial accumulation
+                model.InitialTaxableAmount = 85_000m;
+                model.InitialTraditionalAmount = 150_000m;
+                model.InitialRothAmount = 50_000m;
+                
+                // Monthly contributions - maximizing savings
+                model.MonthlyTaxableContribution = 800m;
+                model.MonthlyTraditionalContribution = 1_500m;
+                model.MonthlyRothContribution = 900m;
+                
+                // Growth rates - slightly more conservative
+                model.AnnualGrowthRateTaxable = 6.5m;
+                model.AnnualGrowthRateTraditional = 6.8m;
+                model.AnnualGrowthRateRoth = 7.0m;
+                
+                // Tax settings
+                model.UseTaxAdvantaged = true;
+                model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
+                model.TaxBracket = FinPlan.Shared.Enums.TaxBracket.High;
+                break;
+
+            case 50:
+                // 50s: Pre-Retirement Optimization
+                model.CurrentAge = 52;
+                model.RetirementAge = 67;
+                
+                // Starting balances - significant accumulation
+                model.InitialTaxableAmount = 200_000m;
+                model.InitialTraditionalAmount = 350_000m;
+                model.InitialRothAmount = 100_000m;
+                
+                // Monthly contributions - catch-up contributions
+                model.MonthlyTaxableContribution = 1_000m;
+                model.MonthlyTraditionalContribution = 2_200m; // includes catch-up
+                model.MonthlyRothContribution = 1_300m; // includes catch-up
+                
+                // Growth rates - more conservative approaching retirement
+                model.AnnualGrowthRateTaxable = 6.0m;
+                model.AnnualGrowthRateTraditional = 6.2m;
+                model.AnnualGrowthRateRoth = 6.5m;
+                
+                // Tax settings
+                model.UseTaxAdvantaged = true;
+                model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
+                model.TaxBracket = FinPlan.Shared.Enums.TaxBracket.High;
+                break;
+        }
+
+        // Set common properties
+        model.CompoundingFrequency = 12;
+        model.AutoCalculate = true;
+        model.LastUpdateDate = DateTime.UtcNow;
+
+        return model;
+    }
+}
