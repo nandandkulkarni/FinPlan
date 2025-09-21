@@ -161,30 +161,206 @@
         }
         else if (yearlyBreakdown?.Any() == true)
         {
+
             <div class="grid">
-                <table class="table table-sm">
-                    <thead>
+                <table class="table table-sm table-bordered" aria-label="Yearly projection">
+                    <thead class="table-light">
                         <tr>
-                            <th>Year</th>
-                            <th>Age</th>
-                            <th class="col-taxable">Taxable</th>
-                            <th class="col-traditional">Traditional</th>
-                            <th class="col-roth">Roth</th>
-                            <th class="col-totals">Total</th>
+                            <th style="text-align:right; width:120px; padding:18px 12px; font-size:1.0rem;">Year</th>
+                            <th style="text-align:right; width:90px; padding:18px 12px; font-size:1.0rem;">Age</th>
+
+                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
+                                </div>
+                            </th>
+                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
+                                </div>
+                            </th>
+                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                                </div>
+                            </th>
+                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Tax</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Paid</span>
+                                </div>
+                            </th>
+                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
+                                </div>
+                            </th>
+
+                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
+                                </div>
+                            </th>
+                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
+                                </div>
+                            </th>
+                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                                </div>
+                            </th>
+                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
+                                </div>
+                            </th>
+
+                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
+                                </div>
+                            </th>
+                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
+                                </div>
+                            </th>
+                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                                </div>
+                            </th>
+                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
+                                </div>
+                            </th>
+
+                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contributions</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
+                                </div>
+                            </th>
+                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
+                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
+                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var r in yearlyBreakdown.Take(10))
+                        @if (yearlyBreakdown == null || !yearlyBreakdown.Any())
                         {
-                            var age = calculatorModel.CurrentAge + r.Year;
-                            <tr>
-                                <td>@r.Year</td>
-                                <td>@age</td>
-                                <td class="text-end col-taxable money-cell">@FormatMoney(r.TaxableEOYBalance)</td>
-                                <td class="text-end col-traditional money-cell">@FormatMoney(r.TraditionalEOYBalance)</td>
-                                <td class="text-end col-roth money-cell">@FormatMoney(r.RothEOYBalance)</td>
-                                <td class="text-end col-totals money-cell">@FormatMoney(r.TotalEOYBalance)</td>
-                            </tr>
+                            <tr><td colspan="15" class="text-center text-muted">No projection rows available. Run Calculate to generate projections.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var r in yearlyBreakdown)
+                            {
+
+                                var age = calculatorModel.CurrentAge + r.Year; // approximate
+
+                                <tr>
+                                    <td>@r.Year</td>
+                                    <td>@age</td>
+
+                                    <!-- Taxable columns -->
+                                    <!-- Taxable columns with inline styles -->
+                                    <td class="text-end col-taxable"
+                                        style="font-size:0.78rem;font-weight:600;background-color: rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TaxableBOYBalance)
+                                    </td>
+                                    <td class="text-end col-taxable"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TaxableContribution)
+                                    </td>
+                                    <td class="text-end col-taxable"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TaxableInterest)
+                                    </td>
+                                    <td class="text-end col-taxable"
+                                        style="color:#F56565; font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TaxesPaid)
+                                    </td>
+                                    <td class="text-end col-taxable"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TaxableEOYBalance)
+                                    </td>
+
+                                    <!-- Traditional columns with inline styles -->
+                                    <td class="text-end col-traditional"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TraditionalBOYBalance)
+                                    </td>
+                                    <td class="text-end col-traditional"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TraditionalContribution)
+                                    </td>
+
+                                    <td class="text-end col-traditional"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TraditionalInterest)
+                                    </td>
+                                    <td class="text-end col-traditional"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TraditionalEOYBalance)
+                                    </td>
+
+                                    <!-- Roth columns with inline styles -->
+                                    <td class="text-end col-roth"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.RothBOYBalance)
+                                    </td>
+                                    <td class="text-end col-roth"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.RothContribution)
+                                    </td>
+                                    <td class="text-end col-roth"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.RothInterest)
+                                    </td>
+                                    <td class="text-end col-roth"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.RothEOYBalance)
+                                    </td>
+
+                                    <!-- Totals columns with inline styles -->
+                                    <td class="text-end col-totals"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TotalContributions)
+                                    </td>
+                                    <td class="text-end col-totals"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TotalGrowth)
+                                    </td>
+                                    <td class="text-end col-totals"
+                                        style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06); background-clip: padding-box; text-align: right; font-variant-numeric: tabular-nums;">
+                                        @FormatMoneySafe(r.TotalEOYBalance)
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -337,6 +513,9 @@
         showRightDebug = !showRightDebug; 
         StateHasChanged(); 
     }
+
+    private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
+
 
     private string FormatMoney(decimal? value) => value?.ToString("C0") ?? "-";
 
