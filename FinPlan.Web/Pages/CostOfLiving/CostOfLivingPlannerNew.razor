@@ -13,17 +13,44 @@
 
 <style>
     /* ----------------------------
-                                                                   Tweakable values
-                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                   ---------------------------- */
+                                                                               Tweakable values
+                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
         --tab-panel-top-offset: -6px; /* Tweak this to move the panel up/down (more negative => more overlap) */
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
     }
+
+
+    .start-planning-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(2px);
+        z-index: 10000;
+        pointer-events: auto; /* Block all interactions with underlying elements */
+    }
+
+        .start-planning-overlay .empty-state {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #FFD600;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 20px;
+            border-radius: 12px;
+            padding: 40px;
+            pointer-events: auto; /* Ensure the overlay content is clickable */
+        }
 
     .section-card {
         /* darker border for stronger separation from the background */
@@ -64,8 +91,8 @@
     }
 
     /* Panel that encloses everything below the tabs.
-                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                   Tweak the CSS variables above to adjust placement and padding. */
+                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -291,6 +318,55 @@
     OnSave="SaveUserSavingsAsync" 
     InitialStep="@wizardOpenStep" /> *@
 
+<!-- Overlay with Start Planning Button -->
+<!-- Overlay with Start Planning Button -->
+<div class="start-planning-overlay">
+    <div class="empty-state">
+        <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
+        <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
+        <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Let's create your personalized cost of living projection. First, let's set your key assumptions:
+        </p>
+
+        <!-- Key Assumptions Section -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
+            <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">Years to Retirement</label>
+                    <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
+                           style="text-align: center; font-weight: 600;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
+                    <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
+                           style="text-align: center; font-weight: 600;" />
+                </div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
+                <i class="bi bi-info-circle me-1"></i>
+                These values will be used to project your future costs. You can adjust them anytime.
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+            <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
+                <i class="bi bi-lightning-fill me-2"></i>
+                Start with Sample Data
+            </button>
+            <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
+                <i class="bi bi-pencil me-2"></i>
+                Start from Scratch
+            </button>
+        </div>
+
+        <div style="font-size: 0.9rem; color: #6c757d;">
+            Takes about 2-3 minutes to complete
+        </div>
+    </div>
+</div>
 @if (showDetailsModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
@@ -704,10 +780,10 @@
                                                     <td class="text-center align-middle" style="width:160px;">
                                                         @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
                                                         {
-                                                            @if(@item.PerItemInflationSource== InflationSource.UseGlobal)
+                                                            @if (@item.PerItemInflationSource == InflationSource.UseGlobal)
                                                             {
                                                                 <span>@InflationRate%</span>
-                                                                
+
                                                             }
                                                             else if (item.PerItemInflationSource == InflationSource.Custom)
                                                             {
@@ -2091,6 +2167,58 @@
         // reuse same modal for quick assumptions edits
         // copy current values into modal via component parameters (component reads YearsToRetirement/InflationRate)
         showAssumptionsModal = true;
+    }
+
+    // New state variables for multi-step flow
+    private bool showPlanningTypeModal = true; // Start with this instead of overlay
+    private bool showAssumptionsSetupModal = false;
+    private bool useSampleData = false;
+
+    private void SelectPlanningType(bool useSample)
+    {
+        useSampleData = useSample;
+        showPlanningTypeModal = false;
+        showAssumptionsSetupModal = true;
+    }
+
+    private void GoBackToPlanningType()
+    {
+        showAssumptionsSetupModal = false;
+        showPlanningTypeModal = true;
+    }
+
+    private async Task StartPlanning()
+    {
+        showAssumptionsSetupModal = false;
+
+        if (useSampleData)
+        {
+            // Load sample data with the user's assumptions
+            Items = StandardCostCategories.GetDefaults();
+        }
+        else
+        {
+            // Start with empty list
+            Items = new List<CostItem>();
+        }
+
+        // Save the assumptions
+        ScheduleAutosave();
+        StateHasChanged();
+    }
+
+    private void StartWithDefaults()
+    {
+        Items = StandardCostCategories.GetDefaults();
+        ScheduleAutosave();
+        StateHasChanged();
+    }
+
+    private void StartFromScratch()
+    {
+        Items = new List<CostItem>();
+        ScheduleAutosave();
+        StateHasChanged();
     }
 
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.

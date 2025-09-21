@@ -1,0 +1,474 @@
+@page "/future-cost-of-living-new"
+@using FinPlan.Shared.Models.LivingCosts
+@using FinPlan.Web.Components
+@using FinPlan.Web.Pages.CostOfLiving.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject NavigationManager Navigation
+
+<style>
+    /* Start Planning Section Styles */
+    .start-planning-panel {
+        background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .start-planning-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .start-planning-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #FFD600, #FFB800);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #111;
+        font-size: 28px;
+        box-shadow: 0 8px 20px rgba(255, 214, 0, 0.3);
+    }
+
+    .start-planning-content h4 {
+        color: #1a202c;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .start-planning-content .subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+
+    .quick-start-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .option-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: left;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .option-card:hover {
+        border-color: #FFD600;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .option-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .option-card h5 {
+        color: #1a202c;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .option-card p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    .preferences-section {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+
+    @@media (max-width: 768px) {
+        .quick-start-options {
+            grid-template-columns: 1fr;
+        }
+        
+        .start-planning-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    /* Basic container styles */
+    .container-fluid {
+        padding-left: 16px;
+        padding-right: 16px;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 992px) {
+        .container-fluid {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+    }
+</style>
+
+<PageTitle>Cost of Living Planner</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left column (2) -->
+        <div class="col-12 col-md-2">
+            <ul class="list-unstyled mb-0">
+                <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
+                <li><a class="text-decoration-none d-block py-1" href="/guides/how-to-use-cost-of-living-calculator"><i class="bi bi-question-circle"></i> How to use</a></li>
+            </ul>
+        </div>
+
+        <!-- Center column (8) -->
+        <div class="col-12 col-md-8">
+            <h3>Cost of Living Planner</h3>
+            <p class="text-muted">Plan your current expenses and see how they'll change in retirement</p>
+
+            @if (IsEmptyPlan() && !dontShowStartPlanning)
+            {
+                <!-- Start Planning Section -->
+                <div class="start-planning-panel">
+                    <div class="start-planning-header">
+                        <div class="start-planning-icon">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        <div class="start-planning-content">
+                            <h4>Start Planning Your Cost of Living</h4>
+                            <p class="subtitle">Plan your current expenses and see how they'll change in retirement</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-start-options">
+                        <div class="option-card">
+                            <div class="option-icon">
+                                <i class="bi bi-lightning-fill"></i>
+                            </div>
+                            <h5>Quick Start</h5>
+                            <p>Create a plan with default expense categories to get started immediately</p>
+                            <button class="btn btn-primary" @onclick="CreateDefaultPlan" disabled="@isSaving">
+                                <i class="bi bi-plus-circle me-2"></i>Create Default Plan
+                            </button>
+                        </div>
+
+                        <div class="option-card">
+                            <div class="option-icon">
+                                <i class="bi bi-pencil-fill"></i>
+                            </div>
+                            <h5>Start from Scratch</h5>
+                            <p>Begin with a blank plan and add your own categories</p>
+                            <button class="btn btn-outline-primary" @onclick="StartBlankPlan" disabled="@isSaving">
+                                <i class="bi bi-file-plus me-2"></i>Start Blank Plan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="preferences-section">
+                        <div class="checkbox-wrapper">
+                            <label class="checkbox-label">
+                                <input type="checkbox" checked="@dontShowStartPlanning" @onchange="OnDontShowAgainChanged" />
+                                Don't show this planner again
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (!IsEmptyPlan())
+            {
+                <!-- Show link to full planner when items exist -->
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle me-2"></i>Your Cost of Living Plan</h5>
+                    <p>You already have a cost of living plan with @Items.Count items. Continue editing your plan:</p>
+                    <a href="/future-cost-of-living" class="btn btn-primary">
+                        <i class="bi bi-calculator me-2"></i>Open Cost of Living Planner
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- Show message when start planning is hidden -->
+                <div class="alert alert-secondary">
+                    <h5><i class="bi bi-calculator me-2"></i>Cost of Living Planner</h5>
+                    <p>Ready to start planning your cost of living?</p>
+                    <a href="/future-cost-of-living" class="btn btn-primary">
+                        <i class="bi bi-calculator me-2"></i>Open Planner
+                    </a>
+                    <button class="btn btn-link btn-sm ms-2" @onclick="() => { dontShowStartPlanning = false; StateHasChanged(); }">
+                        Show start planning options
+                    </button>
+                </div>
+            }
+
+            <!-- Loading indicator -->
+            @if (isLoading)
+            {
+                <div class="d-flex justify-content-center my-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Save status -->
+            @if (isSaving)
+            {
+                <div class="d-flex align-items-center my-3">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span class="small text-muted">Saving...</span>
+                </div>
+            }
+        </div>
+
+        <!-- Right column (2) -->
+        <div class="col-12 col-md-2">
+            <!-- Additional links or ads can go here -->
+        </div>
+    </div>
+</div>
+@code {
+    // Start Planning section properties
+    private bool dontShowStartPlanning = false;
+    private bool isLoading = false;
+    private bool isSaving = false;
+    private List<CostItem> Items { get; set; } = new List<CostItem>();
+    private string userGuid = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Only do non-JS interop initialization here
+        try
+        {
+            // Get user GUID (this doesn't use JS interop)
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+
+            // Load existing items to check if plan exists (this is HTTP, not JS interop)
+            await LoadExistingItems();
+        }
+        catch (Exception ex)
+        {
+            // Can't use JS interop here during prerendering
+            // Just set a flag or log to server-side logging instead
+            Console.WriteLine($"Error initializing: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            try
+            {
+                // Load start planning preference (uses localStorage JS interop)
+                await LoadStartPlanningPreference();
+            }
+            catch (Exception ex)
+            {
+                // Now we can safely use JS interop
+                await JSRuntime.InvokeVoidAsync("console.error", $"Error loading preferences: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private bool IsEmptyPlan()
+    {
+        return Items == null || Items.Count == 0;
+    }
+
+    private async Task CreateDefaultPlan()
+    {
+        isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            // Create default items
+            Items = StandardCostCategories.GetDefaults();
+
+            // Save to API
+            await SaveItemsToApi();
+
+            // Navigate to full planner
+            Navigation.NavigateTo("/future-cost-of-living");
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating default plan: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error creating plan. Please try again.");
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void StartBlankPlan()
+    {
+        // Navigate directly to the full planner with empty state
+        Navigation.NavigateTo("/future-cost-of-living");
+    }
+
+    private async Task OnDontShowAgainChanged(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool isChecked))
+        {
+            dontShowStartPlanning = isChecked;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "costOfLiving_dontShowStartPlanning", isChecked.ToString());
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Failed to save preference: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task LoadStartPlanningPreference()
+    {
+        try
+        {
+            var saved = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "costOfLiving_dontShowStartPlanning");
+            if (bool.TryParse(saved, out bool value))
+            {
+                dontShowStartPlanning = value;
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Failed to load preference: {ex.Message}");
+        }
+    }
+
+    private async Task LoadExistingItems()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType=CostOfLiving-Plan-A-City-A";
+
+            using var client = HttpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(10);
+
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (data?.Items != null)
+                {
+                    Items = data.Items;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Don't use JS interop here if called from OnInitializedAsync
+            // Use server-side logging instead
+            Console.WriteLine($"Could not load existing items: {ex.Message}");
+        }
+    }
+
+    private async Task SaveItemsToApi()
+    {
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
+
+        var dto = new PersistCostOfLivingRequest
+        {
+            UserGuid = userGuid,
+            CalculatorType = "CostOfLiving-Plan-A-City-A",
+            Data = new CostOfLivingData
+            {
+                Header = "Plan-A-City-A",
+                Items = Items,
+                CollapsedCategories = new List<string>(),
+                YearsToRetirement = 20,
+                InflationRate = 2.5m
+            }
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(dto);
+        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+        using var client = HttpClientFactory.CreateClient();
+        var response = await client.PostAsync(url, content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Save failed with status: {response.StatusCode}");
+        }
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+}
