@@ -11,9 +11,251 @@
 @inject DebugMessageService DebugService
 @inject UserGuidService UserGuidService
 
+
+<style>
+    body {
+}
+/* CSS Variables - convert to actual values for better compatibility */
+.container-wire {
+    padding: 14px;
+}
+
+.col-taxable, th.col-taxable {
+    background-color: rgba(31,111,235,0.06);
+}
+
+th.col-taxable {
+    color: #1F6FEB;
+    font-weight: 700;
+}
+
+.col-traditional, th.col-traditional {
+    background-color: rgba(56,178,172,0.06);
+}
+
+.col-roth, th.col-roth {
+    background-color: rgba(109,93,252,0.06);
+}
+
+th.col-roth {
+    color: #6D5DFC;
+    font-weight: 700;
+}
+
+.col-totals, th.col-totals {
+    background-color: rgba(255,214,0,0.06);
+}
+
+th.col-totals {
+    color: #FFD600;
+    font-weight: 700;
+}
+
+th.col-traditional {
+    color: #38B2AC;
+    font-weight: 700;
+}
+
+/* small touch to keep numeric alignment and readability */
+.table td.col-taxable,
+.table td.col-traditional,
+.table td.col-roth,
+.table td.col-totals {
+    font-variant-numeric: tabular-nums;
+}
+
+.page-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.45rem;
+    margin-bottom: 12px;
+    color: #111;
+}
+
+.top-area {
+    position: relative;
+}
+
+.panel {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(22,28,36,0.06);
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0%;
+}
+
+/* Section card variant used inside the Plan Sections grid */
+.section-card {
+    border: 1px solid rgba(16,24,36,0.12);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 92px;
+    background: #fff;
+}
+
+    .section-card .actions {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+        padding-top: 6px;
+    }
+
+.btn-edit {
+    background: #1F6FEB;
+    color: #ffffff;
+    border: 0;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #e6e9ee;
+    color: #333;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* Highlighted rectangular panel with yellow border and subtle shadow */
+.section-panel {
+    border: 3px solid #FFD600;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(13,38,76,0.06), 0 4px 18px rgba(255,214,0,0.08);
+    padding: 14px;
+    background: linear-gradient(180deg, #fff, #fff);
+}
+
+.step-badge {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFD600;
+    color: #111;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.small-note {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 8px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    background: #f1f3f5;
+    color: #222;
+    margin-right: 6px;
+    text-decoration: none;
+}
+
+    .badge:hover {
+        background: #e9ecef;
+        text-decoration: none;
+    }
+
+.summary-money {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+}
+
+.grid-panel {
+    margin-top: 12px;
+}
+
+.grid-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.grid {
+    width: 100%;
+    border-radius: 8px;
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 8px 24px rgba(12,18,30,0.04);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.98rem;
+    min-width: 900px;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eef2f6;
+    text-align: left;
+    font-weight: 700;
+    color: #333;
+}
+
+tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f2f4f7;
+    vertical-align: middle;
+}
+
+.money-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.legend {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+    .legend .swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+@@media (max-width:1024px) {
+    .top-area .row {
+        gap: 12px;
+    }
+}
+
+</style>
+
 <PageTitle>Savings & Wealth Building</PageTitle>
 
-<link href="~/css/savings.css" rel="stylesheet" />
 
 <SavingsInputWizard Model="@calculatorModel"
                     Visible="@showWizard"
@@ -117,9 +359,99 @@
                     }
                     else
                     {
-                        <SavingsPlanSections Model="@calculatorModel"
-                                             Results="@results"
-                                             OnEditSection="OpenWizard" />
+<div class="panel section-panel">
+    <h4>Plan Sections</h4>
+
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">1</span>
+                    <div>Milestones & ages</div>
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">Current Age: @calculatorModel.CurrentAge</div>
+                <div class="small-note" style="margin-top:8px;">Planned Retirement Age: @calculatorModel.RetirementAge</div>
+                <div class="small-note" style="margin-top:8px;">Years until Retirement: @calculatorModel.Years</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">2</span>
+                    <div>Starting Balances</div>
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)</div>
+                <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)</div>
+                <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)</div>
+
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">3</span>
+                    <div>Monthly Contributions</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
+                <div class="small-note" style="margin-top:8px;">Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
+                <div class="small-note" style="margin-top:8px;">Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+            </div>
+        </div>
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">4</span>
+                    <div>Estimated Growth Rate</div>
+                </div>
+                <div class="small-note">Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)</div>
+                <div class="small-note">Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)</div>
+                <div class="small-note">Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">5</span>
+                    <div>Tax Treatment</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
+                <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
+            </div>
+        </div>
+    </div>
+    @if (results != null)
+    {
+        <div class="mt-3">
+            <div class="row mb-3">
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
+                <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
+            </div>
+        </div>
+    }
+</div>
+
                     }
                 </div>
 

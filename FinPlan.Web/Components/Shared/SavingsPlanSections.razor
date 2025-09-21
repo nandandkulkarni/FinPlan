@@ -1,4 +1,4 @@
-﻿@using FinPlan.Shared.Models.Savings
+﻿@* @using FinPlan.Shared.Models.Savings
 @using FinPlan.Shared.Models
 
 <div class="panel section-panel">
@@ -100,4 +100,4 @@
     [Parameter] public EventCallback<int> OnEditSection { get; set; }
 
     private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
-}
+} *@
