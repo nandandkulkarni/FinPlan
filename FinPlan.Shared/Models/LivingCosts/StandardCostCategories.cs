@@ -56,5 +56,32 @@ namespace FinPlan.Shared.Models.LivingCosts
 
             return list;
         }
+
+        public static List<CostItem> GetBlankDefaults()
+        {
+            var list = new List<CostItem>
+            {
+                // Housing
+                new CostItem { Category = "Housing", Subcategory = "Mortgage/Rent", CurrentValue = 2500, AdjustOption = RetirementAdjustOption.Inflation },
+
+                // Food
+                new CostItem { Category = "Food", Subcategory = "Groceries", CurrentValue = 600m , AdjustOption = RetirementAdjustOption.Inflation },
+
+                // Transportation
+                new CostItem { Category = "Transportation", Subcategory = "Car Payment", CurrentValue = 550m , AdjustOption = RetirementAdjustOption.Inflation },
+
+            
+                // Healthcare
+                new CostItem { Category = "Healthcare", Subcategory = "Insurance", CurrentValue = 400m , AdjustOption = RetirementAdjustOption.Inflation },
+
+                // Insurance
+                new CostItem { Category = "Insurance", Subcategory = " Life Insurance", CurrentValue = 50m , AdjustOption = RetirementAdjustOption.Same },
+
+                // Lifestyle
+                new CostItem { Category = "Lifestyle", Subcategory = "Entertainment", CurrentValue = 150m , AdjustOption = RetirementAdjustOption.Inflation },
+            };
+
+            return list;
+        }
     }
 }

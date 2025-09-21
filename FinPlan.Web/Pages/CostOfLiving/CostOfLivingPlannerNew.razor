@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                                               Tweakable values
-                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                               ---------------------------- */
+                                                                                   Tweakable values
+                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                   ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -36,9 +36,9 @@
         align-items: center;
         justify-content: center;
         background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(2px);
-        z-index: 10000;
-        pointer-events: auto; /* Block all interactions with underlying elements */
+        backdrop-filter: blur(1px);
+        z-index: 20;
+        pointer-events: none; 
     }
 
         .start-planning-overlay .empty-state {
@@ -51,6 +51,34 @@
             padding: 40px;
             pointer-events: auto; /* Ensure the overlay content is clickable */
         }
+            /* ensure tab row doesn't leave default bottom spacing */
+    /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+        margin-bottom: 0 !important; /* override bootstrap utility margin */
+        padding-bottom: 0;
+        position: relative; /* allow stacking with panel box */
+        z-index: 100;
+    } */
+
+    /* Ensure navigation stays clickable */
+    /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+        margin-bottom: 0 !important;
+        padding-bottom: 0;
+        position: relative;
+        z-index: 200; /* Higher than overlay */
+    } */
+
+    /* Ensure the top navigation stays above the overlay */
+.top-strip {
+    position: relative;
+    z-index: 1030; /* This matches your MainLayout z-index */
+}
+/* Blur and disable the tab navigation when overlay is active */
+.nav-tabs.overlay-blur {
+    filter: blur(2px);
+    transition: filter 0.3s ease;
+    pointer-events: none; /* This makes the tabs non-clickable */
+    opacity: 0.7; /* Optional: reduce opacity to make it more obvious they're disabled */
+}
 
     .section-card {
         /* darker border for stronger separation from the background */
@@ -82,17 +110,19 @@
         margin-right: auto;
         align-self: center; /* keep vertical centering in the flex row */
     }
-    /* ensure tab row doesn't leave default bottom spacing */
-    .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-        margin-bottom: 0 !important; /* override bootstrap utility margin */
-        padding-bottom: 0;
-        position: relative; /* allow stacking with panel box */
-        z-index: 20;
+
+
+    /* Ensure left sidebar navigation stays clickable */
+    .col-12.col-md-2 {
+        position: relative;
+        z-index: 150; /* Higher than overlay */
     }
 
+
+
     /* Panel that encloses everything below the tabs.
-                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                   Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -309,64 +339,7 @@
                       OnSave="@(values => OnAssumptionsSaved(values))"
                       OnClose="@( () => CloseAssumptions() )" />
 
-@*                       <!-- Savings quick setup wizard (one page per section) -->
-<SavingsInputWizard 
-    Model="@calculatorModel" 
-    Visible="@showWizard" 
-    VisibleChanged="@(v => showWizard = v)" 
-    OnFinished="HandleWizardFinished" 
-    OnSave="SaveUserSavingsAsync" 
-    InitialStep="@wizardOpenStep" /> *@
 
-<!-- Overlay with Start Planning Button -->
-<!-- Overlay with Start Planning Button -->
-<div class="start-planning-overlay">
-    <div class="empty-state">
-        <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
-        <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
-        <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-            Let's create your personalized cost of living projection. First, let's set your key assumptions:
-        </p>
-
-        <!-- Key Assumptions Section -->
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
-            <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">Years to Retirement</label>
-                    <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
-                           style="text-align: center; font-weight: 600;" />
-                </div>
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
-                    <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
-                           style="text-align: center; font-weight: 600;" />
-                </div>
-            </div>
-
-            <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
-                <i class="bi bi-info-circle me-1"></i>
-                These values will be used to project your future costs. You can adjust them anytime.
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
-            <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
-                <i class="bi bi-lightning-fill me-2"></i>
-                Start with Sample Data
-            </button>
-            <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
-                <i class="bi bi-pencil me-2"></i>
-                Start from Scratch
-            </button>
-        </div>
-
-        <div style="font-size: 0.9rem; color: #6c757d;">
-            Takes about 2-3 minutes to complete
-        </div>
-    </div>
-</div>
 @if (showDetailsModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
@@ -568,18 +541,24 @@
                 }
             </div>
 
-            <!-- Tab Navigation -->
-            <ul class="nav nav-tabs mb-3" role="tablist">
-                @foreach (var t in Tabs)
-                {
-                    // add active class on li so highlight can wrap both label and actions
-                    <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
-                        <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == t ? "true" : "false")" tabindex="0" @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)" @onclick="() => OnTabClick(t)">
-                            @GetTabLabel(t)
-                        </button>
-                    </li>
-                }
-            </ul>
+       <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-3 @(Items == null || !Items.Any() ? "overlay-blur" : "")" role="tablist">
+            @foreach (var t in Tabs)
+            {
+                // add active class on li so highlight can wrap both label and actions
+                <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
+                    <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" 
+                            role="tab" 
+                            aria-selected="@(activeTab == t ? "true" : "false")" 
+                            tabindex="@(Items == null || !Items.Any() ? "-1" : "0")"
+                            disabled="@(Items == null || !Items.Any())"
+                            @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)" 
+                            @onclick="() => OnTabClick(t)">
+                        @GetTabLabel(t)
+                    </button>
+                </li>
+            }
+        </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
             <div class="tab-panel-box">
@@ -806,7 +785,54 @@
                             </div>
                         </div>
                         catIdx++;
-                    }
+                    } //end foreach group
+                        @if (Items == null || !Items.Any())
+                        {
+                            <!-- Overlay with Start Planning Button -->
+                            <div class="start-planning-overlay">
+                                <div class="empty-state">
+                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
+                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
+                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                        Let's create your personalized cost of living projection. First, let's set your key assumptions:
+                                    </p>
+
+                                    <!-- Key Assumptions Section -->
+                                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
+                                        <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                            <div>
+                                                <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">Years to Retirement</label>
+                                                <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
+                                                       style="text-align: center; font-weight: 600;" />
+                                            </div>
+                                            <div>
+                                                <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
+                                                <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
+                                                       style="text-align: center; font-weight: 600;" />
+                                            </div>
+                                        </div>
+
+                                        <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            These values will be used to project your future costs. You can adjust them anytime.
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                                        <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
+                                            <i class="bi bi-lightning-fill me-2"></i>
+                                            Start with Sample Data
+                                        </button>
+                                        <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
+                                            <i class="bi bi-pencil me-2"></i>
+                                            Start from Scratch
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                 </div>
 
 
@@ -1569,9 +1595,9 @@
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 // no saved data, load defaults
-                Items = StandardCostCategories.GetDefaults();
-                StateHasChanged();
-                Log("LoadFromApi: not found - using defaults");
+                //Items = StandardCostCategories.GetDefaults();
+                //StateHasChanged();
+                //Log("LoadFromApi: not found - using defaults");
             }
             else
             {
@@ -2216,7 +2242,7 @@
 
     private void StartFromScratch()
     {
-        Items = new List<CostItem>();
+        Items = StandardCostCategories.GetBlankDefaults();
         ScheduleAutosave();
         StateHasChanged();
     }
