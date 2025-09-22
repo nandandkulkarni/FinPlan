@@ -5,6 +5,9 @@ namespace FinPlan.Shared.Models.Savings
 {
     public class SavingsCalculatorModel
     {
+
+   
+
         public void RoundDecimals(int decimals = 2)
         {
             InitialTaxableAmount = Math.Round(InitialTaxableAmount, decimals);

@@ -1,4 +1,4 @@
-@page "/future-cost-of-living-new"
+@page "/future-cost-of-living"
 @using FinPlan.Shared.Models.LivingCosts
 @using FinPlan.Web.Components
 @using FinPlan.Web.Pages.CostOfLiving.Components
@@ -10,144 +10,197 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
-@inject NavigationManager Navigation
 
 <style>
-    /* Start Planning Section Styles */
-    .start-planning-panel {
-        background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 24px;
+    /* ----------------------------
+                                                                                           Tweakable values
+                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                           ---------------------------- */
+    /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
+    /* CSS variables used below for convenience */
+    :root {
+        --tab-panel-top-offset: -6px; /* Tweak this to move the panel up/down (more negative => more overlap) */
+        --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
+    }
+
+
+    /* Add missing empty-state styles */
+    .empty-state {
         text-align: center;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
     }
 
-    .start-planning-header {
+
+    .start-planning-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 16px;
-        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(1px);
+        z-index: 20;
+        pointer-events: none;
     }
 
-    .start-planning-icon {
-        width: 64px;
-        height: 64px;
-        background: linear-gradient(135deg, #FFD600, #FFB800);
-        border-radius: 16px;
+        .start-planning-overlay .empty-state {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #FFD600;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 20px;
+            border-radius: 12px;
+            padding: 40px;
+            pointer-events: auto; /* Ensure the overlay content is clickable */
+        }
+    /* ensure tab row doesn't leave default bottom spacing */
+    /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+                margin-bottom: 0 !important; /* override bootstrap utility margin */
+    padding-bottom: 0;
+    position: relative; /* allow stacking with panel box */
+    z-index: 100;
+    }
+    */
+
+    /* Ensure navigation stays clickable */
+    /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
+                margin-bottom: 0 !important;
+                padding-bottom: 0;
+                position: relative;
+                z-index: 200; /* Higher than overlay */
+    }
+
+    */
+    /* Ensure the top navigation stays above the overlay */
+    .top-strip {
+        position: relative;
+        z-index: 1030; /* This matches your MainLayout z-index */
+    }
+    /* Blur and disable the tab navigation when overlay is active */
+    .nav-tabs.overlay-blur {
+        filter: blur(2px);
+        transition: filter 0.3s ease;
+        pointer-events: none; /* This makes the tabs non-clickable */
+        opacity: 0.7; /* Optional: reduce opacity to make it more obvious they're disabled */
+    }
+
+    .section-card {
+        /* darker border for stronger separation from the background */
+        border: 1px solid rgba(16,24,36,0.12);
+        padding: 10px;
+        border-radius: 8px;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #111;
-        font-size: 28px;
-        box-shadow: 0 8px 20px rgba(255, 214, 0, 0.3);
+        flex-direction: column;
+        min-height: 92px;
+        background: #fff;
     }
 
-    .start-planning-content h4 {
-        color: #1a202c;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
+        .section-card .actions {
+            margin-top: auto; /* push to bottom of the card */
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
 
-    .start-planning-content .subtitle {
-        color: #64748b;
-        margin-bottom: 0;
-        font-size: 1.1rem;
-    }
-
-    .quick-start-options {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-
-    .option-card {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: left;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-
-    .option-card:hover {
-        border-color: #FFD600;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    .option-icon {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 20px;
-        margin-bottom: 16px;
-    }
-
-    .option-card h5 {
-        color: #1a202c;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .option-card p {
-        color: #64748b;
-        font-size: 0.9rem;
-        margin-bottom: 16px;
-        line-height: 1.4;
-    }
-
-    .preferences-section {
-        border-top: 1px solid #e2e8f0;
-        padding-top: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .checkbox-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #64748b;
-        font-size: 0.9rem;
+    .btn-edit {
+        background: #1F6FEB; /* professional blue */
+        color: #ffffff;
+        border: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
         cursor: pointer;
-        margin: 0;
+        font-weight: 600;
+        /* Force left alignment inside the .actions flex container */
+        margin-right: auto;
+        align-self: center; /* keep vertical centering in the flex row */
     }
 
-    .checkbox-label input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+
+    /* Ensure left sidebar navigation stays clickable */
+    .col-12.col-md-2 {
+        position: relative;
+        z-index: 150; /* Higher than overlay */
     }
 
-    @@media (max-width: 768px) {
-        .quick-start-options {
-            grid-template-columns: 1fr;
+
+
+    /* Panel that encloses everything below the tabs.
+                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                           Tweak the CSS variables above to adjust placement and padding. */
+    .tab-panel-box {
+        border: 2px solid #C79A00; /* dark yellow border */
+        border-radius: 8px; /* matches tab corner feel */
+        padding: var(--tab-panel-padding-top) 18px 20px 18px; /* top padding controlled by variable */
+        margin-top: 0; /* reset margin approach */
+        top: var(--tab-panel-top-offset); /* pull panel up under tabs - adjust variable above */
+        position: relative; /* enable top offset */
+        background: #ffffff; /* panel background; adjust for dark theme if needed */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        z-index: 10;
+        /* ensure panel's top border isn't clipped by parent overflow */
+        overflow: visible;
+    }
+
+    /* If using dark theme, slightly different background so border remains visible */
+    .dark-theme .tab-panel-box {
+        background: #171717;
+    }
+
+    /* Ensure active tab renders above the panel */
+    .tab-item-active, .nav-link.tab-active-custom {
+        position: relative;
+        z-index: 30;
+        margin-bottom: 0; /* prevent extra gap from tab element itself */
+    }
+
+    /* keep panel content visually aligned with rounded active tab */
+    .tab-active-custom {
+        background-color: #FFD600 !important;
+        color: #222 !important;
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .tab-item-active .nav-link {
+            background: transparent !important;
+            border: none !important;
+            color: #222 !important;
+            font-weight: 600;
+            padding: 0.18rem 0.4rem;
         }
-        
-        .start-planning-header {
-            flex-direction: column;
-            text-align: center;
-        }
+
+    .grid-yellow-bg {
+        background: transparent; /* remove yellow fill */
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255,214,0,0.18); /* keep border as requested */
+        box-shadow: none; /* remove shadow */
+        padding: 1rem;
     }
 
-    /* Basic container styles */
+    /* Use Bootstrap grid for layout (2-8-2). Left and right column styling intentionally minimal so Bootstrap handles spacing. */
+    /* Remove fixed sidebars; layout is now responsive using Bootstrap classes in the markup. */
+
+
     .container-fluid {
         padding-left: 16px;
         padding-right: 16px;
@@ -160,315 +213,2156 @@
             padding-right: 16px !important;
         }
     }
+
+    .sidebar-link-highlight {
+        background: linear-gradient(90deg,#FFD600,#FFB800);
+        color: #111 !important;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+        /* Slight lift on hover/focus */
+        .sidebar-link-highlight:hover,
+        .sidebar-link-highlight:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+            text-decoration: none;
+        }
+
+        /* Make icon slightly larger inside highlighted link */
+        .sidebar-link-highlight .bi {
+            font-size: 1.05rem;
+        }
+
+    /* Ensure it stacks nicely on small screens */
+    @@media (max-width: 992px) {
+        .sidebar-link-highlight {
+            display: inline-flex;
+            padding: 8px 10px;
+            border-radius: 6px;
+            box-shadow: none;
+        }
+    }
+
+    .attention-wrapper {
+        position: relative;
+        padding-left: 44px; /* make room for the arrow */
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .attention-arrow {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+        .attention-arrow svg {
+            width: 100%;
+            height: 100%;
+            fill: #111;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));
+            animation: arrow-bob 1.6s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+    /* optional gentle pulse on the highlighted link */
+    .sidebar-link-highlight.attention-wrapper {
+        box-shadow: 0 8px 20px rgba(255, 182, 0, 0.10);
+        transition: box-shadow 0.18s ease, transform 0.12s ease;
+    }
+
+    @@keyframes arrow-bob {
+        0% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(-58%) translateX(2px) rotate(-6deg);
+        }
+
+        50% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+
+        75% {
+            transform: translateY(-54%) translateX(1px) rotate(6deg);
+        }
+
+        100% {
+            transform: translateY(-50%) translateX(0) rotate(0deg);
+        }
+    }
+
+    /* Grid typography tweaks: smaller, no bold to reduce visual weight */
+    .card-body .table,
+    .grid-yellow-bg .table,
+    .table.table-sm {
+        font-size: 0.88rem; /* slightly smaller than default */
+    }
+
+    .table thead th {
+        font-size: 0.92rem;
+        font-weight: 600; /* keep headers slightly emphasized but not overly bold */
+    }
+
+    .table tbody td,
+    .table tbody th {
+        font-weight: 400 !important; /* remove bold in grid body */
+        color: #222;
+    }
+
+    /* Neutralize utility bold classes inside the grid so markup doesn't force heavy weight */
+    .table .fw-bold,
+    .table .fw-semibold,
+    .table strong,
+    .table b {
+        font-weight: 400 !important;
+    }
+
+    /* Tighten spacing a little so reduced font doesn't create too much white space */
+    .table td, .table th {
+        padding: 0.45rem 0.5rem;
+    }
+
+    }
 </style>
 
-<PageTitle>Cost of Living Planner</PageTitle>
+@* Replace the inline modal with the reusable component *@
+@* Replace previous component invocation with explicit C# expressions so Blazor doesn't emit invalid attribute names *@
+<EditAssumptionsModal Visible="@showAssumptionsModal"
+                      YearsToRetirement="@YearsToRetirement"
+                      InflationRate="@InflationRate"
+                      OnSave="@(values => OnAssumptionsSaved(values))"
+                      OnClose="@( () => CloseAssumptions() )" />
+
+
+@if (showDetailsModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Item Details</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDetailsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Subcategory</label>
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-control" @bind="modalSubcategory" />
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@modalSubcategory</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Frequency</label>
+                        @if (detailsEditMode)
+                        {
+                            <select class="form-select" @bind="modalFrequency">
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@modalFrequency</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Current Value</label>
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-control" type="number" step="0.01" @bind="modalCurrentValue" />
+                        }
+                        else
+                        {
+                            <div class="form-control-plaintext">@FormatCurrency(modalCurrentValue)</div>
+                        }
+                    </div>
+                    <div class="mb-3 form-check">
+                        @if (detailsEditMode)
+                        {
+                            <input class="form-check-input" type="checkbox" id="modalIncludeInRetirement" @bind="modalIncludeInRetirement" />
+                            <label class="form-check-label" for="modalIncludeInRetirement">Include in Retirement</label>
+                        }
+                        else
+                        {
+                            <label class="form-check-label">Include in Retirement:</label>
+                            <span class="ms-2">@(modalIncludeInRetirement ? "Yes" : "No")</span>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        @if (modalIncludeInRetirement)
+                        {
+                            @if (detailsEditMode)
+                            {
+                                <label class="form-label">Retirement Adjust</label>
+
+                                <select class="form-select" @bind="modalAdjustOption">
+                                    <option value="Same">Same</option>
+                                    <option value="CustomPercentage">Custom %</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Inflation">Adjust for Inflation</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@modalAdjustOption</div>
+                            }
+                        }
+                    </div>
+                    @if (modalAdjustOption == "CustomPercentage" && modalIncludeInRetirement)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Custom %</label>
+                            @if (detailsEditMode)
+                            {
+                                <input class="form-control" type="number" step="1" min="0" @bind="modalCustomPercentage" />
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@modalCustomPercentage %</div>
+                            }
+                        </div>
+                    }
+                    @if (modalAdjustOption == "Manual" && modalIncludeInRetirement)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Manual Retirement Value</label>
+                            @if (detailsEditMode)
+                            {
+                                <input class="form-control" type="number" step="0.01" @bind="modalManualRetirementValue" />
+                            }
+                            else
+                            {
+                                <div class="form-control-plaintext">@FormatCurrency(modalManualRetirementValue ?? 0)</div>
+                            }
+                        </div>
+                    }
+                    @if (modalIncludeInRetirement)
+                    {
+                        @if (modalAdjustOption == "Inflation")
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Inflation Source</label>
+                                @if (detailsEditMode)
+                                {
+                                    <select class="form-select" @bind="modalPerItemInflationSource">
+                                        <option value="UseGlobal">Global</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <div class="form-control-plaintext">@modalPerItemInflationSource</div>
+                                }
+                            </div>
+                            @if (modalPerItemInflationSource == "Custom")
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Custom Inflation %</label>
+                                    @if (detailsEditMode)
+                                    {
+                                        <input class="form-control" type="number" step="0.1" min="0" @bind="modalPerItemInflationPercent" />
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control-plaintext">@modalPerItemInflationPercent %</div>
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+
+                </div>
+                <div class="modal-footer">
+                    @if (detailsEditMode)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDetailsModal">Cancel</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveDetailsModal">Save</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDetailsModal">Close</button>
+                        <button type="button" class="btn btn-primary" @onclick="EnableDetailsEdit">Edit</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index:1999;"></div>
+}
+
+<!-- Removed left sidebar nav; content moved to main container -->
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Left column (2) -->
+        <!-- Left column (2) - moved from previous left-sidebar nav -->
         <div class="col-12 col-md-2">
             <ul class="list-unstyled mb-0">
                 <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
-                <li><a class="text-decoration-none d-block py-1" href="/guides/how-to-use-cost-of-living-calculator"><i class="bi bi-question-circle"></i> How to use</a></li>
             </ul>
+
+            <!-- Ad container for long Adsterra banner in left column -->
+            <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
+                @((MarkupString)AdHtmlLeft)
+            </div>
         </div>
 
-        <!-- Center column (8) -->
+        <!-- Center column (8) - main planner content -->
         <div class="col-12 col-md-8">
-            <h3>Cost of Living Planner</h3>
-            <p class="text-muted">Plan your current expenses and see how they'll change in retirement</p>
+            <h3>Cost of Living Projection</h3>
+            <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.</p>
+            @* <b>Multi-city and City tiered plan coming soon</b> *@
+            <!-- Save status indicator -->
+            <div class="d-flex align-items-center mb-2">
+                @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
+                {
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></div>
+                    <span class="small text-muted">Saving…</span>
+                }
+                else if (!string.IsNullOrEmpty(lastSaveMessage))
+                {
+                    <span class="small text-success">@lastSaveMessage</span>
+                }
+                else if (!string.IsNullOrEmpty(saveErrorMessage))
+                {
+                    <span class="small text-danger">Save error: @saveErrorMessage</span>
+                }
+            </div>
 
-            @if (IsEmptyPlan() && !dontShowStartPlanning)
-            {
-                <!-- Start Planning Section -->
-                <div class="start-planning-panel">
-                    <div class="start-planning-header">
-                        <div class="start-planning-icon">
-                            <i class="bi bi-calculator-fill"></i>
-                        </div>
-                        <div class="start-planning-content">
-                            <h4>Start Planning Your Cost of Living</h4>
-                            <p class="subtitle">Plan your current expenses and see how they'll change in retirement</p>
-                        </div>
-                    </div>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-3 @(Items == null || !Items.Any() ? "overlay-blur" : "")" role="tablist">
+                @foreach (var t in Tabs)
+                {
+                    // add active class on li so highlight can wrap both label and actions
+                    <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
+                        <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
+                                role="tab"
+                                aria-selected="@(activeTab == t ? "true" : "false")"
+                                tabindex="@(Items == null || !Items.Any() ? "-1" : "0")"
+                                disabled="@(Items == null || !Items.Any())"
+                                @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)"
+                                @onclick="() => OnTabClick(t)">
+                            @GetTabLabel(t)
+                        </button>
+                    </li>
+                }
+            </ul>
 
-                    <div class="quick-start-options">
-                        <div class="option-card">
-                            <div class="option-icon">
-                                <i class="bi bi-lightning-fill"></i>
-                            </div>
-                            <h5>Quick Start</h5>
-                            <p>Create a plan with default expense categories to get started immediately</p>
-                            <button class="btn btn-primary" @onclick="CreateDefaultPlan" disabled="@isSaving">
-                                <i class="bi bi-plus-circle me-2"></i>Create Default Plan
-                            </button>
+            <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
+            <div class="tab-panel-box">
+
+                <!-- Planner Controls Strip -->
+                <div class="section-card">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                            @* <span class="step-badge">1</span> *@
+                            <div>Assumptions:</div>
                         </div>
 
-                        <div class="option-card">
-                            <div class="option-icon">
-                                <i class="bi bi-pencil-fill"></i>
-                            </div>
-                            <h5>Start from Scratch</h5>
-                            <p>Begin with a blank plan and add your own categories</p>
-                            <button class="btn btn-outline-primary" @onclick="StartBlankPlan" disabled="@isSaving">
-                                <i class="bi bi-file-plus me-2"></i>Start Blank Plan
-                            </button>
-                        </div>
-                    </div>
+                        <div class="small-note" style="margin-top:8px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">
+                                <span class="bi bi-info-circle text-info ms-1"
+                                      style="font-size: 1.1rem; cursor: pointer;"
+                                      @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                      tabindex="0"
+                                      title="Click for more info"></span>
+                                Years to Retirement
 
-                    <div class="preferences-section">
-                        <div class="checkbox-wrapper">
-                            <label class="checkbox-label">
-                                <input type="checkbox" checked="@dontShowStartPlanning" @onchange="OnDontShowAgainChanged" />
-                                Don't show this planner again
                             </label>
+                            @if (showToolTipYearsInfo)
+                            {
+                                <div class="alert alert-info py-2 px-3 mt-1 mb-0 small" style="max-width: 320px;">
+                                    <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
+                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
+                                        <span class="bi bi-x-lg"></span>
+                                    </span>
+                                </div>
+                            }
+
+                            Years to retire1: <b>@YearsToRetirement</b>, &nbsp;&nbsp;&nbsp;
+                            Annual Inflation rate: <b>@InflationRate</b>&nbsp;&nbsp;&nbsp;
+                            <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                         </div>
+
                     </div>
                 </div>
-            }
-            else if (!IsEmptyPlan())
-            {
-                <!-- Show link to full planner when items exist -->
-                <div class="alert alert-info">
-                    <h5><i class="bi bi-info-circle me-2"></i>Your Cost of Living Plan</h5>
-                    <p>You already have a cost of living plan with @Items.Count items. Continue editing your plan:</p>
-                    <a href="/future-cost-of-living" class="btn btn-primary">
-                        <i class="bi bi-calculator me-2"></i>Open Cost of Living Planner
-                    </a>
+                <br />
+
+
+
+                <!-- Totals Strip: Current and Retirement side by side -->
+                <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
+                    <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                        <span class="totals-label">Current Total</span>
+                        <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
+                    </div>
+                    <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                        <span class="totals-label">Retirement Total</span>
+                        <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
+                    </div>
                 </div>
-            }
-            else
-            {
-                <!-- Show message when start planning is hidden -->
-                <div class="alert alert-secondary">
-                    <h5><i class="bi bi-calculator me-2"></i>Cost of Living Planner</h5>
-                    <p>Ready to start planning your cost of living?</p>
-                    <a href="/future-cost-of-living" class="btn btn-primary">
-                        <i class="bi bi-calculator me-2"></i>Open Planner
-                    </a>
-                    <button class="btn btn-link btn-sm ms-2" @onclick="() => { dontShowStartPlanning = false; StateHasChanged(); }">
-                        Show start planning options
+                <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
+                        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
                     </button>
                 </div>
-            }
+                <style>
+                    .totals-strip {
+                        width: 100%;
+                        max-width: 600px;
+                        margin-left: auto;
+                        margin-right: auto;
+                    }
 
-            <!-- Loading indicator -->
-            @if (isLoading)
-            {
-                <div class="d-flex justify-content-center my-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                    .totals-box {
+                        min-width: 180px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                        border: 1.5px solid #e3e3e3;
+                        transition: box-shadow 0.2s;
+                    }
+
+                    .totals-label {
+                        font-size: 1rem;
+                        font-weight: 500;
+                        opacity: 0.92;
+                        letter-spacing: 0.01em;
+                    }
+
+                    .totals-value {
+                        font-size: 1.08rem;
+                        font-weight: 700;
+                        letter-spacing: 0.01em;
+                        margin-top: 2px;
+                    }
+                </style>
+
+
+                <!-- Add Category Modal (root level for correct binding) -->
+                @if (showAddCategoryModal)
+                {
+                    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+                    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Add New Category</h5>
+                                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input class="form-control" placeholder="Category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKeyModal" />
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
+                                    <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving">Add Category</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            }
+                }
 
-            <!-- Save status -->
-            @if (isSaving)
-            {
-                <div class="d-flex align-items-center my-3">
-                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                    <span class="small text-muted">Saving...</span>
+                <div class="accordion" id="costCategoryAccordion">
+                    @{
+                        // Compute groups safely even if Items is null
+                        var groups = (Items ?? new List<CostItem>()).GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
+                        int catIdx = 0;
+                    }
+                    @foreach (var group in groups)
+                    {
+                        var groupKey = group.Key ?? string.Empty;
+                        var groupCurrentTotal = group.Sum(i => i.GetMonthlyEquivalent);
+                        var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
+                        var expanded = !IsCollapsed(groupKey);
+                        var collapseId = $"catCollapse_{catIdx}";
+                        <div class="card mb-2">
+                            <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)" title="@(expanded ? "Click to collapse" : "Click to expand")">
+                                <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
+                                    <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
+                                </button>
+                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
+                                <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+
+                                <div class="ms-auto d-flex gap-2 align-items-center">
+                                    @if (catIdx == 0)
+                                    {
+                                        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
+                                                type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
+                                            <span class="bi bi-plus-lg me-1"></span> Add Category
+                                        </button>
+                                    }
+
+                                    <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
+                                        <span class="bi bi-plus"></span> Add Item
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
+                                <div class="card-body p-2 grid-yellow-bg rounded-4">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
+                                                <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">Item</th>
+                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Frequency<br /><span class="small">(Units)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Unit<br /><span class="small">($)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Month<br /><span class="small">($)</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Include In<br /><span class="small">Retirement</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">Retirement<br /><span class="small">Value</span></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
+                                            {
+                                                var idx = Items.IndexOf(item);
+                                                <tr>
+                                                    <td style="width:40px; vertical-align:middle;">
+                                                        <div class="d-flex flex-column gap-1">
+                                                            <button style="background: none; border: none; padding: 2px 4px; color: rgba(220, 53, 69, 0.8); font-size: 0.8rem;" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
+                                                                <span class="bi bi-trash-fill" aria-hidden="true"></span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-left align-middle">@item.Subcategory</td>
+                                                    <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
+
+                                                    <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                                                    <td class="text-end align-middle" style="width:140px;">
+                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
+                                                    </td>
+                                                    <td class="text-center align-middle" style="width:60px;">
+                                                        @if (item.IncludeInRetirement)
+                                                        {
+                                                            <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center align-middle" style="width:320px;">
+                                                        @if (item.IncludeInRetirement)
+                                                        {
+                                                            @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                            {
+                                                                <span>@item.CustomPercentage%</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                                            {
+                                                                <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Same)
+                                                            {
+                                                                <span>No change</span>
+                                                            }
+                                                            else if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                            {
+                                                                <span>Inflation</span>
+                                                            }
+                                                        }
+                                                    </td>
+                                                    <td class="text-center align-middle" style="width:160px;">
+                                                        @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                        {
+                                                            @if (@item.PerItemInflationSource == InflationSource.UseGlobal)
+                                                            {
+                                                                <span>@InflationRate%</span>
+
+                                                            }
+                                                            else if (item.PerItemInflationSource == InflationSource.Custom)
+                                                            {
+                                                                <span>@item.PerItemInflationPercent%</span>
+                                                            }
+                                                        }
+                                                    </td>
+
+                                                    <td class="text-end align-middle" style="width:180px;">
+                                                        <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
+                                                    </td>
+                                                    <td style="width:80px; vertical-align:middle;">
+                                                        <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenViewModal(idx)">View/Edit</button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        catIdx++;
+                    }
+                    @if (showIntroModal && (Items == null || !Items.Any()))
+                    {
+                        <!-- Overlay with Start Planning Button -->
+                        <div class="start-planning-overlay">
+                            <div class="empty-state">
+                                <!-- X Close Button -->
+                                <div class="d-flex justify-content-end">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            aria-label="Close"
+                                            @onclick="CloseIntroModal">
+                                        &#10005;
+                                    </button>
+                                </div>
+
+                                <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
+                                <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
+                                <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                    Let's create your personalized cost of living projection. First, let's set your key assumptions:
+                                </p>
+
+                                <!-- Key Assumptions Section -->
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
+                                    <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">
+                                                Years to Retirement
+                                                <span class="bi bi-info-circle text-info ms-1"
+                                                      style="font-size: 1.1rem; cursor: pointer;"
+                                                      @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                                      tabindex="0"
+                                                      title="What is this?"></span>
+                                            </label>
+                                            @if (showToolTipYearsInfo)
+                                            {
+                                                <div class="alert alert-info py-2 px-3 mt-1 mb-0 small" style="max-width: 320px;">
+                                                    <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                            <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
+                                                   style="text-align: center; font-weight: 600;" />
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
+                                            <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
+                                                   style="text-align: center; font-weight: 600;" />
+                                        </div>
+                                    </div>
+
+                                    <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        These values will be used to project your future costs. You can adjust them anytime.
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
+                                        <i class="bi bi-lightning-fill me-2"></i>
+                                        Start with Sample Data
+                                    </button>
+                                    <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
+                                        <i class="bi bi-pencil me-2"></i>
+                                        Start from Basics
+                                    </button>
+                                </div>
+
+                                <!-- Don't Show Again Checkbox -->
+                                <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
+                                    <div class="form-check d-flex align-items-center justify-content-center gap-2">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="dontShowIntroAgain"
+                                               @bind="dontShowIntroAgain"
+                                               style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
+                                        <label class="form-check-label"
+                                               for="dontShowIntroAgain"
+                                               style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
+                                            Don't show this welcome screen again
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
-            }
+
+
+                @* Loading overlay shown while initial API calls are in progress *@
+                @if (isLoading)
+                {
+                    <div class="blazor-loading-modal">
+                        <div class="blazor-loading-content">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <div class="mt-2 fw-bold">Loading...</div>
+                        </div>
+                    </div>
+                }
+
+                @* Undo toast for recent removals *@
+                @if (showUndoToast)
+                {
+                    <div style="position:fixed; right:16px; bottom:16px; z-index:1060;">
+                        <div class="card shadow-sm" style="min-width:220px;">
+                            <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                                <div class="small text-truncate me-2">Item removed</div>
+                                <div>
+                                    <button class="btn btn-sm btn-link" @onclick="UndoRemove">Undo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* Timeout / retry modal *@
+                @if (showTimeoutModal)
+                {
+                    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+                    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+                        <div class="modal-dialog modal-sm" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Request timed out</h5>
+                                    <button type="button" class="btn-close" aria-label="Close" @onclick="DismissTimeoutModal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="small">@timeoutMessage</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary btn-sm" @onclick="DismissTimeoutModal">Dismiss</button>
+                                    <button class="btn btn-primary btn-sm" @onclick="RetryOperation">Retry</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (showCreateTabModal)
+                {
+                    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header bg-warning-subtle">
+                                    <h5 class="modal-title">Create New Plan</h5>
+                                    <button type="button" class="btn-close" aria-label="Close" @onclick="CancelCreateTab"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Would you like to create <strong>@GetTabLabel(pendingGhostTab)</strong>?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" @onclick="CancelCreateTab">Cancel</button>
+                                    <button class="btn btn-primary" @onclick="ConfirmCreateTab">Create Plan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
+                        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+                    </button>
+                </div>
+            </div>
         </div>
+    </div>
+    <!-- Important Disclaimers -->
+    <div class="mt-4 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
+        <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <div style="color: #856404; margin-top: 2px;">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.1rem;"></i>
+            </div>
+            <div>
+                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
+                <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
+                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational and planning purposes only. Results are projections based on your inputs and assumptions. This is not personalized financial, tax, or investment advice.</p>
 
-        <!-- Right column (2) -->
-        <div class="col-12 col-md-2">
-            <!-- Additional links or ads can go here -->
+                    <p style="margin-bottom: 8px;"><strong>Inflation Assumptions:</strong> Actual inflation rates vary significantly over time and by category. Real-world cost changes for housing, healthcare, food, and other expenses may differ substantially from the uniform inflation rates used in this calculator.</p>
+
+                    <p style="margin-bottom: 8px;"><strong>Life Changes:</strong> Job transitions, family changes, health issues, geographic moves, and lifestyle adjustments are not modeled but can materially impact your actual cost of living in retirement.</p>
+
+                    <p style="margin-bottom: 8px;"><strong>Economic Factors:</strong> Economic conditions, policy changes, technological advances, and other external factors may significantly alter future costs in ways not captured by simple inflation projections.</p>
+
+                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors, tax professionals, and retirement planning specialists who can provide personalized advice for your complete financial situation and retirement planning needs.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-@code {
-    // Start Planning section properties
-    private bool dontShowStartPlanning = false;
-    private bool isLoading = false;
-    private bool isSaving = false;
-    private List<CostItem> Items { get; set; } = new List<CostItem>();
-    private string userGuid = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+@code {
+    // Ghost tab creation modal state
+
+    // Returns true if the Add Category button should be disabled
+    private bool IsAddCategoryDisabled => false;//string.IsNullOrWhiteSpace(NewCategoryName?.Trim());
+
+    private bool showCreateTabModal = false;
+    private string pendingGhostTab = null;
+
+    private void PromptCreateTab(string ghostTab)
     {
-        // Only do non-JS interop initialization here
+        pendingGhostTab = ghostTab;
+        showCreateTabModal = true;
+    }
+
+    private async Task ConfirmCreateTab()
+    {
+        showCreateTabModal = false;
+        pendingGhostTab = null;
+        await AddNewTab();
+    }
+
+    private void CancelCreateTab()
+    {
+        showCreateTabModal = false;
+        pendingGhostTab = null;
+    }
+
+    // Edit Item Modal state
+    // Details Modal State
+    private bool showDetailsModal = false;
+    private bool detailsEditMode = false;
+    private int detailsItemIndex = -1;
+    private string modalSubcategory = string.Empty;
+    private string modalFrequency = "Monthly";
+    private decimal modalCurrentValue = 0m;
+    private string modalAdjustOption = "Same";
+    private decimal modalCustomPercentage = 0m;
+    private decimal? modalManualRetirementValue = null;
+    private string modalPerItemInflationSource = "UseGlobal";
+    private decimal modalPerItemInflationPercent = 0m;
+    private bool modalIncludeInRetirement = true;
+
+    private void OpenViewModal(int idx)
+    {
+        if (idx >= 0 && idx < Items.Count)
+        {
+            detailsItemIndex = idx;
+            // Copy values to modal fields
+            modalSubcategory = Items[idx].Subcategory ?? string.Empty;
+            modalFrequency = Items[idx].Frequency.ToString();
+            modalCurrentValue = Items[idx].CurrentValue;
+            modalAdjustOption = Items[idx].AdjustOption.ToString();
+            modalCustomPercentage = Items[idx].CustomPercentage;
+            modalManualRetirementValue = Items[idx].ManualRetirementValue;
+            modalPerItemInflationSource = Items[idx].PerItemInflationSource.ToString();
+            modalPerItemInflationPercent = Items[idx].PerItemInflationPercent ?? 0;
+            modalIncludeInRetirement = Items[idx].IncludeInRetirement;
+            showDetailsModal = true;
+            detailsEditMode = true; // Always open in edit mode
+        }
+    }
+
+    private void CloseDetailsModal()
+    {
+        showDetailsModal = false;
+        detailsEditMode = false;
+        detailsItemIndex = -1;
+    }
+
+    private void EnableDetailsEdit()
+    {
+        detailsEditMode = true;
+    }
+
+    private void SaveDetailsModal()
+    {
+        if (detailsItemIndex >= 0 && detailsItemIndex < Items.Count)
+        {
+            var item = Items[detailsItemIndex];
+            item.Subcategory = modalSubcategory;
+            if (Enum.TryParse<FinPlan.Shared.Models.LivingCosts.Frequency>(modalFrequency, out var freq))
+                item.Frequency = freq;
+            item.CurrentValue = modalCurrentValue;
+            if (Enum.TryParse<RetirementAdjustOption>(modalAdjustOption, out var adj))
+                item.AdjustOption = adj;
+            item.CustomPercentage = modalCustomPercentage;
+            item.ManualRetirementValue = modalManualRetirementValue;
+            if (Enum.TryParse<InflationSource>(modalPerItemInflationSource, out var infl))
+                item.PerItemInflationSource = infl;
+            item.PerItemInflationPercent = modalPerItemInflationPercent;
+            item.IncludeInRetirement = modalIncludeInRetirement;
+            StateHasChanged();
+            ScheduleAutosave();
+        }
+        CloseDetailsModal();
+    }
+    private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
+
+    private int YearsToRetirement { get; set; } = 20;
+    // Backing field and property so changes trigger recalculation and autosave
+    private decimal _inflationRate = 2.5m;
+    private decimal InflationRate
+    {
+        get => _inflationRate;
+        set
+        {
+            if (_inflationRate != value)
+            {
+                _inflationRate = value;
+                RecalculateAll(save: true);
+            }
+        }
+    }
+
+    private bool isLoading = false;
+
+    // Saving state for UI
+    private bool isSaving = false;
+    private string lastSaveMessage = string.Empty;
+    private string saveErrorMessage = string.Empty;
+
+    // Only dynamic tabs; start with a single default plan (plan-a)
+    private string activeTab = "Plan-A-City-A"; // Track active tab for UI highlighting
+
+    private List<string> dynamicTabs = new List<string>();
+    // Always include the built-in "plan-a" tab first so UI shows a default tab when no dynamic tabs exist.
+    private IEnumerable<string> Tabs
+    {
+        get
+        {
+            // Ensure TabHeaders has default for built-in tab
+            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan - A";
+
+            // Return plan-a first, then any dynamic tabs (excluding duplicates)
+            var result = new List<string> { "Plan-A-City-A" };
+            foreach (var t in dynamicTabs)
+            {
+                if (!string.Equals(t, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase) && !result.Contains(t)) result.Add(t);
+            }
+            return result;
+        }
+    }
+
+    private Dictionary<string, string> TabHeaders = new Dictionary<string, string>();
+
+    // Lightweight fpDebug helpers - non-blocking
+    private void Log(string message)
+    {
+        try { _ = JSRuntime.InvokeVoidAsync("fpDebug.log", $"CostOfLiving: {message}"); } catch { }
+    }
+    private void LogError(string message)
+    {
+        try { _ = JSRuntime.InvokeVoidAsync("fpDebug.error", $"CostOfLiving ERROR: {message}"); } catch { }
+    }
+
+    private string GetTabLabel(string tab)
+    {
+        if (TabHeaders.ContainsKey(tab) && !string.IsNullOrWhiteSpace(TabHeaders[tab])) return TabHeaders[tab];
+        // fallback: convert id to nicer label
+        if (string.Equals(tab, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase)) return "Plan-A-City-A";
+        return tab;
+    }
+
+    private HashSet<string> editingTabs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsEditing(string tab) => editingTabs.Contains(tab);
+    private void ToggleEdit(string tab)
+    {
+        if (editingTabs.Contains(tab)) editingTabs.Remove(tab);
+        else
+        {
+            if (!TabHeaders.ContainsKey(tab)) TabHeaders[tab] = GetTabLabel(tab);
+            editingTabs.Add(tab);
+        }
+    }
+
+    private void CancelEdit(string tab)
+    {
+        if (TabHeaders.ContainsKey(tab) == false)
+            TabHeaders[tab] = GetTabLabel(tab);
+        editingTabs.Remove(tab);
+    }
+
+    private void HandleHeaderKey(KeyboardEventArgs e, string tab)
+    {
+        if (e.Key == "Enter")
+        {
+            _ = SaveTabHeader(tab);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit(tab);
+        }
+    }
+
+    private void HandleTabKey(KeyboardEventArgs e, string tab)
+    {
+        if (e == null) return;
+
+        if (e.Key == "ArrowLeft" || e.Key == "ArrowRight")
+        {
+            var list = Tabs.ToList();
+            if (list.Count <= 1) return;
+            var idx = list.IndexOf(tab);
+            if (idx < 0) idx = 0;
+            idx = e.Key == "ArrowLeft" ? (idx - 1 + list.Count) % list.Count : (idx + 1) % list.Count;
+            var next = list[idx];
+            // navigate visually and load data
+            _ = OnTabClick(next);
+        }
+        else if (e.Key == "Enter" || e.Key == " ")
+        {
+            _ = OnTabClick(tab);
+        }
+    }
+
+    private string MapTabToCalculatorType(string tab)
+    {
+        // All tabs map to CostOfLiving-{tabId}
+        return $"CostOfLiving-{tab}";
+    }
+
+    private async Task SaveTabHeader(string tab)
+    {
+        Log($"SaveTabHeader start: {tab}");
+        // Load existing data so we don't overwrite items when updating header
         try
         {
-            // Get user GUID (this doesn't use JS interop)
-            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            var calcType = MapTabToCalculatorType(tab);
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var loadUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+            CostOfLivingData? data = null;
 
-            // Load existing items to check if plan exists (this is HTTP, not JS interop)
-            await LoadExistingItems();
+            try
+            {
+                var resp = await client.GetAsync(loadUrl);
+                Log($"SaveTabHeader: load call returned {(int)resp.StatusCode}");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var j = await resp.Content.ReadAsStringAsync();
+                    data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(j, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+            }
+            catch (Exception exLoad)
+            {
+                LogError($"SaveTabHeader load error: {exLoad.Message}");
+            }
+
+            if (data == null)
+            {
+                // No existing saved data - use defaults
+                data = new CostOfLivingData
+                {
+                    Items = StandardCostCategories.GetDefaults(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate,
+                    CollapsedCategories = collapsed.ToList()
+                };
+            }
+
+            data.Header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : GetTabLabel(tab);
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calcType,
+                Data = data
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var saveResp = await client.PostAsync(saveUrl, content);
+            Log($"SaveTabHeader: save returned {(int)saveResp.StatusCode}");
+            if (saveResp.IsSuccessStatusCode)
+            {
+                editingTabs.Remove(tab);
+                await LoadTabsAsync();
+                StateHasChanged();
+                Log($"SaveTabHeader success: {tab}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save header failed: {saveResp.StatusCode}");
+                LogError($"SaveTabHeader failed status: {saveResp.StatusCode}");
+            }
         }
         catch (Exception ex)
         {
-            // Can't use JS interop here during prerendering
-            // Just set a flag or log to server-side logging instead
-            Console.WriteLine($"Error initializing: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving header: {ex.Message}");
+            LogError($"SaveTabHeader exception: {ex.Message}");
         }
+    }
+
+    private bool isAddingTab = false;
+    private bool isDeletingPlans = false;
+
+    // Confirm deletion of all saved dynamic plans for the user
+    private async Task ConfirmDeleteAll()
+    {
+        try
+        {
+            var ok = await JSRuntime.InvokeAsync<bool>("confirm", "Delete ALL saved plans for this user? This cannot be undone.");
+            if (!ok) return;
+            await DeleteAllPlans();
+        }
+        catch (Exception ex)
+        {
+            LogError($"ConfirmDeleteAll exception: {ex.Message}");
+        }
+    }
+
+    // Delete each dynamic tab for the current user by calling the existing DeleteTab API endpoint
+    private async Task DeleteAllPlans()
+    {
+        Log("DeleteAllPlans start");
+        if (isDeletingPlans) return;
+        isDeletingPlans = true;
+        isSaving = true; // show saving indicator to user while deleting
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            // Make a copy of dynamicTabs to avoid mutation during enumeration
+            var tabsToDelete = dynamicTabs.ToList();
+            foreach (var tab in tabsToDelete)
+            {
+                try
+                {
+                    var calcType = MapTabToCalculatorType(tab);
+                    var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+                    var resp = await client.DeleteAsync(url);
+                    Log($"DeleteAllPlans: delete {tab} returned {(int)resp.StatusCode}");
+                }
+                catch (Exception ex)
+                {
+                    LogError($"DeleteAllPlans delete error for {tab}: {ex.Message}");
+                }
+            }
+
+            // Clear local state for dynamic tabs and headers
+            foreach (var t in tabsToDelete)
+            {
+                dynamicTabs.Remove(t);
+                if (TabHeaders.ContainsKey(t)) TabHeaders.Remove(t);
+            }
+
+            // Reload tabs and select default
+            await LoadTabsAsync();
+            activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
+            calculatorType = MapTabToCalculatorType(activeTab);
+            await LoadFromApi();
+
+            Log("DeleteAllPlans completed");
+        }
+        catch (Exception ex)
+        {
+            LogError($"DeleteAllPlans exception: {ex.Message}");
+        }
+        finally
+        {
+            isDeletingPlans = false;
+            isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static string NumberToLetters(int number)
+    {
+        // Convert 1 -> A, 26 -> Z, 27 -> AA, etc.
+        var sb = new System.Text.StringBuilder();
+        while (number > 0)
+        {
+            number--; // 1-based
+            int rem = number % 26;
+            sb.Insert(0, (char)('A' + rem));
+            number = number / 26;
+        }
+        return sb.ToString();
+    }
+
+    private async Task AddNewTab()
+    {
+        Log("AddNewTab start");
+        if (isAddingTab) return; // guard re-entrancy
+        isAddingTab = true;
+        try
+        {
+            // determine header based on total tabs + 1 converted to letters
+            // use Tabs (which includes built-in and existing dynamic tabs)
+            int totalTabs = Tabs.Count();
+            int candidateIndex = totalTabs + 1; // add 1 to the count
+
+            // ensure TabHeaders has default Plan-A if not present
+            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+
+            var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
+
+            string headerName;
+            do
+            {
+                var letters = NumberToLetters(candidateIndex);
+                headerName = $"Plan-{letters}-City-{letters}";
+                candidateIndex++;
+            } while (existingNames.Contains(headerName));
+
+            var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}"; // keep id as before
+
+            // prepare initial data using standard defaults and the new header
+            var initialData = new CostOfLivingData
+            {
+                Header = headerName,
+                Items = StandardCostCategories.GetDefaults(),
+                YearsToRetirement = YearsToRetirement,
+                InflationRate = InflationRate,
+                CollapsedCategories = collapsed.ToList()
+            };
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = $"CostOfLiving-{newTab}",
+                Data = initialData
+            };
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var resp = await client.PostAsync(saveUrl, content);
+            Log($"AddNewTab: save returned {(int)resp.StatusCode}");
+            if (resp.IsSuccessStatusCode)
+            {
+                // reload canonical tabs and headers
+                await LoadTabsAsync();
+
+                // ensure local map
+                TabHeaders[newTab] = headerName;
+
+                // add to dynamicTabs if not present
+                if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
+
+                // select new tab
+                await OnTabClick(newTab);
+                StateHasChanged();
+                Log($"AddNewTab success: {newTab} / {headerName}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
+                LogError($"AddNewTab failed status: {resp.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
+            LogError($"AddNewTab exception: {ex.Message}");
+        }
+        finally
+        {
+            isAddingTab = false;
+        }
+    }
+
+    private async Task ConfirmDeleteTab(string tab)
+    {
+        try
+        {
+            var header = TabHeaders.ContainsKey(tab) ? TabHeaders[tab] : tab;
+            var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Delete tab '{header}'? This will remove saved data.");
+            if (ok) await DeleteTab(tab);
+        }
+        catch (Exception ex)
+        {
+            LogError($"ConfirmDeleteTab exception: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTab(string tab)
+    {
+        Log($"DeleteTab start: {tab}");
+        try
+        {
+            var calcType = MapTabToCalculatorType(tab);
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.DeleteAsync(url);
+            Log($"DeleteTab: delete returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                // remove locally
+                dynamicTabs.Remove(tab);
+                if (TabHeaders.ContainsKey(tab)) TabHeaders.Remove(tab);
+
+                // reload tabs
+                await LoadTabsAsync();
+
+                // if deleted tab was active, switch to first available
+                if (activeTab == tab)
+                {
+                    activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
+                    calculatorType = MapTabToCalculatorType(activeTab);
+                    await LoadFromApi();
+                }
+
+                StateHasChanged();
+                Log($"DeleteTab success: {tab}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Delete failed: {response.StatusCode}");
+                LogError($"DeleteTab failed status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error deleting tab: {ex.Message}");
+            LogError($"DeleteTab exception: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTabsAsync()
+    {
+        Log("LoadTabsAsync start");
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            // reduce timeout for this non-critical call so UI can proceed if API is slow
+            try { client.Timeout = TimeSpan.FromSeconds(10); } catch { }
+            var response = await client.GetAsync(url);
+            Log($"LoadTabsAsync: tabs call returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (list != null)
+                {
+                    dynamicTabs = list.Select(s => s.StartsWith("CostOfLiving-") ? s.Substring("CostOfLiving-".Length) : s).ToList();
+
+                    // ensure headers dictionary has defaults for built-in tabs
+                    if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+
+                    // load headers for each dynamic tab
+                    foreach (var t in dynamicTabs)
+                    {
+                        var dataUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString($"CostOfLiving-{t}")}";
+                        var resp = await client.GetAsync(dataUrl);
+                        Log($"LoadTabsAsync: load header for {t} returned {(int)resp.StatusCode}");
+                        if (resp.IsSuccessStatusCode)
+                        {
+                            var j = await resp.Content.ReadAsStringAsync();
+                            try
+                            {
+                                var d = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(j, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                                if (d != null) TabHeaders[t] = d.Header ?? t;
+                            }
+                            catch (Exception ex)
+                            {
+                                TabHeaders[t] = t;
+                                LogError($"LoadTabsAsync header parse failed for {t}: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            TabHeaders[t] = t;
+                        }
+                    }
+
+                    Log($"LoadTabsAsync success: {dynamicTabs.Count} tabs");
+                }
+            }
+        }
+        catch (OperationCanceledException oce)
+        {
+            // Timeout or cancellation - continue with defaults
+            LogError($"LoadTabsAsync timeout/cancelled: {oce.Message}");
+            dynamicTabs = new List<string>();
+            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+            // Show modal to allow retry
+            ShowTimeout(OperationType.LoadTabs, "Loading tabs timed out. You can retry.");
+        }
+        catch (Exception ex)
+        {
+            LogError($"LoadTabsAsync exception: {ex.Message}");
+            // ensure we have at least the default tab so UI remains usable
+            dynamicTabs = new List<string>();
+            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+            ShowTimeout(OperationType.LoadTabs, $"Loading tabs failed: {ex.Message}");
+        }
+    }
+
+    // when loading tab data, pick up header if present
+    private async Task LoadFromApi()
+    {
+        Log($"LoadFromApi start: {calculatorType}");
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calculatorType)}";
+
+        try
+        {
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            // shorter timeout to avoid long blocking during initial render
+            try { client.Timeout = TimeSpan.FromSeconds(12); } catch { }
+            var response = await client.GetAsync(url);
+            Log($"LoadFromApi: call returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (data != null)
+                    {
+                        // restore top-level settings
+                        YearsToRetirement = data.YearsToRetirement;
+                        InflationRate = data.InflationRate;
+                        collapsed = new HashSet<string>(data.CollapsedCategories ?? new List<string>());
+
+                        Items = data.Items ?? new List<CostItem>();
+
+                        // set header mapping for current activeTab
+                        if (!string.IsNullOrWhiteSpace(activeTab))
+                        {
+                            TabHeaders[activeTab] = data.Header ?? GetTabLabel(activeTab);
+                        }
+
+                        StateHasChanged();
+                        Log($"LoadFromApi success: items={Items.Count}");
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError($"LoadFromApi parse error: {ex.Message}");
+                }
+
+                // Fallback: try deserialize into raw list of items
+                var loaded = System.Text.Json.JsonSerializer.Deserialize<List<CostItem>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (loaded != null)
+                {
+                    Items = loaded;
+                    StateHasChanged();
+                    Log($"LoadFromApi fallback list loaded: items={Items.Count}");
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // no saved data, load defaults
+                //Items = StandardCostCategories.GetDefaults();
+                //StateHasChanged();
+                //Log("LoadFromApi: not found - using defaults");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Load failed: {response.StatusCode}");
+                LogError($"LoadFromApi failed status: {response.StatusCode}");
+            }
+        }
+        catch (OperationCanceledException oce)
+        {
+            LogError($"LoadFromApi timeout/cancelled: {oce.Message}");
+            // fallback to defaults so UI remains usable
+            Items = StandardCostCategories.GetDefaults();
+            StateHasChanged();
+            ShowTimeout(OperationType.LoadFromApi, "Loading calculator data timed out. You can retry.");
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error loading: {ex.Message}");
+            LogError($"LoadFromApi exception: {ex.Message}");
+            ShowTimeout(OperationType.LoadFromApi, $"Loading data failed: {ex.Message}");
+        }
+    }
+
+    private void UpdateGroupCategory(string oldCategory, string newCategory)
+    {
+        if (oldCategory == newCategory) return;
+
+        foreach (var it in Items.Where(i => (i.Category ?? string.Empty) == (oldCategory ?? string.Empty)))
+        {
+            it.Category = newCategory;
+        }
+    }
+
+    private HashSet<string> collapsed = new HashSet<string>();
+
+    private string GenerateNewItemName(string category)
+    {
+        var catKey = string.IsNullOrWhiteSpace(category) ? "Uncategorized" : category;
+        var existingCount = Items.Count(i => string.Equals(i.Category ?? string.Empty, category ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+        return $"{catKey} Item {existingCount + 1}";
+    }
+
+    private void AddItemToCategory(string category)
+    {
+        Log($"AddItemToCategory: {category}");
+        var cat = category ?? string.Empty;
+        var newItem = new CostItem
+        {
+            Category = cat,
+            Subcategory = GenerateNewItemName(cat),
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Inflation,
+            IncludeInRetirement = true
+        };
+
+        // insert at end of that category's block (just add; rendering sorts by Subcategory)
+        Items.Add(newItem);
+
+        // Open the same view/edit modal used for existing items so the user can edit the new item
+        var idx = Items.IndexOf(newItem);
+        if (idx >= 0)
+        {
+            OpenViewModal(idx);
+        }
+
+        StateHasChanged();
+        ScheduleAutosave();
+    }
+
+    private void ToggleCollapse(string category)
+    {
+        var key = category ?? string.Empty;
+        if (collapsed.Contains(key)) collapsed.Remove(key);
+        else collapsed.Add(key);
+    }
+
+    private bool IsCollapsed(string category)
+    {
+        return collapsed.Contains(category ?? string.Empty);
+    }
+
+    private decimal TotalCurrent => Math.Round(Items.Sum(i => i.CurrentValue), 2);
+
+    private decimal TotalCurrentPerMonth => Math.Round(Items.Sum(i => i.GetMonthlyEquivalent), 2);
+
+    private decimal TotalRetirement => Math.Round(Items.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate)), 2);
+
+    private static string FormatCurrency(decimal value)
+    {
+        return string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C0}", value);
+    }
+
+    private string FormatDecimal(decimal value)
+    {
+        return value.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture);
+    }
+
+    // Missing fields and helper methods restored
+    private string NewCategorySentinel { get; } = "__new__";
+    private string SelectedAddCategory { get; set; } = string.Empty;
+    private string NewCategoryName { get; set; } = string.Empty;
+    private bool showAddCategoryModal = false;
+
+    private List<string> Categories => Items.Select(i => i.Category ?? string.Empty).Distinct().OrderBy(c => c).ToList();
+
+    private void RefreshCategories()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenAddCategoryModal()
+    {
+        NewCategoryName = string.Empty;
+        showAddCategoryModal = true;
+    }
+
+    private void CloseAddCategoryModal()
+    {
+        showAddCategoryModal = false;
+        NewCategoryName = string.Empty;
+    }
+
+    private void AddCategoryModal()
+    {
+        var newCat = (NewCategoryName ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(newCat)) return;
+        if (Categories.Contains(newCat))
+        {
+            SelectedAddCategory = newCat;
+            CloseAddCategoryModal();
+            return;
+        }
+
+        var newItem = new CostItem
+        {
+            Category = newCat,
+            Subcategory = GenerateNewItemName(newCat),
+            CurrentValue = 0m,
+            AdjustOption = RetirementAdjustOption.Inflation,
+            IncludeInRetirement = true
+        };
+
+        Items.Add(newItem);
+        RefreshCategories();
+        SelectedAddCategory = newCat;
+        StateHasChanged();
+        ScheduleAutosave();
+        CloseAddCategoryModal();
+    }
+
+    private void HandleAddCategoryKeyModal(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddCategoryModal();
+    }
+
+    private void AddRow()
+    {
+        var category = SelectedAddCategory == NewCategorySentinel ? (string.IsNullOrWhiteSpace(NewCategoryName) ? "Uncategorized" : NewCategoryName) : SelectedAddCategory;
+        var newItem = new CostItem { Category = category, Subcategory = GenerateNewItemName(category), CurrentValue = 0m, AdjustOption = RetirementAdjustOption.Inflation, IncludeInRetirement = true };
+        Items.Add(newItem);
+        if (SelectedAddCategory == NewCategorySentinel && !string.IsNullOrWhiteSpace(NewCategoryName))
+        {
+            RefreshCategories();
+            SelectedAddCategory = NewCategoryName;
+            NewCategoryName = string.Empty;
+        }
+        ScheduleAutosave();
+    }
+
+    // remove with undo support
+    private CostItem? lastRemovedItem = null;
+    private int lastRemovedIndex = -1;
+    private System.Timers.Timer? undoTimer;
+    private bool showUndoToast = false;
+
+    private void RemoveItem(int index)
+    {
+        if (index >= 0 && index < Items.Count)
+        {
+            lastRemovedIndex = index;
+            lastRemovedItem = Items[index];
+            Items.RemoveAt(index);
+
+            showUndoToast = true;
+            StateHasChanged();
+
+            // start undo timer; if expires, finalize by saving
+            if (undoTimer == null)
+            {
+                undoTimer = new System.Timers.Timer(5000);
+                undoTimer.AutoReset = false;
+                undoTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        showUndoToast = false;
+                        await InvokeAsync(async () => await SaveToApi());
+                        lastRemovedItem = null;
+                        lastRemovedIndex = -1;
+                        StateHasChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"undoTimer elapsed exception: {ex.Message}");
+                    }
+                };
+            }
+            else
+            {
+                undoTimer.Stop();
+                undoTimer.Interval = 5000;
+            }
+            undoTimer.Start();
+        }
+    }
+
+    private void UndoRemove()
+    {
+        if (lastRemovedItem != null)
+        {
+            var insertIndex = Math.Min(Math.Max(0, lastRemovedIndex), Items.Count);
+            Items.Insert(insertIndex, lastRemovedItem);
+            lastRemovedItem = null;
+            lastRemovedIndex = -1;
+            showUndoToast = false;
+            if (undoTimer != null)
+            {
+                try { undoTimer.Stop(); undoTimer.Dispose(); } catch { }
+                undoTimer = null;
+            }
+        }
+    }
+
+    private void RemoveCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category)) return;
+        Items.RemoveAll(i => (i.Category ?? string.Empty) == category);
+        ScheduleAutosave();
+    }
+
+    // user & calculatorType fields and API helpers
+    private string userGuid = Guid.NewGuid().ToString();
+    private string calculatorType = "CostOfLiving_Your";
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+                        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
+    private async Task SaveToApi()
+    {
+        Log("SaveToApi start");
+        isSaving = true;
+        saveErrorMessage = string.Empty;
+        lastSaveMessage = string.Empty;
+        await InvokeAsync(StateHasChanged);
+
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
+
+        try
+        {
+            string headerToSave = string.Empty;
+            const string prefix = "CostOfLiving-";
+            if (!string.IsNullOrEmpty(calculatorType) && calculatorType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var tabId = calculatorType.Substring(prefix.Length);
+                if (TabHeaders != null && TabHeaders.ContainsKey(tabId)) headerToSave = TabHeaders[tabId];
+            }
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType,
+                Data = new CostOfLivingData
+                {
+                    Header = headerToSave,
+                    Items = Items.Select(i => new CostItem
+                    {
+                        Category = i.Category,
+                        Subcategory = i.Subcategory,
+                        CurrentValue = i.CurrentValue,
+                        Frequency = i.Frequency,
+                        AdjustOption = i.AdjustOption,
+                        PerItemInflationPercent = i.PerItemInflationPercent,
+                        PerItemInflationSource = i.PerItemInflationSource,
+                        CustomPercentage = i.CustomPercentage,
+                        ManualRetirementValue = i.ManualRetirementValue,
+                        IncludeInRetirement = i.IncludeInRetirement
+                    }).ToList(),
+                    CollapsedCategories = collapsed.ToList(),
+                    YearsToRetirement = YearsToRetirement,
+                    InflationRate = InflationRate
+                }
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.PostAsync(url, content);
+            Log($"SaveToApi: save returned {(int)response.StatusCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "Saved Cost of Living");
+                Log("SaveToApi success");
+                //lastSaveMessage = $"Saved {DateTime.Now:T}";
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Save failed: {response.StatusCode}");
+                LogError($"SaveToApi failed status: {response.StatusCode}");
+                saveErrorMessage = $"{response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving: {ex.Message}");
+            LogError($"SaveToApi exception: {ex.Message}");
+            saveErrorMessage = ex.Message;
+        }
+        finally
+        {
+            isSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SelectedAddCategory = Categories.FirstOrDefault() ?? NewCategorySentinel;
+        Log("OnInitialized");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            isLoading = true;
-            StateHasChanged();
+            Log("OnAfterRenderAsync firstRender start");
 
+            // Check if user has opted out of seeing the intro modal
             try
             {
-                // Load start planning preference (uses localStorage JS interop)
-                await LoadStartPlanningPreference();
+                var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-cost-of-living-hide-intro");
+                if (hideIntro == "true")
+                {
+                    showIntroModal = false;
+                }
             }
             catch (Exception ex)
             {
-                // Now we can safely use JS interop
-                await JSRuntime.InvokeVoidAsync("console.error", $"Error loading preferences: {ex.Message}");
+                LogError($"Error checking intro modal preference: {ex.Message}");
+            }
+
+            // show loading indicator while we fetch user data and tabs
+            isLoading = true;
+            StateHasChanged();
+
+
+            try
+            {
+                try
+                {
+                    userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                    Log($"OnAfterRenderAsync got userGuid: {userGuid}");
+                }
+                catch (Exception exGet) { LogError($"UserGuidService.GetOrCreateUserGuidAsync failed: {exGet.Message}"); }
+
+                await LoadTabsAsync();
+
+                if (!Tabs.Contains(activeTab))
+                {
+                    // If there are no dynamic tabs returned, keep the existing activeTab (default "plan-a").
+                    // Otherwise select the first available tab safely.
+                    activeTab = Tabs.FirstOrDefault() ?? activeTab ?? "Plan-A-City-A";
+                }
+
+                calculatorType = MapTabToCalculatorType(activeTab);
+
+                await LoadFromApi();
             }
             finally
             {
                 isLoading = false;
                 StateHasChanged();
+                Log("OnAfterRenderAsync firstRender end");
             }
         }
     }
 
-    private bool IsEmptyPlan()
+    private System.Timers.Timer? autosaveTimer;
+    private readonly object autosaveLock = new object();
+    private int autosaveDelayMs = 800; // debounce
+
+    // Recalculate derived UI values and optionally schedule autosave.
+    private void RecalculateAll(bool save = false)
     {
-        return Items == null || Items.Count == 0;
+        try
+        {
+            // Totals are computed properties (TotalCurrent/TotalRetirement) so just refresh UI.
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            LogError($"RecalculateAll error: {ex.Message}");
+        }
+
+        if (save)
+        {
+            ScheduleAutosave();
+        }
     }
 
-    private async Task CreateDefaultPlan()
+    private void ScheduleAutosave()
     {
-        isSaving = true;
+        Log("ScheduleAutosave called");
+
+        lock (autosaveLock)
+        {
+            if (autosaveTimer == null)
+            {
+                autosaveTimer = new System.Timers.Timer(autosaveDelayMs);
+                autosaveTimer.AutoReset = false;
+                autosaveTimer.Elapsed += async (_, __) =>
+                {
+                    try
+                    {
+                        await InvokeAsync(async () => await SaveToApi());
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"autosave timer handler exception: {ex.Message}");
+                    }
+                };
+            }
+            else
+            {
+                autosaveTimer.Stop();
+                autosaveTimer.Interval = autosaveDelayMs;
+            }
+
+            autosaveTimer.Start();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (autosaveTimer != null)
+        {
+            try { autosaveTimer.Dispose(); } catch { }
+            autosaveTimer = null;
+        }
+
+        if (undoTimer != null)
+        {
+            try { undoTimer.Dispose(); } catch { }
+            undoTimer = null;
+        }
+    }
+
+    private void HandleAddCategoryKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") OpenAddCategoryModal();
+    }
+
+    private void HandleNumericKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ScheduleAutosave();
+        }
+    }
+
+    private async Task OnTabClick(string tab)
+    {
+        if (activeTab == tab) return;
+        Log($"OnTabClick: switching to {tab}");
+        activeTab = tab;
+        calculatorType = MapTabToCalculatorType(tab);
+        await LoadFromApi();
+    }
+
+    private enum OperationType { None, LoadTabs, LoadFromApi }
+    private bool showTimeoutModal = false;
+    private string timeoutMessage = string.Empty;
+    private OperationType failedOperation = OperationType.None;
+
+    private void ShowTimeout(OperationType op, string message)
+    {
+        failedOperation = op;
+        timeoutMessage = message;
+        showTimeoutModal = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void DismissTimeoutModal()
+    {
+        showTimeoutModal = false;
+        failedOperation = OperationType.None;
+        timeoutMessage = string.Empty;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RetryOperation()
+    {
+        showTimeoutModal = false;
+        var op = failedOperation;
+        failedOperation = OperationType.None;
+        timeoutMessage = string.Empty;
+        // Refresh UI
         StateHasChanged();
 
         try
         {
-            // Create default items
+            if (op == OperationType.LoadTabs)
+            {
+                Log("User triggered retry: LoadTabsAsync");
+                await LoadTabsAsync();
+                // if tabs loaded and activeTab missing, ensure selection
+                if (!Tabs.Contains(activeTab)) activeTab = Tabs.FirstOrDefault() ?? "Plan-A-City-A";
+                calculatorType = MapTabToCalculatorType(activeTab);
+                // After reloading tabs, try loading data for the active tab
+                await LoadFromApi();
+            }
+            else if (op == OperationType.LoadFromApi)
+            {
+                Log("User triggered retry: LoadFromApi");
+                await LoadFromApi();
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"RetryOperation failed: {ex.Message}");
+            // Show modal again with updated message
+            ShowTimeout(op, $"Retry failed: {ex.Message}");
+        }
+    }
+
+    private async Task ConfirmRemoveItem(int idx)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Remove this item? This action cannot be undone.");
+        if (ok) RemoveItem(idx);
+    }
+
+    private async Task ConfirmRemoveCategory(string category)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Remove this category and all its items? This action cannot be undone.");
+        if (ok) RemoveCategory(category);
+    }
+
+    private void CollapseAllCategories()
+    {
+        collapsed = new HashSet<string>(Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct());
+    }
+
+    private void ToggleCollapseAllCategories()
+    {
+        if (AnyCategoryExpanded())
+        {
+            // Collapse all
+            collapsed = new HashSet<string>(Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct());
+        }
+        else
+        {
+            // Expand all
+            collapsed.Clear();
+        }
+    }
+    private bool AnyCategoryExpanded()
+    {
+        var allCategories = Items.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct();
+        return allCategories.Any(c => !collapsed.Contains(c));
+    }
+
+    // Add inside the existing @code { ... } block of CostOfLivingPlannerNew.razor
+
+    // Modal visibility
+    private bool showAssumptionsModal = false;
+
+    // Called when user saves from the modal. Receives (Years, Inflation).
+    private async Task OnAssumptionsSaved((int Years, decimal Inflation) values)
+    {
+        // apply values
+        YearsToRetirement = values.Years;
+        InflationRate = values.Inflation;
+
+        // recalc and persist
+        RecalculateAll(save: true);
+        ScheduleAutosave();
+
+        // close modal and update UI
+        showAssumptionsModal = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CloseAssumptions()
+    {
+        showAssumptionsModal = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // Open the modal from UI
+    private void OpenWizard(int section)
+    {
+        // reuse same modal for quick assumptions edits
+        // copy current values into modal via component parameters (component reads YearsToRetirement/InflationRate)
+        showAssumptionsModal = true;
+    }
+
+    // New state variables for multi-step flow
+    private bool showPlanningTypeModal = true; // Start with this instead of overlay
+    private bool showAssumptionsSetupModal = false;
+    private bool useSampleData = false;
+
+    private void SelectPlanningType(bool useSample)
+    {
+        useSampleData = useSample;
+        showPlanningTypeModal = false;
+        showAssumptionsSetupModal = true;
+    }
+
+    private void GoBackToPlanningType()
+    {
+        showAssumptionsSetupModal = false;
+        showPlanningTypeModal = true;
+    }
+
+    private async Task StartPlanning()
+    {
+        showAssumptionsSetupModal = false;
+
+        if (useSampleData)
+        {
+            // Load sample data with the user's assumptions
             Items = StandardCostCategories.GetDefaults();
-
-            // Save to API
-            await SaveItemsToApi();
-
-            // Navigate to full planner
-            Navigation.NavigateTo("/future-cost-of-living");
         }
-        catch (Exception ex)
+        else
         {
-            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating default plan: {ex.Message}");
-            await JSRuntime.InvokeVoidAsync("alert", "Error creating plan. Please try again.");
+            // Start with empty list
+            Items = new List<CostItem>();
         }
-        finally
-        {
-            isSaving = false;
-            StateHasChanged();
-        }
+
+        // Save the assumptions
+        ScheduleAutosave();
+        StateHasChanged();
     }
 
-    private void StartBlankPlan()
+    private void StartWithDefaults()
     {
-        // Navigate directly to the full planner with empty state
-        Navigation.NavigateTo("/future-cost-of-living");
+        Items = StandardCostCategories.GetDefaults();
+        ScheduleAutosave();
+        StateHasChanged();
     }
 
-    private async Task OnDontShowAgainChanged(ChangeEventArgs e)
+    private void StartFromScratch()
     {
-        if (bool.TryParse(e.Value?.ToString(), out bool isChecked))
-        {
-            dontShowStartPlanning = isChecked;
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "costOfLiving_dontShowStartPlanning", isChecked.ToString());
-            }
-            catch (Exception ex)
-            {
-                await JSRuntime.InvokeVoidAsync("console.error", $"Failed to save preference: {ex.Message}");
-            }
-        }
+        Items = StandardCostCategories.GetBlankDefaults();
+        ScheduleAutosave();
+        StateHasChanged();
     }
 
-    private async Task LoadStartPlanningPreference()
+    private bool showIntroModal = true; // Show by default unless user has opted out
+    private bool dontShowIntroAgain = false;
+
+    // ... rest of your existing code ...
+
+    // Add these new methods
+    private void CloseIntroModal()
     {
-        try
-        {
-            var saved = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "costOfLiving_dontShowStartPlanning");
-            if (bool.TryParse(saved, out bool value))
-            {
-                dontShowStartPlanning = value;
-            }
-        }
-        catch (Exception ex)
-        {
-            await JSRuntime.InvokeVoidAsync("console.error", $"Failed to load preference: {ex.Message}");
-        }
+        showIntroModal = false;
+        StateHasChanged();
     }
 
-    private async Task LoadExistingItems()
+    private async Task CloseIntroModalAndRemember()
     {
-        try
+        showIntroModal = false;
+
+        if (dontShowIntroAgain)
         {
-            var apiBaseUrl = GetApiBaseUrl();
-            var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType=CostOfLiving-Plan-A-City-A";
-
-            using var client = HttpClientFactory.CreateClient();
-            client.Timeout = TimeSpan.FromSeconds(10);
-
-            var response = await client.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var data = System.Text.Json.JsonSerializer.Deserialize<CostOfLivingData>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                if (data?.Items != null)
-                {
-                    Items = data.Items;
-                }
-            }
+            // Store preference in localStorage
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-cost-of-living-hide-intro", "true");
         }
-        catch (Exception ex)
-        {
-            // Don't use JS interop here if called from OnInitializedAsync
-            // Use server-side logging instead
-            Console.WriteLine($"Could not load existing items: {ex.Message}");
-        }
+
+        StateHasChanged();
     }
 
-    private async Task SaveItemsToApi()
-    {
-        var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/CostOfLiving/save";
+    private bool showToolTipYearsInfo = false;
+    private bool showToolTipInflationInfo = false;
 
-        var dto = new PersistCostOfLivingRequest
-        {
-            UserGuid = userGuid,
-            CalculatorType = "CostOfLiving-Plan-A-City-A",
-            Data = new CostOfLivingData
-            {
-                Header = "Plan-A-City-A",
-                Items = Items,
-                CollapsedCategories = new List<string>(),
-                YearsToRetirement = 20,
-                InflationRate = 2.5m
-            }
-        };
-
-        var json = System.Text.Json.JsonSerializer.Serialize(dto);
-        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-
-        using var client = HttpClientFactory.CreateClient();
-        var response = await client.PostAsync(url, content);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Save failed with status: {response.StatusCode}");
-        }
-    }
-
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+    // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
+    private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }

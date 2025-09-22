@@ -27,8 +27,40 @@
         padding: 14px;
     }
 
-    
 
+
+    tab-panel-box {
+        border: 2px solid #C79A00; /* dark yellow border */
+        border-radius: 8px;
+        padding: var(--tab-panel-padding-top) 18px 20px 18px;
+        margin-top: 0;
+        top: var(--tab-panel-top-offset);
+        position: relative;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        z-index: 10;
+        overflow: visible;
+    }
+
+    .tab-active-custom {
+        background-color: #FFD600 !important;
+        color: #222 !important;
+        font-weight: 600;
+        border: 1px solid #FFD600 !important;
+        border-bottom: none !important;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-item-active {
+        background: #FFD600;
+        border-radius: 8px 8px 0 0;
+        padding: 4px 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
 
     .col-taxable, th.col-taxable {
         background-color: rgba(31,111,235,0.06);
@@ -285,6 +317,7 @@
             max-width: 500px;
             margin: 20px;
         }
+
     @@media (max-width:1024px) {
         .top-area .row {
             gap: 12px;
@@ -316,7 +349,7 @@
         <div class="container-fluid">
             <div class="row g-3">
                 <div class="col-12 col-md-2">
-                    <div class="panel">
+                    <div class="panel" style="z-index: 1002;">
                         <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <a href="/" class="badge">Home</a>
@@ -326,58 +359,134 @@
                 </div>
 
                 <div class="col-12 col-md-8">
-                    @if (!calculatorModel.IsModelEmpty())
-                    {
-                        <div style="position: relative;">
-                            <div class="panel section-panel field-preview">
-                                <h4 style="opacity: 0.4;">Plan Sections</h4>
-                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
-                                                <span class="step-badge">1</span>
-                                                <div>Ages & Timeline</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Current Age: 0</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
-                                        </div>
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
+                            <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "your" ? "true" : "false")" tabindex="0" @onclick="YourTabClick">
+                                Your  Savings
+                            </button>
+                        </li>
+                        <li class="nav-item d-flex align-items-center me-1 @(activeTab == "partner" ? "tab-item-active" : "")" role="presentation">
+                            <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "partner" ? "true" : "false")" tabindex="0" @onclick="PartnerTabClick">
+                                Partner  Savings
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="panel section-panel" style="position: relative;">
+                        <!-- Tab Navigation -->
+                        @* <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
+                                <button class="nav-link @(activeTab == "your" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "your" ? "true" : "false")" tabindex="0" @onclick="YourTabClick">
+                                    Your  Savings
+                                </button>
+                            </li>
+                            <li class="nav-item d-flex align-items-center me-1 @(activeTab == "partner" ? "tab-item-active" : "")" role="presentation">
+                                <button class="nav-link @(activeTab == "partner" ? "tab-active-custom" : "")" role="tab" aria-selected="@(activeTab == "partner" ? "true" : "false")" tabindex="0" @onclick="PartnerTabClick">
+                                    Partner  Savings
+                                </button>
+                            </li>
+                        </ul> *@
+                        <h4>Plan Sections</h4>
+
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">1</span>
+                                        <div>Milestones & ages</div>
                                     </div>
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
-                                                <span class="step-badge">2</span>
-                                                <div>Starting Balances</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Taxable: $0</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
-                                        </div>
-                                    </div>
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700; opacity: 0.5;">
-                                                <span class="step-badge">3</span>
-                                                <div>Monthly Contributions</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px; opacity: 0.5;">Monthly: $0</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" disabled style="opacity: 0.3;">Edit</button>
-                                        </div>
-                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">Current Age: @calculatorModel.CurrentAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Planned Retirement Age: @calculatorModel.RetirementAge</div>
+                                    <div class="small-note" style="margin-top:8px;">Years until Retirement: @calculatorModel.Years</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                                 </div>
                             </div>
-                            @* <!-- Overlay with Start Planning Button -->
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">2</span>
+                                        <div>Starting Balances</div>
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)</div>
+                                    <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)</div>
+                                    <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)</div>
+
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">3</span>
+                                        <div>Monthly Contributions</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+                                </div>
+                            </div>
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">4</span>
+                                        <div>Estimated Growth Rate</div>
+                                    </div>
+                                    <div class="small-note">Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)</div>
+                                    <div class="small-note">Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)</div>
+                                    <div class="small-note">Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">5</span>
+                                        <div>Tax Treatment</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
+                                    <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
+                                </div>
+                            </div>
+
+                         
+                        </div>
+                        @if (showIntroModal || calculatorModel.IsModelEmpty())
+                        {
+                            <!-- Overlay with Start Planning Button -->
                             <div class="start-planning-overlay">
                                 <div class="empty-state">
-                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
+                                    <!-- X Close Button -->
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                aria-label="Close"
+                                                @onclick="CloseIntroModal">
+                                            &#10005;
+                                        </button>
+                                    </div>
+                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">💰</div>
                                     <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Savings Planning!</h4>
                                     <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                        Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
-                                        Social Security, and withdrawal strategy in just a few quick steps.
+                                        Let's create your personalized savings plan. We'll walk you through setting up your timeline,
+                                        starting balances, and monthly contributions to project your wealth building journey.
                                     </p>
                                     <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
                                         <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
@@ -397,177 +506,30 @@
                                         What data's missing
                                     </button>
                                 </div>
-                            </div> *@
-
-                            @* <div class="start-planning-overlay">
-                                <div class="empty-state">
-                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">💰</div>
-                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Savings Planning!</h4>
-                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                        Let's create your personalized savings plan. We'll walk you through setting up your timeline, 
-                                        starting balances, and monthly contributions to project your wealth building journey.
-                                    </p>
-                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
-                                        <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                                        Start Planning
-                                    </button>
-                                    <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
-                                        Takes about 2-3 minutes to complete
-                                    </div>
-                                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
-                                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
-                                            <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
-                                            Try with sample data
-                                        </button>
-                                    </div>
-                                </div>
-                            </div> *@
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="panel section-panel">
-                            <h4>Plan Sections</h4>
-
-                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">1</span>
-                                            <div>Milestones & ages</div>
-                                        </div>
-
-                                        <div class="small-note" style="margin-top:8px;">Current Age: @calculatorModel.CurrentAge</div>
-                                        <div class="small-note" style="margin-top:8px;">Planned Retirement Age: @calculatorModel.RetirementAge</div>
-                                        <div class="small-note" style="margin-top:8px;">Years until Retirement: @calculatorModel.Years</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">2</span>
-                                            <div>Starting Balances</div>
-                                        </div>
-
-                                        <div class="small-note" style="margin-top:8px;">Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)</div>
-                                        <div class="small-note" style="margin-top:8px;">Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)</div>
-                                        <div class="small-note" style="margin-top:8px;">Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)</div>
-
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">3</span>
-                                            <div>Monthly Contributions</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px;">Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px;">Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
-                                    </div>
-                                </div>
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">4</span>
-                                            <div>Estimated Growth Rate</div>
-                                        </div>
-                                        <div class="small-note">Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)</div>
-                                        <div class="small-note">Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)</div>
-                                        <div class="small-note">Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">5</span>
-                                            <div>Tax Treatment</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">Taxable IncomeType: @calculatorModel.TaxableIncomeType</div>
-                                        <div class="small-note" style="margin-top:8px;">Tax Bracket: @calculatorModel.TaxBracket</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            @if (results != null)
-                            {
-                                <div class="mt-3">
-                                    <div class="row mb-3">
-                                        <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
-                                        <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
-                                        <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
-                                        <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                    }
-                </div>
-
-                <!-- Overlay with Start Planning Button -->
-                <div class="start-planning-overlay">
-                    <div class="empty-state">
-                        <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">💰</div>
-                        <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Savings Planning!</h4>
-                        <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                            Let's create your personalized savings plan. We'll walk you through setting up your timeline,
-                            starting balances, and monthly contributions to project your wealth building journey.
-                        </p>
-                        <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
-                            <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                            Start Planning
-                        </button>
-                        <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
-                            Takes about 2-3 minutes to complete
-                        </div>
-                        <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
-                            <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
-                                <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
-                                Want to try with sample data? Click here
-                            </button>
-                        </div>
-                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
-                            <i class="bi bi-list-check" style="margin-right: 6px;"></i>
-                            What data's missing
-                        </button>
-                    </div>
-                </div>
-                <div class="col-12 col-md-2">
-                    <div class="panel">
-                        <div style="font-weight:700; margin-bottom:8px;">Debug</div>
-                        <button class="btn-ghost" @onclick="ToggleRightDebug">Toggle</button>
-                        @if (showRightDebug)
-                        {
-                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
-                                @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime).Take(5))
-                                {
-                                    <div style="margin-bottom:6px;">
-                                        <small style="color:#6c757d;">@msg.MessageTime.ToString("HH:mm:ss")</small>
-                                        <div>@msg.MessageText</div>
-                                    </div>
-                                }
                             </div>
                         }
+                        @if (results != null)
+                        {
+                            <div class="mt-3">
+                                <div class="row mb-3">
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-primary summary-money">@results.FinalAmount.ToString("C0")</h4><p class="mb-0">Final Amount</p></div></div></div>
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-success summary-money">@results.TotalInterestEarned.ToString("C0")</h4><p class="mb-0">Growth</p></div></div></div>
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-info summary-money">@results.TotalContributions.ToString("C0")</h4><p class="mb-0">Total Contributions</p></div></div></div>
+                                    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4 class="text-danger summary-money">@results.TotalTaxesPaid.ToString("C0")</h4><p class="mb-0">Total Taxes</p></div></div></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Right column-->                
+                <div class="col-12 col-md-2">
+                    <div class="panel" style="z-index: 1002;">
+                        <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <a href="/" class="badge">Home</a>
+                            <a href="/contact" class="badge">Contact</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -947,6 +909,54 @@
 
 
     private string FormatMoney(decimal? value) => value?.ToString("C0") ?? "-";
+
+    private bool showIntroModal = true; // Show by default unless user has opted out
+    private bool dontShowIntroAgain = false;
+
+    // ... rest of your existing code ...
+
+    // Add these new methods
+    private void CloseIntroModal()
+    {
+        showIntroModal = false;
+        StateHasChanged();
+    }
+
+    private async Task CloseIntroModalAndRemember()
+    {
+        showIntroModal = false;
+
+        if (dontShowIntroAgain)
+        {
+            // Store preference in localStorage
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-savings-wealth-building-hide-intro", "true");
+        }
+
+        StateHasChanged();
+    }
+    string activeTab = "your";
+
+    private async Task YourTabClick()
+    {
+        calculatorType = "TestSavings_yours";
+        Console.WriteLine("Your tab clicked");
+        SetActiveTab("your");
+        //await LoadUserSavingsAsync();
+        Calculate();
+    }
+
+    private async Task PartnerTabClick()
+    {
+        calculatorType = "TestSavings_partners";
+        Console.WriteLine("Partner tab clicked");
+        SetActiveTab("partner");
+        //await LoadUserSavingsAsync();
+        Calculate();
+    }
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
 
     private string GetApiBaseUrl()
     {
