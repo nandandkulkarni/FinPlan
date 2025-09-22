@@ -6,6 +6,7 @@
 @using FinPlan.Web.Components.Shared
 @namespace FinPlan.Web.Components.Pages
 @using Microsoft.AspNetCore.Components.Web
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Retirement Income Planner</PageTitle>
 
@@ -506,6 +507,15 @@
                             <!-- Overlay with Start Planning Button -->
                             <div class="start-planning-overlay">
                                 <div class="empty-state">
+                                    <!-- X Close Button -->
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                aria-label="Close"
+                                                @onclick="CloseIntroModal">
+                                            &#10005;
+                                        </button>
+                                    </div>
                                     <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
                                     <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
                                     <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
@@ -525,10 +535,26 @@
                                             Want to try with sample data? Click here
                                         </button>
                                     </div>
-                                    <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
+                                    @* <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
                                         <i class="bi bi-list-check" style="margin-right: 6px;"></i>
                                         What data's missing
-                                    </button>
+                                    </button> *@
+                                    <!-- Don't Show Again Checkbox -->
+                                    <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
+                                        <div class="form-check d-flex align-items-center justify-content-center gap-2">
+
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="dontShowIntroAgainCheck"
+                                                   @onchange="OnDontShowIntroChanged"
+                                                   style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
+                                            <label class="form-check-label"
+                                                   for="dontShowIntroAgainCheck"
+                                                   style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
+                                                Don't show this welcome screen again
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -985,6 +1011,8 @@
     private bool showClearConfirm = false;
     private bool showClearResult = false;
     private bool clearSucceeded = false;
+    private bool showIntroModal = true; // Show by default unless user has opted out
+    private bool dontShowIntroAgain = false;
 
     // Helper properties to display life expectancy as age not calendar year
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
@@ -1089,6 +1117,41 @@
         StateHasChanged();
     }
 
+    
+   private async Task HandleIntroModal()
+    {
+        showIntroModal = false;
+
+        // Only show intro modal if model is empty and user hasn't opted out
+        if (Model == null || Model.IsModelEmpty())
+        {
+            var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-retirement-income-planner-hide-intro");
+            showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private async Task OnDontShowIntroChanged(ChangeEventArgs e)
+    {
+        bool checkedState = e?.Value is bool b && b;
+        string key = "finplan-retirement-income-planner-hide-intro";
+
+        if (checkedState)
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, "true");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        }
+    }
+
+           // Add these new methods
+    private void CloseIntroModal()
+    {
+        showIntroModal = false;
+        StateHasChanged();
+
+    }
     private void TestCalculation()
     {
         try
