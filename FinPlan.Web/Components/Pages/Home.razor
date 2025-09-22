@@ -17,42 +17,31 @@
         <span style="vertical-align: middle;">Click the audio icon above to hear a quick guide on how to use the financial calculators on this site.</span>
     </div>
 </div>
-<!-- Glowing effect for the audio button -->
-<style>
-    .btn-info.shadow-lg {
-        animation: glow 1.5s infinite alternate;
-    }
 
-    @@keyframes glow {
-        0% {
-            box-shadow: 0 0 30px #0dcaf0, 0 0 10px #0dcaf0;
-        }
-
-        100% {
-            box-shadow: 0 0 60px #0dcaf0, 0 0 20px #0dcaf0;
-        }
-    }
-</style>
-
+<!-- Professional Financial Header -->
+<div class="container-fluid py-4" style="background: linear-gradient(90deg,#f8fafc 60%,#e9f5ff 100%); border-radius: 18px; box-shadow: 0 4px 24px rgba(13,38,76,0.06); margin-bottom: 32px;">
+    <div class="row align-items-center">
+        <div class="col-md-8 mx-auto text-center">
+            <h1 style="font-size:2.2rem; font-weight:800; color:#1F6FEB; margin-bottom:10px;">ReWealth-en</h1>
+            <div style="font-size:1.25rem; color:#222; font-weight:500; margin-bottom:8px;">Financial Planning Made Easy</div>
+            <div style="color:#6c757d; font-size:1.05rem;">Plan your savings, track your growth, and achieve your financial goals with modern calculators and clear projections.</div>
+        </div>
+    </div>
+</div>
 
 <PageTitle>REWealth-en - Financial Planning Made Easy</PageTitle>
 
 <style>
-    /* Summary number/title styling to match other pages */
     .summary-money {
         font-size: 1.25rem;
         font-weight: 700;
         line-height: 1.05;
         font-variant-numeric: tabular-nums;
     }
-
-        /* Ensure no pseudo-element duplication */
-        .summary-money::before, .summary-money::after {
-            content: none !important;
-            display: none !important;
-        }
-
-    /* Numbered step badge (filled circle) -- reused from MainLayout */
+    .summary-money::before, .summary-money::after {
+        content: none !important;
+        display: none !important;
+    }
     .step-badge {
         width: 36px;
         height: 36px;
@@ -61,7 +50,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: #222; /* dark filled circle */
+        background: #1F6FEB;
         color: #fff;
         font-weight: 800;
         font-size: 1rem;
@@ -69,105 +58,105 @@
         margin-right: 12px;
         flex-shrink: 0;
     }
-
-    /* Inline header that keeps badge + title on one line */
     .step-header {
         display: inline-flex;
         align-items: center;
         gap: 12px;
         justify-content: center;
-        white-space: nowrap; /* prevent wrapping */
+        white-space: nowrap;
     }
-
-    /* Reduce spacing for stacked/smaller screens but still try to keep inline */
+    .feature-card {
+        box-shadow: 0 2px 12px rgba(31,111,235,0.08);
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        background: #fff;
+        transition: box-shadow 0.2s;
+    }
+    .feature-card:hover {
+        box-shadow: 0 6px 24px rgba(31,111,235,0.13);
+    }
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    .btn-feature {
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-size: 1.05rem;
+    }
     @@media (max-width: 768px) {
         .step-badge { width:30px; height:30px; min-width:30px; font-size:0.95rem; margin-right:8px; }
         .summary-money { font-size: 1.05rem; }
     }
-
     @@media (max-width: 480px) {
         .step-badge { width:26px; height:26px; min-width:26px; font-size:0.85rem; margin-right:6px; }
         .step-header { gap: 8px; }
     }
-
-    /* ensure card title has no top margin when used inline */
     .step-header .summary-money { margin: 0; }
 </style>
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="jumbotron bg-primary text-white rounded p-5 mb-4">
-                <h1 class="display-4">Welcome to ReWealth-en</h1>
-                <p class="lead">Your comprehensive financial planning companion. Plan your savings, track your growth, and achieve your financial goals with ReWealth-en.</p>
-                <hr class="my-4 border-light">
-                <p>Get started by using our savings calculator to see how your money can grow over time.</p>
-                <a class="btn btn-light btn-lg" href="/wealth-building" role="button">
-                    <i class="bi bi-calculator"></i> Build Wealth
-                </a>
-            </div>
-
-            <div class="row">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 mx-auto">
+            <div class="row g-4">
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card feature-card h-100">
                         <div class="card-body text-center">
-                            <i class="bi bi-currency-dollar display-4 text-warning mb-3"></i>
+                            <i class="bi bi-currency-dollar feature-icon text-warning"></i>
                             <div class="step-header mb-2">
                                 <span class="step-badge" aria-hidden="true">1</span>
-                                <h5 class="card-title summary-money mb-0">Cost of Living Projection</h5>
+                                <h5 class="card-title summary-money mb-0">Future Cost of Living</h5>
                             </div>
-                            <p class="card-text">Capture and project cost of livings now vs retirement.</p>
-                            <a href="/cost-of-living" class="btn btn-warning">Project Cost of Living</a>
+                            <p class="card-text">Capture and project your cost of living now vs. retirement.</p>
+                            <NavLink href="/future-cost-of-living" class="btn btn-warning btn-feature">Project Cost of Living</NavLink>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card feature-card h-100">
                         <div class="card-body text-center">
-                            <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
+                            <i class="bi bi-graph-up feature-icon text-primary"></i>
                             <div class="step-header mb-2">
                                 <span class="step-badge" aria-hidden="true">2</span>
-                                <h5 class="card-title summary-money mb-0">Wealth Building</h5>
+                                <h5 class="card-title summary-money mb-0">Savings & Wealth Building</h5>
                             </div>
                             <p class="card-text">Calculate how your savings will grow with compound interest and regular contributions.</p>
-                            <a href="/wealth-building" class="btn btn-primary">Build Wealth</a>
+                            <NavLink href="/savings-wealth-building" class="btn btn-primary btn-feature">Build Wealth</NavLink>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card feature-card h-100">
                         <div class="card-body text-center">
-                            <i class="bi bi-graph-down display-4 text-success mb-3"></i>
+                            <i class="bi bi-graph-down feature-icon text-success"></i>
                             <div class="step-header mb-2">
                                 <span class="step-badge" aria-hidden="true">3</span>
-                                <h5 class="card-title summary-money mb-0">Retirement Drawdown</h5>
+                                <h5 class="card-title summary-money mb-0">Retirement Income</h5>
                             </div>
                             <p class="card-text">Plan for financial independence and early retirement with our advanced retirement calculator.</p>
-                            <a href="/retirement-drawdown" class="btn btn-success">Retirement Drawdown Planner</a>
+                            <NavLink href="/retirement-income-planner" class="btn btn-success btn-feature">Retirement Income Planner</NavLink>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="row mt-4">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Why Use ReWealth-en?</h5>
+                    <div class="card feature-card">
+                        <div class="card-header bg-white border-bottom-0">
+                            <h5 class="mb-0" style="color:#1F6FEB; font-weight:700;">Why Use ReWealth-en?</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <ul class="list-unstyled">
+                                    <ul class="list-unstyled mb-0">
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Easy to Use:</strong> Simple interface for complex calculations</li>
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Accurate Results:</strong> Precise compound interest calculations</li>
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Flexible Options:</strong> Multiple compounding frequencies</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
-                                    <ul class="list-unstyled">
+                                    <ul class="list-unstyled mb-0">
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Visual Breakdown:</strong> Year-by-year progress tracking</li>
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Real-time Updates:</strong> Instant calculation results</li>
                                         <li><i class="bi bi-check-circle text-success"></i> <strong>Save & Resume:</strong> Work at your own pace</li>
@@ -178,7 +167,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
