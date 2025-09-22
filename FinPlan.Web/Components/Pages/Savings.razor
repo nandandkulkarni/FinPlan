@@ -466,9 +466,9 @@
                                 </div>
                             </div>
 
-                         
+
                         </div>
-                        @if (showIntroModal || calculatorModel.IsModelEmpty())
+                        @if (showIntroModal && calculatorModel.IsModelEmpty())
                         {
                             <!-- Overlay with Start Planning Button -->
                             <div class="start-planning-overlay">
@@ -501,11 +501,29 @@
                                             Want to try with sample data? Click here
                                         </button>
                                     </div>
-                                    <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
+               @*                      <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
                                         <i class="bi bi-list-check" style="margin-right: 6px;"></i>
                                         What data's missing
-                                    </button>
+                                    </button> *@
+                                    <!-- Don't Show Again Checkbox -->
+                                    <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
+                                        <div class="form-check d-flex align-items-center justify-content-center gap-2">
+
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="dontShowIntroAgainCheck"
+                                                   @onchange="OnDontShowIntroChanged"
+                                                   style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
+                                            <label class="form-check-label"
+                                                   for="dontShowIntroAgainCheck"
+                                                   style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
+                                                Don't show this welcome screen again
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
+
+
                             </div>
                         }
                         @if (results != null)
@@ -522,7 +540,7 @@
                     </div>
                 </div>
 
-                <!-- Right column-->                
+                <!-- Right column-->
                 <div class="col-12 col-md-2">
                     <div class="panel" style="z-index: 1002;">
                         <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
@@ -785,7 +803,11 @@
     private SavingsResults? results;
     private List<YearlyBreakdown> yearlyBreakdown = new();
     private string userGuid = string.Empty;
-    private string calculatorType = "TestSavings_yours";
+    private const string calculatorTypeYours = "savings_yours";
+    private const string calculatorTypePartners = "savings_partners";
+    private string calculatorType = calculatorTypeYours;
+    private bool showIntroModal = true; // Show by default unless user has opted out
+    private bool dontShowIntroAgain = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -796,6 +818,8 @@
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
                 await LoadAsync();
                 Calculate();
+                await HandleIntroModal();
+
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -804,6 +828,29 @@
             }
         }
     }
+
+    private async Task HandleIntroModal()
+    {
+        showIntroModal = false;
+
+        if (calculatorModel == null || calculatorModel.IsModelEmpty())
+        {
+            // Check localStorage for intro modal preference
+            string key = calculatorType == calculatorTypeYours
+                ? "finplan-your-savings-wealth-building-hide-intro"
+                : "finplan-partner-savings-wealth-building-hide-intro";
+            var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
+            if (!string.IsNullOrEmpty(hideIntro) && hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase))
+            {
+                showIntroModal = false;
+            }
+            else
+            {
+                showIntroModal = true;
+            }
+        }
+    }
+
 
     private void Calculate()
     {
@@ -910,8 +957,7 @@
 
     private string FormatMoney(decimal? value) => value?.ToString("C0") ?? "-";
 
-    private bool showIntroModal = true; // Show by default unless user has opted out
-    private bool dontShowIntroAgain = false;
+   
 
     // ... rest of your existing code ...
 
@@ -922,36 +968,63 @@
         StateHasChanged();
     }
 
-    private async Task CloseIntroModalAndRemember()
+    private async Task OnDontShowIntroChanged(ChangeEventArgs e)
     {
-        showIntroModal = false;
+        bool checkedState = e?.Value is bool b && b;
+        string key = calculatorType == calculatorTypeYours
+            ? "finplan-your-savings-wealth-building-hide-intro"
+            : "finplan-partner-savings-wealth-building-hide-intro";
 
-        if (dontShowIntroAgain)
+        if (checkedState)
         {
-            // Store preference in localStorage
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-savings-wealth-building-hide-intro", "true");
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, "true");
         }
-
-        StateHasChanged();
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        }
     }
+
+    // private async Task ToggleDontShowIntroModalAgain()
+    // {
+    //     showIntroModal = false;
+
+    //     if (dontShowIntroAgain)
+    //     {
+    //         Store preference in localStorage
+    //         if (calculatorType == calculatorTypeYours)
+    //         {
+    //             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-your-savings-wealth-building-hide-intro", "true");
+    //         }
+    //         else if (calculatorType == calculatorTypePartners)
+    //         {
+    //             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-partner-savings-wealth-building-hide-intro", "true");
+    //         }
+    //     }
+
+    //     StateHasChanged();
+    //}
+
     string activeTab = "your";
 
     private async Task YourTabClick()
     {
-        calculatorType = "TestSavings_yours";
-        Console.WriteLine("Your tab clicked");
+        calculatorType = calculatorTypeYours;
         SetActiveTab("your");
-        //await LoadUserSavingsAsync();
+        await LoadAsync();
         Calculate();
+        await HandleIntroModal();
+        StateHasChanged();
     }
 
     private async Task PartnerTabClick()
     {
-        calculatorType = "TestSavings_partners";
-        Console.WriteLine("Partner tab clicked");
+        calculatorType = calculatorTypePartners;
         SetActiveTab("partner");
-        //await LoadUserSavingsAsync();
+        await LoadAsync();
         Calculate();
+        await HandleIntroModal();
+        StateHasChanged();
     }
     private void SetActiveTab(string tab)
     {
