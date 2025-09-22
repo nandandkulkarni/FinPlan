@@ -13,16 +13,25 @@
 
 <style>
     /* ----------------------------
-                                                                                   Tweakable values
-                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                   ---------------------------- */
+                                                                                       Tweakable values
+                                                                                       - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                       - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                       Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                       ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
         --tab-panel-top-offset: -6px; /* Tweak this to move the panel up/down (more negative => more overlap) */
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
+    }
+
+
+    /* Add missing empty-state styles */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
     }
 
 
@@ -38,7 +47,7 @@
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(1px);
         z-index: 20;
-        pointer-events: none; 
+        pointer-events: none;
     }
 
         .start-planning-overlay .empty-state {
@@ -51,34 +60,36 @@
             padding: 40px;
             pointer-events: auto; /* Ensure the overlay content is clickable */
         }
-            /* ensure tab row doesn't leave default bottom spacing */
+    /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-        margin-bottom: 0 !important; /* override bootstrap utility margin */
-        padding-bottom: 0;
-        position: relative; /* allow stacking with panel box */
-        z-index: 100;
-    } */
+            margin-bottom: 0 !important; /* override bootstrap utility margin */
+    padding-bottom: 0;
+    position: relative; /* allow stacking with panel box */
+    z-index: 100;
+    }
+    */
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-        margin-bottom: 0 !important;
-        padding-bottom: 0;
-        position: relative;
-        z-index: 200; /* Higher than overlay */
-    } */
+            margin-bottom: 0 !important;
+            padding-bottom: 0;
+            position: relative;
+            z-index: 200; /* Higher than overlay */
+    }
 
+    */
     /* Ensure the top navigation stays above the overlay */
-.top-strip {
-    position: relative;
-    z-index: 1030; /* This matches your MainLayout z-index */
-}
-/* Blur and disable the tab navigation when overlay is active */
-.nav-tabs.overlay-blur {
-    filter: blur(2px);
-    transition: filter 0.3s ease;
-    pointer-events: none; /* This makes the tabs non-clickable */
-    opacity: 0.7; /* Optional: reduce opacity to make it more obvious they're disabled */
-}
+    .top-strip {
+        position: relative;
+        z-index: 1030; /* This matches your MainLayout z-index */
+    }
+    /* Blur and disable the tab navigation when overlay is active */
+    .nav-tabs.overlay-blur {
+        filter: blur(2px);
+        transition: filter 0.3s ease;
+        pointer-events: none; /* This makes the tabs non-clickable */
+        opacity: 0.7; /* Optional: reduce opacity to make it more obvious they're disabled */
+    }
 
     .section-card {
         /* darker border for stronger separation from the background */
@@ -121,8 +132,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                   Tweak the CSS variables above to adjust placement and padding. */
+                                                                                       Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                       Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -541,24 +552,24 @@
                 }
             </div>
 
-       <!-- Tab Navigation -->
-        <ul class="nav nav-tabs mb-3 @(Items == null || !Items.Any() ? "overlay-blur" : "")" role="tablist">
-            @foreach (var t in Tabs)
-            {
-                // add active class on li so highlight can wrap both label and actions
-                <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
-                    <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")" 
-                            role="tab" 
-                            aria-selected="@(activeTab == t ? "true" : "false")" 
-                            tabindex="@(Items == null || !Items.Any() ? "-1" : "0")"
-                            disabled="@(Items == null || !Items.Any())"
-                            @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)" 
-                            @onclick="() => OnTabClick(t)">
-                        @GetTabLabel(t)
-                    </button>
-                </li>
-            }
-        </ul>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-3 @(Items == null || !Items.Any() ? "overlay-blur" : "")" role="tablist">
+                @foreach (var t in Tabs)
+                {
+                    // add active class on li so highlight can wrap both label and actions
+                    <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
+                        <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
+                                role="tab"
+                                aria-selected="@(activeTab == t ? "true" : "false")"
+                                tabindex="@(Items == null || !Items.Any() ? "-1" : "0")"
+                                disabled="@(Items == null || !Items.Any())"
+                                @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)"
+                                @onclick="() => OnTabClick(t)">
+                            @GetTabLabel(t)
+                        </button>
+                    </li>
+                }
+            </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
             <div class="tab-panel-box">
@@ -786,53 +797,79 @@
                         </div>
                         catIdx++;
                     }
-                        @if (Items == null || !Items.Any())
-                        {
-                            <!-- Overlay with Start Planning Button -->
-                            <div class="start-planning-overlay">
-                                <div class="empty-state">
-                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
-                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
-                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                        Let's create your personalized cost of living projection. First, let's set your key assumptions:
-                                    </p>
+                    @if (showIntroModal && (Items == null || !Items.Any()))
+                    {
+                        <!-- Overlay with Start Planning Button -->
+                        <div class="start-planning-overlay">
+                            <div class="empty-state">
+                                <!-- X Close Button -->
+                                <div class="d-flex justify-content-end">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            aria-label="Close"
+                                            @onclick="CloseIntroModal">
+                                        &#10005;
+                                    </button>
+                                </div>
 
-                                    <!-- Key Assumptions Section -->
-                                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
-                                        <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+                                <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">📊</div>
+                                <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Cost of Living Planning!</h4>
+                                <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                    Let's create your personalized cost of living projection. First, let's set your key assumptions:
+                                </p>
 
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                            <div>
-                                                <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">Years to Retirement</label>
-                                                <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
-                                                       style="text-align: center; font-weight: 600;" />
-                                            </div>
-                                            <div>
-                                                <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
-                                                <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
-                                                       style="text-align: center; font-weight: 600;" />
-                                            </div>
+                                <!-- Key Assumptions Section -->
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
+                                    <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">Years to Retirement</label>
+                                            <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
+                                                   style="text-align: center; font-weight: 600;" />
                                         </div>
-
-                                        <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            These values will be used to project your future costs. You can adjust them anytime.
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
+                                            <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
+                                                   style="text-align: center; font-weight: 600;" />
                                         </div>
                                     </div>
 
-                                    <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
-                                        <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
-                                            <i class="bi bi-lightning-fill me-2"></i>
-                                            Start with Sample Data
-                                        </button>
-                                        <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
-                                            <i class="bi bi-pencil me-2"></i>
-                                            Start from Basics
-                                        </button>
+                                    <div style="font-size: 0.85rem; color: #6c757d; text-align: center;">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        These values will be used to project your future costs. You can adjust them anytime.
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
+                                        <i class="bi bi-lightning-fill me-2"></i>
+                                        Start with Sample Data
+                                    </button>
+                                    <button class="btn btn-outline-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartFromScratch">
+                                        <i class="bi bi-pencil me-2"></i>
+                                        Start from Basics
+                                    </button>
+                                </div>
+
+                                <!-- Don't Show Again Checkbox -->
+                                <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
+                                    <div class="form-check d-flex align-items-center justify-content-center gap-2">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="dontShowIntroAgain"
+                                               @bind="dontShowIntroAgain"
+                                               style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
+                                        <label class="form-check-label"
+                                               for="dontShowIntroAgain"
+                                               style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
+                                            Don't show this welcome screen again
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                        }
+                        </div>
+                    }
                 </div>
 
 
@@ -1941,9 +1978,25 @@
         if (firstRender)
         {
             Log("OnAfterRenderAsync firstRender start");
+
+              // Check if user has opted out of seeing the intro modal
+            try
+            {
+                var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-cost-of-living-hide-intro");
+                if (hideIntro == "true")
+                {
+                    showIntroModal = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"Error checking intro modal preference: {ex.Message}");
+            }
+
             // show loading indicator while we fetch user data and tabs
             isLoading = true;
             StateHasChanged();
+
 
             try
             {
@@ -2246,6 +2299,32 @@
         ScheduleAutosave();
         StateHasChanged();
     }
+
+    private bool showIntroModal = true; // Show by default unless user has opted out
+    private bool dontShowIntroAgain = false;
+
+    // ... rest of your existing code ...
+
+    // Add these new methods
+    private void CloseIntroModal()
+    {
+        showIntroModal = false;
+        StateHasChanged();
+    }
+
+    private async Task CloseIntroModalAndRemember()
+    {
+        showIntroModal = false;
+
+        if (dontShowIntroAgain)
+        {
+            // Store preference in localStorage
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-cost-of-living-hide-intro", "true");
+        }
+
+        StateHasChanged();
+    }
+
 
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
