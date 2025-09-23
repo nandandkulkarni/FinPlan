@@ -553,16 +553,15 @@
             </div>
 
             <!-- Tab Navigation -->
-            <ul class="nav nav-tabs mb-3 @(Items == null || !Items.Any() ? "overlay-blur" : "")" role="tablist">
+            <ul class="nav nav-tabs mb-1" role="tablist">
                 @foreach (var t in Tabs)
                 {
-                    // add active class on li so highlight can wrap both label and actions
                     <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
                         <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
                                 role="tab"
                                 aria-selected="@(activeTab == t ? "true" : "false")"
-                                tabindex="@(Items == null || !Items.Any() ? "-1" : "0")"
-                                disabled="@(Items == null || !Items.Any())"
+                                tabindex="0"
+                                disabled="false"
                                 @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)"
                                 @onclick="() => OnTabClick(t)">
                             @GetTabLabel(t)
