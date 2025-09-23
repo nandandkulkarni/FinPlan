@@ -106,6 +106,24 @@ namespace FinPlan.Web.Components.Pages
         }
 
         // Save now returns success flag so callers can display result
+
+        private bool IsRetirementAgesSectionComplete()
+        {
+            return Model.RetirementAgeYou > 0 &&
+                   Model.RetirementAgePartner > 0 &&
+                   DisplayLifeExpectancyYou > 0 &&
+                   DisplayLifeExpectancyPartner > 0;
+        }
+        private bool IsStartingBalancesSectionComplete()
+        {
+            return Model.TaxableBalance > 0 ||
+                   Model.TraditionalBalance > 0 ||
+                   Model.RothBalance > 0;
+        }
+        private bool IsWithdrawalStrategySectionComplete()
+        {
+            return Model.AnnualWithdrawalOne > 0 && Model.AnnualWithdrawalBoth > 0;
+        }
         public async Task<bool> Save()
         {
             var apiBaseUrl = GetApiBaseUrl();
