@@ -51,11 +51,8 @@ namespace FinPlan.Web.Components.Pages
                     DebugService.AddMessage("Calendar load started");
                 }
                 catch { }
-
+                await HandleIntroModal();
                 await Load();
-
-                // REMOVED: Auto-opening wizard for empty model
-                // The empty state UI in the Razor page will handle first-time user experience
 
                 StateHasChanged();
             }
