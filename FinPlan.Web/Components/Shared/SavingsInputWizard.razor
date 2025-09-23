@@ -53,6 +53,118 @@
         position: relative;
         line-height: 1.4;
     }
+    /* Account Cards */
+    .account-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+
+        .account-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-card.taxable {
+            border-top: 4px solid #4299E1; /* Blue */
+        }
+
+        .account-card.traditional {
+            border-top: 4px solid #48BB78; /* Green */
+        }
+
+        .account-card.roth {
+            border-top: 4px solid #805AD5; /* Purple */
+        }
+
+    .account-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+        .account-header i {
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+        }
+
+        .account-header .card-title {
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            flex-grow: 1;
+        }
+
+    .currency-input {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+    }
+
+    .account-footer {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .total-balance-panel {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid #FFD600;
+    }
+
+    .total-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: #2D3748;
+    }
+
+    /* Growth rate styling */
+    .growth-rate-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2D3748;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .growth-slider {
+        height: 8px;
+    }
+
+        .growth-slider::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+        }
+
+    .taxable-slider::-webkit-slider-thumb {
+        background: #4299E1;
+    }
+
+    .traditional-slider::-webkit-slider-thumb {
+        background: #48BB78;
+    }
+
+    .roth-slider::-webkit-slider-thumb {
+        background: #805AD5;
+    }
+
+    .growth-preview {
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+    }
+
+    .presets-container {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
 </style>
 
 @if (Visible && Model != null)
@@ -110,22 +222,6 @@
                             </div>
                         </div>
                         <div class="row g-2 mt-3">
-                            @* <div class="col-md-6">
-                                <label class="form-label">
-                                    Life expectancy (age)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancy = !showToolTipLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipLifeExpectancy)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Life Expectancy:</strong> The age you expect to live to. Planning for a longer life expectancy helps ensure you don't outlive your savings. Current average life expectancy in the US is about 79 years, but it's often recommended to plan for 90+ years.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancy = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
-                                    </div>
-                                }
-                                <input class="form-control" type="number" @bind="LifeExpectancy" @bind:after="OnFieldChanged" min="55" max="120" />
-                            </div> *@
                             <div class="col-md-6">
                                 <label class="form-label">
                                     Years until retirement (auto)
@@ -146,59 +242,95 @@
                     }
                     else if (wizardStep == 2)
                     {
-                        <label class="form-label">Starting Balances</label>
+                        <label class="form-label mb-3">Starting Balances</label>
                         <div class="row mb-2">
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Taxable ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTaxableBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Taxable Accounts:</strong> Regular investment accounts that don't have special tax advantages. These include brokerage accounts, savings accounts, CDs, and other non-retirement investments. Earnings from these accounts are typically taxed annually.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Accounts:</strong> Regular investment accounts that don't have special tax advantages. These include brokerage accounts, savings accounts, CDs, and other non-retirement investments. Earnings from these accounts are typically taxed annually.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialTaxableAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Taxed annually on dividends and gains</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.InitialTaxableAmount" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Traditional ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTraditionalBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialTraditionalAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-deferred until withdrawal</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.InitialTraditionalAmount" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Roth ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRothBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialRothAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-free growth and withdrawals</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.InitialRothAmount" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-2 p-2" style="background:#f8f9fa; border-radius:6px;">
-                            <strong>Total starting balance:</strong> @Model.InitialAmount.ToString("C0")
+                        <div class="total-balance-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Total Starting Balance</h5>
+                                <span class="total-amount">@Model.InitialAmount.ToString("C0")</span>
+                            </div>
                         </div>
                     }
                     else if (wizardStep == 3)
@@ -257,55 +389,148 @@
                     }
                     else if (wizardStep == 4)
                     {
-                        <label class="form-label">Estimated Growth Rates (annual %)</label>
-                        <div class="row mb-2">
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Taxable
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTaxableGrowth)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
-                                    </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.AnnualGrowthRateTaxable" @bind:after="OnFieldChanged" step="0.1" />
+                        <div class="mb-3">
+                            <h5 class="mb-3">Estimated Growth Rates (annual %)</h5>
+                            <div class="presets-container mb-3">
+                                <span class="me-2">Quick presets:</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyConservativeRates">
+                                    <i class="bi bi-shield-fill me-1"></i> Conservative (4-6%)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyModerateRates">
+                                    <i class="bi bi-circle-half me-1"></i> Moderate (6-8%)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ApplyAggressiveRates">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> Aggressive (8-10%)
+                                </button>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Traditional
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTraditionalGrowth)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card account-card taxable">
+                                        <div class="card-body">
+                                            <div class="account-header">
+                                                <i class="bi bi-wallet2"></i>
+                                                <h6 class="card-title">Taxable Growth</h6>
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                            </div>
+                                            @if (showToolTipTaxableGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateTaxable.ToString("0.0")%</div>
+
+                                            <input type="range" class="form-range growth-slider taxable-slider"
+                                                   min="0" max="12" step="0.1"
+                                                   value="@Model.AnnualGrowthRateTaxable"
+                                                   @oninput="(e) => UpdateTaxableGrowthRate(e)" />
+
+                                            <div class="d-flex justify-content-between small">
+                                                <span>Conservative</span>
+                                                <span>Aggressive</span>
+                                            </div>
+
+                                            <div class="growth-preview mt-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <small>$10,000 grows to in 10 years:</small>
+                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTaxable, 10).ToString("C0")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.AnnualGrowthRateTraditional" @bind:after="OnFieldChanged" step="0.1" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card account-card traditional">
+                                        <div class="card-body">
+                                            <div class="account-header">
+                                                <i class="bi bi-piggy-bank"></i>
+                                                <h6 class="card-title">Traditional Growth</h6>
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                            </div>
+                                            @if (showToolTipTraditionalGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateTraditional.ToString("0.0")%</div>
+
+                                            <input type="range" class="form-range growth-slider traditional-slider"
+                                                   min="0" max="12" step="0.1"
+                                                   value="@Model.AnnualGrowthRateTraditional"
+                                                   @oninput="(e) => UpdateTraditionalGrowthRate(e)" />
+
+                                            <div class="d-flex justify-content-between small">
+                                                <span>Conservative</span>
+                                                <span>Aggressive</span>
+                                            </div>
+
+                                            <div class="growth-preview mt-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <small>$10,000 grows to in 10 years:</small>
+                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTraditional, 10).ToString("C0")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card account-card roth">
+                                        <div class="card-body">
+                                            <div class="account-header">
+                                                <i class="bi bi-safe"></i>
+                                                <h6 class="card-title">Roth Growth</h6>
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                            </div>
+                                            @if (showToolTipRothGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateRoth.ToString("0.0")%</div>
+
+                                            <input type="range" class="form-range growth-slider roth-slider"
+                                                   min="0" max="12" step="0.1"
+                                                   value="@Model.AnnualGrowthRateRoth"
+                                                   @oninput="(e) => UpdateRothGrowthRate(e)" />
+
+                                            <div class="d-flex justify-content-between small">
+                                                <span>Conservative</span>
+                                                <span>Aggressive</span>
+                                            </div>
+
+                                            <div class="growth-preview mt-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <small>$10,000 grows to in 10 years:</small>
+                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateRoth, 10).ToString("C0")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Roth
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRothGrowth)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
-                                    </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.AnnualGrowthRateRoth" @bind:after="OnFieldChanged" step="0.1" />
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Growth rates typically range from 4% (very conservative) to 10% (aggressive).
+                                The S&P 500 has averaged about 10% annually since 1926 (before inflation),
+                                while a balanced portfolio might average 7-8%.
                             </div>
                         </div>
                     }
@@ -515,5 +740,61 @@
     {
         await InvokeOnSave();
         StateHasChanged();
+    }
+
+    private void UpdateTaxableGrowthRate(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
+        {
+            Model.AnnualGrowthRateTaxable = value;
+            OnFieldChanged();
+        }
+    }
+
+    private void UpdateTraditionalGrowthRate(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
+        {
+            Model.AnnualGrowthRateTraditional = value;
+            OnFieldChanged();
+        }
+    }
+
+    private void UpdateRothGrowthRate(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
+        {
+            Model.AnnualGrowthRateRoth = value;
+            OnFieldChanged();
+        }
+    }
+
+    private void ApplyConservativeRates()
+    {
+        Model.AnnualGrowthRateTaxable = 4.5m;
+        Model.AnnualGrowthRateTraditional = 5.5m;
+        Model.AnnualGrowthRateRoth = 5.5m;
+        OnFieldChanged();
+    }
+
+    private void ApplyModerateRates()
+    {
+        Model.AnnualGrowthRateTaxable = 6.0m;
+        Model.AnnualGrowthRateTraditional = 7.0m;
+        Model.AnnualGrowthRateRoth = 7.0m;
+        OnFieldChanged();
+    }
+
+    private void ApplyAggressiveRates()
+    {
+        Model.AnnualGrowthRateTaxable = 7.5m;
+        Model.AnnualGrowthRateTraditional = 9.0m;
+        Model.AnnualGrowthRateRoth = 9.0m;
+        OnFieldChanged();
+    }
+
+    private decimal CalculateGrowth(decimal principal, decimal rate, int years)
+    {
+        return principal * (decimal)Math.Pow((double)(1 + rate / 100), years);
     }
 }
