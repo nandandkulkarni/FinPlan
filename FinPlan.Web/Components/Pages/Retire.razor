@@ -1049,98 +1049,338 @@
                         <tr>
                             <th class="col-year" style="text-align:right; width:120px; padding:18px 12px; background-color: var(--background-subtle);">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipYear = !showToolTipYear"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Year</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Calendar</span>
+                                    @if (showToolTipYear)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px;">
+                                            <strong>Calendar Year:</strong> Shows each calendar year in your retirement plan projection, from the current year through your life expectancy.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYear = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Your</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipYourAge = !showToolTipYourAge"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Your</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
+                                    @if (showToolTipYourAge)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px;">
+                                            <strong>Your Age:</strong> Your age for each calendar year of the projection, calculated from your current age.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourAge = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-age" style="padding:18px 12px; background-color: var(--background-subtle);">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Partner</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipPartnerAge = !showToolTipPartnerAge"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Partner</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Age</span>
+                                    @if (showToolTipPartnerAge)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px;">
+                                            <strong>Partner Age:</strong> Your partner's age for each calendar year of the projection, calculated from their current age.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerAge = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-milestones" style="padding:18px 12px; background-color: var(--background-subtle);">
                                 <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipMilestones = !showToolTipMilestones"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Milestones</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Events</span>
+                                    @if (showToolTipMilestones)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px;">
+                                            <strong>Milestones:</strong> Key life events that affect your retirement finances, such as retirement dates, Social Security start dates, and other significant transitions.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMilestones = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle);">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipAmountNeeded = !showToolTipAmountNeeded"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Amount</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Needed</span>
+                                    @if (showToolTipAmountNeeded)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Amount Needed:</strong> The total income needed for the year, based on your withdrawal strategy. This increases with inflation over time.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipAmountNeeded = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-income-sources" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipSSYou = !showToolTipSSYou"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">You</span>
+                                    @if (showToolTipSSYou)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Social Security (You):</strong> Annual Social Security income you'll receive, starting at your specified claiming age. Adjusted annually for inflation.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSYou = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-income-sources" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipSSPartner = !showToolTipSSPartner"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Social Security</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Partner</span>
+                                    @if (showToolTipSSPartner)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Social Security (Partner):</strong> Annual Social Security income your partner will receive, starting at their specified claiming age. Adjusted annually for inflation.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSPartner = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="col-income-sources" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipReverseMortgage = !showToolTipReverseMortgage"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Reverse</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Mortgage</span>
+                                    @if (showToolTipReverseMortgage)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Reverse Mortgage:</strong> Annual income from a reverse mortgage, if included in your plan. Starts in the year you specified and continues throughout retirement.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgage = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-account-activity" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipGrowth = !showToolTipGrowth"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Growth</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Investment</span>
+                                    @if (showToolTipGrowth)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Investment Growth:</strong> The total investment gains across all accounts for the year, based on your expected return rate.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-account-activity" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Taxable</span>
+                                    @if (showToolTipTaxableWithdrawal)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable investment accounts to meet income needs. Capital gains taxes apply to growth portions.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-account-activity" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Traditional</span>
+                                    @if (showToolTipTraditionalWithdrawal)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Traditional Withdrawal:</strong> Amount withdrawn from tax-deferred accounts like 401(k)s and Traditional IRAs. These withdrawals are taxed as ordinary income.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-account-activity" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Withdrawal</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Roth</span>
+                                    @if (showToolTipRothWithdrawal)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts. These withdrawals are tax-free if qualified (generally after age 59½ and account open 5+ years).
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end" style="padding:18px 12px; background-color: var(--background-subtle); border-left: 1px solid #e9ecef;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxes</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipTaxesPaid = !showToolTipTaxesPaid"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxes</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Paid</span>
+                                    @if (showToolTipTaxesPaid)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Taxes Paid:</strong> Estimated taxes paid on withdrawals from traditional retirement accounts and capital gains from taxable accounts.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxesPaid = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-ending-balances" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxable</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Taxable</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                    @if (showToolTipTaxableEnding)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Taxable Ending:</strong> Year-end balance in your taxable investment accounts after growth and withdrawals.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableEnding = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-ending-balances" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Traditional</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipTraditionalEnding = !showToolTipTraditionalEnding"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Traditional</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                    @if (showToolTipTraditionalEnding)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Traditional Ending:</strong> Year-end balance in your tax-deferred retirement accounts (401(k)s, Traditional IRAs) after growth and withdrawals.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalEnding = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                             <th class="text-end col-ending-balances" style="padding:18px 12px;">
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;color:#111;">Roth</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="bi bi-info-circle info-icon"
+                                              @onclick="() => showToolTipRothEnding = !showToolTipRothEnding"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-size:1.05rem;font-weight:800;color:#111;">Roth</span>
+                                    </span>
                                     <span style="font-size:0.78rem;font-weight:600;opacity:.9;color:#6B7280;">Ending</span>
+                                    @if (showToolTipRothEnding)
+                                    {
+                                        <div class="info-tooltip" style="width:250px; position:absolute; z-index:1000; margin-top:35px; right:0;">
+                                            <strong>Roth Ending:</strong> Year-end balance in your Roth retirement accounts (Roth IRAs, Roth 401(k)s) after growth and withdrawals.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothEnding = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </th>
                         </tr>
@@ -1268,6 +1508,23 @@
     private bool showToolTipCurrentAgeYou = false;
     private bool showToolTipCurrentAgePartner = false;
     private bool showToolTipSimulationStartYear = false;
+
+    private bool showToolTipYear = false;
+    private bool showToolTipYourAge = false;
+    private bool showToolTipPartnerAge = false;
+    private bool showToolTipMilestones = false;
+    private bool showToolTipAmountNeeded = false;
+    private bool showToolTipSSYou = false;
+    private bool showToolTipSSPartner = false;
+    private bool showToolTipReverseMortgage = false;
+    private bool showToolTipGrowth = false;
+    private bool showToolTipTaxableWithdrawal = false;
+    private bool showToolTipTraditionalWithdrawal = false;
+    private bool showToolTipRothWithdrawal = false;
+    private bool showToolTipTaxesPaid = false;
+    private bool showToolTipTaxableEnding = false;
+    private bool showToolTipTraditionalEnding = false;
+    private bool showToolTipRothEnding = false;
 
     // Helper properties to display life expectancy as age not calendar year
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
