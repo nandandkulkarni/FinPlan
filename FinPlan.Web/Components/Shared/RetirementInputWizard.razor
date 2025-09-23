@@ -80,385 +80,1354 @@
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
                     @if (wizardStep == 1)
                     {
-                        <label class="form-label">Retirement Ages & Life Expectancy</label>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Retirement age (You)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgeYou = !showToolTipRetirementAgeYou" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRetirementAgeYou)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. This affects how long your portfolio needs to last and when you'll start drawing from retirement accounts.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgeYou = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Retirement Ages & Life Expectancy</label>
+                        <div class="row mb-3">
+                            <!-- Your Retirement Card -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #2563EB;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-person-check" style="color: #2563EB;"></i>
+                                            <h5 class="card-title mb-3">Your Retirement</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgeYou = !showToolTipRetirementAgeYou" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRetirementAgeYou)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. This affects how long your portfolio needs to last and when you'll start drawing from retirement accounts.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgeYou = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="mb-3">
+                                            <label class="form-label">Retirement Age</label>
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-control currency-input me-2" type="number" @bind="Model.RetirementAgeYou" min="40" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                <span class="fs-6 text-muted">years</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Life Expectancy</label>
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-control currency-input me-2" type="number" @bind="LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" />
+                                                <span class="fs-6 text-muted">years</span>
+                                            </div>
+                                        </div>
+                                        <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
+                                            <div class="small text-center mb-1">Retirement Timeline</div>
+                                            <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%;"></div>
+                                                <div class="retirement-period" style="position: absolute; left: @((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @((LifeExpectancyAgeYou - Model.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%;"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-1">
+                                                <span class="small">@Model.CurrentAgeYou</span>
+                                                <span class="small">@Model.RetirementAgeYou</span>
+                                                <span class="small">@LifeExpectancyAgeYou</span>
+                                            </div>
+                                            <div class="text-muted small mt-2 text-center">
+                                                Approx. @(Model.RetirementAgeYou - Model.CurrentAgeYou) years until retirement,
+                                                @(LifeExpectancyAgeYou - Model.RetirementAgeYou) years in retirement
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.RetirementAgeYou" min="40" max="120" />
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Retirement age (Partner)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgePartner = !showToolTipRetirementAgePartner" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRetirementAgePartner)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire. Different retirement ages between partners can affect income timing and withdrawal strategies.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgePartner = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                            <!-- Partner Retirement Card -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #8B5CF6;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-people" style="color: #8B5CF6;"></i>
+                                            <h5 class="card-title mb-3">Partner's Retirement</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgePartner = !showToolTipRetirementAgePartner" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRetirementAgePartner)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire. Different retirement ages between partners can affect income timing and withdrawal strategies.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgePartner = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="mb-3">
+                                            <label class="form-label">Retirement Age</label>
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-control currency-input me-2" type="number" @bind="Model.RetirementAgePartner" min="40" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                <span class="fs-6 text-muted">years</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Life Expectancy</label>
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-control currency-input me-2" type="number" @bind="LifeExpectancyAgePartner" min="55" max="120" style="border-width: 2px; border-color: #ccc;" />
+                                                <span class="fs-6 text-muted">years</span>
+                                            </div>
+                                            <div class="small-note">Leave as 0 if no partner or to use your life expectancy</div>
+                                        </div>
+
+                                        <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
+                                            @if (Model.CurrentAgePartner > 0 && Model.RetirementAgePartner > Model.CurrentAgePartner)
+                                            {
+                                                <div class="small text-center mb-1">Retirement Timeline</div>
+                                                <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
+                                                    <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner))%;"></div>
+                                                    <div class="retirement-period" style="position: absolute; left: @((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner))%; top: 0; height: 10px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - ((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner)))%;"></div>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <span class="small">@Model.CurrentAgePartner</span>
+                                                    <span class="small">@Model.RetirementAgePartner</span>
+                                                    <span class="small">@(LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou)</span>
+                                                </div>
+                                                <div class="text-muted small mt-2 text-center">
+                                                    Approx. @(Model.RetirementAgePartner - Model.CurrentAgePartner) years until retirement,
+                                                    @((LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou) - Model.RetirementAgePartner) years in retirement
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="text-muted text-center">
+                                                    <i class="bi bi-person-dash"></i> No partner data entered
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.RetirementAgePartner" min="40" max="120" />
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row g-2 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Life expectancy (You)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancyYou = !showToolTipLifeExpectancyYou" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipLifeExpectancyYou)
+                        <!-- Overlay timeline showing retirement overlap -->
+                        <div class="card mb-3" style="border-top: 4px solid #059669;">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">
+                                    <i class="bi bi-calendar2-week me-2" style="color: #059669;"></i>
+                                    Combined Retirement Timeline
+                                </h5>
+                                @if (Model.CurrentAgePartner > 0 && Model.RetirementAgePartner > 0 && Model.RetirementAgeYou > 0)
                                 {
-                                    <div class="info-tooltip">
-                                        <strong>Your Life Expectancy:</strong> The age you expect to live to. Your retirement plan should ensure you don't outlive your savings. Consider adding a buffer to this estimate.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancyYou = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                                    <div class="position-relative" style="height: 60px; background-color: #f8fafc; border-radius: 8px; padding: 10px;">
+                                        <!-- Your timeline -->
+                                        <div class="position-absolute" style="top: 15px; left: 0; right: 0;">
+                                            <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%;"></div>
+                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%; top: 0; height: 8px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou))%;"></div>
+                                            </div>
+                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%; top: -15px; transform: translateX(-50%);">
+                                                <span class="badge bg-primary">You: @Model.RetirementAgeYou</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Partner timeline -->
+                                        <div class="position-absolute" style="top: 35px; left: 0; right: 0;">
+                                            <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%;"></div>
+                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%; top: 0; height: 8px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner))%;"></div>
+                                            </div>
+                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%; top: 15px; transform: translateX(-50%);">
+                                                <span class="badge bg-purple">Partner: @Model.RetirementAgePartner</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Legend and explanation -->
+                                    <div class="d-flex justify-content-center mt-3">
+                                        <span class="me-3"><span class="badge" style="background-color: #2563EB">■</span> You working</span>
+                                        <span class="me-3"><span class="badge" style="background-color: #34D399">■</span> You retired</span>
+                                        <span class="me-3"><span class="badge" style="background-color: #8B5CF6">■</span> Partner working</span>
+                                        <span class="me-3"><span class="badge" style="background-color: #F472B6">■</span> Partner retired</span>
+                                    </div>
+
+                                    <div class="alert alert-info mt-3">
+                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        @if (GetOverlapYears() > 0)
+                                        {
+                                            <span>You will have approximately <strong>@GetOverlapYears() years</strong> where both of you are retired.</span>
+                                        }
+                                        else if (Model.RetirementAgeYou < Model.RetirementAgePartner)
+                                        {
+                                            <span>You will retire <strong>@(Model.RetirementAgePartner - Model.RetirementAgeYou) years</strong> before your partner.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Your partner will retire <strong>@(Model.RetirementAgeYou - Model.RetirementAgePartner) years</strong> before you.</span>
+                                        }
                                     </div>
                                 }
-                                <input class="form-control" type="number" @bind="LifeExpectancyAgeYou" min="55" max="120" />
-                                <div class="small-note">Controls simulation end age for you</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Life expectancy (Partner)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancyPartner = !showToolTipLifeExpectancyPartner" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipLifeExpectancyPartner)
+                                else
                                 {
-                                    <div class="info-tooltip">
-                                        <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to. Different life expectancies can affect survivor benefits and legacy planning.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancyPartner = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                                    <div class="alert alert-light text-center">
+                                        Enter both your and your partner's information to see the combined retirement timeline.
                                     </div>
                                 }
-                                <input class="form-control" type="number" @bind="LifeExpectancyAgePartner" min="55" max="120" />
-                                <div class="small-note">Leave blank (0) to use same life expectancy as you</div>
                             </div>
                         </div>
                     }
                     else if (wizardStep == 2)
                     {
-                        <label class="form-label">Starting Balances & Expected Returns</label>
-                        <div class="row mb-2">
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Taxable ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTaxableBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Taxable Accounts:</strong> Non-retirement investment accounts that are subject to annual taxes on dividends, interest, and capital gains. These provide flexibility but without tax advantages of retirement accounts.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Starting Balances & Expected Returns</label>
+
+                        <!-- Account Balances Section -->
+                        <div class="row mb-3">
+                            <!-- Taxable Account Card -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #4299E1;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2" style="color: #4299E1;"></i>
+                                            <h5 class="card-title mb-3">Taxable Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Accounts:</strong> Non-retirement investment accounts that are subject to annual taxes on dividends, interest, and capital gains. These provide flexibility but without tax advantages of retirement accounts.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.TaxableBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Subject to annual taxes on earnings</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.TaxableBalance" step="1000" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Traditional ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTraditionalBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s and Traditional IRAs. Contributions were tax-deductible, but withdrawals in retirement are taxed as ordinary income.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                            <!-- Traditional Account Card -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #48BB78;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank" style="color: #48BB78;"></i>
+                                            <h5 class="card-title mb-3">Traditional Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s and Traditional IRAs. Contributions were tax-deductible, but withdrawals in retirement are taxed as ordinary income.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.TraditionalBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-deferred until withdrawal</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.TraditionalBalance" step="1000" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Roth ($)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRothBalance)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Roth Accounts:</strong> Tax-free growth retirement accounts like Roth IRAs and Roth 401(k)s. Contributions were made with after-tax dollars, so qualified withdrawals in retirement are tax-free.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                            <!-- Roth Account Card -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #805AD5;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe" style="color: #805AD5;"></i>
+                                            <h5 class="card-title mb-3">Roth Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Accounts:</strong> Tax-free growth retirement accounts like Roth IRAs and Roth 401(k)s. Contributions were made with after-tax dollars, so qualified withdrawals in retirement are tax-free.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.RothBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-free growth and withdrawals</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.RothBalance" step="1000" min="0" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-2 p-2" style="background:#f8f9fa; border-radius:6px;">
-                            <strong>Total starting balance:</strong> @TotalStarting.ToString("C0")
                         </div>
 
-                        <div class="row mb-2 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Expected Return (%)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInvestmentReturn = !showToolTipInvestmentReturn" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipInvestmentReturn)
+                        <!-- Portfolio Summary Card -->
+                        <div class="card mb-4" style="border-top: 4px solid #FFD700;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-pie-chart-fill me-2" style="color: #FFD700; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Portfolio Allocation</h5>
+                                </div>
+
+                                @{
+                                    decimal total = TotalStarting;
+                                    decimal taxablePct = total > 0 ? Math.Round((Model.TaxableBalance / total) * 100, 1) : 0;
+                                    decimal traditionalPct = total > 0 ? Math.Round((Model.TraditionalBalance / total) * 100, 1) : 0;
+                                    decimal rothPct = total > 0 ? Math.Round((Model.RothBalance / total) * 100, 1) : 0;
+                                }
+
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h5 class="mb-0">Total Balance:</h5>
+                                    <h4 class="mb-0" style="font-variant-numeric: tabular-nums;">@TotalStarting.ToString("C0")</h4>
+                                </div>
+
+                                @if (total > 0)
                                 {
-                                    <div class="info-tooltip">
-                                        <strong>Expected Return:</strong> The average annual growth rate you expect from your investments before inflation. Historical average for a balanced portfolio is around 6-8%, but future returns may vary.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInvestmentReturn = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                                    <div class="progress" style="height: 20px; margin-bottom: 1rem;">
+                                        <div class="progress-bar" role="progressbar" style="width: @taxablePct%; background-color: #4299E1;" aria-valuenow="@taxablePct" aria-valuemin="0" aria-valuemax="100" title="Taxable: @taxablePct%"></div>
+                                        <div class="progress-bar" role="progressbar" style="width: @traditionalPct%; background-color: #48BB78;" aria-valuenow="@traditionalPct" aria-valuemin="0" aria-valuemax="100" title="Traditional: @traditionalPct%"></div>
+                                        <div class="progress-bar" role="progressbar" style="width: @rothPct%; background-color: #805AD5;" aria-valuenow="@rothPct" aria-valuemin="0" aria-valuemax="100" title="Roth: @rothPct%"></div>
+                                    </div>
+
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div style="width: 12px; height: 12px; background-color: #4299E1; margin-right: 5px;"></div>
+                                                <span>Taxable: @taxablePct%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div style="width: 12px; height: 12px; background-color: #48BB78; margin-right: 5px;"></div>
+                                                <span>Traditional: @traditionalPct%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div style="width: 12px; height: 12px; background-color: #805AD5; margin-right: 5px;"></div>
+                                                <span>Roth: @rothPct%</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 }
-                                <input class="form-control" type="number" @bind="Model.InvestmentReturn" step="0.1" min="-50" max="50" />
+                                else
+                                {
+                                    <div class="alert alert-light text-center">
+                                        Enter your account balances to see your portfolio allocation.
+                                    </div>
+                                }
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Expected Inflation (%)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInflationRate = !showToolTipInflationRate" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipInflationRate)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Expected Inflation:</strong> The annual rate at which the purchasing power of money decreases. This affects your real returns and how much income you'll need in the future. Historical average is around 2-3%.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationRate = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        </div>
+
+                        <!-- Growth Rates Section -->
+                        <div class="row mb-3">
+                            <!-- Investment Return Card -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card" style="border-top: 4px solid #2563EB;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="bi bi-graph-up-arrow me-2" style="color: #2563EB;"></i>
+                                                <span class="card-title">Expected Return</span>
+                                            </div>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInvestmentReturn = !showToolTipInvestmentReturn" tabindex="0" title="Click for more info"></span>
+                                        </div>
+
+                                        @if (showToolTipInvestmentReturn)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Expected Return:</strong> The average annual growth rate you expect from your investments before inflation. Historical average for a balanced portfolio is around 6-8%, but future returns may vary.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInvestmentReturn = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+
+                                        <div class="text-center mb-2">
+                                            <span style="font-size: 2rem; font-weight: bold; color: #2563EB;">@Model.InvestmentReturn.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
+                                        </div>
+
+                                        <input type="range" class="form-range mb-2" min="1" max="12" step="0.1"
+                                               value="@Model.InvestmentReturn"
+                                               @oninput="(e => Model.InvestmentReturn = Convert.ToDecimal(e.Value))" />
+
+                                        <div class="d-flex justify-content-between small text-muted">
+                                            <span>Conservative (1%)</span>
+                                            <span>Moderate (6%)</span>
+                                            <span>Aggressive (12%)</span>
+                                        </div>
+
+                                        <div class="mt-3 p-2" style="background-color: #f8fafc; border-radius: 6px;">
+                                            <div class="small">$10,000 would grow to approximately:</div>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <div class="small text-muted">In 10 years:</div>
+                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 10).ToString("C0")</strong>
+                                                </div>
+                                                <div>
+                                                    <div class="small text-muted">In 20 years:</div>
+                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 20).ToString("C0")</strong>
+                                                </div>
+                                                <div>
+                                                    <div class="small text-muted">In 30 years:</div>
+                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 30).ToString("C0")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.InflationRate" step="0.1" min="-50" max="50" />
+                                </div>
+                            </div>
+
+                            <!-- Inflation Rate Card -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card" style="border-top: 4px solid #DC2626;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="bi bi-currency-dollar me-2" style="color: #DC2626;"></i>
+                                                <span class="card-title">Expected Inflation</span>
+                                            </div>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInflationRate = !showToolTipInflationRate" tabindex="0" title="Click for more info"></span>
+                                        </div>
+
+                                        @if (showToolTipInflationRate)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Expected Inflation:</strong> The annual rate at which the purchasing power of money decreases. This affects your real returns and how much income you'll need in the future. Historical average is around 2-3%.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationRate = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+
+                                        <div class="text-center mb-2">
+                                            <span style="font-size: 2rem; font-weight: bold; color: #DC2626;">@Model.InflationRate.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
+                                        </div>
+
+                                        <input type="range" class="form-range mb-2" min="0" max="8" step="0.1"
+                                               value="@Model.InflationRate"
+                                               @oninput="(e => Model.InflationRate = Convert.ToDecimal(e.Value))" />
+
+                                        <div class="d-flex justify-content-between small text-muted">
+                                            <span>Low (0%)</span>
+                                            <span>Average (2-3%)</span>
+                                            <span>High (8%)</span>
+                                        </div>
+
+                                        <div class="mt-3 p-2" style="background-color: #f8fafc; border-radius: 6px;">
+                                            <div class="small">$1,000 of today's purchasing power will require:</div>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <div class="small text-muted">In 10 years:</div>
+                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 10).ToString("C0")</strong>
+                                                </div>
+                                                <div>
+                                                    <div class="small text-muted">In 20 years:</div>
+                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 20).ToString("C0")</strong>
+                                                </div>
+                                                <div>
+                                                    <div class="small text-muted">In 30 years:</div>
+                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 30).ToString("C0")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real Return Summary -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">Real Return (After Inflation)</h5>
+                                        <div class="text-muted small">Expected investment growth adjusted for inflation</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <h4 class="mb-0" style="color: @(Model.InvestmentReturn > Model.InflationRate ? "#16A34A" : "#DC2626");">
+                                            @((Model.InvestmentReturn - Model.InflationRate).ToString("0.0"))%
+                                        </h4>
+                                        <div class="small text-muted">@(Model.InvestmentReturn > Model.InflationRate ? "Positive growth" : "Negative growth")</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
                     else if (wizardStep == 3)
                     {
-                        <label class="form-label">Social Security</label>
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">
-                                    SS Start Age (You)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgeYou = !showToolTipSSStartAgeYou" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipSSStartAgeYou)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Your SS Start Age:</strong> The age you plan to claim Social Security. Benefits can start as early as 62 (reduced amount), at full retirement age (66-67 depending on birth year) for 100%, or delayed until 70 for maximum benefit (about 8% increase per year of delay).
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgeYou = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Social Security Benefits</label>
+
+                        <!-- Your Social Security Card -->
+                        <div class="card mb-4" style="border-top: 4px solid #2563EB;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-person-badge me-2" style="color: #2563EB; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Your Social Security</h5>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                Claiming Age
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgeYou = !showToolTipSSStartAgeYou" tabindex="0" title="Click for more info"></span>
+                                            </label>
+                                            @if (showToolTipSSStartAgeYou)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Your SS Start Age:</strong> The age you plan to claim Social Security. Benefits can start as early as 62 (reduced amount), at full retirement age (66-67 depending on birth year) for 100%, or delayed until 70 for maximum benefit (about 8% increase per year of delay).
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgeYou = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="d-flex align-items-center">
+                                                <input type="range" class="form-range" min="62" max="70" step="1"
+                                                       value="@Model.SSStartAgeYou"
+                                                       @oninput="(e => Model.SSStartAgeYou = Convert.ToInt32(e.Value))" />
+                                            </div>
+                                            <div class="d-flex justify-content-between small">
+                                                <span class="text-danger">Early: 62</span>
+                                                <span class="text-success">Full: 67</span>
+                                                <span class="text-primary">Max: 70</span>
+                                            </div>
+                                            <div class="d-flex justify-content-center">
+                                                <div class="badge bg-primary mt-2 fs-6">Selected Age: @Model.SSStartAgeYou</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.SSStartAgeYou" min="50" max="100" />
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">
-                                    Expected SS Monthly (You)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityYou = !showToolTipSocialSecurityYou" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipSocialSecurityYou)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Your Social Security Benefit:</strong> Your expected monthly Social Security payment. You can estimate this amount from your earnings record at ssa.gov or from annual statements. The average benefit in 2023 is around $1,800 per month.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityYou = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                Monthly Benefit
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityYou = !showToolTipSocialSecurityYou" tabindex="0" title="Click for more info"></span>
+                                            </label>
+                                            @if (showToolTipSocialSecurityYou)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Your Social Security Benefit:</strong> Your expected monthly Social Security payment. You can estimate this amount from your earnings record at ssa.gov or from annual statements. The average benefit in 2023 is around $1,800 per month.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityYou = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">$</span>
+                                                <input class="form-control currency-input" type="number" @bind="Model.SocialSecurityMonthlyYou" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                <span class="input-group-text">/month</span>
+                                            </div>
+                                            <div class="text-center text-muted small">
+                                                Approximately $@((Model.SocialSecurityMonthlyYou * 12).ToString("N0")) per year
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyYou" step="100" min="0" />
+                                </div>
+
+                                <div class="p-3 rounded" style="background-color: #f0f9ff;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-muted small">Claiming at age @Model.SSStartAgeYou</div>
+                                            <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="text-muted small">Total annual Social Security</div>
+                                            <div class="fs-4 fw-bold" style="color: #2563EB;">$@((Model.SocialSecurityMonthlyYou * 12).ToString("N0"))</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">
-                                    SS Start Age (Partner)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgePartner = !showToolTipSSStartAgePartner" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipSSStartAgePartner)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Partner's SS Start Age:</strong> The age your partner plans to claim Social Security. Couples often coordinate claiming strategies to maximize lifetime benefits, especially if there's a significant age or income difference.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgePartner = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                        @if (Model.CurrentAgePartner > 0)
+                        {
+                            <!-- Partner Social Security Card -->
+                            <div class="card mb-4" style="border-top: 4px solid #8B5CF6;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-people me-2" style="color: #8B5CF6; font-size: 1.25rem;"></i>
+                                        <h5 class="card-title mb-0">Partner's Social Security</h5>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.SSStartAgePartner" min="50" max="100" />
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">
-                                    Expected SS Monthly (Partner)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityPartner = !showToolTipSocialSecurityPartner" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipSocialSecurityPartner)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Partner's Social Security Benefit:</strong> Your partner's expected monthly Social Security payment. If your partner didn't work enough to qualify, they may still be eligible for spousal benefits (typically 50% of your benefit).
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityPartner = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">
+                                                    Claiming Age
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgePartner = !showToolTipSSStartAgePartner" tabindex="0" title="Click for more info"></span>
+                                                </label>
+                                                @if (showToolTipSSStartAgePartner)
+                                                {
+                                                    <div class="info-tooltip">
+                                                        <strong>Partner's SS Start Age:</strong> The age your partner plans to claim Social Security. Couples often coordinate claiming strategies to maximize lifetime benefits, especially if there's a significant age or income difference.
+                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgePartner = false" title="Close">
+                                                            <span class="bi bi-x-lg"></span>
+                                                        </span>
+                                                    </div>
+                                                }
+
+                                                <div class="d-flex align-items-center">
+                                                    <input type="range" class="form-range" min="62" max="70" step="1"
+                                                           value="@Model.SSStartAgePartner"
+                                                           @oninput="(e => Model.SSStartAgePartner = Convert.ToInt32(e.Value))" />
+                                                </div>
+                                                <div class="d-flex justify-content-between small">
+                                                    <span class="text-danger">Early: 62</span>
+                                                    <span class="text-success">Full: 67</span>
+                                                    <span class="text-primary">Max: 70</span>
+                                                </div>
+                                                <div class="d-flex justify-content-center">
+                                                    <div class="badge" style="background-color: #8B5CF6; margin-top: 0.5rem; font-size: 1rem;">Selected Age: @Model.SSStartAgePartner</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">
+                                                    Monthly Benefit
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityPartner = !showToolTipSocialSecurityPartner" tabindex="0" title="Click for more info"></span>
+                                                </label>
+                                                @if (showToolTipSocialSecurityPartner)
+                                                {
+                                                    <div class="info-tooltip">
+                                                        <strong>Partner's Social Security Benefit:</strong> Your partner's expected monthly Social Security payment. If your partner didn't work enough to qualify, they may still be eligible for spousal benefits (typically 50% of your benefit).
+                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityPartner = false" title="Close">
+                                                            <span class="bi bi-x-lg"></span>
+                                                        </span>
+                                                    </div>
+                                                }
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">$</span>
+                                                    <input class="form-control currency-input" type="number" @bind="Model.SocialSecurityMonthlyPartner" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                    <span class="input-group-text">/month</span>
+                                                </div>
+                                                <div class="text-center text-muted small">
+                                                    Approximately $@((Model.SocialSecurityMonthlyPartner * 12).ToString("N0")) per year
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.SocialSecurityMonthlyPartner" step="100" min="0" />
+
+                                    <div class="p-3 rounded" style="background-color: #faf5ff;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="text-muted small">Claiming at age @Model.SSStartAgePartner</div>
+                                                <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="text-muted small">Total annual Social Security</div>
+                                                <div class="fs-4 fw-bold" style="color: #8B5CF6;">$@((Model.SocialSecurityMonthlyPartner * 12).ToString("N0"))</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Combined Social Security Income -->
+                            <div class="card" style="border-top: 4px solid #059669;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-cash-stack me-2" style="color: #059669; font-size: 1.25rem;"></i>
+                                        <h5 class="card-title mb-0">Combined Social Security Income</h5>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Your monthly benefit:</span>
+                                                <strong>$@Model.SocialSecurityMonthlyYou.ToString("N0")</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Partner's monthly benefit:</span>
+                                                <strong>$@Model.SocialSecurityMonthlyPartner.ToString("N0")</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Combined monthly:</span>
+                                                <strong>$@((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner).ToString("N0"))</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-center p-3 rounded" style="background-color: #ecfdf5;">
+                                                <div class="text-muted">Combined Annual Social Security</div>
+                                                <div class="fs-3 fw-bold" style="color: #059669;">$@(((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12).ToString("N0"))</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @{
+                                        decimal ssPercentage = TotalStarting > 0 ?
+                                        Math.Min(100, Math.Round((((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12) / (Model.AnnualWithdrawalBoth > 0 ? Model.AnnualWithdrawalBoth : 50000)) * 100, 1)) : 0;
+                                    }
+
+                                    @if (Model.AnnualWithdrawalBoth > 0)
+                                    {
+                                        <div class="mt-3">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="small">Social Security vs. Total Income Needs</span>
+                                                <span class="small">@ssPercentage.ToString("0.0")%</span>
+                                            </div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: @ssPercentage%;"
+                                                     aria-valuenow="@ssPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @if (ssPercentage >= 20)
+                                                    {
+                                                        <span>Social Security</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted mt-1">
+                                                Social Security will cover approximately @ssPercentage.ToString("0.0")% of your annual retirement income needs
+                                                ($@(((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12).ToString("N0")) of $@(Model.AnnualWithdrawalBoth.ToString("N0")))
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Single Person Social Security Summary -->
+                            <div class="card" style="border-top: 4px solid #059669;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-cash-stack me-2" style="color: #059669; font-size: 1.25rem;"></i>
+                                        <h5 class="card-title mb-0">Social Security Summary</h5>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Monthly benefit at age @Model.SSStartAgeYou:</span>
+                                                <strong>$@Model.SocialSecurityMonthlyYou.ToString("N0")</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Annual benefit:</span>
+                                                <strong>$@((Model.SocialSecurityMonthlyYou * 12).ToString("N0"))</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Starts in year:</span>
+                                                <strong>@(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-center p-3 rounded" style="background-color: #ecfdf5;">
+                                                <div class="text-muted">Annual Social Security</div>
+                                                <div class="fs-3 fw-bold" style="color: #059669;">$@((Model.SocialSecurityMonthlyYou * 12).ToString("N0"))</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @{
+                                        decimal ssPercentage = Model.AnnualWithdrawalBoth > 0 ?
+                                        Math.Min(100, Math.Round(((Model.SocialSecurityMonthlyYou * 12) / Model.AnnualWithdrawalBoth) * 100, 1)) : 0;
+                                    }
+
+                                    @if (Model.AnnualWithdrawalBoth > 0)
+                                    {
+                                        <div class="mt-3">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="small">Social Security vs. Total Income Needs</span>
+                                                <span class="small">@ssPercentage.ToString("0.0")%</span>
+                                            </div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: @ssPercentage%;"
+                                                     aria-valuenow="@ssPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @if (ssPercentage >= 20)
+                                                    {
+                                                        <span>Social Security</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted mt-1">
+                                                Social Security will cover approximately @ssPercentage.ToString("0.0")% of your annual retirement income needs
+                                                ($@((Model.SocialSecurityMonthlyYou * 12).ToString("N0")) of $@(Model.AnnualWithdrawalBoth.ToString("N0")))
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>Social Security Claiming Tips:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Claiming early (age 62) provides reduced benefits but for a longer period</li>
+                                <li>Waiting until Full Retirement Age (66-67) provides 100% of your earned benefit</li>
+                                <li>Delaying until 70 increases your benefit by approximately 8% per year past FRA</li>
+                                <li>For married couples, coordinating your claiming strategies can maximize lifetime benefits</li>
+                            </ul>
                         </div>
                     }
                     else if (wizardStep == 4)
                     {
-                        <label class="form-label">Reverse Mortgage</label>
-                        <div class="mb-2 form-check">
-                            <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="ReverseMortgageEnabled" />
-                            <label class="form-check-label" for="rmEnabled">Enable reverse mortgage</label>
-                            <div class="small-note">If enabled, reverse mortgage income will begin at the age below</div>
+                        <label class="form-label mb-3">Reverse Mortgage</label>
+
+                        <div class="card mb-4" style="border-top: 4px solid #F59E0B;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-house-heart-fill me-2" style="color: #F59E0B; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Reverse Mortgage Option</h5>
+                                </div>
+
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="ReverseMortgageEnabled" style="width: 3em; height: 1.5em;" />
+                                    <label class="form-check-label ms-2 fs-5" for="rmEnabled">Enable reverse mortgage</label>
+                                </div>
+
+                                <div class="text-muted mb-4">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    A reverse mortgage allows homeowners 62+ to convert home equity into monthly income while continuing to live in their home.
+                                </div>
+
+                                @if (ReverseMortgageEnabled)
+                                {
+                                    <div class="row mb-3">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card" style="border-top: 4px solid #F59E0B;">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <label class="form-label mb-0">
+                                                            Start Age
+                                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageStartAge = !showToolTipReverseMortgageStartAge" tabindex="0" title="Click for more info"></span>
+                                                        </label>
+                                                        @if (showToolTipReverseMortgageStartAge)
+                                                        {
+                                                            <div class="info-tooltip">
+                                                                <strong>Reverse Mortgage Start Age:</strong> The age when you plan to begin receiving payments from a reverse mortgage. This income source allows homeowners 62+ to convert home equity into tax-free income while continuing to live in their home.
+                                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartAge = false" title="Close">
+                                                                    <span class="bi bi-x-lg"></span>
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <input type="range" class="form-range me-3" min="62" max="85" step="1"
+                                                               value="@Model.ReverseMortgageStartAge"
+                                                               @oninput="(e => Model.ReverseMortgageStartAge = Convert.ToInt32(e.Value))" />
+                                                        <span class="badge bg-warning text-dark fs-5">@Model.ReverseMortgageStartAge</span>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between small">
+                                                        <span>Early (62)</span>
+                                                        <span>Later (85)</span>
+                                                    </div>
+
+                                                    <div class="small-note mt-3">
+                                                        <i class="bi bi-calendar-event me-1"></i>
+                                                        You would start receiving proceeds in year @(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card" style="border-top: 4px solid #10B981;">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <label class="form-label mb-0">
+                                                            Monthly Income
+                                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly" tabindex="0" title="Click for more info"></span>
+                                                        </label>
+                                                        @if (showToolTipReverseMortgageMonthly)
+                                                        {
+                                                            <div class="info-tooltip">
+                                                                <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage. The amount depends on your home value, interest rates, your age, and the specific payment plan you choose.
+                                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
+                                                                    <span class="bi bi-x-lg"></span>
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">$</span>
+                                                        <input class="form-control currency-input" type="number" @bind="Model.ReverseMortgageMonthly" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                        <span class="input-group-text">/month</span>
+                                                    </div>
+
+                                                    <div class="text-center text-success fs-5 mt-3">
+                                                        $@((Model.ReverseMortgageMonthly * 12).ToString("N0")) additional income per year
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timeline showing when reverse mortgage starts -->
+                                    <div class="card mt-3" style="border: none; background-color: #f8f9fa; border-radius: 10px;">
+                                        <div class="card-body">
+                                            <h6 class="mb-3">Reverse Mortgage Timeline</h6>
+                                            <div class="position-relative" style="height: 40px;">
+                                                <div class="position-absolute" style="top: 10px; left: 0; right: 0;">
+                                                    <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
+                                                        @{
+                                                            double startPercent = 0;
+                                                            double rmPercent = 0;
+                                                            if (Model.CurrentAgeYou > 0 && Model.RetirementAgeYou > 0 && LifeExpectancyAgeYou > Model.CurrentAgeYou)
+                                                            {
+                                                                startPercent = Math.Min(100, Math.Max(0, ((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100.0 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))));
+                                                                rmPercent = Math.Min(100, Math.Max(0, ((Model.ReverseMortgageStartAge - Model.CurrentAgeYou) * 100.0 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))));
+                                                            }
+                                                        }
+                                                        <!-- Working Period -->
+                                                        <div style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @startPercent%;"></div>
+                                                        <!-- Retirement Period Before RM -->
+                                                        <div style="position: absolute; left: @startPercent%; top: 0; height: 8px; background-color: #34D399; width: @(rmPercent - startPercent)%;"></div>
+                                                        <!-- Retirement With RM -->
+                                                        <div style="position: absolute; left: @rmPercent%; top: 0; height: 8px; background-color: #F59E0B; border-radius: 0 5px 5px 0; width: @(100 - rmPercent)%;"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Retirement Marker -->
+                                                <div class="position-absolute" style="left: @startPercent%; top: -5px; transform: translateX(-50%);">
+                                                    <div class="badge bg-primary px-1 py-0">Retirement</div>
+                                                </div>
+
+                                                <!-- RM Start Marker -->
+                                                <div class="position-absolute" style="left: @rmPercent%; top: 15px; transform: translateX(-50%);">
+                                                    <div class="badge bg-warning text-dark px-1 py-0">RM Starts</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mt-2 small text-muted">
+                                                <span>Age @Model.CurrentAgeYou</span>
+                                                <span>Age @Model.RetirementAgeYou</span>
+                                                <span>Age @Model.ReverseMortgageStartAge</span>
+                                                <span>Age @LifeExpectancyAgeYou</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-light text-center">
+                                        <i class="bi bi-house-slash me-2"></i> Reverse mortgage option is disabled
+                                    </div>
+                                }
+                            </div>
                         </div>
 
-                        @if (ReverseMortgageEnabled)
-                        {
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        Reverse Mortgage Start Age
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageStartAge = !showToolTipReverseMortgageStartAge" tabindex="0" title="Click for more info"></span>
-                                    </label>
-                                    @if (showToolTipReverseMortgageStartAge)
-                                    {
-                                        <div class="info-tooltip">
-                                            <strong>Reverse Mortgage Start Age:</strong> The age when you plan to begin receiving payments from a reverse mortgage. This income source allows homeowners 62+ to convert home equity into tax-free income while continuing to live in their home.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartAge = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
-                                    }
-                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageStartAge" min="60" max="120" />
-                                    <div class="small-note">Age when you start receiving reverse mortgage proceeds</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        Reverse Mortgage Monthly ($)
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly" tabindex="0" title="Click for more info"></span>
-                                    </label>
-                                    @if (showToolTipReverseMortgageMonthly)
-                                    {
-                                        <div class="info-tooltip">
-                                            <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage. The amount depends on your home value, interest rates, your age, and the specific payment plan you choose.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
-                                    }
-                                    <input class="form-control" type="number" @bind="Model.ReverseMortgageMonthly" step="100" min="0" />
-                                </div>
-                            </div>
-                        }
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>About Reverse Mortgages:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Available to homeowners age 62 and older</li>
+                                <li>Converts home equity into tax-free income while you continue living in your home</li>
+                                <li>No monthly payments required – the loan is repaid when you sell the home, move out, or pass away</li>
+                                <li>Income can be received as a lump sum, monthly payment, or line of credit</li>
+                            </ul>
+                        </div>
                     }
                     else if (wizardStep == 5)
                     {
-                        <label class="form-label">Withdrawal Strategy</label>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Annual Withdrawal: One Retired
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipWithdrawalOne)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired. This is typically less than when both partners are retired since one person is still earning income.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Withdrawal Strategy</label>
+
+                        <div class="card mb-4" style="border-top: 4px solid #3B82F6;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-cash-stack me-2" style="color: #3B82F6; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Annual Withdrawal Needs</h5>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <!-- One Person Retired -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="border-top: 4px solid #4F46E5;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6 class="mb-0">
+                                                        One Person Retired
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" tabindex="0" title="Click for more info"></span>
+                                                    </h6>
+                                                </div>
+                                                @if (showToolTipWithdrawalOne)
+                                                {
+                                                    <div class="info-tooltip">
+                                                        <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired. This is typically less than when both partners are retired since one person is still earning income.
+                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
+                                                            <span class="bi bi-x-lg"></span>
+                                                        </span>
+                                                    </div>
+                                                }
+
+                                                <div class="input-group mt-3 mb-3">
+                                                    <span class="input-group-text">$</span>
+                                                    <input class="form-control currency-input" type="number"
+                                                           @bind="Model.AnnualWithdrawalOne" step="1000" min="0"
+                                                           style="border-width: 2px; border-color: #ccc;" />
+                                                    <span class="input-group-text">/year</span>
+                                                </div>
+
+                                                <div class="text-center text-muted">
+                                                    $@((Model.AnnualWithdrawalOne / 12).ToString("N0")) per month
+                                                </div>
+
+                                                <div class="d-flex align-items-center mt-3 p-2" style="background-color: #f0f7ff; border-radius: 6px;">
+                                                    <i class="bi bi-person-fill me-2" style="font-size: 1.25rem; color: #4F46E5;"></i>
+                                                    <div>
+                                                        <div class="small">One person retired, one working</div>
+                                                        <div class="small text-muted">
+                                                            @if (Model.CurrentAgePartner > 0 && Model.RetirementAgeYou != Model.RetirementAgePartner)
+                                                            {
+                                                                <span>
+                                                                    @(Math.Abs(Model.RetirementAgeYou - Model.RetirementAgePartner)) years with only one person retired
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>Both will retire simultaneously</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalOne" step="1000" min="0" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Annual Withdrawal: Both Retired
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipWithdrawalBoth)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired. This often needs to be higher than when one person is retired since you'll be relying entirely on portfolio income and Social Security.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                                    <!-- Both Retired -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="border-top: 4px solid #10B981;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6 class="mb-0">
+                                                        Both Retired
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
+                                                    </h6>
+                                                </div>
+                                                @if (showToolTipWithdrawalBoth)
+                                                {
+                                                    <div class="info-tooltip">
+                                                        <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired. This often needs to be higher than when one person is retired since you'll be relying entirely on portfolio income and Social Security.
+                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
+                                                            <span class="bi bi-x-lg"></span>
+                                                        </span>
+                                                    </div>
+                                                }
+
+                                                <div class="input-group mt-3 mb-3">
+                                                    <span class="input-group-text">$</span>
+                                                    <input class="form-control currency-input" type="number"
+                                                           @bind="Model.AnnualWithdrawalBoth" step="1000" min="0"
+                                                           style="border-width: 2px; border-color: #ccc;" />
+                                                    <span class="input-group-text">/year</span>
+                                                </div>
+
+                                                <div class="text-center text-muted">
+                                                    $@((Model.AnnualWithdrawalBoth / 12).ToString("N0")) per month
+                                                </div>
+
+                                                <div class="d-flex align-items-center mt-3 p-2" style="background-color: #ecfdf5; border-radius: 6px;">
+                                                    <i class="bi bi-people-fill me-2" style="font-size: 1.25rem; color: #10B981;"></i>
+                                                    <div>
+                                                        <div class="small">Full retirement for both</div>
+                                                        <div class="small text-muted">
+                                                            @if (GetOverlapYears() > 0)
+                                                            {
+                                                                <span>Approximately @GetOverlapYears() years together in retirement</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>No overlap in retirement years</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.AnnualWithdrawalBoth" step="1000" min="0" />
+                                </div>
+
+                                <!-- Income Sources -->
+                                <div class="card" style="border: none; background-color: #f8f9fa;">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">Potential Income Sources in Retirement</h6>
+
+                                        @{
+                                            decimal totalAnnualIncome = (Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12;
+                                            totalAnnualIncome += Model.ReverseMortgageMonthly * 12;
+
+                                            decimal ssPercent = Model.AnnualWithdrawalBoth > 0 ?
+                                            Math.Min(100, ((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12 / Model.AnnualWithdrawalBoth) * 100) : 0;
+
+                                            decimal rmPercent = Model.AnnualWithdrawalBoth > 0 ?
+                                            Math.Min(100, (Model.ReverseMortgageMonthly * 12 / Model.AnnualWithdrawalBoth) * 100) : 0;
+
+                                            decimal portPercent = Math.Max(0, 100 - ssPercent - rmPercent);
+                                        }
+
+                                        <div class="progress" style="height: 24px; margin-bottom: 1rem;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: @ssPercent%;"
+                                                 aria-valuenow="@ssPercent" aria-valuemin="0" aria-valuemax="100" title="Social Security">
+                                                @if (ssPercent >= 15)
+                                                {
+                                                    <span>Social Security</span>
+                                                }
+                                            </div>
+                                            @if (Model.ReverseMortgageStartAge > 0 && Model.ReverseMortgageMonthly > 0)
+                                            {
+                                                <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @rmPercent%;"
+                                                     aria-valuenow="@rmPercent" aria-valuemin="0" aria-valuemax="100" title="Reverse Mortgage">
+                                                    @if (rmPercent >= 15)
+                                                    {
+                                                        <span>RM</span>
+                                                    }
+                                                </div>
+                                            }
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: @portPercent%;"
+                                                 aria-valuenow="@portPercent" aria-valuemin="0" aria-valuemax="100" title="Portfolio Withdrawals">
+                                                @if (portPercent >= 15)
+                                                {
+                                                    <span>Portfolio</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row text-center">
+                                            <div class="col">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div style="width: 12px; height: 12px; background-color: #3B82F6; margin-right: 5px;"></div>
+                                                    <span>Social Security: @ssPercent.ToString("0")%</span>
+                                                </div>
+                                            </div>
+                                            @if (Model.ReverseMortgageStartAge > 0 && Model.ReverseMortgageMonthly > 0)
+                                            {
+                                                <div class="col">
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <div style="width: 12px; height: 12px; background-color: #F59E0B; margin-right: 5px;"></div>
+                                                        <span>Reverse Mortgage: @rmPercent.ToString("0")%</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="col">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div style="width: 12px; height: 12px; background-color: #10B981; margin-right: 5px;"></div>
+                                                    <span>Portfolio: @portPercent.ToString("0")%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb-fill me-2"></i>
+                            <strong>Withdrawal Strategy Tips:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>The 4% rule suggests withdrawing 4% of your portfolio in the first year of retirement, then adjusting for inflation in subsequent years</li>
+                                <li>With a $1,000,000 portfolio, that would be $40,000 in the first year</li>
+                                <li>Consider your tax situation when determining which accounts to withdraw from (taxable, traditional, or Roth)</li>
+                                <li>Required Minimum Distributions (RMDs) from traditional accounts begin at age 73</li>
+                            </ul>
                         </div>
                     }
                     else if (wizardStep == 6)
                     {
-                        <label class="form-label">Current Ages & Simulation Settings</label>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Current Age (You)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipCurrentAgeYou)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Your Current Age:</strong> Your age today. This is the starting point for all retirement calculations and determines how many years you have to prepare before retirement.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Current Ages & Simulation Settings</label>
+
+                        <div class="card mb-4" style="border-top: 4px solid #8B5CF6;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-person-vcard me-2" style="color: #8B5CF6; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Current Ages</h5>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <!-- Your Current Age -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="border-top: 4px solid #2563EB;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <label class="form-label mb-0">
+                                                        Your Current Age
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
+                                                    </label>
+                                                    @if (showToolTipCurrentAgeYou)
+                                                    {
+                                                        <div class="info-tooltip">
+                                                            <strong>Your Current Age:</strong> Your age today. This is the starting point for all retirement calculations and determines how many years you have to prepare before retirement.
+                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
+                                                                <span class="bi bi-x-lg"></span>
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <div class="input-group mb-3">
+                                                    <input class="form-control currency-input" type="number" @bind="Model.CurrentAgeYou" min="18" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                    <span class="input-group-text">years</span>
+                                                </div>
+
+                                                <div class="text-center p-2 mt-2" style="background-color: #f0f7ff; border-radius: 6px;">
+                                                    <div>Years until retirement:</div>
+                                                    <strong class="fs-4 text-primary">@(Model.RetirementAgeYou - Model.CurrentAgeYou)</strong>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.CurrentAgeYou" min="18" max="120" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Current Age (Partner)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipCurrentAgePartner)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Partner's Current Age:</strong> Your partner's age today. Enter 0 if you're planning for yourself only. This affects joint retirement planning, especially with age differences.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                                    <!-- Partner's Current Age -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="border-top: 4px solid #8B5CF6;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <label class="form-label mb-0">
+                                                        Partner's Current Age
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
+                                                    </label>
+                                                    @if (showToolTipCurrentAgePartner)
+                                                    {
+                                                        <div class="info-tooltip">
+                                                            <strong>Partner's Current Age:</strong> Your partner's age today. Enter 0 if you're planning for yourself only. This affects joint retirement planning, especially with age differences.
+                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
+                                                                <span class="bi bi-x-lg"></span>
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <div class="input-group mb-3">
+                                                    <input class="form-control currency-input" type="number" @bind="Model.CurrentAgePartner" min="0" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                    <span class="input-group-text">years</span>
+                                                </div>
+
+                                                <div class="small-note">Leave as 0 if no partner</div>
+
+                                                @if (Model.CurrentAgePartner > 0)
+                                                {
+                                                    <div class="text-center p-2 mt-2" style="background-color: #faf5ff; border-radius: 6px;">
+                                                        <div>Partner's years until retirement:</div>
+                                                        <strong class="fs-4" style="color: #8B5CF6;">@(Model.RetirementAgePartner - Model.CurrentAgePartner)</strong>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.CurrentAgePartner" min="0" max="120" />
-                                <div class="small-note">Leave as 0 if no partner</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row g-2 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Projection Start Year
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipSimulationStartYear)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Projection Start Year:</strong> The calendar year when this retirement analysis begins (typically the current year). All timeline projections, including retirement dates and Social Security benefits, are calculated from this starting point.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+
+                        <div class="card mb-4" style="border-top: 4px solid #0EA5E9;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-calendar3 me-2" style="color: #0EA5E9; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Simulation Settings</h5>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card" style="border-top: 4px solid #0EA5E9;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <label class="form-label mb-0">
+                                                        Projection Start Year
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear" tabindex="0" title="Click for more info"></span>
+                                                    </label>
+                                                    @if (showToolTipSimulationStartYear)
+                                                    {
+                                                        <div class="info-tooltip">
+                                                            <strong>Projection Start Year:</strong> The calendar year when this retirement analysis begins (typically the current year). All timeline projections, including retirement dates and Social Security benefits, are calculated from this starting point.
+                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
+                                                                <span class="bi bi-x-lg"></span>
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <div class="input-group mb-3">
+                                                    <input class="form-control currency-input" type="number" @bind="Model.SimulationStartYear" min="2023" max="2100" style="border-width: 2px; border-color: #ccc;" />
+                                                </div>
+
+                                                <div class="small-note">Year to begin the retirement simulation</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.SimulationStartYear" />
-                                <div class="small-note">Year to begin the retirement simulation</div>
+                                </div>
+
+                                <!-- Key Dates Summary -->
+                                <div class="mt-4">
+                                    <h6 class="mb-3">Key Dates in Your Retirement Journey</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Milestone</th>
+                                                    <th>Your Age</th>
+                                                    <th>Year</th>
+                                                    @if (Model.CurrentAgePartner > 0)
+                                                    {
+                                                        <th>Partner's Age</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><i class="bi bi-play-circle me-1 text-primary"></i> Simulation Start</td>
+                                                    <td>@Model.CurrentAgeYou</td>
+                                                    <td>@Model.SimulationStartYear</td>
+                                                    @if (Model.CurrentAgePartner > 0)
+                                                    {
+                                                        <td>@Model.CurrentAgePartner</td>
+                                                    }
+                                                </tr>
+                                                <tr>
+                                                    <td><i class="bi bi-person-check me-1 text-success"></i> Your Retirement</td>
+                                                    <td>@Model.RetirementAgeYou</td>
+                                                    <td>@(Model.SimulationStartYear + (Model.RetirementAgeYou - Model.CurrentAgeYou))</td>
+                                                    @if (Model.CurrentAgePartner > 0)
+                                                    {
+                                                        <td>@(Model.CurrentAgePartner + (Model.RetirementAgeYou - Model.CurrentAgeYou))</td>
+                                                    }
+                                                </tr>
+                                                @if (Model.CurrentAgePartner > 0)
+                                                {
+                                                    <tr>
+                                                        <td><i class="bi bi-people me-1" style="color: #8B5CF6;"></i> Partner's Retirement</td>
+                                                        <td>@(Model.CurrentAgeYou + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
+                                                        <td>@(Model.SimulationStartYear + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
+                                                        <td>@Model.RetirementAgePartner</td>
+                                                    </tr>
+                                                }
+                                                <tr>
+                                                    <td><i class="bi bi-piggy-bank me-1 text-primary"></i> Your Social Security</td>
+                                                    <td>@Model.SSStartAgeYou</td>
+                                                    <td>@(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</td>
+                                                    @if (Model.CurrentAgePartner > 0)
+                                                    {
+                                                        <td>@(Model.CurrentAgePartner + (Model.SSStartAgeYou - Model.CurrentAgeYou))</td>
+                                                    }
+                                                </tr>
+                                                @if (Model.CurrentAgePartner > 0)
+                                                {
+                                                    <tr>
+                                                        <td><i class="bi bi-piggy-bank me-1" style="color: #8B5CF6;"></i> Partner's Social Security</td>
+                                                        <td>@(Model.CurrentAgeYou + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
+                                                        <td>@(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
+                                                        <td>@Model.SSStartAgePartner</td>
+                                                    </tr>
+                                                }
+                                                @if (Model.ReverseMortgageStartAge > 0)
+                                                {
+                                                    <tr>
+                                                        <td><i class="bi bi-house-heart me-1 text-warning"></i> Reverse Mortgage</td>
+                                                        <td>@Model.ReverseMortgageStartAge</td>
+                                                        <td>@(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</td>
+                                                        @if (Model.CurrentAgePartner > 0)
+                                                        {
+                                                            <td>@(Model.CurrentAgePartner + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <strong>You're all set!</strong> Click "Save & Finish" below to complete your retirement plan setup.
                         </div>
                     }
                 </div>
@@ -518,6 +1487,32 @@
     private bool showToolTipSimulationStartYear = false;
 
     private decimal TotalStarting => (Model?.TaxableBalance ?? 0) + (Model?.TraditionalBalance ?? 0) + (Model?.RothBalance ?? 0);
+
+
+    private int GetOverlapYears()
+    {
+        if (Model == null || Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0) return 0;
+
+        int yourRemainingYears = LifeExpectancyAgeYou - Model.RetirementAgeYou;
+        int partnerRemainingYears = (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou) - Model.RetirementAgePartner;
+        int lateRetiree = Math.Max(Model.RetirementAgeYou, Model.RetirementAgePartner);
+        int earlyDeceased = Math.Min(LifeExpectancyAgeYou, (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou));
+
+        return Math.Max(0, earlyDeceased - lateRetiree);
+    }
+
+    private double GetTimelinePercentage(int currentAge, int targetAge)
+    {
+        int maxAge = Math.Max(
+            LifeExpectancyAgeYou,
+            LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou
+        );
+        int minAge = Math.Min(Model.CurrentAgeYou, Model.CurrentAgePartner > 0 ? Model.CurrentAgePartner : Model.CurrentAgeYou);
+        double totalSpan = maxAge - minAge;
+
+        return Math.Min(100, Math.Max(0, ((targetAge - minAge) / totalSpan) * 100));
+    }
+
 
     protected override void OnParametersSet()
     {
@@ -695,5 +1690,15 @@
                 Model.ReverseMortgageStartAge = 0;
             }
         }
+    }
+
+    private decimal CalculateProjectedAmount(decimal principal, decimal rate, int years)
+    {
+        return principal * (decimal)Math.Pow((double)(1 + rate / 100), years);
+    }
+
+    private decimal CalculateInflationAdjusted(decimal amount, decimal inflationRate, int years)
+    {
+        return amount * (decimal)Math.Pow((double)(1 + inflationRate / 100), years);
     }
 }
