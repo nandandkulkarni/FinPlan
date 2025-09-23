@@ -27,6 +27,32 @@
         color: var(--muted);
         font-size: 0.9rem;
     }
+
+    /* Added tooltip styles */
+    .info-icon {
+        font-size: 0.85rem;
+        color: #1F6FEB;
+        cursor: pointer;
+        margin-left: 0.25rem;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+        .info-icon:hover {
+            transform: scale(1.1);
+            color: #0E62DA;
+        }
+
+    .info-tooltip {
+        background-color: #EBF5FF;
+        border: 1px solid #BEDAFF;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        position: relative;
+        line-height: 1.4;
+    }
 </style>
 
 @if (Visible && Model != null)
@@ -51,21 +77,69 @@
                         <label class="form-label">Milestones & ages</label>
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <label class="form-label">Current Age</label>
+                                <label class="form-label">
+                                    Current Age
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipCurrentAge)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Current Age:</strong> Your age today. This is the starting point for calculating how long you have to save before retirement.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.CurrentAge" @bind:after="OnFieldChanged" min="0" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Planned Retirement Age</label>
+                                <label class="form-label">
+                                    Planned Retirement Age
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipRetirementAge)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.RetirementAge" @bind:after="OnFieldChanged" min="40" max="80" />
                             </div>
                         </div>
                         <div class="row g-2 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Life expectancy (age)</label>
+                            @* <div class="col-md-6">
+                                <label class="form-label">
+                                    Life expectancy (age)
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancy = !showToolTipLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipLifeExpectancy)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Life Expectancy:</strong> The age you expect to live to. Planning for a longer life expectancy helps ensure you don't outlive your savings. Current average life expectancy in the US is about 79 years, but it's often recommended to plan for 90+ years.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancy = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="LifeExpectancy" @bind:after="OnFieldChanged" min="55" max="120" />
-                            </div>
+                            </div> *@
                             <div class="col-md-6">
-                                <label class="form-label">Years until retirement (auto)</label>
+                                <label class="form-label">
+                                    Years until retirement (auto)
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipYearsUntilRetirement)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" value="@Model.Years" disabled />
                             </div>
                         </div>
@@ -75,15 +149,51 @@
                         <label class="form-label">Starting Balances</label>
                         <div class="row mb-2">
                             <div class="col-md-4">
-                                <label class="form-label">Taxable ($)</label>
+                                <label class="form-label">
+                                    Taxable ($)
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTaxableBalance)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Taxable Accounts:</strong> Regular investment accounts that don't have special tax advantages. These include brokerage accounts, savings accounts, CDs, and other non-retirement investments. Earnings from these accounts are typically taxed annually.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.InitialTaxableAmount" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Traditional ($)</label>
+                                <label class="form-label">
+                                    Traditional ($)
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTraditionalBalance)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.InitialTraditionalAmount" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Roth ($)</label>
+                                <label class="form-label">
+                                    Roth ($)
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipRothBalance)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.InitialRothAmount" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                         </div>
@@ -96,15 +206,51 @@
                         <label class="form-label">Monthly Contributions</label>
                         <div class="row mb-2">
                             <div class="col-md-4">
-                                <label class="form-label">Taxable / mo</label>
+                                <label class="form-label">
+                                    Taxable / mo
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTaxableContribution)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Monthly Taxable Contribution:</strong> How much you plan to add each month to your regular, non-retirement investment accounts. These contributions are made with after-tax dollars and offer more flexibility for early withdrawals without penalties.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableContribution = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.MonthlyTaxableContribution" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Traditional / mo</label>
+                                <label class="form-label">
+                                    Traditional / mo
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTraditionalContribution)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Monthly Traditional Contribution:</strong> Your monthly contributions to tax-deferred retirement accounts. For 2023, the annual contribution limit for 401(k)s is $22,500 ($1,875/month) plus catch-up contributions of $7,500 for those 50+. IRA limit is $6,500 ($541/month) plus $1,000 catch-up.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalContribution = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.MonthlyTraditionalContribution" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Roth / mo</label>
+                                <label class="form-label">
+                                    Roth / mo
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipRothContribution)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Monthly Roth Contribution:</strong> Your monthly contributions to Roth accounts. For 2023, Roth IRA contributions share the same limit as Traditional IRAs: $6,500 ($541/month) plus $1,000 catch-up for those 50+. Income limits apply for eligibility. Roth 401(k) shares the 401(k) limits.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothContribution = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.MonthlyRothContribution" @bind:after="OnFieldChanged" step="1" min="0" />
                             </div>
                         </div>
@@ -114,15 +260,51 @@
                         <label class="form-label">Estimated Growth Rates (annual %)</label>
                         <div class="row mb-2">
                             <div class="col-md-4">
-                                <label class="form-label">Taxable</label>
+                                <label class="form-label">
+                                    Taxable
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTaxableGrowth)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.AnnualGrowthRateTaxable" @bind:after="OnFieldChanged" step="0.1" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Traditional</label>
+                                <label class="form-label">
+                                    Traditional
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTraditionalGrowth)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.AnnualGrowthRateTraditional" @bind:after="OnFieldChanged" step="0.1" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Roth</label>
+                                <label class="form-label">
+                                    Roth
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipRothGrowth)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <input class="form-control" type="number" @bind="Model.AnnualGrowthRateRoth" @bind:after="OnFieldChanged" step="0.1" />
                             </div>
                         </div>
@@ -134,11 +316,35 @@
                             <div class="col-md-4">
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="useTaxAdv" @bind="Model.UseTaxAdvantaged" @bind:after="OnFieldChanged" />
-                                    <label class="form-check-label" for="useTaxAdv">Use tax advantaged accounts</label>
+                                    <label class="form-check-label" for="useTaxAdv">
+                                        Use tax advantaged accounts
+                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxAdvantaged = !showToolTipTaxAdvantaged" tabindex="0" title="Click for more info"></span>
+                                    </label>
                                 </div>
+                                @if (showToolTipTaxAdvantaged)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Use Tax Advantaged Accounts:</strong> When enabled, the calculator will prioritize contributions to tax-advantaged accounts (Traditional and Roth) over taxable accounts when calculating future growth, which typically results in more favorable long-term results.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxAdvantaged = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Taxable Income Type</label>
+                                <label class="form-label">
+                                    Taxable Income Type
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipIncomeType)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <select class="form-select" @bind="Model.TaxableIncomeType" @bind:after="OnFieldChanged">
                                     @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
                                     {
@@ -147,7 +353,19 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Tax Bracket</label>
+                                <label class="form-label">
+                                    Tax Bracket
+                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
+                                </label>
+                                @if (showToolTipTaxBracket)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                                 <select class="form-select" @bind="Model.TaxBracket" @bind:after="OnFieldChanged">
                                     @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.TaxBracket)))
                                     {
@@ -193,6 +411,28 @@
 
     // Helper property for life expectancy (if the model doesn't have this property)
     private int LifeExpectancy { get; set; } = 100;
+
+    // Tooltip visibility flags
+    private bool showToolTipCurrentAge = false;
+    private bool showToolTipRetirementAge = false;
+    private bool showToolTipLifeExpectancy = false;
+    private bool showToolTipYearsUntilRetirement = false;
+
+    private bool showToolTipTaxableBalance = false;
+    private bool showToolTipTraditionalBalance = false;
+    private bool showToolTipRothBalance = false;
+
+    private bool showToolTipTaxableContribution = false;
+    private bool showToolTipTraditionalContribution = false;
+    private bool showToolTipRothContribution = false;
+
+    private bool showToolTipTaxableGrowth = false;
+    private bool showToolTipTraditionalGrowth = false;
+    private bool showToolTipRothGrowth = false;
+
+    private bool showToolTipTaxAdvantaged = false;
+    private bool showToolTipIncomeType = false;
+    private bool showToolTipTaxBracket = false;
 
     protected override void OnParametersSet()
     {
