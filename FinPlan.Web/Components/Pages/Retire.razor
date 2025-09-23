@@ -728,10 +728,45 @@
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">4</span>
-                                        <div>Reverse mortgage</div>
+                                        <div>Reverse mortgage income</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
-                                    <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipReverseMortgageStartYear = !showToolTipReverseMortgageStartYear"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            Start year: @Model.ReverseMortgageStartYear
+                                        </span>
+                                        @if (showToolTipReverseMortgageStartYear)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Reverse Mortgage Start Year:</strong> The calendar year when you plan to begin receiving payments from a reverse mortgage. This income source allows homeowners 62+ to convert home equity into tax-free income while continuing to live in their home.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartYear = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            Monthly: @Model.ReverseMortgageMonthly.ToString("C0")
+                                        </span>
+                                        @if (showToolTipReverseMortgageMonthly)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage. The amount depends on your home value, interest rates, your age, and the specific payment plan you choose.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
@@ -744,8 +779,43 @@
                                         <span class="step-badge">5</span>
                                         <div>Withdrawal Strategy</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
-                                    <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            One retired: @Model.AnnualWithdrawalOne.ToString("C0")
+                                        </span>
+                                        @if (showToolTipWithdrawalOne)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired. This is typically less than when both partners are retired since one person is still earning income.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
+                                        </span>
+                                        @if (showToolTipWithdrawalBoth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired. This often needs to be higher than when one person is retired since you'll be relying entirely on portfolio income and Social Security.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
@@ -758,9 +828,62 @@
                                         <span class="step-badge">6</span>
                                         <div>Current Ages & Simulation</div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
-                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
-                                    <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            You: @Model.CurrentAgeYou
+                                        </span>
+                                        @if (showToolTipCurrentAgeYou)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Your Current Age:</strong> Your age today. This is the starting point for all retirement calculations and timeline projections. The difference between your current age and retirement age determines how many years you have to prepare.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            Partner: @Model.CurrentAgePartner
+                                        </span>
+                                        @if (showToolTipCurrentAgePartner)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Partner's Current Age:</strong> Your partner's age today. This affects your joint retirement timeline, especially when there's a significant age difference between partners requiring staggered retirement planning.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon"
+                                                  @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear"
+                                                  tabindex="0"
+                                                  title="Click for more info"></span>
+                                            Projection start year: @Model.SimulationStartYear
+                                        </span>
+                                        @if (showToolTipSimulationStartYear)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Projection Start Year:</strong> The calendar year when the retirement planning analysis begins. This is typically the current year, but you can set it to a future year if you're planning ahead for a specific timeframe.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="actions">
                                     <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
@@ -1135,6 +1258,16 @@
     private bool showToolTipSocialSecurityPartner = false;
     private bool showToolTipSSStartAgeYou = false;
     private bool showToolTipSSStartAgePartner = false;
+
+    private bool showToolTipReverseMortgageStartYear = false;
+    private bool showToolTipReverseMortgageMonthly = false;
+
+    private bool showToolTipWithdrawalOne = false;
+    private bool showToolTipWithdrawalBoth = false;
+
+    private bool showToolTipCurrentAgeYou = false;
+    private bool showToolTipCurrentAgePartner = false;
+    private bool showToolTipSimulationStartYear = false;
 
     // Helper properties to display life expectancy as age not calendar year
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
