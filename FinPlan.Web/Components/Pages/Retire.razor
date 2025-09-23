@@ -402,108 +402,119 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
-                    @if (Model.IsModelEmpty())
+
                     {
-                        <!-- Empty State with Field Preview in Background -->
-                        <div style="position: relative;">
-                            <!-- Background Preview Fields (Grayed Out) -->
-                            <div class="panel section-panel field-preview">
-                                <h4 style="opacity: 0.4;">Plan Input Data</h4>
-                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">1</span>
-                                                <div>Retirement ages & life expectancy</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
-                                            <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
-                                            <div class="small-note" style="margin-top:8px;">Life exp (You): @Model.LifeExpectancyYou</div>
-                                            <div class="small-note" style="margin-top:8px;">Life exp (Partner): @Model.LifeExpectancyPartner</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" disabled style="opacity: 0.5;">Edit</button>
-                                        </div>
-                                    </div>
+                    <!-- Complete State - Normal View -->
+                    <div class="panel section-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4>Plan Input Data</h4>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                    Edit Plan
+                                </button>
+                                @* <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ConfirmClearAll">
+                                    <i class="bi bi-arrow-clockwise" style="margin-right: 6px;"></i>
+                                    Reset
+                                </button> *@
+                            </div>
+                        </div>
 
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">2</span>
-                                                <div>Starting Balances & Returns</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
-                                            <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
-                                            <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
-                                            <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
-                                            <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
-                                        </div>
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">1</span>
+                                        <div>Retirement ages & life expectancy</div>
                                     </div>
-
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">3</span>
-                                                <div>Social Security</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
-                                            <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
-                                            <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
-                                            <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">4</span>
-                                                <div>Reverse mortgage</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
-                                            <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">5</span>
-                                                <div>Withdrawal Strategy</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
-                                            <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="section-card preview-card">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">6</span>
-                                                <div>Current Ages & Simulation</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
-                                            <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
-                                            <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
-                                        </div>
-                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
+                                    <div class="small-note" style="margin-top:8px;">Life exp (You): @DisplayLifeExpectancyYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Life exp (Partner): @DisplayLifeExpectancyPartner</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                                 </div>
                             </div>
 
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">2</span>
+                                        <div>Starting Balances & Returns</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
+                                    <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
+                                    <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
+                                    <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">3</span>
+                                        <div>Social Security</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
+                                    <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">4</span>
+                                        <div>Reverse mortgage</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
+                                    <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">5</span>
+                                        <div>Withdrawal Strategy</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
+                                    <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                        <span class="step-badge">6</span>
+                                        <div>Current Ages & Simulation</div>
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
+                                    <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
+                                    <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.IsModelEmpty() && showIntroModal)
+                        {
                             <!-- Overlay with Start Planning Button -->
                             <div class="start-planning-overlay">
                                 <div class="empty-state">
@@ -557,167 +568,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                    else if (Model.IsModelPartiallyComplete())
-                    {
-
-                        <!-- Partial State - Encourage Completion -->
-                        <div class="start-planning-overlay">
-                            <div class="empty-state">
-                                <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
-                                <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
-                                <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                    Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
-                                    Social Security, and withdrawal strategy in just a few quick steps.
-                                </p>
-                                <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
-                                    <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                                    Resume Planning
-                                </button>
-                                <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
-                                    Takes about 1-2 minutes to complete
-                                </div>
-                                <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
-                                    <i class="bi bi-list-check" style="margin-right: 6px;"></i>
-                                    What's still missing
-                                </button>
-                            </div>
-                        </div>
-
-
-                        @* <div class="panel partial-state">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                                <div style="font-size: 2rem;">⚠️</div>
-                                <div>
-                                    <h4 style="margin: 0; color: #856404;">Almost Ready!</h4>
-                                    <p style="margin: 0; color: #856404; font-size: 0.95rem;">Your retirement plan needs a few more details to generate accurate projections.</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-primary" style="background: #ffc107; border-color: #ffc107; color: #000;" @onclick="() => OpenWizard(Model.GetNextIncompleteStep())">
-                                    <i class="bi bi-gear" style="margin-right: 8px;"></i>
-                                    Complete Setup
-                                </button>
-                                <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
-                                    <i class="bi bi-list-check" style="margin-right: 6px;"></i>
-                                    What's still missing
-                                </button>
-                            </div>
-                        </div> *@
-                    }
-                    else
-                    {
-                        <!-- Complete State - Normal View -->
-                        <div class="panel section-panel">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <h4>Plan Input Data</h4>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                        <i class="bi bi-gear" style="margin-right: 6px;"></i>
-                                        Edit Plan
-                                    </button>
-                                    <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ConfirmClearAll">
-                                        <i class="bi bi-arrow-clockwise" style="margin-right: 6px;"></i>
-                                        Reset
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">1</span>
-                                            <div>Retirement ages & life expectancy</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">You: @Model.RetirementAgeYou</div>
-                                        <div class="small-note" style="margin-top:8px;">Partner: @Model.RetirementAgePartner</div>
-                                        <div class="small-note" style="margin-top:8px;">Life exp (You): @DisplayLifeExpectancyYou</div>
-                                        <div class="small-note" style="margin-top:8px;">Life exp (Partner): @DisplayLifeExpectancyPartner</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">2</span>
-                                            <div>Starting Balances & Returns</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">Taxable: @Model.TaxableBalance.ToString("C0")</div>
-                                        <div class="small-note">Traditional: @Model.TraditionalBalance.ToString("C0")</div>
-                                        <div class="small-note">Roth: @Model.RothBalance.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">Expected Return: @Model.InvestmentReturn.ToString("F1")%</div>
-                                        <div class="small-note">Expected Inflation: @Model.InflationRate.ToString("F1")%</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">3</span>
-                                            <div>Social Security</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px;">Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px;">SS Start Age (You): @Model.SSStartAgeYou </div>
-                                        <div class="small-note" style="margin-top:8px;">SS Start Age (Partner): @Model.SSStartAgePartner</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">4</span>
-                                            <div>Reverse mortgage</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">Start year: @Model.ReverseMortgageStartYear</div>
-                                        <div class="small-note" style="margin-top:8px;">Monthly: @Model.ReverseMortgageMonthly.ToString("C0")</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">5</span>
-                                            <div>Withdrawal Strategy</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">One retired: @Model.AnnualWithdrawalOne.ToString("C0")</div>
-                                        <div class="small-note" style="margin-top:8px;">Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")</div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">6</span>
-                                            <div>Current Ages & Simulation</div>
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">You: @Model.CurrentAgeYou</div>
-                                        <div class="small-note" style="margin-top:8px;">Partner: @Model.CurrentAgePartner</div>
-                                        <div class="small-note" style="margin-top:8px;">Projection start year: @Model.SimulationStartYear </div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        }
+                    </div>
                     }
                 </div>
 
@@ -736,7 +588,7 @@
                                 <i class="bi bi-calculator" style="margin-right: 4px;"></i>
                                 Test Calc
                             </button>
-                        </div>                        
+                        </div>
                         @if (ShowRightDebug)
                         {
                             <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
@@ -1117,8 +969,8 @@
         StateHasChanged();
     }
 
-    
-   private async Task HandleIntroModal()
+
+    private async Task HandleIntroModal()
     {
         showIntroModal = false;
 
@@ -1145,7 +997,7 @@
         }
     }
 
-           // Add these new methods
+    // Add these new methods
     private void CloseIntroModal()
     {
         showIntroModal = false;

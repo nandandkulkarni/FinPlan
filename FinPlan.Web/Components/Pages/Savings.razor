@@ -374,6 +374,19 @@
                     </ul>
 
                     <div class="panel section-panel" style="position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4>Plan Input Data</h4>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                    Edit Plan
+                                </button>
+                                @* <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ConfirmClearAll">
+                                    <i class="bi bi-arrow-clockwise" style="margin-right: 6px;"></i>
+                                    Reset
+                                </button> *@
+                            </div>
+                        </div>
                         <!-- Tab Navigation -->
                         @* <ul class="nav nav-tabs mb-3">
                             <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
@@ -387,7 +400,7 @@
                                 </button>
                             </li>
                         </ul> *@
-                        <h4>Plan Sections</h4>
+                        @* <h4>Plan Sections</h4> *@
 
                         <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                             <div class="section-card">
