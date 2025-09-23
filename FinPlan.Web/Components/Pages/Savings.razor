@@ -27,7 +27,21 @@
         padding: 14px;
     }
 
+    .missing-badge {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
 
+    .incomplete-section {
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+    }
 
     tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
@@ -374,50 +388,84 @@
                     </ul>
 
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                        <div class="section-card">
+                        <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")">
                             <div>
-                                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                    <span class="step-badge">1</span>
-                                    <div>Milestones & ages</div>
+                                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span class="step-badge">1</span>
+                                        <div>Milestones & ages</div>
+                                    </div>
+                                    @if (!IsMilestonesSectionComplete())
+                                    {
+                                        <span style="font-size:0.75rem; color:#dc3545;">
+                                            <i class="bi bi-exclamation-circle"></i> Incomplete
+                                        </span>
+                                    }
                                 </div>
 
-                                <div class="small-note" style="margin-top:8px;">
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
-                                    Current Age: @calculatorModel.CurrentAge
-                                    @if (showToolTipCurrentAge)
+                                <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
+                                        Current Age: @calculatorModel.CurrentAge
+                                        @if (showToolTipCurrentAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                    @if (calculatorModel.CurrentAge <= 0)
                                     {
-                                        <div class="info-tooltip">
-                                            <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
+                                        <span class="missing-badge">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                        </span>
                                     }
                                 </div>
-                                <div class="small-note" style="margin-top:8px;">
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
-                                    Planned Retirement Age: @calculatorModel.RetirementAge
-                                    @if (showToolTipRetirementAge)
+
+                                <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
+                                        Planned Retirement Age: @calculatorModel.RetirementAge
+                                        @if (showToolTipRetirementAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                    @if (calculatorModel.RetirementAge <= 0)
                                     {
-                                        <div class="info-tooltip">
-                                            <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
+                                        <span class="missing-badge">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                        </span>
                                     }
                                 </div>
-                                <div class="small-note" style="margin-top:8px;">
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
-                                    Years until Retirement: @calculatorModel.Years
-                                    @if (showToolTipYearsUntilRetirement)
+
+                                <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
+                                        Years until Retirement: @calculatorModel.Years
+                                        @if (showToolTipYearsUntilRetirement)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                    @if (calculatorModel.Years <= 0)
                                     {
-                                        <div class="info-tooltip">
-                                            <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
+                                        <span class="missing-badge">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Calculated
+                                        </span>
                                     }
                                 </div>
                             </div>
@@ -426,12 +474,28 @@
                             </div>
                         </div>
 
-                        <div class="section-card">
+                        <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")">
                             <div>
-                                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                    <span class="step-badge">2</span>
-                                    <div>Starting Balances</div>
+                                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span class="step-badge">2</span>
+                                        <div>Starting Balances</div>
+                                    </div>
+                                    @if (!IsStartingBalancesSectionComplete())
+                                    {
+                                        <span style="font-size:0.75rem; color:#dc3545;">
+                                            <i class="bi bi-exclamation-circle"></i> At least one required
+                                        </span>
+                                    }
                                 </div>
+
+                                @if (!IsStartingBalancesSectionComplete())
+                                {
+                                    <div class="alert alert-light mt-2 mb-2 py-2" style="font-size: 0.85rem; border-left: 3px solid #dc3545;">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Enter the current balance for at least one account type you have.
+                                    </div>
+                                }
 
                                 <div class="small-note" style="margin-top:8px;">
                                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
@@ -478,12 +542,29 @@
                             </div>
                         </div>
 
-                        <div class="section-card">
+                        <div class="section-card @(!IsMonthlyContributionsSectionComplete() ? "incomplete-section" : "")">
                             <div>
-                                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                    <span class="step-badge">3</span>
-                                    <div>Monthly Contributions</div>
+                                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span class="step-badge">3</span>
+                                        <div>Monthly Contributions</div>
+                                    </div>
+                                    @if (!IsMonthlyContributionsSectionComplete())
+                                    {
+                                        <span style="font-size:0.75rem; color:#dc3545;">
+                                            <i class="bi bi-exclamation-circle"></i> At least one required
+                                        </span>
+                                    }
                                 </div>
+
+                                @if (!IsMonthlyContributionsSectionComplete())
+                                {
+                                    <div class="alert alert-light mt-2 mb-2 py-2" style="font-size: 0.85rem; border-left: 3px solid #dc3545;">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Enter at least one monthly contribution amount to grow your savings.
+                                    </div>
+                                }
+
                                 <div class="small-note" style="margin-top:8px;">
                                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
                                     Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")
@@ -1105,7 +1186,22 @@
     {
         activeTab = tab;
     }
-
+    private bool IsMonthlyContributionsSectionComplete()
+    {
+        return calculatorModel.MonthlyTaxableContribution > 0 ||
+               calculatorModel.MonthlyTraditionalContribution > 0 ||
+               calculatorModel.MonthlyRothContribution > 0;
+    }
+    private bool IsMilestonesSectionComplete()
+    {
+        return calculatorModel.CurrentAge > 0 && calculatorModel.RetirementAge > 0;
+    }
+    private bool IsStartingBalancesSectionComplete()
+    {
+        return calculatorModel.InitialTaxableAmount > 0 ||
+               calculatorModel.InitialTraditionalAmount > 0 ||
+               calculatorModel.InitialRothAmount > 0;
+    }
     private string GetApiBaseUrl()
     {
 #if DEBUG
