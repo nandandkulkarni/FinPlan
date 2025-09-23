@@ -574,26 +574,44 @@
             <div class="tab-panel-box">
 
                 <!-- Planner Controls Strip -->
+                
                 <div class="section-card">
                     <div>
                         <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                            @* <span class="step-badge">1</span> *@
                             <div>Assumptions:</div>
                         </div>
 
                         <div class="small-note" style="margin-top:8px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">
-                                <span class="bi bi-info-circle text-info ms-1"
-                                      style="font-size: 1.1rem; cursor: pointer;"
-                                      @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
-                                      tabindex="0"
-                                      title="Click for more info"></span>
-                                Years to Retirement
+                            <div class="d-flex flex-wrap align-items-center">
+                                <!-- Years to Retirement -->
+                                <div class="me-4">
+                                    <span class="bi bi-info-circle text-info"
+                                          style="font-size: 1.1rem; cursor: pointer;"
+                                          @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                          tabindex="0"
+                                          title="Click for more info"></span>
+                                    <span style="font-weight: 600; color: #495057;">Years to retire:</span>
+                                    <b>@YearsToRetirement</b>
+                                </div>
 
-                            </label>
+                                <!-- Inflation Rate -->
+                                <div class="me-4">
+                                    <span class="bi bi-info-circle text-info"
+                                          style="font-size: 1.1rem; cursor: pointer;"
+                                          @onclick="() => showToolTipInflationInfo = !showToolTipInflationInfo"
+                                          tabindex="0"
+                                          title="Click for more info"></span>
+                                    <span style="font-weight: 600; color: #495057;">Annual Inflation rate:</span>
+                                    <b>@InflationRate%</b>
+                                </div>
+
+                                <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                            </div>
+
+                            <!-- Tooltips -->
                             @if (showToolTipYearsInfo)
                             {
-                                <div class="alert alert-info py-2 px-3 mt-1 mb-0 small" style="max-width: 320px;">
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
                                     <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
                                     <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
                                         <span class="bi bi-x-lg"></span>
@@ -601,13 +619,20 @@
                                 </div>
                             }
 
-                            Years to retire1: <b>@YearsToRetirement</b>, &nbsp;&nbsp;&nbsp;
-                            Annual Inflation rate: <b>@InflationRate</b>&nbsp;&nbsp;&nbsp;
-                            <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                            @if (showToolTipInflationInfo)
+                            {
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
+                                    <strong>Annual Inflation Rate:</strong> The yearly percentage increase in prices of goods and services. This rate is used to project how your costs will grow over time before retirement.
+                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationInfo = false" title="Close">
+                                        <span class="bi bi-x-lg"></span>
+                                    </span>
+                                </div>
+                            }
                         </div>
-
                     </div>
                 </div>
+                <br />
+
                 <br />
 
 
@@ -623,12 +648,20 @@
                         <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
                     </div>
                 </div>
+                <div class="d-flex justify-content-center mb-3">
+                    <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
+                            type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
+                        <span class="bi bi-plus-lg me-1"></span> Add Category
+                    </button>
+                </div>
                 <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
                     <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
                         <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
                         <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
                     </button>
                 </div>
+
+                
                 <style>
                     .totals-strip {
                         width: 100%;
@@ -665,18 +698,54 @@
                 {
                     <div class="modal-backdrop fade show" style="z-index:1040"></div>
                     <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Add New Category</h5>
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title d-flex align-items-center">
+                                        <span class="bi bi-folder-plus me-2 text-primary"></span>
+                                        Add New Category
+                                    </h5>
                                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <input class="form-control" placeholder="Category name" @bind="NewCategoryName" @onkeydown="HandleAddCategoryKeyModal" />
+                                <div class="modal-body py-4" style="background-color: #f8faff;">
+                                    <p class="text-muted small mb-3">
+                                        Categories help organize your expenses. Enter a descriptive name for your category.
+                                    </p>
+                                    <div class="form-floating">
+                                        <input type="text"
+                                               class="form-control form-control-lg"
+                                               id="newCategoryName"
+                                               placeholder="Housing"
+                                               @bind="NewCategoryName"
+                                               @bind:event="oninput"
+                                               @onkeydown="HandleAddCategoryKeyModal"
+                                               autofocus />
+                                        <label for="newCategoryName">Category Name</label>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <small class="text-muted">@(string.IsNullOrWhiteSpace(NewCategoryName) ? "Example: Housing, Food, Transportation" : $"Adding: {NewCategoryName}")</small>
+                                        <small class="@(IsAddCategoryDisabled ? "text-danger" : "text-success")">
+                                            @(IsAddCategoryDisabled ? "" : "Ready to add")
+                                        </small>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
-                                    <button class="btn btn-primary" @onclick="AddCategoryModal" disabled="@isSaving">Add Category</button>
+                                <div class="modal-footer border-top-0 pt-0" style="background-color: #f8faff;">
+                                    <button class="btn btn-outline-secondary px-4" @onclick="CloseAddCategoryModal">
+                                        Cancel
+                                    </button>
+                                    <button class="btn btn-primary px-4 d-flex align-items-center gap-2"
+                                            @onclick="AddCategoryModal"
+                                            disabled="@(isSaving || IsAddCategoryDisabled)">
+                                        @if (isSaving)
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="bi bi-plus-lg"></span>
+                                        }
+                                        Add Category
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -701,7 +770,8 @@
                                 <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
-                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
+                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>                                
+                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
                                 <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">

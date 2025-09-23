@@ -1,0 +1,495 @@
+﻿@page "/missing-fields-checklist"
+@using System.Collections.Generic
+
+<PageTitle>Retirement Plan Checklist</PageTitle>
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h2>Retirement Plan Setup Checklist</h2>
+        <p class="text-muted">Demonstration of missing fields interface</p>
+    </div>
+
+    @if (!showChecklist)
+    {
+        <div class="text-center" style="padding: 60px 20px; background: #f8f9fa; border-radius: 10px;">
+            <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
+            <h5 style="color: #495057; margin-bottom: 12px;">No Projection Available</h5>
+            <p style="margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Complete your retirement plan setup to see year-by-year projections of your income and account balances.
+            </p>
+            <button class="btn btn-primary" @onclick="ShowChecklist">
+                <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                Get Started
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #FFD600; color: #333;">
+                        <h5 class="modal-title"><i class="bi bi-list-check me-2"></i>Complete Your Retirement Plan</h5>
+                        <button type="button" class="btn-close" @onclick="HideChecklist" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Complete the required information below to generate your retirement projection.
+                        </div>
+
+                        <!-- Section 1: Retirement Ages & Life Expectancy -->
+                        <div class="section mb-4">
+                            <h5 class="d-flex align-items-center mb-3">
+                                <span class="step-badge me-2">1</span>
+                                Retirement Ages & Life Expectancy
+                                <span class="ms-auto badge @(IsSection1Complete() ? "bg-success" : "bg-danger")">
+                                    @if (IsSection1Complete())
+                                    {
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        <span>Complete</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        <span>Missing Required Fields</span>
+                                    }
+                                </span>
+                            </h5>
+                            <div class="ps-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.RetirementAgeYou > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Your Retirement Age</span>
+                                        <span class="ms-auto text-muted">@model.RetirementAgeYou</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Your Retirement Age</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.RetirementAgePartner > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Partner's Retirement Age</span>
+                                        <span class="ms-auto text-muted">@model.RetirementAgePartner</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Partner's Retirement Age</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.LifeExpectancyYou > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Your Life Expectancy</span>
+                                        <span class="ms-auto text-muted">@model.LifeExpectancyYou</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Your Life Expectancy</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.LifeExpectancyPartner > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Partner's Life Expectancy</span>
+                                        <span class="ms-auto text-muted">@model.LifeExpectancyPartner</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Partner's Life Expectancy</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToSection(1)">
+                                        <i class="bi bi-pencil me-1"></i>Complete Section
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Starting Balances & Returns -->
+                        <div class="section mb-4">
+                            <h5 class="d-flex align-items-center mb-3">
+                                <span class="step-badge me-2">2</span>
+                                Starting Balances & Returns
+                                <span class="ms-auto badge @(IsSection2Complete() ? "bg-success" : "bg-danger")">
+                                    @if (IsSection2Complete())
+                                    {
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        <span>Complete</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        <span>At Least One Account Required</span>
+                                    }
+                                </span>
+                            </h5>
+                            <div class="ps-4">
+                                @if (!IsSection2Complete())
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        You must enter at least one account balance (Taxable, Traditional, or Roth)
+                                    </div>
+                                }
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.TaxableBalance > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else if (!IsSection2Complete())
+                                    {
+                                        <i class="bi bi-dash-circle-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-circle me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    <span>Taxable Balance</span>
+                                    <span class="ms-auto text-muted">@model.TaxableBalance.ToString("C0")</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.TraditionalBalance > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else if (!IsSection2Complete())
+                                    {
+                                        <i class="bi bi-dash-circle-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-circle me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    <span>Traditional Balance</span>
+                                    <span class="ms-auto text-muted">@model.TraditionalBalance.ToString("C0")</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.RothBalance > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else if (!IsSection2Complete())
+                                    {
+                                        <i class="bi bi-dash-circle-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-circle me-2" style="font-size: 1.1rem;"></i>
+                                    }
+                                    <span>Roth Balance</span>
+                                    <span class="ms-auto text-muted">@model.RothBalance.ToString("C0")</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    <span>Expected Return</span>
+                                    <span class="ms-auto text-muted">@model.InvestmentReturn.ToString("F1")%</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    <span>Expected Inflation</span>
+                                    <span class="ms-auto text-muted">@model.InflationRate.ToString("F1")%</span>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToSection(2)">
+                                        <i class="bi bi-pencil me-1"></i>Complete Section
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 5: Withdrawal Strategy -->
+                        <div class="section mb-4">
+                            <h5 class="d-flex align-items-center mb-3">
+                                <span class="step-badge me-2">5</span>
+                                Withdrawal Strategy
+                                <span class="ms-auto badge @(IsSection5Complete() ? "bg-success" : "bg-danger")">
+                                    @if (IsSection5Complete())
+                                    {
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        <span>Complete</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        <span>Missing Required Fields</span>
+                                    }
+                                </span>
+                            </h5>
+                            <div class="ps-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.AnnualWithdrawalOne > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Annual Withdrawal (One Retired)</span>
+                                        <span class="ms-auto text-muted">@model.AnnualWithdrawalOne.ToString("C0")</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Annual Withdrawal (One Retired)</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (model.AnnualWithdrawalBoth > 0)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Annual Withdrawal (Both Retired)</span>
+                                        <span class="ms-auto text-muted">@model.AnnualWithdrawalBoth.ToString("C0")</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger me-2" style="font-size: 1.1rem;"></i>
+                                        <span>Annual Withdrawal (Both Retired)</span>
+                                        <span class="ms-auto badge text-bg-danger">Required</span>
+                                    }
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToSection(5)">
+                                        <i class="bi bi-pencil me-1"></i>Complete Section
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 6: Current Ages & Simulation -->
+                        <div class="section mb-4">
+                            <h5 class="d-flex align-items-center mb-3">
+                                <span class="step-badge me-2">6</span>
+                                Current Ages & Simulation
+                                <span class="ms-auto badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Complete
+                                </span>
+                            </h5>
+                            <div class="ps-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    <span>Your Current Age</span>
+                                    <span class="ms-auto text-muted">45</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    <span>Partner's Current Age</span>
+                                    <span class="ms-auto text-muted">43</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.1rem;"></i>
+                                    <span>Projection Start Year</span>
+                                    <span class="ms-auto text-muted">2023</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="w-100 d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary" @onclick="HideChecklist">
+                                <i class="bi bi-x me-1"></i>Close
+                            </button>
+                            <div>
+                                <button class="btn btn-warning me-2" @onclick="UseExampleData">
+                                    <i class="bi bi-file-earmark-fill me-1"></i>Use Example Data
+                                </button>
+                                <button class="btn btn-primary" @onclick="StartWithIncompleteSection">
+                                    <i class="bi bi-arrow-right me-1"></i>Start With First Missing Section
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (showNavigationToast)
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Navigation</strong>
+                    <button type="button" class="btn-close" @onclick="() => showNavigationToast = false" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Navigating to section: @navigationMessage
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .modal {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .section {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+        background-color: #fff;
+    }
+
+    .step-badge {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #FFD600;
+        color: #111;
+        font-weight: 800;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+</style>
+
+@code {
+    private bool showChecklist = false;
+    private bool showNavigationToast = false;
+    private string navigationMessage = "";
+
+    // Sample retirement plan model with missing fields
+    private RetirementModel model = new RetirementModel
+    {
+        // Missing retirement ages
+        RetirementAgeYou = 0,
+        RetirementAgePartner = 0,
+
+        // Life expectancy - one filled, one missing
+        LifeExpectancyYou = 85,
+        LifeExpectancyPartner = 0,
+
+        // Missing account balances
+        TaxableBalance = 0,
+        TraditionalBalance = 0,
+        RothBalance = 0,
+
+        // Return values completed
+        InvestmentReturn = 7.0m,
+        InflationRate = 2.5m,
+
+        // Missing withdrawal strategy
+        AnnualWithdrawalOne = 0,
+        AnnualWithdrawalBoth = 0,
+
+        // Section 6 complete
+        CurrentAgeYou = 45,
+        CurrentAgePartner = 43,
+        SimulationStartYear = 2023
+    };
+
+    private void ShowChecklist()
+    {
+        showChecklist = true;
+    }
+
+    private void HideChecklist()
+    {
+        showChecklist = false;
+    }
+
+    private void NavigateToSection(int sectionNumber)
+    {
+        navigationMessage = $"Section {sectionNumber}";
+        showNavigationToast = true;
+        HideChecklist();
+
+        // In a real app, you would navigate to the wizard with this section open
+    }
+
+    private void UseExampleData()
+    {
+        // Fill in with example data
+        model.RetirementAgeYou = 65;
+        model.RetirementAgePartner = 65;
+        model.LifeExpectancyYou = 85;
+        model.LifeExpectancyPartner = 88;
+        model.TaxableBalance = 100000;
+        model.TraditionalBalance = 500000;
+        model.RothBalance = 250000;
+        model.AnnualWithdrawalOne = 60000;
+        model.AnnualWithdrawalBoth = 80000;
+
+        navigationMessage = "Example data applied";
+        showNavigationToast = true;
+    }
+
+    private void StartWithIncompleteSection()
+    {
+        int firstIncompleteSection = GetFirstIncompleteSection();
+        NavigateToSection(firstIncompleteSection);
+    }
+
+    private int GetFirstIncompleteSection()
+    {
+        if (!IsSection1Complete()) return 1;
+        if (!IsSection2Complete()) return 2;
+        if (!IsSection5Complete()) return 5;
+        return 1; // Default to first section if all are complete
+    }
+
+    private bool IsSection1Complete()
+    {
+        return model.RetirementAgeYou > 0 &&
+               model.RetirementAgePartner > 0 &&
+               model.LifeExpectancyYou > 0 &&
+               model.LifeExpectancyPartner > 0;
+    }
+
+    private bool IsSection2Complete()
+    {
+        return model.TaxableBalance > 0 ||
+               model.TraditionalBalance > 0 ||
+               model.RothBalance > 0;
+    }
+
+    private bool IsSection5Complete()
+    {
+        return model.AnnualWithdrawalOne > 0 &&
+               model.AnnualWithdrawalBoth > 0;
+    }
+
+    // Simple model class for the retirement plan
+    public class RetirementModel
+    {
+        // Section 1: Retirement Ages & Life Expectancy
+        public int RetirementAgeYou { get; set; }
+        public int RetirementAgePartner { get; set; }
+        public int LifeExpectancyYou { get; set; }
+        public int LifeExpectancyPartner { get; set; }
+
+        // Section 2: Starting Balances & Returns
+        public decimal TaxableBalance { get; set; }
+        public decimal TraditionalBalance { get; set; }
+        public decimal RothBalance { get; set; }
+        public decimal InvestmentReturn { get; set; }
+        public decimal InflationRate { get; set; }
+
+        // Section 5: Withdrawal Strategy
+        public decimal AnnualWithdrawalOne { get; set; }
+        public decimal AnnualWithdrawalBoth { get; set; }
+
+        // Section 6: Current Ages & Simulation
+        public int CurrentAgeYou { get; set; }
+        public int CurrentAgePartner { get; set; }
+        public int SimulationStartYear { get; set; }
+    }
+}
