@@ -245,57 +245,88 @@
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
                     @if (wizardStep == 1)
                     {
-                        <label class="form-label">Milestones & ages</label>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Current Age
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipCurrentAge)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Current Age:</strong> Your age today. This is the starting point for calculating how long you have to save before retirement.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label">Milestones & Ages</label>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #FFD600;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-person"></i>
+                                            <h5 class="card-title mb-3">Current Age</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipCurrentAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Current Age:</strong> Your age today. This is the starting point for calculating how long you have to save before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.CurrentAge" @bind:after="OnFieldChanged" min="18" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Your age today</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.CurrentAge" @bind:after="OnFieldChanged" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Planned Retirement Age
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRetirementAge)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card" style="border-top: 4px solid #48BB78;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-calendar-check"></i>
+                                            <h5 class="card-title mb-3">Planned Retirement Age</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRetirementAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.RetirementAge" @bind:after="OnFieldChanged" min="40" max="80" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Typical range is 62-70 years</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.RetirementAge" @bind:after="OnFieldChanged" min="40" max="80" />
+                                </div>
                             </div>
                         </div>
-                        <div class="row g-2 mt-3">
+
+                        <div class="row">
                             <div class="col-md-6">
-                                <label class="form-label">
-                                    Years until retirement (auto)
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipYearsUntilRetirement)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                                <div class="card account-card" style="border-top: 4px solid #4299E1;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <h5 class="card-title mb-3">Years Until Retirement</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipYearsUntilRetirement)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control" type="number" value="@Model.Years" disabled style="border-width: 2px; border-color: #ccc; background-color: #f8f9fa;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Automatically calculated</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" value="@Model.Years" disabled />
+                                </div>
                             </div>
                         </div>
                     }
@@ -394,55 +425,101 @@
                     }
                     else if (wizardStep == 3)
                     {
-                        <label class="form-label">Monthly Contributions</label>
-                        <div class="row mb-2">
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Taxable / mo
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTaxableContribution)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Monthly Taxable Contribution:</strong> How much you plan to add each month to your regular, non-retirement investment accounts. These contributions are made with after-tax dollars and offer more flexibility for early withdrawals without penalties.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableContribution = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                        <label class="form-label mb-3">Monthly Contributions</label>
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Taxable Contribution:</strong> How much you plan to add each month to your regular, non-retirement investment accounts. These contributions are made with after-tax dollars and offer more flexibility for early withdrawals without penalties.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyTaxableContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Flexible access, taxed annually</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.MonthlyTaxableContribution" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Traditional / mo
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipTraditionalContribution)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Monthly Traditional Contribution:</strong> Your monthly contributions to tax-deferred retirement accounts. For 2023, the annual contribution limit for 401(k)s is $22,500 ($1,875/month) plus catch-up contributions of $7,500 for those 50+. IRA limit is $6,500 ($541/month) plus $1,000 catch-up.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalContribution = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Traditional Contribution:</strong> Your monthly contributions to tax-deferred retirement accounts. For 2023, the annual contribution limit for 401(k)s is $22,500 ($1,875/month) plus catch-up contributions of $7,500 for those 50+. IRA limit is $6,500 ($541/month) plus $1,000 catch-up.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyTraditionalContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>401(k) limit: $1,875/mo, IRA: $541/mo</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.MonthlyTraditionalContribution" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Roth / mo
-                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
-                                </label>
-                                @if (showToolTipRothContribution)
-                                {
-                                    <div class="info-tooltip">
-                                        <strong>Monthly Roth Contribution:</strong> Your monthly contributions to Roth accounts. For 2023, Roth IRA contributions share the same limit as Traditional IRAs: $6,500 ($541/month) plus $1,000 catch-up for those 50+. Income limits apply for eligibility. Roth 401(k) shares the 401(k) limits.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothContribution = false" title="Close">
-                                            <span class="bi bi-x-lg"></span>
-                                        </span>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Roth Contribution:</strong> Your monthly contributions to Roth accounts. For 2023, Roth IRA contributions share the same limit as Traditional IRAs: $6,500 ($541/month) plus $1,000 catch-up for those 50+. Income limits apply for eligibility. Roth 401(k) shares the 401(k) limits.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyRothContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-free growth, IRA limit: $541/mo</small>
+                                        </div>
                                     </div>
-                                }
-                                <input class="form-control" type="number" @bind="Model.MonthlyRothContribution" @bind:after="OnFieldChanged" step="1" min="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="total-balance-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Total Monthly Contribution</h5>
+                                <span class="total-amount">$@((Model.MonthlyTaxableContribution + Model.MonthlyTraditionalContribution + Model.MonthlyRothContribution).ToString("N0"))</span>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Annual contribution: $@((Model.MonthlyTaxableContribution + Model.MonthlyTraditionalContribution + Model.MonthlyRothContribution) * 12).ToString("N0")
                             </div>
                         </div>
                     }
