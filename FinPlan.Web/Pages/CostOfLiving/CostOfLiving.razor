@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                                                           Tweakable values
-                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                           ---------------------------- */
+                                                                                               Tweakable values
+                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -62,7 +62,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                margin-bottom: 0 !important; /* override bootstrap utility margin */
+                    margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -71,10 +71,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                margin-bottom: 0 !important;
-                padding-bottom: 0;
-                position: relative;
-                z-index: 200; /* Higher than overlay */
+                    margin-bottom: 0 !important;
+                    padding-bottom: 0;
+                    position: relative;
+                    z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -132,8 +132,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                           Tweak the CSS variables above to adjust placement and padding. */
+                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -890,13 +890,14 @@
                                 <!-- Don't Show Again Checkbox -->
                                 <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
                                     <div class="form-check d-flex align-items-center justify-content-center gap-2">
+
                                         <input class="form-check-input"
                                                type="checkbox"
-                                               id="dontShowIntroAgain"
-                                               @bind="dontShowIntroAgain"
+                                               id="dontShowIntroAgainCheck"
+                                               @onchange="OnDontShowIntroChanged"
                                                style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
                                         <label class="form-check-label"
-                                               for="dontShowIntroAgain"
+                                               for="dontShowIntroAgainCheck"
                                                style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
                                             Don't show this welcome screen again
                                         </label>
@@ -1072,6 +1073,50 @@
             detailsEditMode = true; // Always open in edit mode
         }
     }
+
+    private async Task HandleIntroModal()
+    {
+        showIntroModal = false;
+
+        // Only show intro modal if model is empty and user hasn't opted out
+        if (Items == null || !Items.Any())
+        {
+            try
+            {
+                var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-cost-of-living-income-planner-hide-intro");
+                showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                // Ignore errors and show modal
+                showIntroModal = false;  
+            }
+    }
+    }
+
+    private async Task OnDontShowIntroChanged(ChangeEventArgs e)
+    {
+        bool checkedState = e?.Value is bool b && b;
+        string key = "finplan-cost-of-living-income-planner-hide-intro";
+
+        if (checkedState)
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, "true");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        }
+    }
+
+    // Add these new methods
+    private void CloseIntroModal()
+    {
+        showIntroModal = false;
+        StateHasChanged();
+
+    }
+
 
     private void CloseDetailsModal()
     {
@@ -2031,7 +2076,7 @@
             // show loading indicator while we fetch user data and tabs
             isLoading = true;
             StateHasChanged();
-
+            await HandleIntroModal();
 
             try
             {
@@ -2338,27 +2383,9 @@
     private bool showIntroModal = true; // Show by default unless user has opted out
     private bool dontShowIntroAgain = false;
 
-    // ... rest of your existing code ...
 
-    // Add these new methods
-    private void CloseIntroModal()
-    {
-        showIntroModal = false;
-        StateHasChanged();
-    }
 
-    private async Task CloseIntroModalAndRemember()
-    {
-        showIntroModal = false;
 
-        if (dontShowIntroAgain)
-        {
-            // Store preference in localStorage
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "finplan-cost-of-living-hide-intro", "true");
-        }
-
-        StateHasChanged();
-    }
 
     private bool showToolTipYearsInfo = false;
     private bool showToolTipInflationInfo = false;
