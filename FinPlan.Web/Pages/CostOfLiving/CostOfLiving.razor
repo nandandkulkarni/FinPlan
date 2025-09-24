@@ -927,26 +927,94 @@
 
                 <!-- Totals Strip: Current and Retirement side by side -->
                 <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
-                    <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
-                        <span class="totals-label">Current Total</span>
-                        <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
+                    <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-2">
+                        <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                            <span class="totals-label d-flex align-items-center">
+                                Current Total
+                                <span class="bi bi-info-circle text-warning ms-2"
+                                      style="cursor: pointer; font-size: .95rem;"
+                                      title="What is this?"
+                                      @onclick="() => showTipCurrentTotal = !showTipCurrentTotal"></span>
+                            </span>
+                            <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
+                        </div>
+                        <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                            <span class="totals-label d-flex align-items-center">
+                                Retirement Total
+                                <span class="bi bi-info-circle text-warning ms-2"
+                                      style="cursor: pointer; font-size: .95rem;"
+                                      title="What is this?"
+                                      @onclick="() => showTipRetirementTotal = !showTipRetirementTotal"></span>
+                            </span>
+                            <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
+                        </div>
                     </div>
-                    <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
-                        <span class="totals-label">Retirement Total</span>
-                        <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
-                    </div>
+
+                    @if (showTipCurrentTotal)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-2 small text-center" style="max-width:640px; margin:0 auto;">
+                            Current Total is the sum of all items converted to monthly values across categories.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCurrentTotal = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (showTipRetirementTotal)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                            Retirement Total is the projected monthly amount at retirement using each item’s adjustment and inflation.
+                            Years to retirement: <b>@YearsToRetirement</b>, Global inflation: <b>@InflationRate%</b>.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipRetirementTotal = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
                 </div>
                 <div class="d-flex justify-content-center mb-3">
-                    <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
-                            type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
-                        <span class="bi bi-plus-lg me-1"></span> Add Category
-                    </button>
+                    <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
+                                type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
+                            <span class="bi bi-plus-lg me-1"></span> Add Category
+                        </button>
+                        <span class="bi bi-info-circle text-info"
+                              style="cursor: pointer; font-size: 1rem;"
+                              title="What is this?"
+                              @onclick="() => showTipAddCategory = !showTipAddCategory"></span>
+                    </div>
+                    @if (showTipAddCategory)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                            Add a new category to group related items (e.g., Housing, Food). You can add items inside it afterwards.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAddCategory = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
                 </div>
                 <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
-                        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
-                    </button>
+                    <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                                title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
+                                @onclick="ToggleCollapseAllCategories">
+                            <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                            <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+                        </button>
+                        <span class="bi bi-info-circle text-info ms-2"
+                              style="cursor: pointer; font-size: 1rem;"
+                              title="What is this?"
+                              @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                    </div>
+                    @if (showTipCollapseAll)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
+                            @(AnyCategoryExpanded()
+                                                    ? "Collapse all categories to condense the view."
+                                                    : "Expand all categories to view every item at once.")
+                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                                        }
                 </div>
 
 
@@ -1058,28 +1126,47 @@
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
                                 <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
+                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
+                                <span class="bi bi-info-circle text-info me-2"
+                                      style="cursor: pointer; font-size: .95rem;"
+                                      title="What is this?"
+                                      @onclick:stopPropagation="true"
+                                      @onclick="() => ToggleCatInfo(groupKey)"></span>
                                 <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
                                 <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">
-                                    @* @if (catIdx == 0)
-                                    {
-                                        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
-                                                type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
-                                            <span class="bi bi-plus-lg me-1"></span> Add Category
-                                        </button>
-                                    } *@
-                                    @* 
-                                    <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
-                                        <span class="bi bi-plus"></span> Add Item
-                                    </button> *@
                                     <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => OpenAddItemModal(groupKey)">
                                         <span class="bi bi-plus"></span> Add Item
                                     </button>
+                                    <span class="bi bi-info-circle text-info"
+                                          style="cursor: pointer; font-size: .95rem;"
+                                          title="What is this?"
+                                          @onclick:stopPropagation="true"
+                                          @onclick="() => ToggleAddItemInfo(groupKey)"></span>
                                 </div>
                             </div>
                             <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
                                 <div class="card-body p-2 grid-yellow-bg rounded-4">
+                                    @if (IsCatInfoOpen(groupKey))
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mb-2 small">
+                                            This category groups related items. Click the header to expand/collapse.
+                                            Use the trash icon to remove the category.
+                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleCatInfo(groupKey)">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
+                                    @if (IsAddItemInfoOpen(groupKey))
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mb-2 small">
+                                            Add a new item under this category. You can set name, frequency, amount, and retirement adjustment.
+                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleAddItemInfo(groupKey)">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
                                     <table class="table table-sm mb-0">
                                         <thead>
                                             <tr>
@@ -1377,10 +1464,29 @@
                 }
 
                 <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")" @onclick="ToggleCollapseAllCategories">
-                        <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                        <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
-                    </button>
+                    <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                                title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
+                                @onclick="ToggleCollapseAllCategories">
+                            <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                            <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+                        </button>
+                        <span class="bi bi-info-circle text-info ms-2"
+                              style="cursor: pointer; font-size: 1rem;"
+                              title="What is this?"
+                              @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                    </div>
+                    @if (showTipCollapseAll)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
+                            @(AnyCategoryExpanded()
+                                                    ? "Collapse all categories to condense the view."
+                                                    : "Expand all categories to view every item at once.")
+                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                                        }
                 </div>
             </div>
         </div>
@@ -2963,6 +3069,29 @@
     private bool showTipInflationSource = false;
     private bool showTipCustomInflation = false;
 
+    // Info link state (top-level)
+    private bool showTipCurrentTotal = false;
+    private bool showTipRetirementTotal = false;
+    private bool showTipAddCategory = false;
+    private bool showTipCollapseAll = false;
+
+    // Per-category info states
+    private HashSet<string> catInfoOpen = new(StringComparer.OrdinalIgnoreCase);
+    private HashSet<string> addItemInfoOpen = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsCatInfoOpen(string? key) => !string.IsNullOrWhiteSpace(key) && catInfoOpen.Contains(key);
+    private void ToggleCatInfo(string? key)
+    {
+        var k = key ?? string.Empty;
+        if (catInfoOpen.Contains(k)) catInfoOpen.Remove(k); else catInfoOpen.Add(k);
+    }
+
+    private bool IsAddItemInfoOpen(string? key) => !string.IsNullOrWhiteSpace(key) && addItemInfoOpen.Contains(key);
+    private void ToggleAddItemInfo(string? key)
+    {
+        var k = key ?? string.Empty;
+        if (addItemInfoOpen.Contains(k)) addItemInfoOpen.Remove(k); else addItemInfoOpen.Add(k);
+    }
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }
