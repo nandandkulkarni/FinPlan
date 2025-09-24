@@ -1117,6 +1117,11 @@
                     calculatorModel = loadedModel;
                 }
             }
+            else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                //Does not exist, create an empty one
+                calculatorModel = new SavingsCalculatorModel();
+            }
         }
         catch (Exception ex)
         {
