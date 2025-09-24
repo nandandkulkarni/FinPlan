@@ -184,13 +184,21 @@
         background: #fff;
     }
 
-        .section-card .actions {
+    .section-card .actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    padding-top: 16px; /* Increased from 6px to 16px for more space */
+}
+
+        /* .section-card .actions {
             margin-top: auto;
             display: flex;
             justify-content: flex-start;
             gap: 8px;
             padding-top: 6px;
-        }
+        } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -221,7 +229,25 @@
         background: linear-gradient(180deg, #fff, #fff);
     }
 
-    .step-badge {
+            .step-badge {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand-yellow);
+    color: #111;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    margin-right: 8px;
+    margin-bottom: 12px; /* Added margin-bottom for spacing */
+    flex-shrink: 0;
+}
+
+    /* .step-badge {
         width: 36px;
         height: 36px;
         min-width: 36px;
@@ -236,7 +262,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         margin-right: 8px;
         flex-shrink: 0;
-    }
+    } */
 
     .small-note {
         font-size: 0.9rem;

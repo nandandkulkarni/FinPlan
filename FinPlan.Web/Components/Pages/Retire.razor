@@ -57,7 +57,7 @@
     }
 
 
-     .missing-badge {
+    .missing-badge {
         background-color: rgba(220, 53, 69, 0.1);
         color: #dc3545;
         padding: 2px 8px;
@@ -166,8 +166,15 @@
             display: flex;
             justify-content: flex-start;
             gap: 8px;
-            padding-top: 6px;
+            padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
+    /* .section-card .actions {
+                margin-top: auto;
+                display: flex;
+                justify-content: flex-start;
+                gap: 8px;
+                padding-top: 6px;
+            } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -313,8 +320,26 @@
         font-size: 1rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         margin-right: 8px;
+        margin-bottom: 12px; /* Added margin-bottom for spacing */
         flex-shrink: 0;
     }
+
+    /* .step-badge {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--brand-yellow);
+            color: #111;
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            margin-right: 8px;
+            flex-shrink: 0;
+        } */
 
     .empty-state {
         text-align: center;
@@ -1657,9 +1682,9 @@
 
     }
 
-    private bool showToolTipIncomeSources=false;
-private bool showToolTipWithdrawals=false;
-private bool showToolTipEndingBalances=false;
+    private bool showToolTipIncomeSources = false;
+    private bool showToolTipWithdrawals = false;
+    private bool showToolTipEndingBalances = false;
 
     private void TestCalculation()
     {
