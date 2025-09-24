@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                                                                           Tweakable values
-                                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                           ---------------------------- */
+                                                                                                               Tweakable values
+                                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -62,7 +62,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                    margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -71,10 +71,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                margin-bottom: 0 !important;
-                                padding-bottom: 0;
-                                position: relative;
-                                z-index: 200; /* Higher than overlay */
+                                    margin-bottom: 0 !important;
+                                    padding-bottom: 0;
+                                    position: relative;
+                                    z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -132,8 +132,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                           Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -354,6 +354,9 @@
 
 
 @* Add Item Modal (root level for correct binding) *@
+
+
+@* Unified Item Modal (Add/Edit) *@
 @if (showAddItemModal)
 {
     <div class="modal-backdrop fade show" style="z-index:1040"></div>
@@ -362,8 +365,8 @@
             <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title d-flex align-items-center">
-                        <span class="bi bi-plus-circle me-2 text-primary"></span>
-                        Add New Item
+                        <span class="bi @(isEditItemMode ? "bi-pencil-square" : "bi-plus-circle") me-2 text-primary"></span>
+                        @(isEditItemMode ? "Edit Item" : "Add New Item")
                         @if (!string.IsNullOrWhiteSpace(addItemCategory))
                         {
                             <small class="text-muted ms-2">in @addItemCategory</small>
@@ -460,8 +463,6 @@
                 </div>
 
                 <div class="modal-footer border-top-0 pt-0" style="background-color: #f8faff;">
-
-          
                     <button class="btn btn-outline-secondary px-4" @onclick="CloseAddItemModal">
                         Cancel
                     </button>
@@ -474,15 +475,17 @@
                         }
                         else
                         {
-                            <span class="bi bi-plus-lg"></span>
+                            <span class="bi @(isEditItemMode ? "bi-check2" : "bi-plus-lg")"></span>
                         }
-                        Add Item
+                        @(isEditItemMode ? "Save" : "Add Item")
                     </button>
                 </div>
             </div>
         </div>
     </div>
 }
+
+
 @if (showDetailsModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
@@ -919,7 +922,7 @@
                                             <span class="bi bi-plus-lg me-1"></span> Add Category
                                         </button>
                                     } *@
-@* 
+                                    @* 
                                     <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
                                         <span class="bi bi-plus"></span> Add Item
                                     </button> *@
@@ -1014,7 +1017,9 @@
                                                         <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
                                                     </td>
                                                     <td style="width:80px; vertical-align:middle;">
-                                                        <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenViewModal(idx)">View/Edit</button>
+                                                        @* <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenViewModal(idx)">View/Edit</button> *@
+
+                                                        <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenEditItemModal(idx)">View/Edit</button>
                                                     </td>
                                                 </tr>
                                             }
@@ -2674,6 +2679,9 @@
     // Open/close
     private void OpenAddItemModal(string category)
     {
+        isEditItemMode = false;
+        editItemIndex = -1;
+
         addItemCategory = category ?? string.Empty;
 
         NewItemName = string.Empty;
@@ -2693,6 +2701,8 @@
     private void CloseAddItemModal()
     {
         showAddItemModal = false;
+        isEditItemMode = false;
+        editItemIndex = -1;
         NewItemName = string.Empty;
     }
 
@@ -2711,32 +2721,52 @@
             inflSrc = InflationSource.UseGlobal;
 
         decimal? manualValue = null;
-        if (!string.IsNullOrWhiteSpace(NewItemManualRetirementValueString))
+        if (!string.IsNullOrWhiteSpace(NewItemManualRetirementValueString) &&
+            decimal.TryParse(NewItemManualRetirementValueString, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CurrentCulture, out var mv) &&
+            mv >= 0)
         {
-            if (decimal.TryParse(NewItemManualRetirementValueString, out var mv) && mv >= 0)
-                manualValue = mv;
+            manualValue = mv;
         }
 
-        var newItem = new CostItem
+        if (isEditItemMode && editItemIndex >= 0 && editItemIndex < Items.Count)
         {
-            Category = addItemCategory,
-            Subcategory = NewItemName.Trim(),
-            CurrentValue = NewItemAmount,
-            Frequency = freq,
-            IncludeInRetirement = NewItemIncludeInRetirement,
-            AdjustOption = adjust,
-            PerItemInflationSource = inflSrc,
-            PerItemInflationPercent = inflSrc == InflationSource.Custom ? NewItemPerItemInflationPercent : null,
-            CustomPercentage = NewItemAdjustOption == "CustomPercentage" ? NewItemCustomPercentage : 0m,
-            ManualRetirementValue = NewItemAdjustOption == "Manual" ? manualValue : null
-        };
+            // Update existing item
+            var item = Items[editItemIndex];
+            item.Subcategory = NewItemName.Trim();
+            item.Frequency = freq;
+            item.CurrentValue = NewItemAmount;
+            item.IncludeInRetirement = NewItemIncludeInRetirement;
+            item.AdjustOption = adjust;
+            item.PerItemInflationSource = inflSrc;
+            item.PerItemInflationPercent = inflSrc == InflationSource.Custom ? NewItemPerItemInflationPercent : null;
+            item.CustomPercentage = NewItemAdjustOption == "CustomPercentage" ? NewItemCustomPercentage : 0m;
+            item.ManualRetirementValue = NewItemAdjustOption == "Manual" ? manualValue : null;
+        }
+        else
+        {
+            // Add new item
+            var newItem = new CostItem
+            {
+                Category = addItemCategory,
+                Subcategory = NewItemName.Trim(),
+                CurrentValue = NewItemAmount,
+                Frequency = freq,
+                IncludeInRetirement = NewItemIncludeInRetirement,
+                AdjustOption = adjust,
+                PerItemInflationSource = inflSrc,
+                PerItemInflationPercent = inflSrc == InflationSource.Custom ? NewItemPerItemInflationPercent : null,
+                CustomPercentage = NewItemAdjustOption == "CustomPercentage" ? NewItemCustomPercentage : 0m,
+                ManualRetirementValue = NewItemAdjustOption == "Manual" ? manualValue : null
+            };
+            Items.Add(newItem);
+            collapsed.Remove(addItemCategory ?? string.Empty); // ensure visible
+        }
 
-        Items.Add(newItem);
-
-        // Ensure category is visible so user sees the new row immediately
-        collapsed.Remove(addItemCategory ?? string.Empty);
-
+        // Close and persist
         showAddItemModal = false;
+        isEditItemMode = false;
+        editItemIndex = -1;
+
         StateHasChanged();
         ScheduleAutosave();
     }
@@ -2747,6 +2777,35 @@
         if (e?.Key == "Enter")
             AddItemModalSave();
     }
+
+    // Unified Item modal mode state
+    private bool isEditItemMode = false;
+    private int editItemIndex = -1;
+
+    private void OpenEditItemModal(int idx)
+    {
+        if (idx < 0 || idx >= Items.Count) return;
+
+        isEditItemMode = true;
+        editItemIndex = idx;
+
+        var it = Items[idx];
+        addItemCategory = it.Category ?? string.Empty;
+        NewItemName = it.Subcategory ?? string.Empty;
+        NewItemFrequency = it.Frequency.ToString();
+        NewItemAmount = it.CurrentValue;
+        NewItemIncludeInRetirement = it.IncludeInRetirement;
+
+        NewItemAdjustOption = it.AdjustOption.ToString(); // "Same" | "Inflation" | "CustomPercentage" | "Manual"
+        NewItemPerItemInflationSource = it.PerItemInflationSource.ToString(); // "UseGlobal" | "Custom"
+        NewItemPerItemInflationPercent = it.PerItemInflationPercent ?? 0m;
+        NewItemCustomPercentage = it.CustomPercentage;
+        NewItemManualRetirementValueString = it.ManualRetirementValue?.ToString(System.Globalization.CultureInfo.CurrentCulture) ?? null;
+
+        showAddItemModal = true;
+    }
+
+
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }
