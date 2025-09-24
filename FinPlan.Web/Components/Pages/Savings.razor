@@ -416,7 +416,15 @@
                             </button>
                         </li>
                     </ul>
-
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h4>Plan Input Data</h4>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                Edit Plan
+                            </button>
+                        </div>
+                    </div>
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                         <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")">
                             <div>
