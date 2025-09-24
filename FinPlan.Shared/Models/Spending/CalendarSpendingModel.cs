@@ -125,12 +125,19 @@ namespace FinPlan.Shared.Models.Spending
         /// </summary>
         public bool IsModelEmpty()
         {
-            return CurrentAgeYou == 0 || 
-                   CurrentAgePartner == 0 ||
-                   RetirementAgeYou == 0 || 
-                   RetirementAgePartner == 0 ||
-                   (TaxableBalance == 0 && TraditionalBalance == 0 && RothBalance == 0) ||
-                   (AnnualWithdrawalOne == 0 && AnnualWithdrawalBoth == 0);
+            return false;
+            //return (TaxableBalance == 0 && TraditionalBalance == 0 && RothBalance == 0) ||
+            //   (AnnualWithdrawalOne == 0 && AnnualWithdrawalBoth == 0) ||
+            //    RetirementAgeYou == 0 ||
+            //    RetirementAgePartner == 0;
+
+
+            //return CurrentAgeYou == 0 || 
+            //       CurrentAgePartner == 0 ||
+            //       RetirementAgeYou == 0 || 
+            //       RetirementAgePartner == 0 ||
+            //       (TaxableBalance == 0 && TraditionalBalance == 0 && RothBalance == 0) ||
+            //       (AnnualWithdrawalOne == 0 && AnnualWithdrawalBoth == 0);
         }
 
         /// <summary>
