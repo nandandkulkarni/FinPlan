@@ -27,6 +27,36 @@
         padding: 14px;
     }
 
+    /* Header info icon helpers (Option A + B) */
+    .th-info {
+        position: relative;
+        padding-right: 18px;
+    }
+    /* reserve right edge */
+    .th-info-icon {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: .9rem;
+        cursor: pointer;
+        opacity: .65;
+        transition: opacity .15s ease-in-out;
+    }
+    /* Show icon only on header hover */
+    .th-info .th-info-icon {
+        opacity: 0;
+    }
+
+    thead th:hover .th-info .th-info-icon {
+        opacity: .9;
+    }
+    /* Optional: hide on phones to keep headers tight */
+    @@media (max-width: 768px) {
+        .th-info-icon {
+            display: none;
+        }
+    }
+
     .missing-badge {
         background-color: rgba(220, 53, 69, 0.1);
         color: #dc3545;
