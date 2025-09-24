@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                                                                                   Tweakable values
-                                                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                   ---------------------------- */
+                                                                                                                       Tweakable values
+                                                                                                                       - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                       - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                       Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                       ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -62,7 +62,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                        margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                            margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -71,10 +71,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                        margin-bottom: 0 !important;
-                                        padding-bottom: 0;
-                                        position: relative;
-                                        z-index: 200; /* Higher than overlay */
+                                            margin-bottom: 0 !important;
+                                            padding-bottom: 0;
+                                            position: relative;
+                                            z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -132,8 +132,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                   Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                       Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                       Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -1250,12 +1250,36 @@
                                                     <td class="text-end align-middle" style="width:180px;">
                                                         <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
                                                     </td>
-                                                    <td style="width:80px; vertical-align:middle;">
-                                                        @* <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenViewModal(idx)">View/Edit</button> *@
-
-                                                        <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size:0.92rem; white-space:nowrap;" @onclick="() => OpenEditItemModal(idx)">View/Edit</button>
+                                                    <td style="width:120px; vertical-align:middle;">
+                                                        <div class="d-flex align-items-center gap-2 justify-content-end">
+                                                            <button class="btn btn-sm btn-outline-primary px-2 py-1"
+                                                                    style="font-size:0.92rem; white-space:nowrap;"
+                                                                    title="View or edit this item"
+                                                                    @onclick="() => OpenEditItemModal(idx)">
+                                                                <i class="bi bi-pencil-square me-1"></i>
+                                                                <span class="d-none d-md-inline">View/Edit</span>
+                                                            </button>
+                                                            <span class="bi bi-info-circle text-info"
+                                                                  style="cursor: pointer; font-size: .95rem;"
+                                                                  title="What is this?"
+                                                                  @onclick="() => ToggleViewEditInfo(idx)"></span>
+                                                        </div>
                                                     </td>
                                                 </tr>
+                                                @if (IsViewEditInfoOpen(idx))
+                                                {
+                                                    <tr>
+                                                        <td colspan="10" class="p-0">
+                                                            <div class="alert alert-info py-2 px-3 mb-2 small m-0">
+                                                                View/Edit opens the item modal to update name, frequency, amount, and retirement adjustments
+                                                                (Same, Custom %, Manual, Inflation). Changes auto‑save.
+                                                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleViewEditInfo(idx)">
+                                                                    <span class="bi bi-x-lg"></span>
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>
@@ -1264,7 +1288,7 @@
                         </div>
                         catIdx++;
                     }
-                    @if (showIntroModal && (Items == null || !Items.Any()))
+                    @if (showIntroModal)
                     {
                         <!-- Overlay with Start Planning Button -->
                         <div class="start-planning-overlay">
@@ -3091,6 +3115,16 @@
     {
         var k = key ?? string.Empty;
         if (addItemInfoOpen.Contains(k)) addItemInfoOpen.Remove(k); else addItemInfoOpen.Add(k);
+    }
+    // Per-row View/Edit info state
+    private HashSet<int> viewEditInfoOpen = new();
+
+    private bool IsViewEditInfoOpen(int idx) => viewEditInfoOpen.Contains(idx);
+
+    private void ToggleViewEditInfo(int idx)
+    {
+        if (viewEditInfoOpen.Contains(idx)) viewEditInfoOpen.Remove(idx);
+        else viewEditInfoOpen.Add(idx);
     }
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
