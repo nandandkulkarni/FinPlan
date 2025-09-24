@@ -420,12 +420,15 @@ namespace FinPlan.Shared.Models.Spending
                 row.TraditionalWithdrawal = tradWithdraw;
                 row.RothWithdrawal = rothWithdraw;
 
-                // taxes paid on traditional withdrawal
+                // taxes paid on traditional withdrawal + taxable SS + taxable account growth
                 decimal estimatedTaxableSS = EstimateTaxableSocialSecurity(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw, true);
-                row.TaxesPaid = (tradWithdraw * (TraditionalTaxRate / 100m)) + (estimatedTaxableSS * (TraditionalTaxRate / 100m));
+                decimal taxOnTrad = tradWithdraw * (TraditionalTaxRate / 100m);
+                decimal taxOnSS = estimatedTaxableSS * (TraditionalTaxRate / 100m);
+                decimal taxableGrowth = taxBal * (InvestmentReturn / 100m);
+                decimal taxOnTaxableGrowth = taxableGrowth * (TraditionalTaxRate / 100m);
+                row.TaxesPaid = taxOnTrad + taxOnSS + taxOnTaxableGrowth;
 
                 // FIXED: Calculate growth for each account based on its actual balance
-                decimal taxableGrowth = taxBal * (InvestmentReturn / 100m);
                 decimal traditionalGrowth = tradBal * (InvestmentReturn / 100m);
                 decimal rothGrowth = rothBal * (InvestmentReturn / 100m);
 

@@ -141,6 +141,91 @@ namespace FinPlan.Tests
         }
 
         [Fact]
+        public void Calculate_TaxesPaid_ShouldIncludeTaxableWithdrawalInTaxCalculation()
+        {
+            // Arrange: Social Security + Taxable withdrawal
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 65,
+                CurrentAgePartner = 65,
+                RetirementAgeYou = 65,
+                RetirementAgePartner = 65,
+                LifeExpectancyYou = 70,
+                LifeExpectancyPartner = 70,
+                TaxableBalance = 100_000m, // ensure taxable withdrawals
+                TraditionalBalance = 0m,
+                RothBalance = 0m,
+                SocialSecurityMonthlyYou = 2000m,
+                SocialSecurityMonthlyPartner = 1500m,
+                AnnualWithdrawalOne = 50000m, // withdrawal exceeds SS income
+                AnnualWithdrawalBoth = 50000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: TaxesPaid should include taxable withdrawal in IRS calculation
+            Assert.NotEmpty(model.YearRows);
+            foreach (var row in model.YearRows)
+            {
+                // Only check years with a taxable withdrawal
+                if (row.TaxableWithdrawal > 0)
+                {
+                    decimal ssTotal = row.SSYou + row.SSPartner;
+                    decimal otherIncome = row.TaxableWithdrawal; // Taxable withdrawal should be included
+                    decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
+                    decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
+                    Assert.Equal(expectedTax, row.TaxesPaid);
+                }
+            }
+        }
+
+        [Fact]
+        public void Calculate_TaxesPaid_ShouldIncludeTaxOnTaxableGrowth()
+        {
+            // Arrange: Taxable account with growth
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 65,
+                CurrentAgePartner = 65,
+                RetirementAgeYou = 65,
+                RetirementAgePartner = 65,
+                LifeExpectancyYou = 66,
+                LifeExpectancyPartner = 66,
+                TaxableBalance = 100_000m, // initial taxable balance
+                TraditionalBalance = 0m,
+                RothBalance = 0m,
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 0m,
+                AnnualWithdrawalBoth = 0m,
+                InvestmentReturn = 10.0m, // high growth for clear effect
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Growth in taxable account should be taxed
+            Assert.NotEmpty(model.YearRows);
+            foreach (var row in model.YearRows)
+            {
+                // Only check years with growth
+                if (row.Growth > 0)
+                {
+                    // Tax on growth should be included in TaxesPaid
+                    decimal expectedTaxOnGrowth = row.Growth * (model.TraditionalTaxRate / 100m);
+                    // Since there are no withdrawals or SS, all taxes should be from growth
+                    Assert.True(row.TaxesPaid >= expectedTaxOnGrowth);
+                }
+            }
+        }
+
+        [Fact]
         public void EstimateTaxableSocialSecurity_ShouldMatchIRSRule()
         {
             // Example: Married filing jointly, Social Security $30,000, other income $20,000
