@@ -416,16 +416,21 @@
                             </button>
                         </li>
                     </ul>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h4>Plan Input Data</h4>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                <i class="bi bi-gear" style="margin-right: 6px;"></i>
-                                Edit Plan
-                            </button>
+                    <!-- Yellow border section panel that touches the tabs -->
+                    <div class="section-panel" style="margin-top: -1px; border-top-left-radius: 0; border-top-right-radius: 0;">
+                        <!-- Centered heading with Edit Plan button -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
+                            <div style="flex: 1;"></div>
+                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
+                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end;">
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                    Edit Plan
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                         <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")">
                             <div>
                                 <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
@@ -735,6 +740,7 @@
                                 <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
 
