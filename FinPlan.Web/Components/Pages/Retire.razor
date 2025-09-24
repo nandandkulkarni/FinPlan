@@ -468,7 +468,9 @@
                         </div>
 
                         <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                            <div class="section-card @(!IsRetirementAgesSectionComplete() ? "incomplete-section" : "")">
+                            <!-- Section 1: Retirement ages & life expectancy -->
+                            <div class="section-card @(!IsRetirementAgesSectionComplete() ? "incomplete-section" : "")"
+                                 style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid var(--brand-yellow);">
                                 <div>
                                     <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                                         <div style="display:flex; align-items:center; gap:8px;">
@@ -576,7 +578,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")">
+                            <!-- Section 2: Starting Balances & Returns -->
+                            <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")"
+                                 style="background-color: rgba(37, 99, 235, 0.03); border-left: 3px solid var(--financial-blue);">
                                 <div>
                                     <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                                         <div style="display:flex; align-items:center; gap:8px;">
@@ -699,8 +703,10 @@
                                 </div>
                             </div>
 
-                            <div class="section-card">
-                                <div>
+                            <!-- Section 3: Social Security -->
+                            <div class="section-card"
+                                 style="background-color: rgba(5, 150, 105, 0.03); border-left: 3px solid var(--financial-green);">
+                                <!-- Existing content remains unchanged -->                                <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">3</span>
                                         <div>Social Security</div>
@@ -786,7 +792,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-card">
+                            <!-- Section 4: Reverse mortgage income -->
+                            <div class="section-card"
+                                 style="background-color: rgba(217, 119, 6, 0.03); border-left: 3px solid var(--financial-amber);">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">4</span>
@@ -835,7 +843,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-card @(!IsWithdrawalStrategySectionComplete() ? "incomplete-section" : "")">
+                            <!-- Section 5: Withdrawal Strategy -->
+                            <div class="section-card @(!IsWithdrawalStrategySectionComplete() ? "incomplete-section" : "")"
+                                 style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid var(--accent);">
                                 <div>
                                     <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                                         <div style="display:flex; align-items:center; gap:8px;">
@@ -899,7 +909,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-card">
+                            <!-- Section 6: Current Ages & Simulation -->
+                            <div class="section-card"
+                                 style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid var(--info);">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">6</span>
