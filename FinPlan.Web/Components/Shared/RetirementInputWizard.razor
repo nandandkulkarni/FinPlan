@@ -117,8 +117,10 @@
                                         <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
                                             <div class="small text-center mb-1">Retirement Timeline</div>
                                             <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%;"></div>
-                                                <div class="retirement-period" style="position: absolute; left: @((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @((LifeExpectancyAgeYou - Model.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))%;"></div>
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%;">
+                                                </div>
+                                                <div class="retirement-period" style="position: absolute; left: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (LifeExpectancyAgeYou - Model.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%;">
+                                                </div>
                                             </div>
                                             <div class="d-flex justify-content-between mt-1">
                                                 <span class="small">@Model.CurrentAgeYou</span>
