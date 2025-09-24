@@ -764,109 +764,169 @@
             <div class="grid">
                 <table class="table table-sm table-bordered" aria-label="Yearly projection">
                     <thead class="table-light">
+                        <!-- First Row: Categories -->
                         <tr>
-                            <th style="text-align:right; width:120px; padding:18px 12px; font-size:1.0rem;">Year</th>
-                            <th style="text-align:right; width:90px; padding:18px 12px; font-size:1.0rem;">Age</th>
-
-                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                                </div>
+                            <th rowspan="2" style="text-align:left; width:80px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderYear = !showToolTipTableHeaderYear" tabindex="0" title="Click for more info"></span>
+                                Year
+                                @if (showToolTipTableHeaderYear)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Year:</strong> The year for which the projection is calculated.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderYear = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                                </div>
+                            <th rowspan="2" style="text-align:left; width:60px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderAge = !showToolTipTableHeaderAge" tabindex="0" title="Click for more info"></span>
+                                Age
+                                @if (showToolTipTableHeaderAge)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Age:</strong> The age of the individual during the specified year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderAge = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                                </div>
+                            <th colspan="5" class="col-taxable" style="text-align:center; background-color: rgba(31,111,235,0.06);">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableCategory = !showToolTipTableHeaderTaxableCategory" tabindex="0" title="Click for more info"></span>
+                                Taxable
+                                @if (showToolTipTableHeaderTaxableCategory)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Taxable:</strong> Accounts subject to annual taxes on earnings, such as brokerage accounts.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableCategory = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Tax</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Paid</span>
-                                </div>
+                            <th colspan="4" class="col-traditional" style="text-align:center; background-color: rgba(56,178,172,0.06);">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTraditionalCategory = !showToolTipTableHeaderTraditionalCategory" tabindex="0" title="Click for more info"></span>
+                                Traditional
+                                @if (showToolTipTableHeaderTraditionalCategory)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Traditional:</strong> Tax-deferred retirement accounts like 401(k)s and Traditional IRAs.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTraditionalCategory = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-taxable" style="background-color: rgba(31,111,235,0.06); color:#1F6FEB; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Taxable</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                                </div>
+                            <th colspan="4" class="col-roth" style="text-align:center; background-color: rgba(109,93,252,0.06);">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderRothCategory = !showToolTipTableHeaderRothCategory" tabindex="0" title="Click for more info"></span>
+                                Roth
+                                @if (showToolTipTableHeaderRothCategory)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Roth:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderRothCategory = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-
-                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                                </div>
+                            <th colspan="3" class="col-totals" style="text-align:center; background-color: rgba(255,214,0,0.06);">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTotalsCategory = !showToolTipTableHeaderTotalsCategory" tabindex="0" title="Click for more info"></span>
+                                Totals
+                                @if (showToolTipTableHeaderTotalsCategory)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Totals:</strong> Aggregated values across all account types.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTotalsCategory = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                                </div>
+                        </tr>
+                        <!-- Second Row: Specific Headers -->
+                        <tr>
+                            <!-- Taxable Columns -->
+                            <th style="width:100px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableYearBegin = !showToolTipTableHeaderTaxableYearBegin" tabindex="0" title="Click for more info"></span>
+                                Year Begin
+                                @if (showToolTipTableHeaderTaxableYearBegin)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Year Begin:</strong> The starting balance for the taxable account at the beginning of the year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableYearBegin = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                                </div>
+                            <th style="width:100px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableContribution = !showToolTipTableHeaderTaxableContribution" tabindex="0" title="Click for more info"></span>
+                                Contribution
+                                @if (showToolTipTableHeaderTaxableContribution)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Contribution:</strong> The amount contributed to the taxable account during the year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableContribution = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-traditional" style="background-color: rgba(56,178,172,0.06); color:#38B2AC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Traditional</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                                </div>
+                            <th style="width:100px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableGrowth = !showToolTipTableHeaderTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                Growth
+                                @if (showToolTipTableHeaderTaxableGrowth)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Growth:</strong> The growth in the taxable account due to investments.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableGrowth = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-
-                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year Begin</span>
-                                </div>
+                            <th style="width:100px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableTaxPaid = !showToolTipTableHeaderTaxableTaxPaid" tabindex="0" title="Click for more info"></span>
+                                Tax Paid
+                                @if (showToolTipTableHeaderTaxableTaxPaid)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Tax Paid:</strong> The taxes paid on the taxable account during the year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableTaxPaid = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contribution</span>
-                                </div>
+                            <th style="width:100px;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableYearEnd = !showToolTipTableHeaderTaxableYearEnd" tabindex="0" title="Click for more info"></span>
+                                Year End
+                                @if (showToolTipTableHeaderTaxableYearEnd)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Year End:</strong> The ending balance for the taxable account at the end of the year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableYearEnd = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
                             </th>
-                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                                </div>
-                            </th>
-                            <th class="col-roth" style="background-color: rgba(109,93,252,0.06); color:#6D5DFC; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Roth</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                                </div>
-                            </th>
-
-                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Contributions</span>
-                                </div>
-                            </th>
-                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Growth</span>
-                                </div>
-                            </th>
-                            <th class="text-end col-totals" style="background-color: rgba(255,214,0,0.06); color:#FFD600; font-weight:700; padding:18px 12px;">
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;line-height:1;">
-                                    <span style="font-size:1.05rem;font-weight:800;">Total</span>
-                                    <span style="font-size:0.78rem;font-weight:600;opacity:.9;">Year End</span>
-                                </div>
-                            </th>
+                            <!-- Traditional Columns -->
+                            <th style="width:100px;">Year Begin</th>
+                            <th style="width:100px;">Contribution</th>
+                            <th style="width:100px;">Growth</th>
+                            <th style="width:100px;">Year End</th>
+                            <!-- Roth Columns -->
+                            <th style="width:100px;">Year Begin</th>
+                            <th style="width:100px;">Contribution</th>
+                            <th style="width:100px;">Growth</th>
+                            <th style="width:100px;">Year End</th>
+                            <!-- Totals Columns -->
+                            <th style="width:100px;">Contributions</th>
+                            <th style="width:100px;">Growth</th>
+                            <th style="width:100px;">Year End</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1249,6 +1309,36 @@
                calculatorModel.InitialTraditionalAmount > 0 ||
                calculatorModel.InitialRothAmount > 0;
     }
+
+
+    private bool showToolTipTableHeaderTaxableYearBegin = false;
+    private bool showToolTipTableHeaderTaxableContribution = false;
+    private bool showToolTipTableHeaderTaxableGrowth = false;
+    private bool showToolTipTableHeaderTaxableTaxPaid = false;
+    private bool showToolTipTableHeaderTaxableYearEnd = false;
+
+    private bool showToolTipTableHeaderTraditionalYearBegin = false;
+    private bool showToolTipTableHeaderTraditionalContribution = false;
+    private bool showToolTipTableHeaderTraditionalGrowth = false;
+    private bool showToolTipTableHeaderTraditionalYearEnd = false;
+
+    private bool showToolTipTableHeaderRothYearBegin = false;
+    private bool showToolTipTableHeaderRothContribution = false;
+    private bool showToolTipTableHeaderRothGrowth = false;
+    private bool showToolTipTableHeaderRothYearEnd = false;
+
+    private bool showToolTipTableHeaderTotalContributions = false;
+    private bool showToolTipTableHeaderTotalGrowth = false;
+    private bool showToolTipTableHeaderTotalYearEnd = false;
+
+private bool showToolTipTableHeaderTaxableCategory = false;
+private bool showToolTipTableHeaderTraditionalCategory = false;
+private bool showToolTipTableHeaderRothCategory = false;
+
+    private bool showToolTipTableHeaderYear = false;
+    private bool showToolTipTableHeaderAge = false;
+    private bool showToolTipTableHeaderTotalsCategory = false;
+
     private string GetApiBaseUrl()
     {
 #if DEBUG

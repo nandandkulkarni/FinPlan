@@ -149,7 +149,7 @@ namespace FinPlan.Shared.Services
 
         public List<YearlyBreakdown> GetYearlyBreakdown(SavingsCalculatorModel model)
         {
-            lock (_breakdownLock)
+          //  lock (_breakdownLock)
             {
                 var breakdown = new List<YearlyBreakdown>();
                 decimal ordinaryTaxRate = GetOrdinaryTaxRate(model.TaxBracket);
