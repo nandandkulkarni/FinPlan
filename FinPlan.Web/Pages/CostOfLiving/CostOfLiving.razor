@@ -13,11 +13,11 @@
 
 <style>
     /* ----------------------------
-                                                                                               Tweakable values
-                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                               ---------------------------- */
+                                                                                                           Tweakable values
+                                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                           ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -62,7 +62,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                    margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -71,10 +71,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                    margin-bottom: 0 !important;
-                    padding-bottom: 0;
-                    position: relative;
-                    z-index: 200; /* Higher than overlay */
+                                margin-bottom: 0 !important;
+                                padding-bottom: 0;
+                                position: relative;
+                                z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -132,8 +132,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                           Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -532,8 +532,9 @@
 
         <!-- Center column (8) - main planner content -->
         <div class="col-12 col-md-8">
-            <h3>Cost of Living Projection</h3>
+            <h4 class="text-center">Cost of Living Projection</h4>
             <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.</p>
+
             @* <b>Multi-city and City tiered plan coming soon</b> *@
             <!-- Save status indicator -->
             <div class="d-flex align-items-center mb-2">
@@ -571,10 +572,15 @@
             </ul>
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
-            <div class="tab-panel-box">
-
+            <div class="tab-panel-box position-relative">
+                <!-- Show Intro button in top-right corner -->
+                <button class="btn btn-sm btn-warning position-absolute"
+                        style="top: 10px; right: 10px; z-index: 100;"
+                        @onclick="ShowIntroWithReset">
+                    <i class="bi bi-info-circle me-1"></i> Show Intro
+                </button>
                 <!-- Planner Controls Strip -->
-                
+
                 <div class="section-card">
                     <div>
                         <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
@@ -661,7 +667,7 @@
                     </button>
                 </div>
 
-                
+
                 <style>
                     .totals-strip {
                         width: 100%;
@@ -715,7 +721,6 @@
                                         <input type="text"
                                                class="form-control form-control-lg"
                                                id="newCategoryName"
-                                               placeholder="Housing"
                                                @bind="NewCategoryName"
                                                @bind:event="oninput"
                                                @onkeydown="HandleAddCategoryKeyModal"
@@ -770,18 +775,18 @@
                                 <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
-                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>                                
+                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
                                 <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
                                 <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">
-                                    @if (catIdx == 0)
+                                    @* @if (catIdx == 0)
                                     {
                                         <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
                                                 type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
                                             <span class="bi bi-plus-lg me-1"></span> Add Category
                                         </button>
-                                    }
+                                    } *@
 
                                     <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => AddItemToCategory(groupKey)">
                                         <span class="bi bi-plus"></span> Add Item
@@ -907,33 +912,39 @@
                                 </p>
 
                                 <!-- Key Assumptions Section -->
+                                <!-- Key Assumptions Section -->
+                                <!-- Key Assumptions Section -->
                                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #dee2e6;">
-                                    <h5 style="margin-bottom: 16px; color: #495057;">Key Planning Assumptions</h5>
+                                    <h5 style="margin-bottom: 16px; color: #495057; text-align: center;">Key Planning Assumptions</h5>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                        <div>
-                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;">
-                                                Years to Retirement
-                                                <span class="bi bi-info-circle text-info ms-1"
-                                                      style="font-size: 1.1rem; cursor: pointer;"
-                                                      @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
-                                                      tabindex="0"
-                                                      title="What is this?"></span>
-                                            </label>
-                                            @if (showToolTipYearsInfo)
-                                            {
-                                                <div class="alert alert-info py-2 px-3 mt-1 mb-0 small" style="max-width: 320px;">
-                                                    <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
+                                    <div class="d-flex justify-content-center" style="max-width: 500px; margin: 0 auto 20px;">
+                                        <!-- Two-column layout with fixed widths -->
+                                        <div style="width: 50%; padding-right: 12px;">
+                                            <div class="text-center mb-2">
+                                                <label style="font-weight: 600; color: #495057; display: inline-block;">
+                                                    Years to Retirement
+                                                    <span class="bi bi-info-circle text-info ms-1"
+                                                          style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                                          @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                                          tabindex="0"
+                                                          title="What is this?"></span>
+                                                </label>
+                                            </div>
                                             <input type="number" class="form-control" @bind="YearsToRetirement" min="1" max="50"
                                                    style="text-align: center; font-weight: 600;" />
                                         </div>
-                                        <div>
-                                            <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #495057;"> Inflation Rate (%)</label>
+
+                                        <div style="width: 50%; padding-left: 12px;">
+                                            <div class="text-center mb-2">
+                                                <label style="font-weight: 600; color: #495057; display: inline-block;">
+                                                    Inflation Rate (%)
+                                                    <span class="bi bi-info-circle text-info ms-1"
+                                                          style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                                          @onclick="() => showToolTipInflationInfo = !showToolTipInflationInfo"
+                                                          tabindex="0"
+                                                          title="What is this?"></span>
+                                                </label>
+                                            </div>
                                             <input type="number" class="form-control" @bind="InflationRate" step="0.1" min="0" max="20"
                                                    style="text-align: center; font-weight: 600;" />
                                         </div>
@@ -943,7 +954,38 @@
                                         <i class="bi bi-info-circle me-1"></i>
                                         These values will be used to project your future costs. You can adjust them anytime.
                                     </div>
+
+                                    <!-- Tooltips are shown below when needed -->
+                                    @if (showToolTipYearsInfo || showToolTipInflationInfo)
+                                    {
+                                        <div class="mt-2">
+                                            @if (showToolTipYearsInfo)
+                                            {
+                                                <div class="alert alert-info py-2 px-3 mb-0 small">
+                                                    <strong>Years to Retirement:</strong> The number of years until you expect to retire.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                            @if (showToolTipInflationInfo)
+                                            {
+                                                <div class="alert alert-info py-2 px-3 mb-0 small">
+                                                    <strong>Inflation Rate:</strong> Annual percentage increase in prices used for projections.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationInfo = false">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
+
+
+
+
+
+
 
                                 <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
                                     <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="StartWithDefaults">
@@ -1158,9 +1200,9 @@
             catch
             {
                 // Ignore errors and show modal
-                showIntroModal = false;  
+                showIntroModal = false;
             }
-    }
+        }
     }
 
     private async Task OnDontShowIntroChanged(ChangeEventArgs e)
@@ -2432,6 +2474,18 @@
 
         // Save the assumptions
         ScheduleAutosave();
+        StateHasChanged();
+    }
+
+    private async Task ShowIntroWithReset()
+    {
+        // Remove the localStorage setting that hides the intro
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "finplan-cost-of-living-income-planner-hide-intro");
+
+        // Show the intro modal
+        showIntroModal = true;
+
+        // Update the UI
         StateHasChanged();
     }
 
