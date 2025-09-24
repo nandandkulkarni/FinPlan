@@ -16,6 +16,15 @@
         font-size: 1rem;
         box-shadow: 0 4px 12px rgba(109,93,252,0.18);
     }
+       /* In RetirementInputWizard.razor, find the step badge styling */
+    .wizard-step-badge {
+        /* Other properties remain the same */
+        background: var(--brand-yellow); /* Change from var(--accent) or the hardcoded #6D5DFC to var(--brand-yellow) */
+        color: #111;
+        /* Other properties remain the same */
+
+    }
+
 
     .wizard-header-row {
         display: flex;
@@ -234,7 +243,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="wizard-header-row">
-                        <div class="wizard-step-bubble">@wizardStep</div>
+                        <span class="step-badge">@wizardStep</span>
                         <div>
                             <h5 class="modal-title" style="margin:0;">Savings Plan Inputs</h5>
                             <div class="wizard-step-text">Step @wizardStep of 5</div>
