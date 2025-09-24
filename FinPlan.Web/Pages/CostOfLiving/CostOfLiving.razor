@@ -849,9 +849,28 @@
                                 @onclick="() => OnTabClick(t)">
                             @GetTabLabel(t)
                         </button>
+
+                        @if (string.Equals(t, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="bi bi-info-circle text-info ms-1"
+                                  style="cursor:pointer; font-size:1rem;"
+                                  title="About plans, cities and currencies"
+                                  @onclick:stopPropagation="true"
+                                  @onclick="TogglePlanATabInfo"></span>
+                        }
                     </li>
                 }
             </ul>
+
+            @if (showTipPlanATab)
+            {
+                <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width: 860px;">
+                    Next release will allow multiple plans with different cities and currencies. You’ll be able to create and compare plans, each with its own assumptions and locale settings.
+                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipPlanATab = false">
+                        <span class="bi bi-x-lg"></span>
+                    </span>
+                </div>
+            }
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
             <div class="tab-panel-box position-relative">
@@ -3127,6 +3146,11 @@
         if (viewEditInfoOpen.Contains(idx)) viewEditInfoOpen.Remove(idx);
         else viewEditInfoOpen.Add(idx);
     }
+
+    // Plan‑A tab info tip
+private bool showTipPlanATab = false;
+private void TogglePlanATabInfo() => showTipPlanATab = !showTipPlanATab;
+
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }
