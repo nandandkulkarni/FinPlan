@@ -421,7 +421,8 @@ namespace FinPlan.Shared.Models.Spending
                 row.RothWithdrawal = rothWithdraw;
 
                 // taxes paid on traditional withdrawal
-                row.TaxesPaid = tradWithdraw * (TraditionalTaxRate / 100m);
+                decimal estimatedTaxableSS = EstimateTaxableSocialSecurity(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw, true);
+                row.TaxesPaid = (tradWithdraw * (TraditionalTaxRate / 100m)) + (estimatedTaxableSS * (TraditionalTaxRate / 100m));
 
                 // FIXED: Calculate growth for each account based on its actual balance
                 decimal taxableGrowth = taxBal * (InvestmentReturn / 100m);
@@ -443,6 +444,37 @@ namespace FinPlan.Shared.Models.Spending
                 if (taxBal + tradBal + rothBal <= 0) row.Notes = "Money depleted";
 
                 YearRows.Add(row);
+            }
+        }
+
+        /// <summary>
+        /// Estimates the taxable portion of Social Security benefits using IRS rules (simplified for married filing jointly)
+        /// </summary>
+        /// <param name="socialSecurityBenefits">Total annual Social Security benefits</param>
+        /// <param name="otherIncome">Other taxable income (withdrawals, interest, etc.)</param>
+        /// <param name="marriedFilingJointly">True if married filing jointly, false for single</param>
+        /// <returns>Estimated taxable Social Security benefits</returns>
+        public static decimal EstimateTaxableSocialSecurity(decimal socialSecurityBenefits, decimal otherIncome, bool marriedFilingJointly = true)
+        {
+            // IRS thresholds for 2024
+            decimal baseAmount = marriedFilingJointly ? 32000m : 25000m;
+            decimal maxAmount = marriedFilingJointly ? 44000m : 34000m;
+
+            decimal combinedIncome = otherIncome + 0.5m * socialSecurityBenefits;
+
+            if (combinedIncome <= baseAmount)
+                return 0m;
+            else if (combinedIncome <= maxAmount)
+                return 0.5m * (combinedIncome - baseAmount);
+            else
+            {
+                // Up to 85% of benefits may be taxable
+                decimal taxable = 0.85m * socialSecurityBenefits;
+                // IRS formula: 0.85 * (combinedIncome - maxAmount) + lesser of (baseAmount, 0.5 * socialSecurityBenefits)
+                decimal excess = combinedIncome - maxAmount;
+                decimal lesser = Math.Min(0.5m * socialSecurityBenefits, baseAmount);
+                decimal result = 0.85m * excess + lesser;
+                return Math.Min(result, taxable);
             }
         }
     }
