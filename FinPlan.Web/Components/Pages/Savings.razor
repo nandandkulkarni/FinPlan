@@ -758,7 +758,7 @@
                 <button class="btn btn-primary" @onclick="() => OpenWizard(1)">Get Started</button>
             </div>
         }
-        else if (yearlyBreakdown?.Any() == true)
+        else if (HasProjection)
         {
 
             <div class="grid">
@@ -1117,7 +1117,7 @@
                     calculatorModel = loadedModel;
                 }
             }
-            else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //Does not exist, create an empty one
                 calculatorModel = new SavingsCalculatorModel();
@@ -1129,10 +1129,18 @@
         }
     }
 
+    private bool HasProjection => yearlyBreakdown?.Any() == true;
+
+
     private async Task SaveAsync()
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(userGuid))
+            {
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            }
+
             calculatorModel.LastUpdateDate = DateTime.UtcNow;
             var saveRequest = new PersistSavingsRequest
             {
@@ -1148,6 +1156,10 @@
             {
                 DebugService.AddMessage($"Save failed: {response.StatusCode}");
             }
+
+            // Always recalc so the grid becomes visible immediately after changes
+            Calculate();
+            StateHasChanged();
         }
         catch (Exception ex)
         {
