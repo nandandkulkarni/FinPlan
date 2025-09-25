@@ -471,5 +471,113 @@ namespace FinPlan.Tests
                 prevRoth = row.EndingRoth;
             }
         }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldWithdrawFromCorrectBucket_SingleYear()
+        {
+            // Arrange: Only enough in taxable for part of withdrawal, rest in traditional, none in Roth
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 61,
+                LifeExpectancyPartner = 61,
+                TaxableBalance = 10_000m, // Only enough for part of withdrawal
+                TraditionalBalance = 20_000m,
+                RothBalance = 0m,
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 25_000m, // Withdrawal exceeds taxable
+                AnnualWithdrawalBoth = 25_000m,
+                InvestmentReturn = 0.0m, // No growth for clarity
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1 // Only one year simulated
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Only one year, withdrawal should come from taxable first, then traditional
+            Assert.Single(model.YearRows);
+            var row = model.YearRows[0];
+            Assert.Equal(10_000m, row.TaxableWithdrawal); // All taxable depleted
+            Assert.Equal(15_000m, row.TraditionalWithdrawal); // Remainder from traditional
+            Assert.Equal(0m, row.RothWithdrawal); // None from Roth
+        }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldSplitBetweenTwoBuckets_SingleYear()
+        {
+            // Arrange: Taxable and traditional both needed
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 61,
+                LifeExpectancyPartner = 61,
+                TaxableBalance = 5_000m, // Only enough for part of withdrawal
+                TraditionalBalance = 8_000m, // Only enough for part of withdrawal
+                RothBalance = 0m,
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 12_000m, // Withdrawal exceeds both taxable and traditional
+                AnnualWithdrawalBoth = 12_000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Only one year, withdrawal should come from taxable first, then traditional
+            Assert.Single(model.YearRows);
+            var row = model.YearRows[0];
+            Assert.Equal(5_000m, row.TaxableWithdrawal); // All taxable depleted
+            Assert.Equal(7_000m, row.TraditionalWithdrawal); // Remainder from traditional
+            Assert.Equal(0m, row.RothWithdrawal); // None from Roth
+        }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldSplitBetweenThreeBuckets_SingleYear()
+        {
+            // Arrange: Taxable, traditional, and Roth all needed
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 61,
+                LifeExpectancyPartner = 61,
+                TaxableBalance = 2_000m,
+                TraditionalBalance = 3_000m,
+                RothBalance = 4_000m,
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 8_000m, // Withdrawal exceeds all buckets
+                AnnualWithdrawalBoth = 8_000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Only one year, withdrawal should come from all buckets in order
+            Assert.Single(model.YearRows);
+            var row = model.YearRows[0];
+            Assert.Equal(2_000m, row.TaxableWithdrawal); // All taxable depleted
+            Assert.Equal(3_000m, row.TraditionalWithdrawal); // All traditional depleted
+            Assert.Equal(3_000m, row.RothWithdrawal); // Remainder from Roth
+        }
     }
 }
