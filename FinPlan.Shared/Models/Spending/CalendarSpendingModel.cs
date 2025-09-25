@@ -307,9 +307,9 @@ namespace FinPlan.Shared.Models.Spending
 
             YearRows.Clear();
 
-            var lastYearsTaxableBalance = 0;
-            var lastYearsTraditionalBalance = 0;
-            var lastYearsRothBalance = 0;
+            var lastYearTaxableBalance = 0;
+            var lastYearTraditionalBalance = 0;
+            var lastYearRothBalance = 0;
 
             for (int year = SimulationStartYear; year <= simulationEndYear; year++)
             {
@@ -329,9 +329,9 @@ namespace FinPlan.Shared.Models.Spending
 
                 SetTotalTaxableIncomeForYear(calenderYearRow);
 
-                calenderYearRow.GrowthOfTaxableBalance = CalculateGrowth(lastYearsTaxableBalance,12);
-                calenderYearRow.GrowthOfTradionalBalance = CalculateGrowth(lastYearsTraditionalBalance,12);
-                calenderYearRow.GrowthOfRothBalance = CalculateGrowth(lastYearsRothBalance,12);
+                calenderYearRow.GrowthOfTaxableBalance = CalculateNetGrowth(lastYearTaxableBalance,12);
+                calenderYearRow.GrowthOfTradionalBalance = CalculateNetGrowth(lastYearTraditionalBalance,12);
+                calenderYearRow.GrowthOfRothBalance = CalculateNetGrowth(lastYearRothBalance,12);
 
                 calenderYearRow.EstimatedTaxableSocialSecurity = CalculateEstimatedTaxableSS(calenderYearRow.SSYou + calenderYearRow.SSPartner, calenderYearRow.TotalNonSSTaxableIncome);
 
@@ -339,11 +339,11 @@ namespace FinPlan.Shared.Models.Spending
                 calenderYearRow.TaxOnSS = CalculateTaxOnSS(calenderYearRow.EstimatedTaxableSocialSecurity);
                 calenderYearRow.TaxOnTaxableGrowth = CalculateTaxOnTaxableGrowth(calenderYearRow.GrowthOfTaxableBalance);
 
-                calenderYearRow.TaxesPaid = CalculateTaxesPaid(calenderYearRow.TaxOnTaxableIncome, calenderYearRow.TaxOnSS, calenderYearRow.TaxOnTaxableGrowth);
+                calenderYearRow.TaxesPaid = calenderYearRow.TaxOnTaxableIncome + calenderYearRow.TaxOnSS + calenderYearRow.TaxOnTaxableGrowth;
 
-                decimal taxableBalanceAvailableForWithdraw = lastYearsTaxableBalance + calenderYearRow.TotalTaxableIncome + calenderYearRow.GrowthOfTaxableBalance - calenderYearRow.TaxesPaid;
-                decimal traditionalBalanceAvailableForWithdraw = lastYearsTraditionalBalance + calenderYearRow.GrowthOfTradionalBalance;
-                decimal rothBalanceAvailableForWithdraw = lastYearsRothBalance + calenderYearRow.GrowthOfRothBalance;
+                decimal taxableBalanceAvailableForWithdraw = lastYearTaxableBalance + calenderYearRow.TotalTaxableIncome + calenderYearRow.GrowthOfTaxableBalance - calenderYearRow.TaxesPaid;
+                decimal traditionalBalanceAvailableForWithdraw = lastYearTraditionalBalance + calenderYearRow.GrowthOfTradionalBalance;
+                decimal rothBalanceAvailableForWithdraw = lastYearRothBalance + calenderYearRow.GrowthOfRothBalance;
                 // Determine withdrawal amount for this year
                 
                 var isYouRetired = year >= RetirementYearYou;
@@ -364,18 +364,20 @@ namespace FinPlan.Shared.Models.Spending
                 calenderYearRow.EndingTraditional = traditionalBalanceAvailableForWithdraw - tradWithdraw;
                 calenderYearRow.EndingRoth = rothBalanceAvailableForWithdraw - rothWithdraw;
 
-                lastYearsTaxableBalance = (int)calenderYearRow.EndingTaxable;
-                lastYearsTraditionalBalance = (int)calenderYearRow.EndingTraditional;
-                lastYearsRothBalance = (int)calenderYearRow.EndingRoth;
+                lastYearTaxableBalance = (int)calenderYearRow.EndingTaxable;
+                lastYearTraditionalBalance = (int)calenderYearRow.EndingTraditional;
+                lastYearRothBalance = (int)calenderYearRow.EndingRoth;
 
                 YearRows.Add(calenderYearRow);
             }
 
         }
 
-        internal decimal CalculateGrowth(decimal balance, int compoundingCycles)
+        internal decimal CalculateNetGrowth(decimal balance, int compoundingCycles)
         {
-            return balance * (decimal)(Math.Pow((double)(1 + (double)(InvestmentReturn / 100m)), compoundingCycles) - 1);
+            var amount = balance * (decimal)(Math.Pow((double)(1 + (double)(InvestmentReturn / 100m)), compoundingCycles) - 1);
+
+            return amount - balance;
         }
 
         internal void SetTotalTaxableIncomeForYear(CalendarYearRow calendarYearRow)
