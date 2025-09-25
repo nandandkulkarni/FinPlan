@@ -248,6 +248,8 @@ namespace FinPlan.Shared.Models.Spending
         public int PartialRetirementEnd { get; set; }
         public decimal PartTimeIncome { get; set; }
 
+        public decimal TaxableTaxRate { get; set; } = 15;
+
         // Results/grid
         public List<CalendarYearRow> YearRows { get; set; } = new();
 
@@ -329,23 +331,32 @@ namespace FinPlan.Shared.Models.Spending
 
                 SetTotalTaxableIncomeForYear(calenderYearRow);
 
+                //CALCULATE GROWTH
                 calenderYearRow.GrowthOfTaxableBalance = CalculateNetGrowth(lastYearTaxableBalance,12);
                 calenderYearRow.GrowthOfTradionalBalance = CalculateNetGrowth(lastYearTraditionalBalance,12);
                 calenderYearRow.GrowthOfRothBalance = CalculateNetGrowth(lastYearRothBalance,12);
 
+                calenderYearRow.GrowthCombined = calenderYearRow.GrowthOfTaxableBalance + calenderYearRow.GrowthOfTradionalBalance + calenderYearRow.GrowthOfRothBalance;
+
+                //TAXES ON GROWTH
                 calenderYearRow.EstimatedTaxableSocialSecurity = CalculateEstimatedTaxableSS(calenderYearRow.SSYou + calenderYearRow.SSPartner, calenderYearRow.TotalNonSSTaxableIncome);
 
-                calenderYearRow.TaxOnTaxableIncome = CalculateTaxOnTraditional(calenderYearRow.TotalNonSSTaxableIncome);
-                calenderYearRow.TaxOnSS = CalculateTaxOnSS(calenderYearRow.EstimatedTaxableSocialSecurity);
-                calenderYearRow.TaxOnTaxableGrowth = CalculateTaxOnTaxableGrowth(calenderYearRow.GrowthOfTaxableBalance);
+                calenderYearRow.TaxOnTaxableNonSSIncome = CalculateTaxOnTaxableNonSSIncome(calenderYearRow.TotalNonSSTaxableIncome);
+                calenderYearRow.TaxOnSSIncome = CalculateTaxOnSS(calenderYearRow.EstimatedTaxableSocialSecurity);
+                calenderYearRow.TaxOnTaxableInterestAndDividendGrowth = CalculateTaxOnTaxableInterestOrDividendGrowth(calenderYearRow.GrowthOfTaxableBalance);
 
-                calenderYearRow.TaxesPaid = calenderYearRow.TaxOnTaxableIncome + calenderYearRow.TaxOnSS + calenderYearRow.TaxOnTaxableGrowth;
+                //WITHDRAWAL
+                calenderYearRow.TaxesPaidOnGrowthAndIncome = 
+                        calenderYearRow.TaxOnTaxableNonSSIncome + 
+                        calenderYearRow.TaxOnSSIncome + 
+                        calenderYearRow.TaxOnTaxableInterestAndDividendGrowth;
 
-                decimal taxableBalanceAvailableForWithdraw = lastYearTaxableBalance + calenderYearRow.TotalTaxableIncome + calenderYearRow.GrowthOfTaxableBalance - calenderYearRow.TaxesPaid;
+                decimal taxableBalanceAvailableForWithdraw = lastYearTaxableBalance + calenderYearRow.GrowthOfTaxableBalance - calenderYearRow.TaxesPaidOnGrowthAndIncome;
                 decimal traditionalBalanceAvailableForWithdraw = lastYearTraditionalBalance + calenderYearRow.GrowthOfTradionalBalance;
                 decimal rothBalanceAvailableForWithdraw = lastYearRothBalance + calenderYearRow.GrowthOfRothBalance;
-                // Determine withdrawal amount for this year
-                
+
+
+                //DECIDED HOW MUCH TO WITHDRAW FOR LIVING EXPENSES
                 var isYouRetired = year >= RetirementYearYou;
                 var isPartnerRetired = year >= RetirementYearPartner;
 
@@ -353,12 +364,39 @@ namespace FinPlan.Shared.Models.Spending
                 if(isYouRetired && isPartnerRetired) withdrawal = AnnualWithdrawalBoth;
                 else if(isYouRetired || isPartnerRetired) withdrawal = AnnualWithdrawalOne;
 
-                // Withdraw from taxable first, then traditional, then roth
-                var (taxableWithdraw, tradWithdraw, rothWithdraw) = CalculateWithdrawals(taxableBalanceAvailableForWithdraw, traditionalBalanceAvailableForWithdraw, rothBalanceAvailableForWithdraw, withdrawal);
+                (
+                    decimal taxableWithdraw, 
+                    decimal tradWithdraw, 
+                    decimal rothWithdraw)  = CalculateWithdrawals(
+                    taxableBalanceAvailableForWithdraw, 
+                    traditionalBalanceAvailableForWithdraw, 
+                    rothBalanceAvailableForWithdraw, 
+                    withdrawal);
 
-                calenderYearRow.TaxableWithdrawal = taxableWithdraw;
-                calenderYearRow.TraditionalWithdrawal = tradWithdraw;
-                calenderYearRow.RothWithdrawal = rothWithdraw;
+                //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
+                taxableBalanceAvailableForWithdraw -= taxableWithdraw;
+                traditionalBalanceAvailableForWithdraw -= tradWithdraw;
+                rothBalanceAvailableForWithdraw -= rothWithdraw;
+
+                //NOW THAT YOU WITHDRAW, CALCULATE TAX ON TRADITIONAL WITHDRAWAL
+                calenderYearRow.TaxOnTraditionalWithdrawal = CalculateTaxOnTraditional(tradWithdraw);
+
+                //NOW DECIDE WHERE THE MONEY TO PAY THE TAXES COME 
+                //So you do another draw (!IMPORTANT - This may need to be done in loop, but for now assume one pass is enough)
+
+                (
+                  calenderYearRow.TaxableWithdrawForTax,
+                  calenderYearRow.TraditionalWithdrawForTax,
+                  calenderYearRow.RothWithdrawForTax) = CalculateWithdrawals(
+                    taxableBalanceAvailableForWithdraw,
+                    traditionalBalanceAvailableForWithdraw,
+                    rothBalanceAvailableForWithdraw,
+                    calenderYearRow.TaxOnTraditionalWithdrawal);
+
+                //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES
+                taxableBalanceAvailableForWithdraw -= (decimal)calenderYearRow.TaxableWithdrawForTax;
+                traditionalBalanceAvailableForWithdraw -= (decimal)calenderYearRow.TraditionalWithdrawForTax;
+                rothBalanceAvailableForWithdraw -= (decimal)calenderYearRow.RothWithdrawForTax;
 
                 calenderYearRow.EndingTaxable = taxableBalanceAvailableForWithdraw - taxableWithdraw;
                 calenderYearRow.EndingTraditional = traditionalBalanceAvailableForWithdraw - tradWithdraw;
@@ -371,6 +409,16 @@ namespace FinPlan.Shared.Models.Spending
                 YearRows.Add(calenderYearRow);
             }
 
+        }
+
+        internal decimal CalculateTaxOnTaxableInterestOrDividendGrowth(decimal balanceEarningInterestAndDividend)
+        {
+            return balanceEarningInterestAndDividend * (TaxableTaxRate / 100m);
+        }
+
+        internal decimal CalculateTaxOnTaxableNonSSIncome(decimal nonSSIncome)
+        {
+            return nonSSIncome * (TaxableTaxRate / 100m);
         }
 
         internal decimal CalculateNetGrowth(decimal balance, int compoundingCycles)
@@ -558,7 +606,7 @@ namespace FinPlan.Shared.Models.Spending
                 decimal taxOnTrad = CalculateTaxOnTraditional(tradWithdraw);
                 decimal taxOnSS = CalculateTaxOnSS(estimatedTaxableSS);
                 decimal taxOnTaxableGrowth = CalculateTaxOnTaxableGrowth(taxBal);
-                row.TaxesPaid = CalculateTaxesPaid(tradWithdraw, estimatedTaxableSS, taxOnTaxableGrowth);
+                row.TaxesPaidOnGrowthAndIncome = CalculateTaxesPaid(tradWithdraw, estimatedTaxableSS, taxOnTaxableGrowth);
 
                 // Calculate growth for each account based on its actual balance before growth
                 decimal traditionalGrowth = CalculateGrowth(tradBal);
@@ -583,6 +631,9 @@ namespace FinPlan.Shared.Models.Spending
                 YearRows.Add(row);
             }
         }
+
+
+
 
         /// <summary>
         /// Simulates annual withdrawals and returns the year each account is depleted
@@ -739,7 +790,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawal { get; set; }
         public decimal TraditionalWithdrawal { get; set; }
         public decimal RothWithdrawal { get; set; }
-        public decimal TaxesPaid { get; set; }
+        public decimal TaxesPaidOnGrowthAndIncome { get; set; }
         public decimal Growth { get; set; }
         public decimal EndingTaxable { get; set; }
         public decimal EndingTraditional { get; set; }
@@ -751,10 +802,15 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TotalNonSSTaxableIncome { get; internal set; }
         public decimal GrowthOfTaxableBalance { get; internal set; }
         public decimal EstimatedTaxableSocialSecurity { get; internal set; }
-        public decimal TaxOnTaxableIncome { get; internal set; }
-        public decimal TaxOnSS { get; internal set; }
-        public decimal TaxOnTaxableGrowth { get; internal set; }
+        public decimal TaxOnTaxableNonSSIncome { get; internal set; }
+        public decimal TaxOnSSIncome { get; internal set; }
+        public decimal TaxOnTaxableInterestAndDividendGrowth { get; internal set; }
         public decimal GrowthOfTradionalBalance { get; internal set; }
         public decimal GrowthOfRothBalance { get; internal set; }
+        public decimal GrowthCombined { get; internal set; }
+        public decimal TaxOnTraditionalWithdrawal { get; internal set; }
+        public decimal TaxableWithdrawForTax { get; internal set; }
+        public decimal TraditionalWithdrawForTax { get; internal set; }
+        public decimal RothWithdrawForTax { get; internal set; }
     }
 }
