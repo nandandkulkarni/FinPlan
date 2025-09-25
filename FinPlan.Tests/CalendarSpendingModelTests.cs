@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using FinPlan.Shared.Models.Spending;
 
@@ -578,6 +579,148 @@ namespace FinPlan.Tests
             Assert.Equal(2_000m, row.TaxableWithdrawal); // All taxable depleted
             Assert.Equal(3_000m, row.TraditionalWithdrawal); // All traditional depleted
             Assert.Equal(3_000m, row.RothWithdrawal); // Remainder from Roth
+        }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldWithdrawFromMultipleBuckets_OverYears()
+        {
+            // Arrange: Start with enough in taxable, then deplete and use traditional, then Roth
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 63,
+                LifeExpectancyPartner = 63,
+                TaxableBalance = 10_000m, // Enough for first year
+                TraditionalBalance = 8_000m, // Enough for second year
+                RothBalance = 6_000m, // Used in third year
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 10_000m, // Each year withdrawal exceeds remaining bucket
+                AnnualWithdrawalBoth = 10_000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Three years, each year should use next bucket(s)
+            Assert.Equal(3, model.YearRows.Count);
+            // Year 1: all from taxable
+            var row1 = model.YearRows[0];
+            Assert.Equal(10_000m, row1.TaxableWithdrawal);
+            Assert.Equal(0m, row1.TraditionalWithdrawal);
+            Assert.Equal(0m, row1.RothWithdrawal);
+            // Year 2: all from traditional
+            var row2 = model.YearRows[1];
+            Assert.Equal(0m, row2.TaxableWithdrawal);
+            Assert.Equal(8_000m, row2.TraditionalWithdrawal);
+            Assert.Equal(2_000m, row2.RothWithdrawal); // Remainder from Roth
+            // Year 3: all from Roth
+            var row3 = model.YearRows[2];
+            Assert.Equal(0m, row3.TaxableWithdrawal);
+            Assert.Equal(0m, row3.TraditionalWithdrawal);
+            Assert.Equal(4_000m, row3.RothWithdrawal);
+        }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldWithdrawFromOneThenTwoThenThreeBuckets_OverYears_WithLoop()
+        {
+            // Arrange: Start with enough in taxable, then deplete and use traditional, then Roth
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 64,
+                LifeExpectancyPartner = 64,
+                TaxableBalance = 10_000m, // Enough for first year
+                TraditionalBalance = 8_000m, // Enough for second year
+                RothBalance = 6_000m, // Used in third and fourth year
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 10_000m, // Each year withdrawal exceeds remaining bucket
+                AnnualWithdrawalBoth = 10_000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Four years, each year should use next bucket(s)
+            Assert.Equal(4, model.YearRows.Count);
+            // Expected withdrawals for each year: {taxable, traditional, roth}
+            var expected = new[]
+            {
+                (10_000m, 0m, 0m), // Year 1: all from taxable
+                (0m, 8_000m, 2_000m), // Year 2: all from traditional, remainder from Roth
+                (0m, 0m, 4_000m), // Year 3: all from Roth
+                (0m, 0m, 0m) // Year 4: all buckets depleted, no withdrawal possible
+            };
+            for (int i = 0; i < expected.Length; i++)
+            {
+                var row = model.YearRows[i];
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+            }
+        }
+
+        [Fact]
+        public void CalculateWithdrawals_ShouldWithdrawFromOneThenTwoThenThreeBuckets_OverYears_Loop()
+        {
+            // Arrange: Start with enough in taxable, then deplete and use traditional, then Roth, then all three
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 60,
+                RetirementAgeYou = 61,
+                RetirementAgePartner = 61,
+                LifeExpectancyYou = 65,
+                LifeExpectancyPartner = 65,
+                TaxableBalance = 10_000m, // Year 1: all from taxable
+                TraditionalBalance = 8_000m, // Year 2: all from traditional
+                RothBalance = 6_000m, // Year 3: all from Roth, Year 4: split all three
+                SocialSecurityMonthlyYou = 0m,
+                SocialSecurityMonthlyPartner = 0m,
+                AnnualWithdrawalOne = 10_000m, // Each year withdrawal exceeds remaining bucket
+                AnnualWithdrawalBoth = 10_000m,
+                InvestmentReturn = 0.0m,
+                InflationRate = 0.0m,
+                TraditionalTaxRate = 20.0m,
+                SimulationStartYear = DateTime.Now.Year + 1
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Five years, each year should use next bucket(s)
+            Assert.Equal(5, model.YearRows.Count);
+            // Expected withdrawals for each year: {taxable, traditional, roth}
+            var expected = new[]
+            {
+                (10_000m, 0m, 0m), // Year 1: all from taxable
+                (0m, 8_000m, 2_000m), // Year 2: all from traditional, remainder from Roth
+                (0m, 0m, 4_000m), // Year 3: all from Roth
+                (0m, 0m, 0m), // Year 4: all buckets depleted, no withdrawal possible
+                (0m, 0m, 0m) // Year 5: all buckets depleted, no withdrawal possible
+            };
+            for (int i = 0; i < expected.Length; i++)
+            {
+                var row = model.YearRows[i];
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+            }
         }
     }
 }
