@@ -407,6 +407,15 @@ namespace FinPlan.Shared.Models.Spending
                 lastYearRothBalance = (int)calenderYearRow.EndingRoth;
 
                 YearRows.Add(calenderYearRow);
+
+                // --- ADD "Depleted" milestone if withdrawals are less than needed ---
+                decimal totalWithdrawn = taxableWithdraw + tradWithdraw + rothWithdraw;
+                if (totalWithdrawn < withdrawal)
+                {
+                    if (!string.IsNullOrWhiteSpace(calenderYearRow.Milestone))
+                        calenderYearRow.Milestone += ", ";
+                    calenderYearRow.Milestone += "Depleted";
+                }
             }
 
         }
