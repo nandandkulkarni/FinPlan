@@ -403,6 +403,12 @@ namespace FinPlan.Shared.Models.Spending
                 // available income for this year BEFORE touching account balances
                 decimal availableIncome = row.SSYou + row.SSPartner + row.ReverseMortgage;
 
+                // NEW: Add excess inflows to taxable account before withdrawals
+                if (availableIncome > withdrawal)
+                {
+                    taxBal += (availableIncome - withdrawal);
+                }
+
                 // net needed from accounts after SS + reverse mortgage
                 decimal netNeededFromAccounts = CalculateNetNeededFromAccounts(withdrawal, availableIncome);
 

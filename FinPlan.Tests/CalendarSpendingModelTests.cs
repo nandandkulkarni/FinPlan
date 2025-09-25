@@ -289,13 +289,18 @@ namespace FinPlan.Tests
             decimal prevRoth = model.RothBalance;
             foreach (var row in model.YearRows)
             {
+                decimal inflows = row.SSYou + row.SSPartner + row.ReverseMortgage;
+                prevTaxable += inflows; // Add inflows to taxable before growth/withdrawals
                 decimal taxableWithdrawal = row.TaxableWithdrawal;
                 decimal traditionalWithdrawal = row.TraditionalWithdrawal;
                 decimal rothWithdrawal = row.RothWithdrawal;
                 // Apply growth first, then withdrawals
-                decimal expectedTaxable = prevTaxable * (1 + model.InvestmentReturn / 100m) - taxableWithdrawal;
-                decimal expectedTraditional = prevTraditional * (1 + model.InvestmentReturn / 100m) - traditionalWithdrawal;
-                decimal expectedRoth = prevRoth * (1 + model.InvestmentReturn / 100m) - rothWithdrawal;
+                prevTaxable *= (1 + model.InvestmentReturn / 100m);
+                prevTraditional *= (1 + model.InvestmentReturn / 100m);
+                prevRoth *= (1 + model.InvestmentReturn / 100m);
+                decimal expectedTaxable = prevTaxable - taxableWithdrawal;
+                decimal expectedTraditional = prevTraditional - traditionalWithdrawal;
+                decimal expectedRoth = prevRoth - rothWithdrawal;
                 Assert.True(Math.Abs(row.EndingTaxable - expectedTaxable) < 0.01m);
                 Assert.True(Math.Abs(row.EndingTraditional - expectedTraditional) < 0.01m);
                 Assert.True(Math.Abs(row.EndingRoth - expectedRoth) < 0.01m);
