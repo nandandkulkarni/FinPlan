@@ -220,7 +220,7 @@ namespace FinPlan.Tests
                     // Tax on growth should be included in TaxesPaid
                     decimal expectedTaxOnGrowth = row.Growth * (model.TraditionalTaxRate / 100m);
                     // Since there are no withdrawals or SS, all taxes should be from growth
-                    Assert.True(row.TaxesPaid >= expectedTaxOnGrowth);
+                    Assert.Equal(expectedTaxOnGrowth, row.TaxesPaid);
                 }
             }
         }
@@ -250,6 +250,162 @@ namespace FinPlan.Tests
             decimal maxTaxable = 0.85m * ssBenefits;
             actualTaxable = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssBenefits, otherIncome, marriedFilingJointly);
             Assert.True(actualTaxable <= maxTaxable);
+        }
+
+        [Fact]
+        public void Calculate_EndingBalance_ShouldMatchInflowsAndOutflows()
+        {
+            // Arrange
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 58,
+                RetirementAgeYou = 65,
+                RetirementAgePartner = 63,
+                LifeExpectancyYou = 62,
+                LifeExpectancyPartner = 62,
+                TaxableBalance = 100_000m,
+                TraditionalBalance = 50_000m,
+                RothBalance = 25_000m,
+                SocialSecurityMonthlyYou = 2000m,
+                SocialSecurityMonthlyPartner = 1500m,
+                AnnualWithdrawalOne = 60_000m,
+                AnnualWithdrawalBoth = 80_000m,
+                InvestmentReturn = 5.0m,
+                InflationRate = 2.5m,
+                TraditionalTaxRate = 20.0m,
+                ReverseMortgageMonthly = 1000m,
+                ReverseMortgageStartAge = 61
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: For each year, ending balance should match model logic
+            Assert.NotEmpty(model.YearRows);
+            decimal prevTaxable = model.TaxableBalance;
+            decimal prevTraditional = model.TraditionalBalance;
+            decimal prevRoth = model.RothBalance;
+            foreach (var row in model.YearRows)
+            {
+                decimal taxableWithdrawal = row.TaxableWithdrawal;
+                decimal traditionalWithdrawal = row.TraditionalWithdrawal;
+                decimal rothWithdrawal = row.RothWithdrawal;
+                // Apply growth first, then withdrawals
+                decimal expectedTaxable = prevTaxable * (1 + model.InvestmentReturn / 100m) - taxableWithdrawal;
+                decimal expectedTraditional = prevTraditional * (1 + model.InvestmentReturn / 100m) - traditionalWithdrawal;
+                decimal expectedRoth = prevRoth * (1 + model.InvestmentReturn / 100m) - rothWithdrawal;
+                Assert.True(Math.Abs(row.EndingTaxable - expectedTaxable) < 0.01m);
+                Assert.True(Math.Abs(row.EndingTraditional - expectedTraditional) < 0.01m);
+                Assert.True(Math.Abs(row.EndingRoth - expectedRoth) < 0.01m);
+                prevTaxable = row.EndingTaxable;
+                prevTraditional = row.EndingTraditional;
+                prevRoth = row.EndingRoth;
+            }
+        }
+
+        [Fact]
+        public void Calculate_EndingBalance_ShouldBeCorrect_ForSingleYear()
+        {
+            // Arrange
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 58,
+                RetirementAgeYou = 65,
+                RetirementAgePartner = 63,
+                LifeExpectancyYou = 61,
+                LifeExpectancyPartner = 61,
+                TaxableBalance = 100_000m,
+                TraditionalBalance = 50_000m,
+                RothBalance = 25_000m,
+                SocialSecurityMonthlyYou = 2000m,
+                SocialSecurityMonthlyPartner = 1500m,
+                AnnualWithdrawalOne = 60_000m,
+                AnnualWithdrawalBoth = 80_000m,
+                InvestmentReturn = 5.0m,
+                InflationRate = 2.5m,
+                TraditionalTaxRate = 20.0m,
+                ReverseMortgageMonthly = 1000m,
+                ReverseMortgageStartAge = 61
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Only check the first year
+            Assert.NotEmpty(model.YearRows);
+            var row = model.YearRows[0];
+            decimal prevTaxable = 100_000m;
+            decimal prevTraditional = 50_000m;
+            decimal prevRoth = 25_000m;
+            decimal taxableWithdrawal = row.TaxableWithdrawal;
+            decimal traditionalWithdrawal = row.TraditionalWithdrawal;
+            decimal rothWithdrawal = row.RothWithdrawal;
+            // Model logic: growth first, then withdrawals
+            decimal expectedTaxable = prevTaxable * (1 + model.InvestmentReturn / 100m) - taxableWithdrawal;
+            decimal expectedTraditional = prevTraditional * (1 + model.InvestmentReturn / 100m) - traditionalWithdrawal;
+            decimal expectedRoth = prevRoth * (1 + model.InvestmentReturn / 100m) - rothWithdrawal;
+            Assert.True(Math.Abs(row.EndingTaxable - expectedTaxable) < 0.01m);
+            Assert.True(Math.Abs(row.EndingTraditional - expectedTraditional) < 0.01m);
+            Assert.True(Math.Abs(row.EndingRoth - expectedRoth) < 0.01m);
+        }
+
+        [Fact]
+        public void Calculate_EndingBalance_ShouldBeCorrect_ForSingleYear_Debug()
+        {
+            // Arrange
+            var model = new CalendarSpendingModel
+            {
+                CurrentAgeYou = 60,
+                CurrentAgePartner = 58,
+                RetirementAgeYou = 65,
+                RetirementAgePartner = 63,
+                LifeExpectancyYou = 61,
+                LifeExpectancyPartner = 61,
+                TaxableBalance = 100_000m,
+                TraditionalBalance = 50_000m,
+                RothBalance = 25_000m,
+                SocialSecurityMonthlyYou = 2000m,
+                SocialSecurityMonthlyPartner = 1500m,
+                AnnualWithdrawalOne = 60_000m,
+                AnnualWithdrawalBoth = 80_000m,
+                InvestmentReturn = 5.0m,
+                InflationRate = 2.5m,
+                TraditionalTaxRate = 20.0m,
+                ReverseMortgageMonthly = 1000m,
+                ReverseMortgageStartAge = 61
+            };
+
+            // Act
+            model.Calculate();
+
+            // Assert: Only check the first year
+            Assert.NotEmpty(model.YearRows);
+            var row = model.YearRows[0];
+            decimal prevTaxable = 100_000m;
+            decimal prevTraditional = 50_000m;
+            decimal prevRoth = 25_000m;
+            decimal inflows = row.SSYou + row.SSPartner + row.ReverseMortgage;
+            decimal taxableWithdrawal = row.TaxableWithdrawal;
+            decimal traditionalWithdrawal = row.TraditionalWithdrawal;
+            decimal rothWithdrawal = row.RothWithdrawal;
+            decimal taxesPaid = row.TaxesPaid;
+            decimal outflows = taxesPaid + taxableWithdrawal + traditionalWithdrawal + rothWithdrawal;
+            decimal expectedTaxable = prevTaxable - taxableWithdrawal;
+            decimal expectedTraditional = prevTraditional - traditionalWithdrawal;
+            decimal expectedRoth = prevRoth - rothWithdrawal;
+            expectedTaxable += expectedTaxable * (model.InvestmentReturn / 100m);
+            expectedTraditional += expectedTraditional * (model.InvestmentReturn / 100m);
+            expectedRoth += expectedRoth * (model.InvestmentReturn / 100m);
+            // Debug output
+            System.Diagnostics.Debug.WriteLine($"prevTaxable={prevTaxable}, taxableWithdrawal={taxableWithdrawal}, expectedTaxable={expectedTaxable}, actual={row.EndingTaxable}");
+            System.Diagnostics.Debug.WriteLine($"prevTraditional={prevTraditional}, traditionalWithdrawal={traditionalWithdrawal}, expectedTraditional={expectedTraditional}, actual={row.EndingTraditional}");
+            System.Diagnostics.Debug.WriteLine($"prevRoth={prevRoth}, rothWithdrawal={rothWithdrawal}, expectedRoth={expectedRoth}, actual={row.EndingRoth}");
+            System.Diagnostics.Debug.WriteLine($"taxesPaid={taxesPaid}, inflows={inflows}, outflows={outflows}");
+            Assert.True(Math.Abs(row.EndingTaxable - expectedTaxable) < 0.01m);
+            Assert.True(Math.Abs(row.EndingTraditional - expectedTraditional) < 0.01m);
+            Assert.True(Math.Abs(row.EndingRoth - expectedRoth) < 0.01m);
         }
     }
 }

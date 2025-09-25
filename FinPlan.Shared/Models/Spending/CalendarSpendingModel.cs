@@ -404,33 +404,26 @@ namespace FinPlan.Shared.Models.Spending
                 decimal availableIncome = row.SSYou + row.SSPartner + row.ReverseMortgage;
 
                 // net needed from accounts after SS + reverse mortgage
-                decimal netNeededFromAccounts = Math.Max(0m, withdrawal - availableIncome);
+                decimal netNeededFromAccounts = CalculateNetNeededFromAccounts(withdrawal, availableIncome);
 
                 // Withdraw from taxable first, then traditional, then roth to meet netNeededFromAccounts
-                var taxableWithdraw = Math.Min(taxBal, netNeededFromAccounts);
-                taxBal -= taxableWithdraw;
-                var remaining = netNeededFromAccounts - taxableWithdraw;
-                var tradWithdraw = Math.Min(tradBal, remaining);
-                tradBal -= tradWithdraw;
-                remaining -= tradWithdraw;
-                var rothWithdraw = Math.Min(rothBal, remaining);
-                rothBal -= rothWithdraw;
+                var (taxableWithdraw, tradWithdraw, rothWithdraw) = CalculateWithdrawals(taxBal, tradBal, rothBal, netNeededFromAccounts);
 
                 row.TaxableWithdrawal = taxableWithdraw;
                 row.TraditionalWithdrawal = tradWithdraw;
                 row.RothWithdrawal = rothWithdraw;
 
                 // taxes paid on traditional withdrawal + taxable SS + taxable account growth
-                decimal estimatedTaxableSS = EstimateTaxableSocialSecurity(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw, true);
-                decimal taxOnTrad = tradWithdraw * (TraditionalTaxRate / 100m);
-                decimal taxOnSS = estimatedTaxableSS * (TraditionalTaxRate / 100m);
-                decimal taxableGrowth = taxBal * (InvestmentReturn / 100m);
-                decimal taxOnTaxableGrowth = taxableGrowth * (TraditionalTaxRate / 100m);
-                row.TaxesPaid = taxOnTrad + taxOnSS + taxOnTaxableGrowth;
+                decimal estimatedTaxableSS = CalculateEstimatedTaxableSS(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw);
+                decimal taxOnTrad = CalculateTaxOnTraditional(tradWithdraw);
+                decimal taxOnSS = CalculateTaxOnSS(estimatedTaxableSS);
+                decimal taxOnTaxableGrowth = CalculateTaxOnTaxableGrowth(taxBal);
+                row.TaxesPaid = CalculateTaxesPaid(tradWithdraw, estimatedTaxableSS, taxOnTaxableGrowth);
 
-                // FIXED: Calculate growth for each account based on its actual balance
-                decimal traditionalGrowth = tradBal * (InvestmentReturn / 100m);
-                decimal rothGrowth = rothBal * (InvestmentReturn / 100m);
+                // Calculate growth for each account based on its actual balance before growth
+                decimal traditionalGrowth = CalculateGrowth(tradBal);
+                decimal rothGrowth = CalculateGrowth(rothBal);
+                decimal taxableGrowth = CalculateGrowth(taxBal);
 
                 // Apply growth to each account
                 taxBal += taxableGrowth;
@@ -438,8 +431,9 @@ namespace FinPlan.Shared.Models.Spending
                 rothBal += rothGrowth;
 
                 // Total growth for display
-                row.Growth = taxableGrowth + traditionalGrowth + rothGrowth;
+                row.Growth = CalculateTotalGrowth(taxBal, tradBal, rothBal);
 
+                // FIX: Ending balances should be the post-growth balances, not with growth added again
                 row.EndingTaxable = taxBal;
                 row.EndingTraditional = tradBal;
                 row.EndingRoth = rothBal;
@@ -479,6 +473,65 @@ namespace FinPlan.Shared.Models.Spending
                 decimal result = 0.85m * excess + lesser;
                 return Math.Min(result, taxable);
             }
+        }
+
+        // Calculation helpers for testability
+        internal decimal CalculateNetNeededFromAccounts(decimal withdrawal, decimal availableIncome)
+        {
+            return Math.Max(0m, withdrawal - availableIncome);
+        }
+
+        internal (decimal taxableWithdraw, decimal tradWithdraw, decimal rothWithdraw) CalculateWithdrawals(decimal taxBal, decimal tradBal, decimal rothBal, decimal netNeededFromAccounts)
+        {
+            decimal taxableWithdraw = Math.Min(taxBal, netNeededFromAccounts);
+            decimal remaining = netNeededFromAccounts - taxableWithdraw;
+            decimal tradWithdraw = Math.Min(tradBal, remaining);
+            remaining -= tradWithdraw;
+            decimal rothWithdraw = Math.Min(rothBal, remaining);
+            return (taxableWithdraw, tradWithdraw, rothWithdraw);
+        }
+
+        internal decimal CalculateEstimatedTaxableSS(decimal ssTotal, decimal otherIncome)
+        {
+            return EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
+        }
+
+        internal decimal CalculateTaxOnTraditional(decimal tradWithdraw)
+        {
+            return tradWithdraw * (TraditionalTaxRate / 100m);
+        }
+
+        internal decimal CalculateTaxOnSS(decimal estimatedTaxableSS)
+        {
+            return estimatedTaxableSS * (TraditionalTaxRate / 100m);
+        }
+
+        internal decimal CalculateTaxOnTaxableGrowth(decimal taxableBalance)
+        {
+            var taxableGrowth = taxableBalance * (InvestmentReturn / 100m);
+            return taxableGrowth * (TraditionalTaxRate / 100m);
+        }
+
+        internal decimal CalculateGrowth(decimal balance)
+        {
+            return balance * (InvestmentReturn / 100m);
+        }
+
+        internal decimal CalculateTotalGrowth(decimal taxableBalance, decimal tradBalance, decimal rothBalance)
+        {
+            return CalculateGrowth(taxableBalance) + CalculateGrowth(tradBalance) + CalculateGrowth(rothBalance);
+        }
+
+        internal decimal CalculateTaxesPaid(decimal tradWithdraw, decimal estimatedTaxableSS, decimal taxOnTaxableGrowth)
+        {
+            return CalculateTaxOnTraditional(tradWithdraw) + CalculateTaxOnSS(estimatedTaxableSS) + taxOnTaxableGrowth;
+        }
+
+        internal (decimal endingTaxable, decimal endingTraditional, decimal endingRoth) CalculateEndingBalances(
+            decimal taxBal, decimal tradBal, decimal rothBal,
+            decimal taxableGrowth, decimal traditionalGrowth, decimal rothGrowth)
+        {
+            return (taxBal + taxableGrowth, tradBal + traditionalGrowth, rothBal + rothGrowth);
         }
     }
 
