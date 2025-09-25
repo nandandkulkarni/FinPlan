@@ -97,10 +97,10 @@ namespace FinPlan.Web.Components.Pages
             Model.AutoCalculate = true;
 
             // Only calculate if the model has meaningful data
-            if (!Model.IsModelEmpty())
-            {
+            //if (!Model.IsModelEmpty())
+            //{
                 Model.Calculate();
-            }
+           // }
 
             return base.OnInitializedAsync();
         }
@@ -128,7 +128,7 @@ namespace FinPlan.Web.Components.Pages
         {
             var apiBaseUrl = GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/Retirement/save";
-
+            Model.Calculate();
             try
             {
                 var saveRequest = new PersistCalendarSpendingRequest

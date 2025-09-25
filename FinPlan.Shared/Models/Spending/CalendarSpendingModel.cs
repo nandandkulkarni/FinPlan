@@ -309,9 +309,9 @@ namespace FinPlan.Shared.Models.Spending
 
             YearRows.Clear();
 
-            var lastYearTaxableBalance = 0;
-            var lastYearTraditionalBalance = 0;
-            var lastYearRothBalance = 0;
+            var lastYearTaxableBalance = TaxableBalance;
+            var lastYearTraditionalBalance = TraditionalBalance;
+            var lastYearRothBalance = RothBalance;
 
             for (int year = SimulationStartYear; year <= simulationEndYear; year++)
             {
@@ -364,6 +364,8 @@ namespace FinPlan.Shared.Models.Spending
                 if(isYouRetired && isPartnerRetired) withdrawal = AnnualWithdrawalBoth;
                 else if(isYouRetired || isPartnerRetired) withdrawal = AnnualWithdrawalOne;
 
+                calenderYearRow.AmountNeeded = withdrawal;
+
                 (
                     decimal taxableWithdraw, 
                     decimal tradWithdraw, 
@@ -393,14 +395,25 @@ namespace FinPlan.Shared.Models.Spending
                     rothBalanceAvailableForWithdraw,
                     calenderYearRow.TaxOnTraditionalWithdrawal);
 
+                // Assign withdrawals to the row so they show up in the grid
+                calenderYearRow.TaxableWithdrawal = taxableWithdraw + calenderYearRow.TaxableWithdrawForTax;
+                calenderYearRow.TraditionalWithdrawal = tradWithdraw + calenderYearRow.TraditionalWithdrawForTax;
+                calenderYearRow.RothWithdrawal = rothWithdraw + calenderYearRow.RothWithdrawForTax;
+
+
                 //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES
                 taxableBalanceAvailableForWithdraw -= (decimal)calenderYearRow.TaxableWithdrawForTax;
                 traditionalBalanceAvailableForWithdraw -= (decimal)calenderYearRow.TraditionalWithdrawForTax;
                 rothBalanceAvailableForWithdraw -= (decimal)calenderYearRow.RothWithdrawForTax;
 
-                calenderYearRow.EndingTaxable = taxableBalanceAvailableForWithdraw - taxableWithdraw;
-                calenderYearRow.EndingTraditional = traditionalBalanceAvailableForWithdraw - tradWithdraw;
-                calenderYearRow.EndingRoth = rothBalanceAvailableForWithdraw - rothWithdraw;
+
+                //calenderYearRow.EndingTaxable = taxableBalanceAvailableForWithdraw - taxableWithdraw;
+                //calenderYearRow.EndingTraditional = traditionalBalanceAvailableForWithdraw - tradWithdraw;
+                //calenderYearRow.EndingRoth = rothBalanceAvailableForWithdraw - rothWithdraw;
+
+                calenderYearRow.EndingTaxable = Math.Max(0, taxableBalanceAvailableForWithdraw);
+                calenderYearRow.EndingTraditional = Math.Max(0, traditionalBalanceAvailableForWithdraw);
+                calenderYearRow.EndingRoth = Math.Max(0, rothBalanceAvailableForWithdraw);
 
                 lastYearTaxableBalance = (int)calenderYearRow.EndingTaxable;
                 lastYearTraditionalBalance = (int)calenderYearRow.EndingTraditional;
@@ -434,7 +447,7 @@ namespace FinPlan.Shared.Models.Spending
         {
             var amount = balance * (decimal)(Math.Pow((double)(1 + (double)(InvestmentReturn / 100m)), compoundingCycles) - 1);
 
-            return amount - balance;
+            return balance - amount;
         }
 
         internal void SetTotalTaxableIncomeForYear(CalendarYearRow calendarYearRow)
