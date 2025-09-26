@@ -397,7 +397,7 @@ namespace FinPlan.Shared.Models.Spending
                 rothBalanceSoFar -= rothWithdrawnForCostOfLivingIfAtAll;
 
                 //NOW THAT YOU WITHDRAW, CALCULATE TAX ON TRADITIONAL WITHDRAWAL
-                calendarYearRow.TaxOnTraditionalWithdrawal = CalculateTaxOnTraditional(tradWithdrawnForCostOfLivingIfAtAll);
+                calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving = CalculateTaxOnTraditional(tradWithdrawnForCostOfLivingIfAtAll);
 
                 //NOW DECIDE WHERE THE MONEY TO PAY THE TAXES COME 
                 //So you do another draw (!IMPORTANT - This may need to be done in loop, but for now assume one pass is enough)
@@ -411,7 +411,7 @@ namespace FinPlan.Shared.Models.Spending
                     taxableBalanceSoFar,
                     traditionalBalanceSoFar,
                     rothBalanceSoFar,
-                    calendarYearRow.TaxOnTraditionalWithdrawal);
+                    calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving);
 
                 // Assign withdrawals to the row so they show up in the grid
                 calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll;
@@ -859,7 +859,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal GrowthOfTradionalBalance { get; internal set; }
         public decimal GrowthOfRothBalance { get; internal set; }
         public decimal GrowthBeforeTaxes { get; internal set; }
-        public decimal TaxOnTraditionalWithdrawal { get; internal set; }
+        public decimal TaxOnTraditionalWithdrawalDoneForCostOfLiving { get; internal set; }
         public decimal TaxableWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal TraditionalWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal RothWithdrawForTaxPaymentIfAtAll { get; internal set; }
