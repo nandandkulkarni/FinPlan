@@ -4,7 +4,7 @@ using FinPlan.Shared.Models.Spending;
 
 namespace FinPlan.Tests
 {
-    public class CalendarSpendingModelTests
+        public class CalendarSpendingModelTests
     {
         [Fact]
         public void Calculate_ShouldPopulateYearRows_WithExpectedValues()
@@ -39,12 +39,12 @@ namespace FinPlan.Tests
             Assert.Equal(model.SimulationStartYear, firstRow.Year);
             Assert.True(firstRow.AgeYou >= model.CurrentAgeYou);
             Assert.True(firstRow.AgePartner >= model.CurrentAgePartner);
-            // Check that AmountNeeded is zero before retirement
-            Assert.Equal(0m, firstRow.AmountNeeded);
-            // Check that AmountNeeded is set after retirement
+            // Check that AmountNeededForCostOfLiving is zero before retirement
+            Assert.Equal(0m, firstRow.AmountNeededForCostOfLiving);
+            // Check that AmountNeededForCostOfLiving is set after retirement
             var retirementRow = model.YearRows.Find(r => r.Year == model.RetirementYearYou);
             Assert.NotNull(retirementRow);
-            Assert.True(retirementRow.AmountNeeded > 0);
+            Assert.True(retirementRow.AmountNeededForCostOfLiving > 0);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace FinPlan.Tests
             // Act
             model.Calculate();
 
-            // Assert: TaxesPaidOnGrowthAndIncome should match IRS rule for all years
+            // Assert: TaxesPaidOnAllTaxableGrowthAndIncome should match IRS rule for all years
             Assert.NotEmpty(model.YearRows);
             foreach (var row in model.YearRows)
             {
@@ -82,7 +82,7 @@ namespace FinPlan.Tests
                 decimal otherIncome = 0m; // No other income in this scenario
                 decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                 decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
-                Assert.Equal(expectedTax, row.TaxesPaidOnGrowthAndIncome);
+                Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
                 Assert.Equal(0m, row.TaxableWithdrawal);
                 Assert.Equal(0m, row.TraditionalWithdrawal);
                 Assert.Equal(0m, row.RothWithdrawal);
@@ -121,7 +121,7 @@ namespace FinPlan.Tests
             // Act
             model.Calculate();
 
-            // Assert: TaxesPaidOnGrowthAndIncome should match IRS rule for all years
+            // Assert: TaxesPaidOnAllTaxableGrowthAndIncome should match IRS rule for all years
             Assert.NotEmpty(model.YearRows);
             foreach (var row in model.YearRows)
             {
@@ -129,7 +129,7 @@ namespace FinPlan.Tests
                 decimal otherIncome = 0m; // No other income in this scenario
                 decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                 decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
-                Assert.Equal(expectedTax, row.TaxesPaidOnGrowthAndIncome);
+                Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
                 Assert.Equal(0m, row.TaxableWithdrawal);
                 Assert.Equal(0m, row.TraditionalWithdrawal);
                 Assert.Equal(0m, row.RothWithdrawal);
@@ -168,7 +168,7 @@ namespace FinPlan.Tests
             // Act
             model.Calculate();
 
-            // Assert: TaxesPaidOnGrowthAndIncome should include taxable withdrawal in IRS calculation
+            // Assert: TaxesPaidOnAllTaxableGrowthAndIncome should include taxable withdrawal in IRS calculation
             Assert.NotEmpty(model.YearRows);
             foreach (var row in model.YearRows)
             {
@@ -179,7 +179,7 @@ namespace FinPlan.Tests
                     decimal otherIncome = row.TaxableWithdrawal; // Taxable withdrawal should be included
                     decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                     decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
-                    Assert.Equal(expectedTax, row.TaxesPaidOnGrowthAndIncome);
+                    Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
                 }
             }
         }
@@ -218,10 +218,10 @@ namespace FinPlan.Tests
                 // Only check years with growth
                 if (row.Growth > 0)
                 {
-                    // Tax on growth should be included in TaxesPaidOnGrowthAndIncome
+                    // Tax on growth should be included in TaxesPaidOnAllTaxableGrowthAndIncome
                     decimal expectedTaxOnGrowth = 100_000m * (model.InvestmentReturn / 100m) * (model.TraditionalTaxRate / 100m); // Only first year, since balance changes after
                     // Since there are no withdrawals or SS, all taxes should be from growth
-                    Assert.Equal(expectedTaxOnGrowth, row.TaxesPaidOnGrowthAndIncome);
+                    Assert.Equal(expectedTaxOnGrowth, row.TaxesPaidOnAllTaxableGrowthAndIncome);
                     break; // Only check first year for clarity
                 }
             }
@@ -397,7 +397,7 @@ namespace FinPlan.Tests
             decimal taxableWithdrawal = row.TaxableWithdrawal;
             decimal traditionalWithdrawal = row.TraditionalWithdrawal;
             decimal rothWithdrawal = row.RothWithdrawal;
-            decimal taxesPaid = row.TaxesPaidOnGrowthAndIncome;
+            decimal taxesPaid = row.TaxesPaidOnAllTaxableGrowthAndIncome;
             decimal outflows = taxesPaid + taxableWithdrawal + traditionalWithdrawal + rothWithdrawal;
             decimal expectedTaxable = prevTaxable - taxableWithdrawal;
             decimal expectedTraditional = prevTraditional - traditionalWithdrawal;

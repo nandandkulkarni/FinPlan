@@ -1428,7 +1428,7 @@
                                 <td class="col-age" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db;">@row.AgePartner</td>
                                 <td class="col-milestones" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; width: 100px; overflow-x: auto; white-space: nowrap;">@row.Milestone</td>
                                 <td class="text-end" style="font-size:0.78rem; background-color: #f8f9fa; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db; color: #2563EB;">
-                                    @row.AmountNeeded.ToString("C0")
+                                    @row.AmountNeededForCostOfLiving.ToString("C0")
                                 </td>
                                 <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.SSYou.ToString("C0")
@@ -1452,7 +1452,7 @@
                                     @row.RothWithdrawal.ToString("C0")
                                 </td>
                                 <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
-                                    @row.TaxesPaidOnGrowthAndIncome.ToString("C0")
+                                    @row.TaxesPaidOnAllTaxableGrowthAndIncome.ToString("C0")
                                 </td>
                             
                                 <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
