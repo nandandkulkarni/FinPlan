@@ -16,7 +16,7 @@ namespace FinPlan.Tests
                 RetirementAgePartner = 67,
                 LifeExpectancyYou = 99,
                 LifeExpectancyPartner = 99,
-                TaxableBalance = 100_000m,
+                TaxableBalance = 500_000m,
                 TraditionalBalance = 500_000m,
                 RothBalance = 500_000m,
                 SocialSecurityMonthlyYou = 1500m,

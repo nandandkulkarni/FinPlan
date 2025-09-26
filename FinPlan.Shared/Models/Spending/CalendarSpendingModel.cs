@@ -355,6 +355,7 @@ namespace FinPlan.Shared.Models.Spending
                         calendarYearRow.TaxOnSSIncome + 
                         calendarYearRow.TaxOnTaxableInterestAndDividendGrowth;
 
+                //Its assumed that the taxable growth and income can be taxed from the taxable account
                 decimal taxableBalanceSoFar = lastYearTaxableBalance + calendarYearRow.TotalTaxableIncome + calendarYearRow.GrowthOfTaxableBalance - calendarYearRow.TaxesPaidOnAllTaxableGrowthAndIncome;
                 decimal traditionalBalanceSoFar = lastYearTraditionalBalance + calendarYearRow.GrowthOfTradionalBalance;
                 decimal rothBalanceSoFar = lastYearRothBalance + calendarYearRow.GrowthOfRothBalance;
@@ -376,10 +377,16 @@ namespace FinPlan.Shared.Models.Spending
 
                 calendarYearRow.AmountNeededForCostOfLiving = amountNeededForCostOfLiving;
 
+
+                calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll = 0m;
+                calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll = 0m;
+                calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll = 0m;
+
+
                 (
-                    decimal taxableWithdrawnForCostOfLivingIfAtAll, 
-                    decimal tradWithdrawnForCostOfLivingIfAtAll, 
-                    decimal rothWithdrawnForCostOfLivingIfAtAll, 
+                    calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll,
+                    calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll,
+                    calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll, 
                     decimal totalWithdrawnForCostOfLivingExcludingTaxes
                     )  = CalculateWithdrawals(
                     taxableBalanceSoFar, 
@@ -392,12 +399,13 @@ namespace FinPlan.Shared.Models.Spending
 
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
-                taxableBalanceSoFar -= taxableWithdrawnForCostOfLivingIfAtAll;
-                traditionalBalanceSoFar -= tradWithdrawnForCostOfLivingIfAtAll;
-                rothBalanceSoFar -= rothWithdrawnForCostOfLivingIfAtAll;
+                taxableBalanceSoFar -= calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll;
+                traditionalBalanceSoFar -= calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll;
+                rothBalanceSoFar -= calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll;
 
                 //NOW THAT YOU WITHDRAW, CALCULATE TAX ON TRADITIONAL WITHDRAWAL
-                calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving = CalculateTaxOnTraditional(tradWithdrawnForCostOfLivingIfAtAll);
+                calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving = CalculateTaxOnTraditional(calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll);
+                //You only pay tax on trad withdrawal, so noother calc
 
                 //NOW DECIDE WHERE THE MONEY TO PAY THE TAXES COME 
                 //So you do another draw (!IMPORTANT - This may need to be done in loop, but for now assume one pass is enough)
@@ -408,15 +416,15 @@ namespace FinPlan.Shared.Models.Spending
                   calendarYearRow.RothWithdrawForTaxPaymentIfAtAll,
                   calendarYearRow.TotalWithdrawForTaxPaymentIfAtAll
                   ) = CalculateWithdrawals(
-                    taxableBalanceSoFar,
+                    taxableBalanceSoFar, 
                     traditionalBalanceSoFar,
                     rothBalanceSoFar,
                     calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving);
 
                 // Assign withdrawals to the row so they show up in the grid
-                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll;
-                calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForTaxPaymentIfAtAll;
-                calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = rothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForTaxPaymentIfAtAll;
 
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES
@@ -866,5 +874,8 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TotalWithdrawalOfAllType { get; internal set; }
         public decimal TotalWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal TotalWithdrawForCostOfLivingExcludingTaxes { get; internal set; }
+        public decimal TaxableWithdrawnForCostOfLivingIfAtAll { get; internal set; }
+        public decimal TradWithdrawnForCostOfLivingIfAtAll { get; internal set; }
+        public decimal RothWithdrawnForCostOfLivingIfAtAll { get; internal set; }
     }
 }
