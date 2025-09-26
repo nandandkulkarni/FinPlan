@@ -368,16 +368,28 @@ namespace FinPlan.Shared.Models.Spending
                 if(isYouRetired && isPartnerRetired) amountNeededForCostOfLiving = AnnualWithdrawalBoth;
                 else if(isYouRetired || isPartnerRetired) amountNeededForCostOfLiving = AnnualWithdrawalOne;
 
+                //INFLATE THE AMOUNT NEEDED FOR COST OF LIVING
+                if (amountNeededForCostOfLiving > 0)
+                {
+                    amountNeededForCostOfLiving += amountNeededForCostOfLiving * (InflationRate / 100m);
+                }
+
                 calendarYearRow.AmountNeededForCostOfLiving = amountNeededForCostOfLiving;
 
                 (
                     decimal taxableWithdrawnForCostOfLivingIfAtAll, 
                     decimal tradWithdrawnForCostOfLivingIfAtAll, 
-                    decimal rothWithdrawnForCostOfLivingIfAtAll)  = CalculateWithdrawals(
+                    decimal rothWithdrawnForCostOfLivingIfAtAll, 
+                    decimal totalWithdrawnForCostOfLivingExcludingTaxes
+                    )  = CalculateWithdrawals(
                     taxableBalanceSoFar, 
                     traditionalBalanceSoFar, 
                     rothBalanceSoFar, 
                     amountNeededForCostOfLiving);
+
+
+                calendarYearRow.TotalWithdrawForCostOfLivingExcludingTaxes = totalWithdrawnForCostOfLivingExcludingTaxes;
+
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
                 taxableBalanceSoFar -= taxableWithdrawnForCostOfLivingIfAtAll;
@@ -393,7 +405,9 @@ namespace FinPlan.Shared.Models.Spending
                 (
                   calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll,
                   calendarYearRow.TraditionalWithdrawForTaxPaymentIfAtAll,
-                  calendarYearRow.RothWithdrawForTaxPaymentIfAtAll) = CalculateWithdrawals(
+                  calendarYearRow.RothWithdrawForTaxPaymentIfAtAll,
+                  calendarYearRow.TotalWithdrawForTaxPaymentIfAtAll
+                  ) = CalculateWithdrawals(
                     taxableBalanceSoFar,
                     traditionalBalanceSoFar,
                     rothBalanceSoFar,
@@ -438,6 +452,22 @@ namespace FinPlan.Shared.Models.Spending
                 }
             }
 
+        }
+        internal (decimal taxableWithdraw, decimal tradWithdraw, decimal rothWithdraw, decimal totalAmountWithdrawn) CalculateWithdrawals(decimal taxableBalance, decimal tradBal, decimal rothBalance, decimal netNeededFromAccounts)
+        {
+            decimal taxableWithdrawn = Math.Min(taxableBalance, netNeededFromAccounts);
+
+            decimal stillNeeded = netNeededFromAccounts - taxableWithdrawn;
+
+            decimal tradWithdrawn = Math.Min(tradBal, stillNeeded);
+
+            stillNeeded = stillNeeded - tradWithdrawn;
+
+            decimal rothWithdrawn = Math.Min(rothBalance, stillNeeded);
+
+            decimal totalAmountWithdrawn = taxableWithdrawn + tradWithdrawn + rothWithdrawn;
+
+            return (taxableWithdrawn, tradWithdrawn, rothWithdrawn, totalAmountWithdrawn);
         }
 
         internal decimal CalculateTaxOnTaxableInterestOrDividendGrowth(decimal balanceEarningInterestAndDividend)
@@ -624,7 +654,7 @@ namespace FinPlan.Shared.Models.Spending
                 decimal netNeededFromAccounts = CalculateNetNeededFromAccounts(withdrawal, availableIncome);
 
                 // Withdraw from taxable first, then traditional, then roth to meet netNeededFromAccounts
-                var (taxableWithdraw, tradWithdraw, rothWithdraw) = CalculateWithdrawals(taxBal, tradBal, rothBal, netNeededFromAccounts);
+                var (taxableWithdraw, tradWithdraw, rothWithdraw, x) = CalculateWithdrawals(taxBal, tradBal, rothBal, netNeededFromAccounts);
 
                 row.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdraw;
                 row.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdraw;
@@ -750,20 +780,7 @@ namespace FinPlan.Shared.Models.Spending
             return Math.Max(0m, withdrawal - availableIncome);
         }
 
-        internal (decimal taxableWithdraw, decimal tradWithdraw, decimal rothWithdraw) CalculateWithdrawals(decimal taxableBalance, decimal tradBal, decimal rothBalance, decimal netNeededFromAccounts)
-        {
-            decimal taxableWithdrawn = Math.Min(taxableBalance, netNeededFromAccounts);
-            
-            decimal stillNeeded = netNeededFromAccounts - taxableWithdrawn;
-
-            decimal tradWithdrawn = Math.Min(tradBal, stillNeeded);
-            
-            stillNeeded = stillNeeded - tradWithdrawn;
-            
-            decimal rothWithdrawn = Math.Min(rothBalance, stillNeeded);
-            
-            return (taxableWithdrawn, tradWithdrawn, rothWithdrawn);
-        }
+       
 
         internal decimal CalculateEstimatedTaxableSS(decimal ssTotal, decimal otherIncome)
         {
@@ -847,5 +864,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TraditionalWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal RothWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal TotalWithdrawalOfAllType { get; internal set; }
+        public decimal TotalWithdrawForTaxPaymentIfAtAll { get; internal set; }
+        public decimal TotalWithdrawForCostOfLivingExcludingTaxes { get; internal set; }
     }
 }

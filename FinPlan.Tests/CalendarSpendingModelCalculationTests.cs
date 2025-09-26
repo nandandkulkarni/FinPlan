@@ -17,7 +17,7 @@ namespace FinPlan.Tests
         public void CalculateWithdrawals_ShouldReturnCorrectValues()
         {
             var model = new CalendarSpendingModel { };
-            var (taxable, trad, roth) = model.CalculateWithdrawals(1000m, 500m, 200m, 1200m);
+            var (taxable, trad, roth, x) = model.CalculateWithdrawals(1000m, 500m, 200m, 1200m);
             Assert.Equal(1000m, taxable);
             Assert.Equal(200m, trad);
             Assert.Equal(0m, roth);
