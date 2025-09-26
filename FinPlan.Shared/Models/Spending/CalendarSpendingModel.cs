@@ -400,9 +400,9 @@ namespace FinPlan.Shared.Models.Spending
                     calendarYearRow.TaxOnTraditionalWithdrawal);
 
                 // Assign withdrawals to the row so they show up in the grid
-                calendarYearRow.TaxableWithdrawal = taxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll;
-                calendarYearRow.TraditionalWithdrawal = tradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForTaxPaymentIfAtAll;
-                calendarYearRow.RothWithdrawal = rothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForTaxPaymentIfAtAll;
+                calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = rothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForTaxPaymentIfAtAll;
 
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES
@@ -423,11 +423,14 @@ namespace FinPlan.Shared.Models.Spending
                 lastYearTraditionalBalance = (int)calendarYearRow.EndingTraditional;
                 lastYearRothBalance = (int)calendarYearRow.EndingRoth;
 
+                calendarYearRow.TotalWithdrawalOfAllType= calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes +
+                                                        calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes +
+                                                        calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes;
+
                 YearRows.Add(calendarYearRow);
 
                 // --- ADD "Depleted" milestone if withdrawals are less than needed ---
-                decimal totalWithdrawn = taxableWithdrawnForCostOfLivingIfAtAll + tradWithdrawnForCostOfLivingIfAtAll + rothWithdrawnForCostOfLivingIfAtAll;
-                if (totalWithdrawn < amountNeededForCostOfLiving)
+                if (calendarYearRow.TotalWithdrawalOfAllType < amountNeededForCostOfLiving)
                 {
                     if (!string.IsNullOrWhiteSpace(calendarYearRow.Milestone))
                         calendarYearRow.Milestone += ", ";
@@ -623,9 +626,9 @@ namespace FinPlan.Shared.Models.Spending
                 // Withdraw from taxable first, then traditional, then roth to meet netNeededFromAccounts
                 var (taxableWithdraw, tradWithdraw, rothWithdraw) = CalculateWithdrawals(taxBal, tradBal, rothBal, netNeededFromAccounts);
 
-                row.TaxableWithdrawal = taxableWithdraw;
-                row.TraditionalWithdrawal = tradWithdraw;
-                row.RothWithdrawal = rothWithdraw;
+                row.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdraw;
+                row.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdraw;
+                row.RothWithdrawalForCostOfLivingAndTaxes = rothWithdraw;
 
                 // taxes paid on traditional amountNeededForCostOfLiving + taxable SS + taxable account growth
                 decimal estimatedTaxableSS = CalculateEstimatedTaxableSS(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw);
@@ -818,9 +821,9 @@ namespace FinPlan.Shared.Models.Spending
         public decimal ReverseMortgage { get; set; }
 
         public decimal OtherTaxableIncome { get; set; }
-        public decimal TaxableWithdrawal { get; set; }
-        public decimal TraditionalWithdrawal { get; set; }
-        public decimal RothWithdrawal { get; set; }
+        public decimal TaxableWithdrawalForCostOfLivingAndTaxes { get; set; }
+        public decimal TraditionalWithdrawalForCostOfLivingAndTaxes { get; set; }
+        public decimal RothWithdrawalForCostOfLivingAndTaxes { get; set; }
         public decimal TaxesPaidOnAllTaxableGrowthAndIncome { get; set; }
         public decimal Growth { get; set; }
         public decimal EndingTaxable { get; set; }
@@ -843,5 +846,6 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal TraditionalWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal RothWithdrawForTaxPaymentIfAtAll { get; internal set; }
+        public decimal TotalWithdrawalOfAllType { get; internal set; }
     }
 }

@@ -83,9 +83,9 @@ namespace FinPlan.Tests
                 decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                 decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
                 Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
-                Assert.Equal(0m, row.TaxableWithdrawal);
-                Assert.Equal(0m, row.TraditionalWithdrawal);
-                Assert.Equal(0m, row.RothWithdrawal);
+                Assert.Equal(0m, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(0m, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(0m, row.RothWithdrawalForCostOfLivingAndTaxes);
                 // Only check Social Security income for years when it is actually paid
                 if (row.SSYou > 0 || row.SSPartner > 0)
                 {
@@ -130,9 +130,9 @@ namespace FinPlan.Tests
                 decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                 decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
                 Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
-                Assert.Equal(0m, row.TaxableWithdrawal);
-                Assert.Equal(0m, row.TraditionalWithdrawal);
-                Assert.Equal(0m, row.RothWithdrawal);
+                Assert.Equal(0m, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(0m, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(0m, row.RothWithdrawalForCostOfLivingAndTaxes);
                 // Only check Social Security income for years when it is actually paid
                 if (row.SSYou > 0 || row.SSPartner > 0)
                 {
@@ -173,10 +173,10 @@ namespace FinPlan.Tests
             foreach (var row in model.YearRows)
             {
                 // Only check years with a taxable withdrawal
-                if (row.TaxableWithdrawal > 0)
+                if (row.TaxableWithdrawalForCostOfLivingAndTaxes > 0)
                 {
                     decimal ssTotal = row.SSYou + row.SSPartner;
-                    decimal otherIncome = row.TaxableWithdrawal; // Taxable withdrawal should be included
+                    decimal otherIncome = row.TaxableWithdrawalForCostOfLivingAndTaxes; // Taxable withdrawal should be included
                     decimal expectedTaxableSS = CalendarSpendingModel.EstimateTaxableSocialSecurity(ssTotal, otherIncome, true);
                     decimal expectedTax = expectedTaxableSS * (model.TraditionalTaxRate / 100m);
                     Assert.Equal(expectedTax, row.TaxesPaidOnAllTaxableGrowthAndIncome);
@@ -292,9 +292,9 @@ namespace FinPlan.Tests
             {
                 decimal inflows = row.SSYou + row.SSPartner + row.ReverseMortgage;
                 prevTaxable += inflows; // Add inflows to taxable before growth/withdrawals
-                decimal taxableWithdrawal = row.TaxableWithdrawal;
-                decimal traditionalWithdrawal = row.TraditionalWithdrawal;
-                decimal rothWithdrawal = row.RothWithdrawal;
+                decimal taxableWithdrawal = row.TaxableWithdrawalForCostOfLivingAndTaxes;
+                decimal traditionalWithdrawal = row.TraditionalWithdrawalForCostOfLivingAndTaxes;
+                decimal rothWithdrawal = row.RothWithdrawalForCostOfLivingAndTaxes;
                 // Apply growth first, then withdrawals
                 prevTaxable *= (1 + model.InvestmentReturn / 100m);
                 prevTraditional *= (1 + model.InvestmentReturn / 100m);
@@ -346,9 +346,9 @@ namespace FinPlan.Tests
             decimal prevTaxable = 100_000m;
             decimal prevTraditional = 50_000m;
             decimal prevRoth = 25_000m;
-            decimal taxableWithdrawal = row.TaxableWithdrawal;
-            decimal traditionalWithdrawal = row.TraditionalWithdrawal;
-            decimal rothWithdrawal = row.RothWithdrawal;
+            decimal taxableWithdrawal = row.TaxableWithdrawalForCostOfLivingAndTaxes;
+            decimal traditionalWithdrawal = row.TraditionalWithdrawalForCostOfLivingAndTaxes;
+            decimal rothWithdrawal = row.RothWithdrawalForCostOfLivingAndTaxes;
             // Model logic: growth first, then withdrawals
             decimal expectedTaxable = prevTaxable * (1 + model.InvestmentReturn / 100m) - taxableWithdrawal;
             decimal expectedTraditional = prevTraditional * (1 + model.InvestmentReturn / 100m) - traditionalWithdrawal;
@@ -394,9 +394,9 @@ namespace FinPlan.Tests
             decimal prevTraditional = 50_000m;
             decimal prevRoth = 25_000m;
             decimal inflows = row.SSYou + row.SSPartner + row.ReverseMortgage;
-            decimal taxableWithdrawal = row.TaxableWithdrawal;
-            decimal traditionalWithdrawal = row.TraditionalWithdrawal;
-            decimal rothWithdrawal = row.RothWithdrawal;
+            decimal taxableWithdrawal = row.TaxableWithdrawalForCostOfLivingAndTaxes;
+            decimal traditionalWithdrawal = row.TraditionalWithdrawalForCostOfLivingAndTaxes;
+            decimal rothWithdrawal = row.RothWithdrawalForCostOfLivingAndTaxes;
             decimal taxesPaid = row.TaxesPaidOnAllTaxableGrowthAndIncome;
             decimal outflows = taxesPaid + taxableWithdrawal + traditionalWithdrawal + rothWithdrawal;
             decimal expectedTaxable = prevTaxable - taxableWithdrawal;
@@ -504,9 +504,9 @@ namespace FinPlan.Tests
             // Assert: Only one year, withdrawal should come from taxable first, then traditional
             Assert.Single(model.YearRows);
             var row = model.YearRows[0];
-            Assert.Equal(10_000m, row.TaxableWithdrawal); // All taxable depleted
-            Assert.Equal(15_000m, row.TraditionalWithdrawal); // Remainder from traditional
-            Assert.Equal(0m, row.RothWithdrawal); // None from Roth
+            Assert.Equal(10_000m, row.TaxableWithdrawalForCostOfLivingAndTaxes); // All taxable depleted
+            Assert.Equal(15_000m, row.TraditionalWithdrawalForCostOfLivingAndTaxes); // Remainder from traditional
+            Assert.Equal(0m, row.RothWithdrawalForCostOfLivingAndTaxes); // None from Roth
         }
 
         [Fact]
@@ -540,9 +540,9 @@ namespace FinPlan.Tests
             // Assert: Only one year, withdrawal should come from taxable first, then traditional
             Assert.Single(model.YearRows);
             var row = model.YearRows[0];
-            Assert.Equal(5_000m, row.TaxableWithdrawal); // All taxable depleted
-            Assert.Equal(7_000m, row.TraditionalWithdrawal); // Remainder from traditional
-            Assert.Equal(0m, row.RothWithdrawal); // None from Roth
+            Assert.Equal(5_000m, row.TaxableWithdrawalForCostOfLivingAndTaxes); // All taxable depleted
+            Assert.Equal(7_000m, row.TraditionalWithdrawalForCostOfLivingAndTaxes); // Remainder from traditional
+            Assert.Equal(0m, row.RothWithdrawalForCostOfLivingAndTaxes); // None from Roth
         }
 
         [Fact]
@@ -576,9 +576,9 @@ namespace FinPlan.Tests
             // Assert: Only one year, withdrawal should come from all buckets in order
             Assert.Single(model.YearRows);
             var row = model.YearRows[0];
-            Assert.Equal(2_000m, row.TaxableWithdrawal); // All taxable depleted
-            Assert.Equal(3_000m, row.TraditionalWithdrawal); // All traditional depleted
-            Assert.Equal(3_000m, row.RothWithdrawal); // Remainder from Roth
+            Assert.Equal(2_000m, row.TaxableWithdrawalForCostOfLivingAndTaxes); // All taxable depleted
+            Assert.Equal(3_000m, row.TraditionalWithdrawalForCostOfLivingAndTaxes); // All traditional depleted
+            Assert.Equal(3_000m, row.RothWithdrawalForCostOfLivingAndTaxes); // Remainder from Roth
         }
 
         [Fact]
@@ -620,9 +620,9 @@ namespace FinPlan.Tests
             for (int i = 0; i < expected.Length; i++)
             {
                 var row = model.YearRows[i];
-                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
-                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
-                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawalForCostOfLivingAndTaxes);
             }
         }
 
@@ -666,9 +666,9 @@ namespace FinPlan.Tests
             for (int i = 0; i < expected.Length; i++)
             {
                 var row = model.YearRows[i];
-                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
-                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
-                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawalForCostOfLivingAndTaxes);
             }
         }
 
@@ -713,9 +713,9 @@ namespace FinPlan.Tests
             for (int i = 0; i < expected.Length; i++)
             {
                 var row = model.YearRows[i];
-                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
-                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
-                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawalForCostOfLivingAndTaxes);
             }
             // Removed: depletion year assertions
         }
@@ -761,9 +761,9 @@ namespace FinPlan.Tests
             for (int i = 0; i < expected.Length; i++)
             {
                 var row = model.YearRows[i];
-                Assert.Equal(expected[i].Item1, row.TaxableWithdrawal);
-                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawal);
-                Assert.Equal(expected[i].Item3, row.RothWithdrawal);
+                Assert.Equal(expected[i].Item1, row.TaxableWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item2, row.TraditionalWithdrawalForCostOfLivingAndTaxes);
+                Assert.Equal(expected[i].Item3, row.RothWithdrawalForCostOfLivingAndTaxes);
             }
         }
     }

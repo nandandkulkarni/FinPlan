@@ -178,9 +178,9 @@
 //                    StartingRothBalance = Math.Round(startingRothBalance, 2),
 
 //                    // Withdrawals
-//                    TaxableWithdrawal = Math.Round(taxableWithdrawal, 2),
-//                    TraditionalWithdrawal = Math.Round(traditionalWithdrawal, 2),
-//                    RothWithdrawal = Math.Round(rothWithdrawal, 2),
+//                    TaxableWithdrawalForCostOfLivingAndTaxes = Math.Round(taxableWithdrawal, 2),
+//                    TraditionalWithdrawalForCostOfLivingAndTaxes = Math.Round(traditionalWithdrawal, 2),
+//                    RothWithdrawalForCostOfLivingAndTaxes = Math.Round(rothWithdrawal, 2),
 
 //                    // Tax
 //                    TaxPaid = Math.Round(taxOnTraditional, 2),

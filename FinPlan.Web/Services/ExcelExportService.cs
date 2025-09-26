@@ -275,9 +275,9 @@
 //                    sheet.Cell(row, dataCol++).Value = year.PartTimeIncome;
 //                }
                 
-//                sheet.Cell(row, dataCol++).Value = year.TaxableWithdrawal;
-//                sheet.Cell(row, dataCol++).Value = year.TraditionalWithdrawal;
-//                sheet.Cell(row, dataCol++).Value = year.RothWithdrawal;
+//                sheet.Cell(row, dataCol++).Value = year.TaxableWithdrawalForCostOfLivingAndTaxes;
+//                sheet.Cell(row, dataCol++).Value = year.TraditionalWithdrawalForCostOfLivingAndTaxes;
+//                sheet.Cell(row, dataCol++).Value = year.RothWithdrawalForCostOfLivingAndTaxes;
 //                sheet.Cell(row, dataCol++).Value = year.TotalWithdrawal;
 //                sheet.Cell(row, dataCol++).Value = year.TaxPaid;
 //                sheet.Cell(row, dataCol++).Value = year.TaxableGrowth;
