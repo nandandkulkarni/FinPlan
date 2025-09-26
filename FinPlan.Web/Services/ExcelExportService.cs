@@ -446,7 +446,7 @@
 //                //sheet.Cell(row, 6).Value = year.TaxableBalance;
 //                //sheet.Cell(row, 7).Value = year.TaxDeferredBalance;
 //                sheet.Cell(row, 8).Value = year.RothEOYBalance;
-//                sheet.Cell(row, 9).Value = year.TaxesPaidOnAllTaxableGrowthAndIncome;
+//                sheet.Cell(row, 9).Value = year.TaxesPaidSlashDueOnAllTaxableGrowthAndIncome;
                 
 //                //// Apply currency formatting
 //                //sheet.Range($"C{row}:I{row}").Style.NumberFormat.Format = "$#,##0.00";
