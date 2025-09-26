@@ -169,12 +169,12 @@
             padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
     /* .section-card .actions {
-                    margin-top: auto;
-                    display: flex;
-                    justify-content: flex-start;
-                    gap: 8px;
-                    padding-top: 6px;
-                } */
+                        margin-top: auto;
+                        display: flex;
+                        justify-content: flex-start;
+                        gap: 8px;
+                        padding-top: 6px;
+                    } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -325,21 +325,21 @@
     }
 
     /* .step-badge {
-                width: 36px;
-                height: 36px;
-                min-width: 36px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background: var(--brand-yellow);
-                color: #111;
-                font-weight: 800;
-                font-size: 1rem;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                margin-right: 8px;
-                flex-shrink: 0;
-            } */
+                    width: 36px;
+                    height: 36px;
+                    min-width: 36px;
+                    border-radius: 50%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--brand-yellow);
+                    color: #111;
+                    font-weight: 800;
+                    font-size: 1rem;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                    margin-right: 8px;
+                    flex-shrink: 0;
+                } */
 
     .empty-state {
         text-align: center;
@@ -1317,7 +1317,7 @@
                                 @if (showToolTipGrowth)
                                 {
                                     <div class="info-tooltip">
-                                        <strong>Growth:</strong> Investment growth for the year.
+                                        <strong>Growth Before Tax:</strong> Investment growth for the year, before subtracting the taxes
                                         <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false" title="Close">
                                             <span class="bi bi-x-lg"></span>
                                         </span>
@@ -1363,19 +1363,19 @@
                                     </div>
                                 }
                             </th>
-<th class="text-end col-account-activity" style="width: 80px; background-color: rgba(37, 99, 235, 0.08); border-right: 2px solid #d1d5db; color: #F56565;">
-    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-    Tax Paid
-    @if (showToolTipTaxPaid)
-    {
-        <div class="info-tooltip">
-            <strong>Tax Paid:</strong> Tax paid on all taxable income, including social security.
-            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false" title="Close">
-                <span class="bi bi-x-lg"></span>
-            </span>
-        </div>
-    }
-</th>
+                            <th class="text-end col-account-activity" style="width: 80px; background-color: rgba(37, 99, 235, 0.08); border-right: 2px solid #d1d5db; color: #F56565;">
+                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
+                                Tax Paid
+                                @if (showToolTipTaxPaid)
+                                {
+                                    <div class="info-tooltip">
+                                        <strong>Tax Paid:</strong> Tax paid on all taxable income, including social security.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </th>
 
                             <th class="text-end col-ending-balances" style="width: 80px; background-color: rgba(107, 114, 128, 0.08);">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
@@ -1440,7 +1440,7 @@
                                     @row.ReverseMortgage.ToString("C0")
                                 </td>
                                 <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                                    @row.Growth.ToString("C0")
+                                    @row.GrowthBeforeTaxes.ToString("C0")
                                 </td>
                                 <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.TaxableWithdrawal.ToString("C0")
@@ -1454,7 +1454,7 @@
                                 <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
                                     @row.TaxesPaidOnAllTaxableGrowthAndIncome.ToString("C0")
                                 </td>
-                            
+
                                 <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.EndingTaxable.ToString("C0")
                                 </td>

@@ -339,8 +339,8 @@ namespace FinPlan.Shared.Models.Spending
                 calendarYearRow.GrowthOfTaxableBalance = CalculateNetGrowth(lastYearTaxableBalance,12);
                 calendarYearRow.GrowthOfTradionalBalance = CalculateNetGrowth(lastYearTraditionalBalance,12);
                 calendarYearRow.GrowthOfRothBalance = CalculateNetGrowth(lastYearRothBalance,12);
-
-                calendarYearRow.GrowthCombined = calendarYearRow.GrowthOfTaxableBalance + calendarYearRow.GrowthOfTradionalBalance + calendarYearRow.GrowthOfRothBalance;
+                
+                calendarYearRow.GrowthBeforeTaxes = calendarYearRow.GrowthOfTaxableBalance + calendarYearRow.GrowthOfTradionalBalance + calendarYearRow.GrowthOfRothBalance;
 
                 //TAXES ON SSN
                 //calendarYearRow.EstimatedTaxableSocialSecurity = (calendarYearRow.SSYou + calendarYearRow.SSPartner) * .20m;//CalculateEstimatedTaxableSS(calendarYearRow.SSYou + calendarYearRow.SSPartner, calendarYearRow.TotalNonSSNonGrowthTaxableIncome);
@@ -838,7 +838,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxOnTaxableInterestAndDividendGrowth { get; internal set; }
         public decimal GrowthOfTradionalBalance { get; internal set; }
         public decimal GrowthOfRothBalance { get; internal set; }
-        public decimal GrowthCombined { get; internal set; }
+        public decimal GrowthBeforeTaxes { get; internal set; }
         public decimal TaxOnTraditionalWithdrawal { get; internal set; }
         public decimal TaxableWithdrawForTaxPaymentIfAtAll { get; internal set; }
         public decimal TraditionalWithdrawForTaxPaymentIfAtAll { get; internal set; }
