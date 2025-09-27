@@ -16,7 +16,7 @@ namespace FinPlan.Tests
                 RetirementAgePartner = 67,
                 LifeExpectancyYou = 99,
                 LifeExpectancyPartner = 99,
-                TaxableBalance = 500_000m,
+                TaxableBalance = 200_000m,
                 TraditionalBalance = 500_000m,
                 RothBalance = 500_000m,
                 SocialSecurityMonthlyYou = 1500m,
@@ -28,7 +28,7 @@ namespace FinPlan.Tests
                 TraditionalTaxRate = 20.0m,
                 ReverseMortgageMonthly = 3000m,
                 ReverseMortgageStartYear=2034,
-                SimulationStartYear = 2035
+                SimulationStartYear = 2037
 
             };
 

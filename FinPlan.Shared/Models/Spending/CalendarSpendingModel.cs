@@ -299,6 +299,53 @@ namespace FinPlan.Shared.Models.Spending
         // Calculate fills YearRows based on current inputs
 
 
+        private decimal CalculateSS(int currentAge, int ssStartAge, decimal monthlySSAtSSStartYear, decimal ssInflation)
+        {
+            if (currentAge < ssStartAge)        //Age of SS Withdrawal not reached
+                return 0;
+
+            int yearsSinceSSStart = currentAge - ssStartAge;
+
+            decimal yearlySocialSecurity = monthlySSAtSSStartYear * 12;
+            //Increase SS by inflation
+            for(int yearOfSSWithdraw = 0; yearOfSSWithdraw < yearsSinceSSStart; yearOfSSWithdraw++)
+            {
+                yearlySocialSecurity += yearlySocialSecurity * ssInflation / 100;
+            }
+
+            return yearlySocialSecurity;
+        }
+        private decimal CalculateAmountNeededForCostOfLiving(
+             int yourCurrentAge, int partnerCurrentAge,
+            int yourRetirementAge, int partnerRetirementAge, decimal yearlyAmountNeededOneRetired, decimal yearlyAmountNeededBothRetired, decimal costOfLivingInflation)
+        {
+            if (yourCurrentAge < yourRetirementAge && partnerCurrentAge < partnerRetirementAge)        //Age of COL Withdrawal not reached
+                return 0;
+
+            if(yourCurrentAge >= yourRetirementAge && partnerCurrentAge >= partnerRetirementAge) //Both Retired
+            {
+                int yearsSinceBothRetired = Math.Max(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
+                //Increase cost of living by inflation
+                int yearsSinceCOLStart = Math.Max(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
+                decimal amountNeededForCostOfLiving1 = yearlyAmountNeededBothRetired;
+                for (int yearOfCOLWithdraw = 0; yearOfCOLWithdraw < yearsSinceBothRetired; yearOfCOLWithdraw++)
+                {
+                    amountNeededForCostOfLiving1 += amountNeededForCostOfLiving1 * costOfLivingInflation / 100;
+                }
+                return amountNeededForCostOfLiving1;
+            }
+
+            //One Retired
+            int yearsSinceFirstRetirement = Math.Min(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
+            decimal amountNeededForCostOfLiving2 = yearlyAmountNeededOneRetired;
+            for (int yearOfCOLWithdraw = 0; yearOfCOLWithdraw < yearsSinceFirstRetirement; yearOfCOLWithdraw++)
+            {
+                amountNeededForCostOfLiving2 += amountNeededForCostOfLiving2 * costOfLivingInflation / 100;
+            }
+            return amountNeededForCostOfLiving2;
+
+        }
+
         public void Calculate()
         {
             SyncRetirementYearsFromAges();
@@ -315,8 +362,21 @@ namespace FinPlan.Shared.Models.Spending
             var lastYearTraditionalBalance = TraditionalBalance;
             var lastYearRothBalance = RothBalance;
 
+            int yearSinceRetired = -1;
+
             for (int year = SimulationStartYear; year <= simulationEndYear; year++)
             {
+                //DECIDED HOW MUCH TO WITHDRAW FOR LIVING EXPENSES
+                var isYouRetired = year >= RetirementYearYou;
+                var isPartnerRetired = year >= RetirementYearPartner;
+
+                if (isYouRetired || isPartnerRetired)
+                {
+                    yearSinceRetired++;
+                }
+
+                //decimal currentInflation = yearSinceRetired * InflationRate;
+
                 // Perform calculations for each year
 
                 var calendarYearRow = new CalendarYearRow { Year = year };
@@ -326,8 +386,14 @@ namespace FinPlan.Shared.Models.Spending
                 calendarYearRow.AgePartner = CurrentAgePartner + (year - DateTime.Now.Year);
 
                 calendarYearRow.Milestone = GetMilestoneText(year);
-                calendarYearRow.SSYou = GetSocialSecurityForYear(year, false);
-                calendarYearRow.SSPartner = GetSocialSecurityForYear(year, true);
+                
+                //calendarYearRow.SSYou = GetSocialSecurityForYear(year, false, yearSinceRetired);
+                //calendarYearRow.SSPartner = GetSocialSecurityForYear(year, true, yearSinceRetired);
+
+                calendarYearRow.SSYou = CalculateSS(calendarYearRow.AgeYou,SSStartAgeYou, SocialSecurityMonthlyYou,InflationRate);
+                calendarYearRow.SSPartner = CalculateSS(calendarYearRow.AgePartner, SSStartAgePartner, SocialSecurityMonthlyPartner, InflationRate);
+
+
                 calendarYearRow.ReverseMortgage = GetReverseMortgageForYear(year);
                 calendarYearRow.OtherTaxableIncome = OtherTaxableIncomeForYear(year);
 
@@ -361,20 +427,17 @@ namespace FinPlan.Shared.Models.Spending
                 decimal rothBalanceSoFar = lastYearRothBalance + calendarYearRow.GrowthOfRothBalance;
 
 
-                //DECIDED HOW MUCH TO WITHDRAW FOR LIVING EXPENSES
-                var isYouRetired = year >= RetirementYearYou;
-                var isPartnerRetired = year >= RetirementYearPartner;
+             
 
-                var amountNeededForCostOfLiving = 0m;
-                if(isYouRetired && isPartnerRetired) amountNeededForCostOfLiving = AnnualWithdrawalBoth;
-                else if(isYouRetired || isPartnerRetired) amountNeededForCostOfLiving = AnnualWithdrawalOne;
-
-                //INFLATE THE AMOUNT NEEDED FOR COST OF LIVING
-                if (amountNeededForCostOfLiving > 0)
-                {
-                    amountNeededForCostOfLiving += amountNeededForCostOfLiving * (InflationRate / 100m);
-                }
-
+                var amountNeededForCostOfLiving =
+                    CalculateAmountNeededForCostOfLiving(
+                        calendarYearRow.AgeYou,
+                        calendarYearRow.AgePartner,
+                        RetirementAgeYou,
+                        RetirementAgePartner,
+                        AnnualWithdrawalOne,
+                        AnnualWithdrawalBoth,
+                        InflationRate);
 
                 ///CALCULATE AMOUNT NEEDED FOR COST OF LIVING
                 {
@@ -570,7 +633,7 @@ namespace FinPlan.Shared.Models.Spending
             return 0m;
         }
 
-        internal decimal GetSocialSecurityForYear(int year, bool isPartner)
+        internal decimal GetSocialSecurityForYear(int year, bool isPartner, int yearForInflationAdjustment)
         {
             // Social Security: use expected monthly benefits converted to annual when eligible, inflation-adjusted each year since start
             var ssStartYear = isPartner ? SSStartYearPartner : SSStartYearYou;
