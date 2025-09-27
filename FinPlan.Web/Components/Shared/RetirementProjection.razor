@@ -347,9 +347,13 @@
     /* Centralized styling: apply column-8 visuals to all table headers and body cells */
     .rp-table thead th,
     .rp-table tbody td,
+
+    .rp-table thead th.col-timeline-milestones,
     .rp-table thead th.col-income-sources,
     .rp-table thead th.col-ending-balances,
     .rp-table thead th.col-account-activity,
+
+    .rp-table tbody td.col-timeline-milestones,
     .rp-table tbody td.col-income-sources,
     .rp-table tbody td.col-ending-balances,
     .rp-table tbody td.col-account-activity {
@@ -417,7 +421,7 @@
             </tr>
             <!-- Second Row: Specific Columns with separators and tooltips -->
             <tr>
-                <th class="col-timeline">
+                <th class="col-timeline-milestones">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYear = !showToolTipYear" tabindex="0" title="Click for more info"></span>
                     @Numbered(1)Year
                     @if (showToolTipYear)
@@ -428,7 +432,7 @@
                         </div>
                     }
                 </th>
-                <th class="col-timeline">
+                <th class="col-timeline-milestones">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourAge = !showToolTipYourAge" tabindex="0" title="Click for more info"></span>
                     @Numbered(2)Your Age
                     @if (showToolTipYourAge)
@@ -735,15 +739,23 @@
             {
                 var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
                 <tr class="@rowClass">
-                    <td class="col-year" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db;">@row.Year</td>
-                    <td class="col-age" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db;">@row.AgeYou</td>
-                    <td class="col-age" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db;">@row.AgePartner</td>
-                    <td class="col-milestones" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; width: 100px; overflow-x: auto; white-space: nowrap;">@row.Milestone</td>
+                    <td class="text-end col-income-sources">
+                        @row.Year
+                    </td>
+                    <td class="text-end col-income-sources">
+                        @row.AgeYou
+                    </td>
+                    <td class="text-end col-income-sources">
+                        @row.AgePartner
+                    </td>
+                    <td class="text-end col-income-sources">
+                        @row.Milestone
+                    </td>
 
-                    <td class="text-end" style="border-right: 2px solid #d1d5db; color: #2563EB;">
+                    <td class="text-end col-income-sources">
                         @row.AmountNeededForCostOfLiving.ToString("C0")
                     </td>
-                    <td class="text-end" style="border-right: 2px solid #d1d5db; color: #2563EB;">
+                    <td class="text-end col-income-sources">
                         @row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")
                     </td>
 
