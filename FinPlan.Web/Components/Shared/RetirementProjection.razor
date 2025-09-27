@@ -28,7 +28,7 @@
     [Parameter]
     public CalendarSpendingModel Model { get; set; }
     public List<CalendarYearRow> YearRows => Model?.YearRows ?? new();
-    
+
     // New parameter to toggle showing column numbers
     public bool IsShowColumnNumber { get; set; } = true;
 
@@ -36,6 +36,21 @@
     private string Numbered(int n) => IsShowColumnNumber ? $"{n}. " : string.Empty;
     // Overload to allow fractional labels like "13.5"
     private string Numbered(string label) => IsShowColumnNumber ? $"{label} " : string.Empty;
+
+
+}
+@code {
+
+    // Example: show/hide groups by name
+    private const string WithdrawalCOLBreakDown = "WithdrawalCOLBreakDown";
+    private HashSet<string> VisibleGroups = new() { "Timeline", "RetirementEquation", WithdrawalCOLBreakDown, "IncomeBreakDown", "IncomeConsolidated", "TaxGrowthIncome", "TaxTraditional" };
+
+    // Toggle group visibility (can be bound to a switch)
+    void ToggleGroup(string groupName)
+    {
+        if (!VisibleGroups.Add(groupName))
+            VisibleGroups.Remove(groupName);
+    }
 }
 
 <div id="table-scrollbar-bottom" style="width:100%; overflow-x:auto;">
@@ -49,11 +64,17 @@
                     <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
 
                 </th>
-                <th colspan="3" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
-                    Withdrawals for Cost Of Living
-                    <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Actual withdrawals for Cost of Living </span>
-                </th>
-                <th colspan="5" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">income</th>
+                @* Withdrawals for Cost Of Living *@
+                @if (VisibleGroups.Contains(WithdrawalCOLBreakDown))
+                {
+
+                    <th colspan="3" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
+                        Withdrawals for Cost Of Living
+                        <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Actual withdrawals for Cost of Living </span>
+                    </th>
+                }
+                <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Income and Growth</th>
+                <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
 
                 <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
 
@@ -61,10 +82,6 @@
 
                 <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Traditional A/c withdrawal for Income Tax)</th>
 
-                @* <th style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">Total Withdrawn</th>
-                                    <th colspan="3" class="col-account-activity" style="background-color: rgba(37,99,235,0.08); border-right: 2px solid #d1d5db; text-align: center;">Withdrawals (Living)</th>
-                                    <th colspan="6" class="col-account-activity" style="background-color: rgba(37,99,235,0.08); border-right: 2px solid #d1d5db; text-align: center;">Withdrawals (Taxes)</th>
-                                    <th style="background-color: rgba(37,99,235,0.08); color: #F56565; border-right: 2px solid #d1d5db; text-align: center;">Taxes</th> *@
             </tr>
             <!-- Second Row: Specific Columns with separators and tooltips -->
             <tr>
@@ -135,39 +152,43 @@
                         </div>
                     }
                 </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(7)Taxable A/c
-                    @if (showToolTipTaxableWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for living expenses.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(8)Traditional A/c
-                    @if (showToolTipTraditionalWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for living expenses.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(9)Roth A/c
-                    @if (showToolTipRothWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for living expenses.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                @* Withdrawals for Cost Of Living *@
+                @if (VisibleGroups.Contains(WithdrawalCOLBreakDown))
+                {
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(7)Taxable A/c
+                        @if (showToolTipTaxableWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for living expenses.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(8)Traditional A/c
+                        @if (showToolTipTraditionalWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for living expenses.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(9)Roth A/c
+                        @if (showToolTipRothWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for living expenses.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                }
                 <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSYou = !showToolTipSSYou" tabindex="0" title="Click for more info"></span>
                     @Numbered(10)SS (You)
@@ -354,18 +375,21 @@
                         @row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")
                     </td>
 
+                    @* Withdrawals for Cost Of Living *@
+                    @if (VisibleGroups.Contains(WithdrawalCOLBreakDown))
+                    {
 
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.TaxableWithdrawnForCostOfLivingIfAtAll.ToString("C0")
-                    </td>
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.TaxableWithdrawnForCostOfLivingIfAtAll.ToString("C0")
+                        </td>
 
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.TradWithdrawnForCostOfLivingIfAtAll.ToString("C0")
-                    </td>
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                        @row.RothWithdrawnForCostOfLivingIfAtAll.ToString("C0")
-                    </td>
-
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.TradWithdrawnForCostOfLivingIfAtAll.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                            @row.RothWithdrawnForCostOfLivingIfAtAll.ToString("C0")
+                        </td>
+                    }
 
 
                     <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
@@ -380,9 +404,9 @@
                     <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
                         @row.GrowthBeforeTaxes.ToString("C0")
                     </td>
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                            @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
-                        </td>
+                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
+                    </td>
 
 
 
