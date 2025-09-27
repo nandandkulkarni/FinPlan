@@ -43,7 +43,8 @@
 
     // Example: show/hide groups by name
     private const string WithdrawalCOLBreakDown = "WithdrawalCOLBreakDown";
-    private HashSet<string> VisibleGroups = new() { "Timeline", "RetirementEquation", WithdrawalCOLBreakDown, "IncomeBreakDown", "IncomeConsolidated", "TaxGrowthIncome", "TaxTraditional" };
+    private const string EndingBalances = "EndingBalances";
+    private HashSet<string> VisibleGroups = new() { "Timeline", "RetirementEquation", WithdrawalCOLBreakDown, "IncomeBreakDown", "IncomeConsolidated", EndingBalances, "TaxGrowthIncome", "TaxTraditional" };
 
     // Toggle group visibility (can be bound to a switch)
     void ToggleGroup(string groupName)
@@ -66,11 +67,13 @@
     // Helper to convert group key to a friendly label (small mapping for the panel)
     private string GetGroupLabel(string groupKey)
     {
-        return groupKey == WithdrawalCOLBreakDown ? "Withdrawals for Cost Of Living" : groupKey;
+        if (groupKey == WithdrawalCOLBreakDown) return "Withdrawals for Cost Of Living";
+        if (groupKey == EndingBalances) return "Ending Balances";
+        return groupKey;
     }
     private string GetGroupLabelMessage(string groupKey, bool isShown)
     {
-        var groupLabel = groupKey == WithdrawalCOLBreakDown ? "Withdrawals for Cost Of Living" : groupKey;
+        var groupLabel = groupKey == WithdrawalCOLBreakDown ? "Withdrawals for Cost Of Living" : (groupKey == EndingBalances ? "Ending Balances" : groupKey);
         return isShown ? $"{groupLabel} shown" : $"{groupLabel} hidden";
     }
 
@@ -105,6 +108,11 @@
                     <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(WithdrawalCOLBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(WithdrawalCOLBreakDown)" />
                     <label class="form-check-label" for="cbWithdrawal">Show Withdrawals for Cost Of Living</label>
+                </div>
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbEndingBalances" checked="@VisibleGroups.Contains(EndingBalances)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(EndingBalances)" />
+                    <label class="form-check-label" for="cbEndingBalances">Show Ending Balances</label>
                 </div>
             </div>
 
@@ -149,8 +157,11 @@
                 <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Income and Growth</th>
                 <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
 
-                <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
-                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
+                @if (VisibleGroups.Contains(EndingBalances))
+                {
+                    <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
+                    <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
+                }
 
                 <th colspan="4" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Growth & Income)</th>
 
@@ -316,45 +327,48 @@
                     @Numbered("13.5")Income
                 </th>
 
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
-                    @Numbered(14)Taxable A/c
-                    @if (showToolTipTaxableEnding)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Taxable Balance:</strong> Year-end balance of taxable accounts.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableEnding = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalEnding = !showToolTipTraditionalEnding" tabindex="0" title="Click for more info"></span>
-                    @Numbered(15)Traditional A/c
-                    @if (showToolTipTraditionalEnding)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Traditional Balance:</strong> Year-end balance of traditional retirement accounts.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalEnding = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                @if (VisibleGroups.Contains(EndingBalances))
+                {
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
+                        @Numbered(14)Taxable A/c
+                        @if (showToolTipTaxableEnding)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Balance:</strong> Year-end balance of taxable accounts.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableEnding = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalEnding = !showToolTipTraditionalEnding" tabindex="0" title="Click for more info"></span>
+                        @Numbered(15)Traditional A/c
+                        @if (showToolTipTraditionalEnding)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Balance:</strong> Year-end balance of traditional retirement accounts.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalEnding = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
 
-                <th>
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothEnding = !showToolTipRothEnding" tabindex="0" title="Click for more info"></span>
-                    @Numbered(16)Roth A/c
-                    @if (showToolTipRothEnding)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Roth Balance:</strong> Year-end balance of Roth accounts.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothEnding = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                    <th>
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothEnding = !showToolTipRothEnding" tabindex="0" title="Click for more info"></span>
+                        @Numbered(16)Roth A/c
+                        @if (showToolTipRothEnding)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Balance:</strong> Year-end balance of Roth accounts.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothEnding = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
 
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                    @Numbered("16.5")Total Ending Balance
-                </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
+                        @Numbered("16.5")Total Ending Balance
+                    </th>
+                }
 
 
                 <th style="border-right: 2px solid #d1d5db;">
@@ -489,19 +503,22 @@
 
 
 
-                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.EndingTaxable.ToString("C0")
-                    </td>
-                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.EndingTraditional.ToString("C0")
-                    </td>
-                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.EndingRoth.ToString("C0")
-                    </td>
+                    @if (VisibleGroups.Contains(EndingBalances))
+                    {
+                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.EndingTaxable.ToString("C0")
+                        </td>
+                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.EndingTraditional.ToString("C0")
+                        </td>
+                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.EndingRoth.ToString("C0")
+                        </td>
 
-                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                        @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
-                    </td>
+                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                            @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
+                        </td>
+                    }
 
 
 
