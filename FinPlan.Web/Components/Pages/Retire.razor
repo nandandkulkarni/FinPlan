@@ -1509,7 +1509,18 @@
                                 <td class="text-end" style="font-size:0.78rem; background-color: #f8f9fa; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db; color: #2563EB;">
                                     @row.AmountNeededForCostOfLiving.ToString("C0")
                                 </td>
-                                
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.SSYou.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                                    @row.SSPartner.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                                    @row.ReverseMortgage.ToString("C0")
+                                </td>
+                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                                    @row.GrowthBeforeTaxes.ToString("C0")
+                                </td>
                                 <td>1</td>
                                 <td class="text-end" style="font-size:0.78rem; background-color: #f8f9fa; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db; color: #2563EB;">
                                     @row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")
@@ -1553,44 +1564,13 @@
                                     @row.RothWithdrawnForTaxOnTraditional.ToString("C0")
                                 </td>
                                   <td>3</td>
-
-                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @row.SSYou.ToString("C0")
-                                </td>
-                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                                    @row.SSPartner.ToString("C0")
-                                </td>
-                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                                    @row.ReverseMortgage.ToString("C0")
-                                </td>
-                                <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                                    @row.GrowthBeforeTaxes.ToString("C0")
-                                </td>
-                                
-                            
-
-
-                               
-
-                                <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                                    @row.RothWithdrawalForCostOfLivingAndTaxes.ToString("C0")
-                                </td>
-                          
-
-
-
-                                <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
-                                    @row.TaxesDueOnAllTaxableGrowthAndIncome.ToString("C0")
-                                </td>
-                                <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
-                                    @row.TaxOnTraditionalWithdrawalDoneForCostOfLiving.ToString("C0")
-                                </td>
+                       
                                 <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.EndingTaxable.ToString("C0")
                                 </td>
                                 <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.EndingTraditional.ToString("C0")
-                       </td>
+                                 </td>
                                 <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                                     @row.EndingRoth.ToString("C0")
                                 </td>
