@@ -75,30 +75,56 @@
     }
 
     const string shown = "shown";
+
+    // Modal state and helper
+    private bool showGroupModal = false;
+    void CloseGroupModal() => showGroupModal = false;
 }
 
-<!-- Groups picker (gear) placed above the table so controls never disappear when groups are hidden) -->
-<div class="d-flex align-items-center mb-2">
-    <button class="btn btn-sm btn-outline-secondary" @onclick="() => showGroupPanel = !showGroupPanel" aria-expanded="@showGroupPanel" aria-controls="groupPanel">
+<!-- Groups picker: gear button centered; opens a top-center modal -->
+<div class="d-flex justify-content-center mb-2">
+    <button class="btn btn-sm btn-outline-secondary" @onclick="() => showGroupModal = true" aria-haspopup="dialog" aria-expanded="@showGroupModal" aria-controls="groupModal">
         <span class="bi bi-gear"></span>
         <span style="margin-left:6px;">Groups</span>
     </button>
+</div>
 
-    <div id="groupPanel" style="display:@(showGroupPanel ? "block" : "none"); margin-left:8px; border:1px solid #ddd; padding:8px; background:#fff;">
-        <div style="max-height:240px; overflow:auto; width:320px;">
-            <label style="display:flex; align-items:center; gap:8px;">
-                <input type="checkbox" checked="@VisibleGroups.Contains(WithdrawalCOLBreakDown)" @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(WithdrawalCOLBreakDown)" />
-                <span>Show Withdrawals for Cost Of Living</span>
-            </label>
-        </div>
-        <div style="margin-top:6px;">
-            <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Add(WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(WithdrawalCOLBreakDown,true); }">Show</button>
-            <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(WithdrawalCOLBreakDown,false); }">Hide</button>
+@if (showGroupModal)
+{
+    <div class="modal-backdrop" @onclick="CloseGroupModal" aria-hidden="true"></div>
+
+    <div id="groupModal" class="group-modal" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
+        <div class="group-modal-content">
+            <div class="group-modal-header">
+                <h5 id="groupModalTitle" class="m-0">Columns & Groups</h5>
+                <button class="btn btn-sm btn-outline-secondary" aria-label="Close" @onclick="CloseGroupModal"><span class="bi bi-x-lg"></span></button>
+            </div>
+
+            <div class="group-modal-body">
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(WithdrawalCOLBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(WithdrawalCOLBreakDown)" />
+                    <label class="form-check-label" for="cbWithdrawal">Show Withdrawals for Cost Of Living</label>
+                </div>
+            </div>
+
+            <div class="group-modal-footer" style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+                <button class="btn btn-sm btn-primary" @onclick="CloseGroupModal">Done</button>
+                <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(WithdrawalCOLBreakDown,false); }">Hide</button>
+            </div>
         </div>
     </div>
 
     <div class="visually-hidden" aria-live="polite">@groupAnnouncement</div>
-</div>
+
+    <style>
+        .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1040; }
+        .group-modal { position:fixed; left:50%; top:12%; transform:translateX(-50%); z-index:1050; width:420px; max-width:90%; }
+        .group-modal-content { background:#fff; border-radius:8px; padding:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); }
+        .group-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .group-modal-body { padding:6px 2px; }
+    </style>
+}
 
 <div id="table-scrollbar-bottom" style="width:100%; overflow-x:auto;">
     <table aria-label="Yearly grid wireframe">
