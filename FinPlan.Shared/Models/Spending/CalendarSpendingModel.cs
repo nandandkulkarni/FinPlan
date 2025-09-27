@@ -421,13 +421,13 @@ namespace FinPlan.Shared.Models.Spending
                 calendarYearRow.TaxOnTaxableInterestAndDividendGrowth = CalculateTaxOnTaxableInterestOrDividendGrowth(calendarYearRow.GrowthOfTaxableBalance);
 
                 //WITHDRAWAL
-                calendarYearRow.TaxesPaidSlashDueOnAllTaxableGrowthAndIncome =
+                calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome =
                         calendarYearRow.TaxOnTaxableNonSSNonGrowthIncome +
                         calendarYearRow.TaxOnSSIncome +
                         calendarYearRow.TaxOnTaxableInterestAndDividendGrowth;
 
                 //Its assumed that the taxable growth and income can be taxed from the taxable account
-                decimal taxableBalanceSoFar = lastYearTaxableBalance + calendarYearRow.TotalTaxableIncome + calendarYearRow.GrowthOfTaxableBalance;// - calendarYearRow.TaxesPaidSlashDueOnAllTaxableGrowthAndIncome;
+                decimal taxableBalanceSoFar = lastYearTaxableBalance + calendarYearRow.TotalTaxableIncome + calendarYearRow.GrowthOfTaxableBalance;// - calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome;
                 decimal traditionalBalanceSoFar = lastYearTraditionalBalance + calendarYearRow.GrowthOfTradionalBalance;
                 decimal rothBalanceSoFar = lastYearRothBalance + calendarYearRow.GrowthOfRothBalance;
 
@@ -475,7 +475,7 @@ namespace FinPlan.Shared.Models.Spending
                     //NOW LETS TAKE THE TAX ON GROWTH OF TAXABLE ACCOUNT (We could do this before or after the withdraw for cost of living, but for now do it after)
                     //SECOND SPLIT THE WITHDRAWAL FOR TAXES
                     (
-                    calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome,
+                    calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome,
                     calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome,
                     calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome,
                     calendarYearRow.TotalWithdrawForInitialTaxPaymentOnTaxableIncome
@@ -483,11 +483,11 @@ namespace FinPlan.Shared.Models.Spending
                         taxableBalanceSoFar,
                         traditionalBalanceSoFar,
                         rothBalanceSoFar,
-                        calendarYearRow.TaxesPaidSlashDueOnAllTaxableGrowthAndIncome);
+                        calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome);
 
 
                     //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
-                    taxableBalanceSoFar -= calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome;
+                    taxableBalanceSoFar -= calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
                     traditionalBalanceSoFar -= calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
                     rothBalanceSoFar -= calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
                 }
@@ -541,7 +541,7 @@ namespace FinPlan.Shared.Models.Spending
                 //So you do another draw (!IMPORTANT - This may need to be done in loop, but for now assume one pass is enough)
 
                 (
-                  calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome,
+                  calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome,
                   calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome,
                   calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome,
                   calendarYearRow.TotalWithdrawForInitialTaxPaymentOnTaxableIncome
@@ -552,13 +552,13 @@ namespace FinPlan.Shared.Models.Spending
                     calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving);
 
                 // Assign withdrawals to the row so they show up in the grid
-                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome;
+                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
                 calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
                 calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
 
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES - !IMPORTANT I THINK ITS ALREADY DONE ONCE ABOVE
-                //taxableBalanceSoFar -= (decimal)calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome;
+                //taxableBalanceSoFar -= (decimal)calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
                 //traditionalBalanceSoFar -= (decimal)calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
                 //rothBalanceSoFar -= (decimal)calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
 
@@ -798,7 +798,7 @@ namespace FinPlan.Shared.Models.Spending
                 decimal taxOnTrad = CalculateTaxOnTraditional(tradWithdraw);
                 decimal taxOnSS = CalculateTaxOnSS(estimatedTaxableSS);
                 decimal taxOnTaxableGrowth = CalculateTaxOnTaxableGrowth(taxBal);
-                row.TaxesPaidSlashDueOnAllTaxableGrowthAndIncome = CalculateTaxesPaid(tradWithdraw, estimatedTaxableSS, taxOnTaxableGrowth);
+                row.TaxesDueOnAllTaxableGrowthAndIncome = CalculateTaxesPaid(tradWithdraw, estimatedTaxableSS, taxOnTaxableGrowth);
 
                 // Calculate growth for each account based on its actual balance before growth
                 decimal traditionalGrowth = CalculateGrowth(tradBal);
@@ -974,7 +974,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawalForCostOfLivingAndTaxes { get; set; }
         public decimal TraditionalWithdrawalForCostOfLivingAndTaxes { get; set; }
         public decimal RothWithdrawalForCostOfLivingAndTaxes { get; set; }
-        public decimal TaxesPaidSlashDueOnAllTaxableGrowthAndIncome { get; set; }
+        public decimal TaxesDueOnAllTaxableGrowthAndIncome { get; set; }
         public decimal Growth { get; set; }
         public decimal EndingTaxable { get; set; }
         public decimal EndingTraditional { get; set; }
@@ -993,7 +993,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal GrowthOfRothBalance { get; internal set; }
         public decimal GrowthBeforeTaxes { get; internal set; }
         public decimal TaxOnTraditionalWithdrawalDoneForCostOfLiving { get; internal set; }
-        public decimal TaxableWithdrawForInitialTaxPaymenOnTaxableIncome { get; internal set; }
+        public decimal TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome { get; internal set; }
         public decimal TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal RothWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal TotalWithdrawalOfAllType { get; internal set; }
