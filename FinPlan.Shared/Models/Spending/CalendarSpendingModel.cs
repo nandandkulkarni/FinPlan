@@ -526,9 +526,9 @@ namespace FinPlan.Shared.Models.Spending
                             amountToTax = withdrawFromTraditional;
                         }
 
-                        // Optionally, store these totals in the row for reporting
-                        // calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome += totalWithdrawnFromTraditionalForTax;
-                        // calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome += totalWithdrawnFromRothForTax;
+                        // Store these totals in the row for reporting
+                        calendarYearRow.TraditionalWithdrawnForTaxOnTraditional = totalWithdrawnFromTraditionalForTax;
+                        calendarYearRow.RothWithdrawnForTaxOnTraditional = totalWithdrawnFromRothForTax;
                     }
 
                 }
@@ -557,10 +557,10 @@ namespace FinPlan.Shared.Models.Spending
                 calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
 
 
-                //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES
-                taxableBalanceSoFar -= (decimal)calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome;
-                traditionalBalanceSoFar -= (decimal)calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
-                rothBalanceSoFar -= (decimal)calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
+                //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES - !IMPORTANT I THINK ITS ALREADY DONE ONCE ABOVE
+                //taxableBalanceSoFar -= (decimal)calendarYearRow.TaxableWithdrawForInitialTaxPaymenOnTaxableIncome;
+                //traditionalBalanceSoFar -= (decimal)calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
+                //rothBalanceSoFar -= (decimal)calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
 
                 calendarYearRow.EndingTaxable = Math.Max(0, taxableBalanceSoFar);
                 calendarYearRow.EndingTraditional = Math.Max(0, traditionalBalanceSoFar);
@@ -1002,5 +1002,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawnForCostOfLivingIfAtAll { get; internal set; }
         public decimal TradWithdrawnForCostOfLivingIfAtAll { get; internal set; }
         public decimal RothWithdrawnForCostOfLivingIfAtAll { get; internal set; }
+        public decimal TraditionalWithdrawnForTaxOnTraditional { get; set; }
+        public decimal RothWithdrawnForTaxOnTraditional { get; set; }
     }
 }
