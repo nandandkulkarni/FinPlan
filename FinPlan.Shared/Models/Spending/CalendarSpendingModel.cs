@@ -319,12 +319,16 @@ namespace FinPlan.Shared.Models.Spending
              int yourCurrentAge, int partnerCurrentAge,
             int yourRetirementAge, int partnerRetirementAge, decimal yearlyAmountNeededOneRetired, decimal yearlyAmountNeededBothRetired, decimal costOfLivingInflation)
         {
-            if (yourCurrentAge < yourRetirementAge && partnerCurrentAge < partnerRetirementAge)        //Age of COL Withdrawal not reached
+
+            bool youRetired = yourCurrentAge >= yourRetirementAge;
+            bool partnerRetired = partnerCurrentAge >= partnerRetirementAge;
+
+            if(!youRetired && !partnerRetired) //Both Not Retired
                 return 0;
 
-            if(yourCurrentAge >= yourRetirementAge && partnerCurrentAge >= partnerRetirementAge) //Both Retired
+            if(youRetired && partnerRetired) //Both Retired
             {
-                int yearsSinceBothRetired = Math.Max(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
+                int yearsSinceBothRetired = Math.Min(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
                 //Increase cost of living by inflation
                 int yearsSinceCOLStart = Math.Max(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
                 decimal amountNeededForCostOfLiving1 = yearlyAmountNeededBothRetired;
@@ -336,7 +340,8 @@ namespace FinPlan.Shared.Models.Spending
             }
 
             //One Retired
-            int yearsSinceFirstRetirement = Math.Min(yourCurrentAge - yourRetirementAge, partnerCurrentAge - partnerRetirementAge);
+            int yearsSince = youRetired    ? yourCurrentAge - yourRetirementAge    : partnerCurrentAge - partnerRetirementAge;
+            int yearsSinceFirstRetirement = Math.Max(0, yearsSince);
             decimal amountNeededForCostOfLiving2 = yearlyAmountNeededOneRetired;
             for (int yearOfCOLWithdraw = 0; yearOfCOLWithdraw < yearsSinceFirstRetirement; yearOfCOLWithdraw++)
             {
