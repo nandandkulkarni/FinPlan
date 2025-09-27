@@ -186,7 +186,11 @@
                 }
                 <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
 
-                <th colspan="4" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Growth & Income)</th>
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Due (Growth & Income)</th>
+
+                <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Breakdown(Growth & Income)</th>
+
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Total (Growth & Income)</th>
 
                 <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Traditional A/c withdrawal for Income Tax)</th>
 
@@ -442,6 +446,17 @@
                     }
                 </th>
                 <th style="border-right: 2px solid #d1d5db;">
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
+                    @Numbered("20.5")Tax Paid Total (Growth & Income)
+                    @if (showToolTipRothWithdrawal)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                        </div>
+                    }
+                </th>
+                <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(21)Tax Due
                     @if (showToolTipTaxPaid)
@@ -565,7 +580,9 @@
                     <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                         @row.RothWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
                     </td>
-
+                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        @( (row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome + row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome + row.RothWithdrawForInitialTaxPaymentOnTaxableIncome).ToString("C0") )
+                    </td>
 
                     <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                         @row.TaxDueDueToTraditionalWithdrawnForTaxOnTraditional.ToString("C0")
