@@ -1184,9 +1184,9 @@
                                     
                                     <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
 
-                                    <th colspan="4" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax - Growth & Income</th>
+                                    <th colspan="4" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Growth & Income)</th>
 
-                                    <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Traditional Withdrawal for Income Tax</th>
+                                    <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Traditional A/c withdrawal for Income Tax)</th>
 
                                     @* <th style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">Total Withdrawn</th>
                                     <th colspan="3" class="col-account-activity" style="background-color: rgba(37,99,235,0.08); border-right: 2px solid #d1d5db; text-align: center;">Withdrawals (Living)</th>
@@ -1264,7 +1264,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Taxable (Living)
+                                        Taxable A/c
                                         @if (showToolTipTaxableWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1275,7 +1275,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Traditional (Living)
+                                        Traditional A/c
                                         @if (showToolTipTraditionalWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1286,7 +1286,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Roth (Living)
+                                        Roth A/c
                                         @if (showToolTipRothWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1337,7 +1337,7 @@
                                         @if (showToolTipGrowth)
                                         {
                                             <div class="info-tooltip">
-                                                <strong>Growth:</strong> Investment growth for the year.
+                                                <strong>Growth:</strong> Interest, Dividend & Investment growth for the year.
                                                 <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false"><span class="bi bi-x-lg"></span></span>
                                             </div>
                                         }
@@ -1345,7 +1345,7 @@
 
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
-                                        Taxable
+                                        Taxable A/c
                                         @if (showToolTipTaxableEnding)
                                         {
                                             <div class="info-tooltip">
@@ -1356,7 +1356,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalEnding = !showToolTipTraditionalEnding" tabindex="0" title="Click for more info"></span>
-                                        Traditional
+                                        Traditional A/c
                                         @if (showToolTipTraditionalEnding)
                                         {
                                             <div class="info-tooltip">
@@ -1368,7 +1368,7 @@
 
                                     <th>
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothEnding = !showToolTipRothEnding" tabindex="0" title="Click for more info"></span>
-                                        Roth
+                                        Roth A/c
                                         @if (showToolTipRothEnding)
                                         {
                                             <div class="info-tooltip">
@@ -1392,7 +1392,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Taxable (Tax)
+                                        Taxable A/c
                                         @if (showToolTipTaxableWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1403,7 +1403,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Traditional (Tax)
+                                        Traditional A/c
                                         @if (showToolTipTraditionalWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1414,7 +1414,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                                        Roth (Tax)
+                                        Roth A/c
                                         @if (showToolTipRothWithdrawal)
                                         {
                                             <div class="info-tooltip">
@@ -1436,7 +1436,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                                        Tax Paid (Traditional)
+                                        Tax Paid (Traditional A/c)
                                         @if (showToolTipTaxPaid)
                                         {
                                             <div class="info-tooltip">
@@ -1447,7 +1447,7 @@
                                     </th>
                                     <th style="border-right: 2px solid #d1d5db;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                                        Tax Paid (Roth)
+                                        Tax Paid (Roth A/c)
                                         @if (showToolTipTaxPaid)
                                         {
                                             <div class="info-tooltip">
