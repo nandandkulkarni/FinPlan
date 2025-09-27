@@ -49,9 +49,10 @@
         WithdrawalCOLBreakDown,
         IncomeBreakDown,
         IncomeConsolidated,
-        EndingBalances,
-        TaxGrowthIncome,
-        TaxTraditional
+        EndingBalancesBreakDown,
+        TaxPaidOnIncomeBreakDown,
+        TaxPaidOnGrowthIncomeBreakDown,
+        TaxPaidTraditionalBreakDown
     }
 
     private record GroupInfo(string Label, bool DefaultVisible = true, int ColSpan = 1, string? Tooltip = null);
@@ -61,11 +62,12 @@
         { GroupKey.Timeline, new GroupInfo("Timeline & Milestones", true, 4) },
         { GroupKey.RetirementEquation, new GroupInfo("Retirement Equation", true, 2, "Cost of Living") },
         { GroupKey.WithdrawalCOLBreakDown, new GroupInfo("Withdrawals for Cost Of Living", true, 3, "Actual withdrawals for Cost of Living") },
-        { GroupKey.IncomeBreakDown, new GroupInfo("Income and Growth", true, 4) },
+        { GroupKey.IncomeBreakDown, new GroupInfo("Income and Growth Breakdown", true, 4) },
         { GroupKey.IncomeConsolidated, new GroupInfo("Total Inflow", true, 1) },
-        { GroupKey.EndingBalances, new GroupInfo("Ending Balances", true, 3) },
-        { GroupKey.TaxGrowthIncome, new GroupInfo("Tax (Growth & Income)", true, 4) },
-        { GroupKey.TaxTraditional, new GroupInfo("Tax (Traditional A/c withdrawal for Income Tax)", true, 3) }
+        { GroupKey.EndingBalancesBreakDown, new GroupInfo("Ending Balances Breakdown", true, 3) },
+        { GroupKey.TaxPaidOnIncomeBreakDown, new GroupInfo("Tax Paid (Income Breakdown)", true, 3) },
+        { GroupKey.TaxPaidOnGrowthIncomeBreakDown, new GroupInfo("Tax (Growth & Income)", true, 4) },
+        { GroupKey.TaxPaidTraditionalBreakDown, new GroupInfo("Tax (Traditional A/c withdrawal for Income Tax)", true, 2) }
     };
 
     // Visible groups set based on GroupMap defaults
@@ -120,8 +122,8 @@
 
             <div class="group-modal-body">
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
-              <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown)"
-                  @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.WithdrawalCOLBreakDown)" />
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.WithdrawalCOLBreakDown)" />
                     <label class="form-check-label" for="cbWithdrawal">Show Withdrawals for Cost Of Living</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
@@ -130,15 +132,25 @@
                     <label class="form-check-label" for="cbIncomeBreakDown">Show Income & Growth</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-                    <input class="form-check-input" type="checkbox" role="switch" id="cbEndingBalances" checked="@VisibleGroups.Contains(GroupKey.EndingBalances)"
-                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.EndingBalances)" />
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbEndingBalances" checked="@VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.EndingBalancesBreakDown)" />
                     <label class="form-check-label" for="cbEndingBalances">Show Ending Balances</label>
+                </div>
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbTaxPaidIncome" checked="@VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TaxPaidOnIncomeBreakDown)" />
+                    <label class="form-check-label" for="cbTaxPaidIncome">Show Tax Paid (Income Breakdown)</label>
+                </div>
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbTaxPaidTraditional" checked="@VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TaxPaidTraditionalBreakDown)" />
+                    <label class="form-check-label" for="cbTaxPaidTraditional">Show Tax Paid (Traditional Breakdown)</label>
                 </div>
             </div>
 
             <div class="group-modal-footer" style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
                 <button class="btn btn-sm btn-primary" @onclick="CloseGroupModal">Done</button>
-                <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(GroupKey.WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(GroupKey.WithdrawalCOLBreakDown,false); }">Hide</button>
+                <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(GroupKey.WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(GroupKey.WithdrawalCOLBreakDown, false); }">Hide</button>
             </div>
         </div>
     </div>
@@ -146,11 +158,41 @@
     <div class="visually-hidden" aria-live="polite">@groupAnnouncement</div>
 
     <style>
-        .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1040; }
-        .group-modal { position:fixed; left:50%; top:12%; transform:translateX(-50%); z-index:1050; width:420px; max-width:90%; }
-        .group-modal-content { background:#fff; border-radius:8px; padding:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); }
-        .group-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .group-modal-body { padding:6px 2px; }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1040;
+        }
+
+        .group-modal {
+            position: fixed;
+            left: 50%;
+            top: 12%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            width: 420px;
+            max-width: 90%;
+        }
+
+        .group-modal-content {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .group-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .group-modal-body {
+            padding: 6px 2px;
+        }
     </style>
 }
 
@@ -178,21 +220,29 @@
                 {
                     <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Income and Growth</th>
                 }
-                    <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
+                <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
 
-                @if (VisibleGroups.Contains(GroupKey.EndingBalances))
+                @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
                     <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
                 }
                 <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
 
                 <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Due (Growth & Income)</th>
-
-                <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Breakdown(Growth & Income)</th>
-
+                @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
+                {
+                    <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Breakdown(Growth & Income)</th>
+                }
                 <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Total (Growth & Income)</th>
 
-                <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Traditional A/c withdrawal for Income Tax)</th>
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Due (Traditional A/c withdrawal for Income Tax)</th>
+
+                @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
+                {
+                    <th colspan="2" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid (Traditional A/c withdrawal for Income Tax)</th>
+                }
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Total (Traditional A/c withdrawal for Income Tax)</th>
+
 
             </tr>
             <!-- Second Row: Specific Columns with separators and tooltips -->
@@ -353,11 +403,11 @@
 
                 }
 
-                    <th style="border-right: 2px solid #d1d5db;">
-                        <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                        @Numbered("13.5")Income
-                    </th>
-                @if (VisibleGroups.Contains(GroupKey.EndingBalances))
+                <th style="border-right: 2px solid #d1d5db;">
+                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
+                    @Numbered("13.5")Income
+                </th>
+                @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
                     <th style="border-right: 2px solid #d1d5db;">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
@@ -394,7 +444,7 @@
                         }
                     </th>
 
-         
+
                 }
                 <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
@@ -412,39 +462,42 @@
                         </div>
                     }
                 </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(18)Taxable A/c
-                    @if (showToolTipTaxableWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for tax payments.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(19)Traditional A/c
-                    @if (showToolTipTraditionalWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for tax payments.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered(20)Roth A/c
-                    @if (showToolTipRothWithdrawal)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
+                {
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(18)Taxable A/c
+                        @if (showToolTipTaxableWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(19)Traditional A/c
+                        @if (showToolTipTraditionalWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(20)Roth A/c
+                        @if (showToolTipRothWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                }
                 <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
                     @Numbered("20.5")Tax Paid Total (Growth & Income)
@@ -467,20 +520,36 @@
                         </div>
                     }
                 </th>
+                @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
+                {
+
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
+                        @Numbered(22)Tax Paid (Traditional A/c)
+                        @if (showToolTipTaxPaid)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Traditional withdrawn for tax on traditional.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
+                        @Numbered(23)Tax Paid (Roth A/c)
+                        @if (showToolTipTaxPaid)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Withdrawal:</strong> Roth withdrawn for tax on traditional.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                }
                 <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(22)Tax Paid (Traditional A/c)
-                    @if (showToolTipTaxPaid)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Traditional Withdrawal:</strong> Traditional withdrawn for tax on traditional.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(23)Tax Paid (Roth A/c)
+                    @Numbered(24)Tax Paid Total (Traditional A/c Withdraw)
                     @if (showToolTipTaxPaid)
                     {
                         <div class="info-tooltip">
@@ -489,7 +558,6 @@
                         </div>
                     }
                 </th>
-
             </tr>
         </thead>
         <tbody>
@@ -540,14 +608,14 @@
                         <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
                             @row.GrowthBeforeTaxes.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                            @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
-                        </td>
+                      
                     }
 
+                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
+                    </td>
 
-
-                    @if (VisibleGroups.Contains(GroupKey.EndingBalances))
+                    @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                     {
                         <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                             @row.EndingTaxable.ToString("C0")
@@ -559,27 +627,30 @@
                             @row.EndingRoth.ToString("C0")
                         </td>
 
-                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                            @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
-                        </td>
+                   
                     }
 
-
+                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
+                    </td>
 
 
                     <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
                         @row.TaxesDueOnAllTaxableGrowthAndIncome.ToString("C0")
                     </td>
 
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome.ToString("C0")
-                    </td>
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
-                    </td>
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.RothWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
-                    </td>
+                    @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
+                    {
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.RothWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
+                        </td>
+                    }
                     <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                         @( (row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome + row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome + row.RothWithdrawForInitialTaxPaymentOnTaxableIncome).ToString("C0") )
                     </td>
@@ -587,13 +658,19 @@
                     <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
                         @row.TaxDueDueToTraditionalWithdrawnForTaxOnTraditional.ToString("C0")
                     </td>
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.TraditionalWithdrawnForTaxOnTraditional.ToString("C0")
-                    </td>
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.RothWithdrawnForTaxOnTraditional.ToString("C0")
-                    </td>
 
+                    @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
+                    {
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.TraditionalWithdrawnForTaxOnTraditional.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.RothWithdrawnForTaxOnTraditional.ToString("C0")
+                        </td>
+                    }
+                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        @( (row.TraditionalWithdrawnForTaxOnTraditional + row.RothWithdrawnForTaxOnTraditional).ToString("C0") )
+                    </td>
                 </tr>
             }
         </tbody>
