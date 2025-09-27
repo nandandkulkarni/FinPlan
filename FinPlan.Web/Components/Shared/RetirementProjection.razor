@@ -51,7 +51,54 @@
         if (!VisibleGroups.Add(groupName))
             VisibleGroups.Remove(groupName);
     }
+
+    // UI state for the small groups panel and an aria-live announcement
+    private bool showGroupPanel = false;
+    private string groupAnnouncement = string.Empty;
+
+    // Wrapper that toggles the group and announces the change for screen readers
+    void ToggleGroupAndAnnounce(string groupName)
+    {
+        ToggleGroup(groupName);
+        groupAnnouncement = VisibleGroups.Contains(groupName) ? $"{GetGroupLabel(groupName)} shown" : $"{GetGroupLabel(groupName)} hidden";
+    }
+
+    // Helper to convert group key to a friendly label (small mapping for the panel)
+    private string GetGroupLabel(string groupKey)
+    {
+        return groupKey == WithdrawalCOLBreakDown ? "Withdrawals for Cost Of Living" : groupKey;
+    }
+    private string GetGroupLabelMessage(string groupKey, bool isShown)
+    {
+        var groupLabel = groupKey == WithdrawalCOLBreakDown ? "Withdrawals for Cost Of Living" : groupKey;
+        return isShown ? $"{groupLabel} shown" : $"{groupLabel} hidden";
+    }
+
+    const string shown = "shown";
 }
+
+<!-- Groups picker (gear) placed above the table so controls never disappear when groups are hidden) -->
+<div class="d-flex align-items-center mb-2">
+    <button class="btn btn-sm btn-outline-secondary" @onclick="() => showGroupPanel = !showGroupPanel" aria-expanded="@showGroupPanel" aria-controls="groupPanel">
+        <span class="bi bi-gear"></span>
+        <span style="margin-left:6px;">Groups</span>
+    </button>
+
+    <div id="groupPanel" style="display:@(showGroupPanel ? "block" : "none"); margin-left:8px; border:1px solid #ddd; padding:8px; background:#fff;">
+        <div style="max-height:240px; overflow:auto; width:320px;">
+            <label style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" checked="@VisibleGroups.Contains(WithdrawalCOLBreakDown)" @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(WithdrawalCOLBreakDown)" />
+                <span>Show Withdrawals for Cost Of Living</span>
+            </label>
+        </div>
+        <div style="margin-top:6px;">
+            <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Add(WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(WithdrawalCOLBreakDown,true); }">Show</button>
+            <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(WithdrawalCOLBreakDown,false); }">Hide</button>
+        </div>
+    </div>
+
+    <div class="visually-hidden" aria-live="polite">@groupAnnouncement</div>
+</div>
 
 <div id="table-scrollbar-bottom" style="width:100%; overflow-x:auto;">
     <table aria-label="Yearly grid wireframe">
