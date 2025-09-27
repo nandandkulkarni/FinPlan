@@ -183,8 +183,8 @@
                 @if (VisibleGroups.Contains(GroupKey.EndingBalances))
                 {
                     <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Ending Balances</th>
-                    <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
                 }
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Ending Balance</th>
 
                 <th colspan="4" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax (Growth & Income)</th>
 
@@ -390,12 +390,12 @@
                         }
                     </th>
 
-                    <th style="border-right: 2px solid #d1d5db;">
-                        <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                        @Numbered("16.5")Total Ending Balance
-                    </th>
+         
                 }
-
+                <th style="border-right: 2px solid #d1d5db;">
+                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
+                    @Numbered("16.5")Total Ending Balance
+                </th>
 
                 <th style="border-right: 2px solid #d1d5db;">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxesPaid = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
