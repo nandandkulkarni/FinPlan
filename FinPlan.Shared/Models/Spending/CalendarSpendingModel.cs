@@ -500,13 +500,15 @@ namespace FinPlan.Shared.Models.Spending
                         decimal totalWithdrawnFromTraditionalForTax = 0m;
                         decimal totalWithdrawnFromRothForTax = 0m;
                         decimal taxThreshold = 1m;
-
+                        decimal totalTaxDue = 0m;
                         while (true)
                         {
                             decimal taxDue = CalculateTaxOnTraditional(amountToTax);
 
                             if (taxDue <= taxThreshold)
                                 break;
+
+                            totalTaxDue += taxDue;
 
                             // Withdraw tax from traditional if possible
                             decimal withdrawFromTraditional = Math.Min(traditionalBalanceSoFar, taxDue);
@@ -529,7 +531,9 @@ namespace FinPlan.Shared.Models.Spending
                         // Store these totals in the row for reporting
                         calendarYearRow.TraditionalWithdrawnForTaxOnTraditional = totalWithdrawnFromTraditionalForTax;
                         calendarYearRow.RothWithdrawnForTaxOnTraditional = totalWithdrawnFromRothForTax;
+                        calendarYearRow.TaxDueDueToTraditionalWithdrawnForTaxOnTraditional = totalTaxDue;
                     }
+
 
                 }
 
@@ -1004,5 +1008,6 @@ namespace FinPlan.Shared.Models.Spending
         public decimal RothWithdrawnForCostOfLivingIfAtAll { get; internal set; }
         public decimal TraditionalWithdrawnForTaxOnTraditional { get; set; }
         public decimal RothWithdrawnForTaxOnTraditional { get; set; }
+        public decimal TaxDueDueToTraditionalWithdrawnForTaxOnTraditional { get; internal set; }
     }
 }
