@@ -343,8 +343,31 @@
     </style>
 }
 
+<style>
+    /* Centralized styling: apply column-8 visuals to all table headers and body cells */
+    .rp-table thead th,
+    .rp-table tbody td,
+    .rp-table thead th.col-income-sources,
+    .rp-table thead th.col-ending-balances,
+    .rp-table thead th.col-account-activity,
+    .rp-table tbody td.col-income-sources,
+    .rp-table tbody td.col-ending-balances,
+    .rp-table tbody td.col-account-activity {
+        font-size: 0.78rem !important;
+        background-color: rgba(37, 99, 235, 0.08) !important;
+        font-weight: 600 !important;
+        text-align: right !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    /* Ensure header text is visually distinct but still follows the same sizing/alignment */
+    .rp-table thead th {
+        text-align: center !important;
+    }
+</style>
+
 <div id="table-scrollbar-bottom" style="width:100%; overflow-x:auto;">
-    <table aria-label="Yearly grid wireframe">
+    <table class="rp-table" aria-label="Yearly grid wireframe">
         <thead class="table-light">
             <!-- Top Row: Groupings with separators -->
             <tr>
@@ -717,10 +740,10 @@
                     <td class="col-age" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db;">@row.AgePartner</td>
                     <td class="col-milestones" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; width: 100px; overflow-x: auto; white-space: nowrap;">@row.Milestone</td>
 
-                    <td class="text-end" style="font-size:0.78rem; background-color: #f8f9fa; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db; color: #2563EB;">
+                    <td class="text-end" style="border-right: 2px solid #d1d5db; color: #2563EB;">
                         @row.AmountNeededForCostOfLiving.ToString("C0")
                     </td>
-                    <td class="text-end" style="font-size:0.78rem; background-color: #f8f9fa; font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db; color: #2563EB;">
+                    <td class="text-end" style="border-right: 2px solid #d1d5db; color: #2563EB;">
                         @row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")
                     </td>
 
@@ -728,14 +751,14 @@
                     @if (VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown))
                     {
 
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.TaxableWithdrawnForCostOfLivingIfAtAll.ToString("C0")
                         </td>
 
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.TradWithdrawnForCostOfLivingIfAtAll.ToString("C0")
                         </td>
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        <td class="text-end col-account-activity" style="border-right: 2px solid #d1d5db;">
                             @row.RothWithdrawnForCostOfLivingIfAtAll.ToString("C0")
                         </td>
                     }
@@ -743,79 +766,79 @@
 
                     @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
                     {
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-income-sources">
                             @row.SSYou.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-income-sources">
                             @row.SSPartner.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        <td class="text-end col-income-sources" style="border-right: 2px solid #d1d5db;">
                             @row.ReverseMortgage.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                        <td class="text-end col-income-sources" style="border-right: 2px solid #d1d5db;">
                             @row.GrowthBeforeTaxes.ToString("C0")
                         </td>
                       
                     }
 
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                    <td class="text-end col-income-sources" style="border-right: 2px solid #d1d5db;">
                         @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
                     </td>
 
                     @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                     {
-                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-ending-balances">
                             @row.EndingTaxable.ToString("C0")
                         </td>
-                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-ending-balances">
                             @row.EndingTraditional.ToString("C0")
                         </td>
-                        <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-ending-balances">
                             @row.EndingRoth.ToString("C0")
                         </td>
 
                    
                     }
 
-                    <td class="text-end col-ending-balances" style="font-size:0.78rem; background-color: rgba(107, 114, 128, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                    <td class="text-end col-ending-balances" style="border-right: 2px solid #d1d5db;">
                         @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
                     </td>
 
 
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; color: #F56565;">
+                    <td class="text-end col-account-activity" style="color: #F56565;">
                         @row.TaxesDueOnAllTaxableGrowthAndIncome.ToString("C0")
                     </td>
 
                     @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
                     {
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome.ToString("C0")
                         </td>
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
                         </td>
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.RothWithdrawForInitialTaxPaymentOnTaxableIncome.ToString("C0")
                         </td>
                     }
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                    <td class="text-end col-account-activity">
                         @( (row.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome + row.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome + row.RothWithdrawForInitialTaxPaymentOnTaxableIncome).ToString("C0") )
                     </td>
 
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                    <td class="text-end col-account-activity">
                         @row.TaxDueDueToTraditionalWithdrawnForTaxOnTraditional.ToString("C0")
                     </td>
 
                     @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
                     {
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.TraditionalWithdrawnForTaxOnTraditional.ToString("C0")
                         </td>
-                        <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                        <td class="text-end col-account-activity">
                             @row.RothWithdrawnForTaxOnTraditional.ToString("C0")
                         </td>
                     }
-                    <td class="text-end col-account-activity" style="font-size:0.78rem; background-color: rgba(37, 99, 235, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                    <td class="text-end col-account-activity">
                         @( (row.TraditionalWithdrawnForTaxOnTraditional + row.RothWithdrawnForTaxOnTraditional).ToString("C0") )
                     </td>
                 </tr>
