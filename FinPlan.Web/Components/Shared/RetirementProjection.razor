@@ -125,6 +125,11 @@
                     <label class="form-check-label" for="cbWithdrawal">Show Withdrawals for Cost Of Living</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbIncomeBreakDown" checked="@VisibleGroups.Contains(GroupKey.IncomeBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.IncomeBreakDown)" />
+                    <label class="form-check-label" for="cbIncomeBreakDown">Show Income & Growth</label>
+                </div>
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbEndingBalances" checked="@VisibleGroups.Contains(GroupKey.EndingBalances)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.EndingBalances)" />
                     <label class="form-check-label" for="cbEndingBalances">Show Ending Balances</label>
@@ -169,8 +174,11 @@
                         <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Actual withdrawals for Cost of Living </span>
                     </th>
                 }
-                <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Income and Growth</th>
-                <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
+                @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
+                {
+                    <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Income and Growth</th>
+                }
+                    <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">Total Inflow</th>
 
                 @if (VisibleGroups.Contains(GroupKey.EndingBalances))
                 {
@@ -289,59 +297,62 @@
                         }
                     </th>
                 }
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSYou = !showToolTipSSYou" tabindex="0" title="Click for more info"></span>
-                    @Numbered(10)SS (You)
-                    @if (showToolTipSSYou)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Social Security (You):</strong> Your annual Social Security benefit.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSYou = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSPartner = !showToolTipSSPartner" tabindex="0" title="Click for more info"></span>
-                    @Numbered(11)SS (Partner)
-                    @if (showToolTipSSPartner)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Social Security (Partner):</strong> Your partner's annual Social Security benefit.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSPartner = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgage = !showToolTipReverseMortgage" tabindex="0" title="Click for more info"></span>
-                    @Numbered(12)Rev. Mortgage
-                    <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Reverse Mortgage is a Loan</span>
+                @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
+                {
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSYou = !showToolTipSSYou" tabindex="0" title="Click for more info"></span>
+                        @Numbered(10)SS (You)
+                        @if (showToolTipSSYou)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Social Security (You):</strong> Your annual Social Security benefit.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSYou = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSPartner = !showToolTipSSPartner" tabindex="0" title="Click for more info"></span>
+                        @Numbered(11)SS (Partner)
+                        @if (showToolTipSSPartner)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Social Security (Partner):</strong> Your partner's annual Social Security benefit.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSPartner = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgage = !showToolTipReverseMortgage" tabindex="0" title="Click for more info"></span>
+                        @Numbered(12)Rev. Mortgage
+                        <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Reverse Mortgage is a Loan</span>
 
-                    @if (showToolTipReverseMortgage)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Reverse Mortgage:</strong> Annual income from reverse mortgage.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgage = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipGrowth = !showToolTipGrowth" tabindex="0" title="Click for more info"></span>
-                    @Numbered(13)Growth
-                    <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Prior to taxes</span>
-                    @if (showToolTipGrowth)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Growth:</strong> Interest, Dividend & Investment growth for the year.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                        @if (showToolTipReverseMortgage)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Reverse Mortgage:</strong> Annual income from reverse mortgage.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgage = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipGrowth = !showToolTipGrowth" tabindex="0" title="Click for more info"></span>
+                        @Numbered(13)Growth
+                        <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Prior to taxes</span>
+                        @if (showToolTipGrowth)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Growth:</strong> Interest, Dividend & Investment growth for the year.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
 
-                <th style="border-right: 2px solid #d1d5db;">
-                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                    @Numbered("13.5")Income
-                </th>
+                }
 
+                    <th style="border-right: 2px solid #d1d5db;">
+                        <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
+                        @Numbered("13.5")Income
+                    </th>
                 @if (VisibleGroups.Contains(GroupKey.EndingBalances))
                 {
                     <th style="border-right: 2px solid #d1d5db;">
@@ -500,21 +511,24 @@
                     }
 
 
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.SSYou.ToString("C0")
-                    </td>
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
-                        @row.SSPartner.ToString("C0")
-                    </td>
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                        @row.ReverseMortgage.ToString("C0")
-                    </td>
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                        @row.GrowthBeforeTaxes.ToString("C0")
-                    </td>
-                    <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
-                        @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
-                    </td>
+                    @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
+                    {
+                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.SSYou.ToString("C0")
+                        </td>
+                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums;">
+                            @row.SSPartner.ToString("C0")
+                        </td>
+                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                            @row.ReverseMortgage.ToString("C0")
+                        </td>
+                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                            @row.GrowthBeforeTaxes.ToString("C0")
+                        </td>
+                        <td class="text-end col-income-sources" style="font-size:0.78rem; background-color: rgba(5, 150, 105, 0.08); font-weight:600; text-align: right; font-variant-numeric: tabular-nums; border-right: 2px solid #d1d5db;">
+                            @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
+                        </td>
+                    }
 
 
 
