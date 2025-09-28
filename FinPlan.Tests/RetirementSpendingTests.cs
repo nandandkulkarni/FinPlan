@@ -27,8 +27,8 @@ namespace FinPlan.Tests
                 InflationRate = 2.5m,
                 TraditionalTaxRate = 20.0m,
                 ReverseMortgageMonthly = 5000m,
-                ReverseMortgageStartYear=2034,
-                SimulationStartYear = 2035
+                ReverseMortgageStartYear=2038,
+                SimulationStartYear = 2032
 
             };
 

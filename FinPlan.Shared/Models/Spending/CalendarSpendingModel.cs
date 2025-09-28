@@ -280,7 +280,7 @@ namespace FinPlan.Shared.Models.Spending
                     var suggestedStart = earliestRetirement - 2;
                     // do not allow start before current year
                     if (suggestedStart < nowYear) suggestedStart = nowYear;
-                    SimulationStartYear = suggestedStart;
+                    //SimulationStartYear = suggestedStart;
                 }
 
                 // If ReverseMortgageStartAge is set, compute ReverseMortgageStartYear
@@ -462,7 +462,7 @@ namespace FinPlan.Shared.Models.Spending
                         taxableBalanceSoFar,
                         traditionalBalanceSoFar,
                         rothBalanceSoFar,
-                        calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome);
+                        calendarYearRow.AmountNeededForCostOfLiving);
 
 
                     //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
@@ -538,27 +538,27 @@ namespace FinPlan.Shared.Models.Spending
                 }
 
                 //NOW THAT YOU WITHDRAW, CALCULATE TAX ON TRADITIONAL WITHDRAWAL
-                calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving = CalculateTaxOnTraditional(calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll);
+                //calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving = CalculateTaxOnTraditional(calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll);
                 //You only pay tax on trad withdrawal, so noother calc
 
                 //NOW DECIDE WHERE THE MONEY TO PAY THE TAXES COME 
                 //So you do another draw (!IMPORTANT - This may need to be done in loop, but for now assume one pass is enough)
 
-                (
-                  calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome,
-                  calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome,
-                  calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome,
-                  calendarYearRow.TotalWithdrawForInitialTaxPaymentOnTaxableIncome
-                  ) = CalculateWithdrawalSplit(
-                    taxableBalanceSoFar,
-                    traditionalBalanceSoFar,
-                    rothBalanceSoFar,
-                    calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving);
+                //(
+                //  calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome,
+                //  calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome,
+                //  calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome,
+                //  calendarYearRow.TotalWithdrawForInitialTaxPaymentOnTaxableIncome
+                //  ) = CalculateWithdrawalSplit(
+                //    taxableBalanceSoFar,
+                //    traditionalBalanceSoFar,
+                //    rothBalanceSoFar,
+                //    calendarYearRow.TaxOnTraditionalWithdrawalDoneForCostOfLiving);
 
                 // Assign withdrawals to the row so they show up in the grid
-                calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
-                calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
-                calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
+                //calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TaxableWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
+                //calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes = calendarYearRow.TradWithdrawnForCostOfLivingIfAtAll + calendarYearRow.TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome;
+                //calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes = calendarYearRow.RothWithdrawnForCostOfLivingIfAtAll + calendarYearRow.RothWithdrawForInitialTaxPaymentOnTaxableIncome;
 
 
                 //SUBTRACT THE AMOUNT WITHDRAWN FOR TAX FROM BALANCES - !IMPORTANT I THINK ITS ALREADY DONE ONCE ABOVE
@@ -574,19 +574,19 @@ namespace FinPlan.Shared.Models.Spending
                 lastYearTraditionalBalance = (int)calendarYearRow.EndingTraditional;
                 lastYearRothBalance = (int)calendarYearRow.EndingRoth;
 
-                calendarYearRow.TotalWithdrawalOfAllType = calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes +
-                                                        calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes +
-                                                        calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes;
+                //calendarYearRow.TotalWithdrawalOfAllType = calendarYearRow.TaxableWithdrawalForCostOfLivingAndTaxes +
+                //                                        calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes +
+                //                                        calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes;
 
                 YearRows.Add(calendarYearRow);
 
-                // --- ADD "Depleted" milestone if withdrawals are less than needed ---
-                if (calendarYearRow.TotalWithdrawalOfAllType < calendarYearRow.AmountNeededForCostOfLiving)
-                {
-                    if (!string.IsNullOrWhiteSpace(calendarYearRow.Milestone))
-                        calendarYearRow.Milestone += ", ";
-                    calendarYearRow.Milestone += "Depleted";
-                }
+                //// --- ADD "Depleted" milestone if withdrawals are less than needed ---
+                //if (calendarYearRow.TotalWithdrawalOfAllType < calendarYearRow.AmountNeededForCostOfLiving)
+                //{
+                //    if (!string.IsNullOrWhiteSpace(calendarYearRow.Milestone))
+                //        calendarYearRow.Milestone += ", ";
+                //    calendarYearRow.Milestone += "Depleted";
+                //}
             }
 
         }
@@ -793,9 +793,9 @@ namespace FinPlan.Shared.Models.Spending
                 // Withdraw from taxable first, then traditional, then roth to meet netNeededFromAccounts
                 var (taxableWithdraw, tradWithdraw, rothWithdraw, x) = CalculateWithdrawalSplit(taxBal, tradBal, rothBal, netNeededFromAccounts);
 
-                row.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdraw;
-                row.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdraw;
-                row.RothWithdrawalForCostOfLivingAndTaxes = rothWithdraw;
+                //row.TaxableWithdrawalForCostOfLivingAndTaxes = taxableWithdraw;
+                //row.TraditionalWithdrawalForCostOfLivingAndTaxes = tradWithdraw;
+                //row.RothWithdrawalForCostOfLivingAndTaxes = rothWithdraw;
 
                 // taxes paid on traditional amountNeededForCostOfLiving + taxable SS + taxable account growth
                 decimal estimatedTaxableSS = CalculateEstimatedTaxableSS(row.SSYou + row.SSPartner, taxableWithdraw + tradWithdraw + rothWithdraw);
@@ -975,9 +975,9 @@ namespace FinPlan.Shared.Models.Spending
         public decimal ReverseMortgage { get; set; }
 
         public decimal OtherTaxableIncome { get; set; }
-        public decimal TaxableWithdrawalForCostOfLivingAndTaxes { get; set; }
-        public decimal TraditionalWithdrawalForCostOfLivingAndTaxes { get; set; }
-        public decimal RothWithdrawalForCostOfLivingAndTaxes { get; set; }
+        //public decimal TaxableWithdrawalForCostOfLivingAndTaxes { get; set; }
+        //public decimal TraditionalWithdrawalForCostOfLivingAndTaxes { get; set; }
+        //public decimal RothWithdrawalForCostOfLivingAndTaxes { get; set; }
         public decimal TaxesDueOnAllTaxableGrowthAndIncome { get; set; }
         public decimal Growth { get; set; }
         public decimal EndingTaxable { get; set; }
@@ -1000,7 +1000,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome { get; internal set; }
         public decimal TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal RothWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
-        public decimal TotalWithdrawalOfAllType { get; internal set; }
+       // public decimal TotalWithdrawalOfAllType { get; internal set; }
         public decimal TotalWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal TotalWithdrawForCostOfLivingExcludingTaxes { get; internal set; }
         public decimal TaxableWithdrawnForCostOfLivingIfAtAll { get; internal set; }
