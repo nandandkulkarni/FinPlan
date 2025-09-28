@@ -191,7 +191,7 @@
 
 <!-- Full-width macro card strip with prominent gear -->
 <div class="projection-strip mb-2" role="region" aria-label="Projection summary strip">
-    <div class="projection-cards">
+    @* <div class="projection-cards">
         <div class="macro-card" tabindex="0" role="button" aria-label="Projection range">
             <div class="card-label">Projection range</div>
             <div class="card-value">@GetProjectionRangeText()</div>
@@ -216,7 +216,7 @@
             <div class="card-label">Final portfolio (last year)</div>
             <div class="card-value">@GetFinalPortfolioText()</div>
         </div>
-    </div>
+    </div> *@
 
     <div class="projection-gear">
         <button class="btn btn-outline-secondary btn-lg prominent-gear" @onclick="() => showGroupModal = true" aria-haspopup="dialog" aria-expanded="@showGroupModal" aria-controls="groupModal" aria-label="Open groups and columns">
