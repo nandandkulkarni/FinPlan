@@ -627,7 +627,7 @@
                         pendingCookieGuid = root.GetProperty("cookieGuid").GetString();
                         pendingItemCount = root.GetProperty("itemCount").GetInt32();
                         pendingEmail = email;
-                        showCookieAssocModal = true;
+                        showCookieAssocModal = false;           // DISABLING COOKIES WARNING FOR NOW
                         StateHasChanged();
                         return;
                     }
