@@ -233,21 +233,76 @@
     </div>
 
     <style>
-        .projection-strip { display:flex; align-items:center; justify-content:center; gap:20px; padding:14px; border-radius:8px; background:linear-gradient(180deg, #ffffff, #f8fafc); border:1px solid rgba(0,0,0,0.04); }
-        .projection-cards { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
-        .macro-card { min-width:140px; padding:10px 12px; border-radius:8px; background:#fff; border:1px solid rgba(0,0,0,0.06); box-shadow:0 2px 8px rgba(16,24,40,0.04); }
-        .macro-card:focus { outline:3px solid rgba(59,130,246,0.16); }
-        .card-label { font-size:0.72rem; color:#6b7280; }
-        .card-value { font-weight:600; font-size:0.98rem; margin-top:4px; }
-        .projection-gear { display:flex; flex-direction:row; align-items:center; gap:12px; min-width:220px; }
-        .prominent-gear { padding:18px 20px; font-size:1.05rem; height:64px; display:inline-flex; align-items:center; justify-content:center; }
-        .prominent-gear .bi { font-size:1.55rem; }
+        .projection-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 14px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .projection-cards {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .macro-card {
+            min-width: 140px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(16,24,40,0.04);
+        }
+
+            .macro-card:focus {
+                outline: 3px solid rgba(59,130,246,0.16);
+            }
+
+        .card-label {
+            font-size: 0.72rem;
+            color: #6b7280;
+        }
+
+        .card-value {
+            font-weight: 600;
+            font-size: 0.98rem;
+            margin-top: 4px;
+        }
+
+        .projection-gear {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            min-width: 220px;
+        }
+
+        .prominent-gear {
+            padding: 18px 20px;
+            font-size: 1.05rem;
+            height: 64px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .prominent-gear .bi {
+                font-size: 1.55rem;
+            }
+
         .hidden-groups-btn {
             background: linear-gradient(90deg, rgba(185,28,28,0.5), rgba(239,68,68,0.5));
             color: #fff;
-            font-weight:700;
-            padding:8px 14px;
-            border-radius:20px;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 20px;
             border: none;
             box-shadow: 0 6px 12px rgba(0,0,0,0.12);
             cursor: pointer;
@@ -257,9 +312,24 @@
             transform: none;
         }
 
-        .hidden-groups-icon { font-size:1rem; margin-right:6px; }
+        .hidden-groups-icon {
+            font-size: 1rem;
+            margin-right: 6px;
+        }
 
-        @@media (max-width:767px) { .macro-card { min-width:110px; } .projection-gear .d-none.d-sm-inline { display:none !important; } .projection-strip { padding:10px; } }
+        @@media (max-width:767px) {
+            .macro-card {
+                min-width: 110px;
+            }
+
+            .projection-gear .d-none.d-sm-inline {
+                display: none !important;
+            }
+
+            .projection-strip {
+                padding: 10px;
+            }
+        }
     </style>
 </div>
 
@@ -275,6 +345,11 @@
             </div>
 
             <div class="group-modal-body">
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbTimeLine" checked="@VisibleGroups.Contains(GroupKey.Timeline)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.Timeline)" />
+                    <label class="form-check-label" for="cbTimeLine">Show Timeline Group</label>
+                </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.WithdrawalCOLBreakDown)" />
@@ -304,7 +379,7 @@
 
             <div class="group-modal-footer" style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
                 <button class="btn btn-sm btn-primary" @onclick="CloseGroupModal">Done</button>
-                <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(GroupKey.WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(GroupKey.WithdrawalCOLBreakDown, false); }">Hide</button>
+                @* <button class="btn btn-sm btn-link" @onclick="() => { VisibleGroups.Remove(GroupKey.WithdrawalCOLBreakDown); groupAnnouncement = GetGroupLabelMessage(GroupKey.WithdrawalCOLBreakDown, false); }">Hide</button> *@
             </div>
         </div>
     </div>
@@ -354,12 +429,10 @@
     /* Centralized styling: apply column-8 visuals to all table headers and body cells */
     .rp-table thead th,
     .rp-table tbody td,
-
     .rp-table thead th.col-timeline-milestones,
     .rp-table thead th.col-income-sources,
     .rp-table thead th.col-ending-balances,
     .rp-table thead th.col-account-activity,
-
     .rp-table tbody td.col-timeline-milestones,
     .rp-table tbody td.col-income-sources,
     .rp-table tbody td.col-ending-balances,
@@ -393,7 +466,11 @@
         <thead class="table-light">
             <!-- Top Row: Groupings with separators -->
             <tr>
-                <th colspan="4" class="col-timeline" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">Timeline & Milestones</th>
+                @if (VisibleGroups.Contains(GroupKey.Timeline))
+                {
+                    <th colspan="4" class="col-timeline" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">Timeline & Milestones</th>
+                }
+
                 <th colspan="2" class="col-retirement-equation" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
                     Retirement Equation
                     <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
@@ -439,50 +516,53 @@
             </tr>
             <!-- Second Row: Specific Columns with separators and tooltips -->
             <tr>
-                <th class="col-timeline-milestones">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYear = !showToolTipYear" tabindex="0" title="Click for more info"></span>
-                    @Numbered(1)Year
-                    @if (showToolTipYear)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Year:</strong> The calendar year for the projection.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYear = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th class="col-timeline-milestones">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourAge = !showToolTipYourAge" tabindex="0" title="Click for more info"></span>
-                    @Numbered(2)Your Age
-                    @if (showToolTipYourAge)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Your Age:</strong> Your age during the specified year.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourAge = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th class="col-timeline">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerAge = !showToolTipPartnerAge" tabindex="0" title="Click for more info"></span>
-                    @Numbered(3)Partner Age
-                    @if (showToolTipPartnerAge)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Partner Age:</strong> Your partner's age during the specified year.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerAge = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
-                <th class="col-timeline">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMilestones = !showToolTipMilestones" tabindex="0" title="Click for more info"></span>
-                    @Numbered(4)Milestones
-                    @if (showToolTipMilestones)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Milestones:</strong> Key events or goals for the year.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMilestones = false"><span class="bi bi-x-lg"></span></span>
-                        </div>
-                    }
-                </th>
+                @if (VisibleGroups.Contains(GroupKey.Timeline))
+                {
+                    <th class="col-timeline-milestones">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYear = !showToolTipYear" tabindex="0" title="Click for more info"></span>
+                        @Numbered(1)Year
+                        @if (showToolTipYear)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Year:</strong> The calendar year for the projection.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYear = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-timeline-milestones">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourAge = !showToolTipYourAge" tabindex="0" title="Click for more info"></span>
+                        @Numbered(2)Your Age
+                        @if (showToolTipYourAge)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Your Age:</strong> Your age during the specified year.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourAge = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-timeline">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerAge = !showToolTipPartnerAge" tabindex="0" title="Click for more info"></span>
+                        @Numbered(3)Partner Age
+                        @if (showToolTipPartnerAge)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Partner Age:</strong> Your partner's age during the specified year.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerAge = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-timeline">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMilestones = !showToolTipMilestones" tabindex="0" title="Click for more info"></span>
+                        @Numbered(4)Milestones
+                        @if (showToolTipMilestones)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Milestones:</strong> Key events or goals for the year.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMilestones = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                }
                 <th class="col-retirement-equation">
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipAmountNeeded = !showToolTipAmountNeeded" tabindex="0" title="Click for more info"></span>
                     @Numbered(5)Amount Needed
@@ -643,7 +723,7 @@
                     @Numbered(18)Total Ending Balance
                 </th>
 
-                <th >
+                <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxesPaid = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(19)Taxes Due (Growth & Income)
                     @if (showToolTipTaxesPaid)
@@ -690,7 +770,7 @@
                         }
                     </th>
                 }
-                <th >
+                <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
                     @Numbered(23)Tax Paid Total (Growth & Income)
                     @if (showToolTipRothWithdrawal)
@@ -701,7 +781,7 @@
                         </div>
                     }
                 </th>
-                <th >
+                <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(24)Tax Due
                     @if (showToolTipTaxPaid)
@@ -715,7 +795,7 @@
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
                 {
 
-                    <th >
+                    <th>
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
                         @Numbered(25)Tax Paid (Traditional A/c)
                         @if (showToolTipTaxPaid)
@@ -727,7 +807,7 @@
                         }
                     </th>
 
-                    <th >
+                    <th>
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
                         @Numbered(26)Tax Paid (Roth A/c)
                         @if (showToolTipTaxPaid)
@@ -739,7 +819,7 @@
                         }
                     </th>
                 }
-                <th >
+                <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(27)Tax Paid Total (Traditional A/c Withdraw)
                     @if (showToolTipTaxPaid)
@@ -757,19 +837,21 @@
             {
                 var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
                 <tr class="@rowClass">
-                    <td class="text-end col-income-sources">
-                        @row.Year
-                    </td>
-                    <td class="text-end col-income-sources">
-                        @row.AgeYou
-                    </td>
-                    <td class="text-end col-income-sources">
-                        @row.AgePartner
-                    </td>
-                    <td class="text-end col-income-sources">
-                        @row.Milestone
-                    </td>
-
+                    @if (VisibleGroups.Contains(GroupKey.Timeline))
+                    {
+                        <td class="text-end col-income-sources">
+                            @row.Year
+                        </td>
+                        <td class="text-end col-income-sources">
+                            @row.AgeYou
+                        </td>
+                        <td class="text-end col-income-sources">
+                            @row.AgePartner
+                        </td>
+                        <td class="text-end col-income-sources">
+                            @row.Milestone
+                        </td>
+                    }
                     <td class="text-end col-income-sources">
                         @row.AmountNeededForCostOfLiving.ToString("C0")
                     </td>
@@ -788,7 +870,7 @@
                         <td class="text-end col-account-activity">
                             @row.TradWithdrawnForCostOfLivingIfAtAll.ToString("C0")
                         </td>
-                        <td class="text-end col-account-activity" >
+                        <td class="text-end col-account-activity">
                             @row.RothWithdrawnForCostOfLivingIfAtAll.ToString("C0")
                         </td>
                     }
@@ -802,16 +884,16 @@
                         <td class="text-end col-income-sources">
                             @row.SSPartner.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" >
+                        <td class="text-end col-income-sources">
                             @row.ReverseMortgage.ToString("C0")
                         </td>
-                        <td class="text-end col-income-sources" >
+                        <td class="text-end col-income-sources">
                             @row.GrowthBeforeTaxes.ToString("C0")
                         </td>
-                      
+
                     }
 
-                    <td class="text-end col-income-sources" >
+                    <td class="text-end col-income-sources">
                         @( (row.SSYou + row.SSPartner + row.ReverseMortgage + row.GrowthBeforeTaxes).ToString("C0") )
                     </td>
 
@@ -827,10 +909,10 @@
                             @row.EndingRoth.ToString("C0")
                         </td>
 
-                   
+
                     }
 
-                    <td class="text-end col-ending-balances" >
+                    <td class="text-end col-ending-balances">
                         @( (row.EndingTaxable + row.EndingTraditional + row.EndingRoth).ToString("C0") )
                     </td>
 
