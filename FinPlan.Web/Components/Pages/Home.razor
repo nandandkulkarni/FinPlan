@@ -1,14 +1,56 @@
 ﻿@page "/"
 @page "/home"
 
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+@code {
+    private bool isPlaying = false;
+    private DotNetObjectReference<Home>? objRef;
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    public async Task ToggleAudioAsync()
+    {
+        isPlaying = await JSRuntime.InvokeAsync<bool>("audioInterop.toggleAudio", objRef);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnAudioEnded()
+    {
+        isPlaying = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+}
+
 <!-- Audio Guide Button: speaker image that plays the guide on click -->
 <div class="text-center my-4">
     <!-- Hidden audio element (played on user click) -->
     <audio id="guideAudio" src="/audio/how-to-use.mp3" preload="none"></audio>
 
-    <button type="button" class="btn btn-info btn-lg rounded-circle shadow-lg" style="width: 120px; height: 120px; box-shadow: 0 0 30px #0dcaf0; display: inline-flex; align-items: center; justify-content: center; padding:0; overflow:hidden;" onclick="(function(){ try { var a = document.getElementById('guideAudio'); a.currentTime = 0; a.play(); } catch(e) { console.error(e); } })()" aria-label="Play audio guide">
-        <img src="/images/speaker.png" alt="Play guide" style="max-width:70%; max-height:70%; object-fit:contain; display:block;" />
-        <span class="visually-hidden">Listen: How to use this site</span>
+    <button type="button"
+            class="btn btn-info btn-lg rounded-circle shadow-lg"
+            style="width: 120px; height: 120px; box-shadow: 0 0 30px #0dcaf0; display: inline-flex; align-items: center; justify-content: center; padding:0; overflow:hidden;"
+            @onclick="ToggleAudioAsync"
+            aria-label="@(isPlaying ? "Pause audio guide" : "Play audio guide")">
+        @if (isPlaying)
+        {
+            <i class="bi bi-pause-fill" style="font-size:3rem; color:#fff;"></i>
+        }
+        else
+        {
+            <img src="/images/speaker.png" alt="Play guide" style="max-width:70%; max-height:70%; object-fit:contain; display:block;" />
+        }
+        <span class="visually-hidden">@(isPlaying ? "Pause: How to use this site" : "Listen: How to use this site")</span>
     </button>
 </div>
 <div class="text-center mb-4">
