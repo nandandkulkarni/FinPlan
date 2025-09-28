@@ -682,7 +682,7 @@
                     else if (wizardStep == 5)
                     {
                         <div class="mb-3">
-                            <h5 class="mb-3">Tax Treatment</h5>
+                          @*   <h5 class="mb-3">Tax Treatment</h5>
 
                             <!-- Tax Strategy Card -->
                             <div class="card mb-4 strategy-card">
@@ -728,8 +728,7 @@
                                         }
                                     </div>
                                 </div>
-                            </div>
-
+                            </div> *@
                             <div class="row mb-4">
                                 <!-- Taxable Income Type Card -->
                                 <div class="col-md-6 mb-3">
@@ -743,7 +742,7 @@
                                             @if (showToolTipIncomeType)
                                             {
                                                 <div class="info-tooltip">
-                                                    <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
+                                                    <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. For now, only interest income is supported (taxed as ordinary income).
                                                     <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
                                                         <span class="bi bi-x-lg"></span>
                                                     </span>
@@ -753,13 +752,14 @@
                                             <div class="income-type-selector mt-3">
                                                 @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
                                                 {
-                                                    <div class="form-check income-type-option @(Model.TaxableIncomeType.ToString() == name ? "selected" : "")">
+                                                    var isInterest = name == "MostlyInterest";
+                                                    <div class="form-check income-type-option @(isInterest ? "selected" : "")">
                                                         <input class="form-check-input"
                                                                type="radio"
                                                                name="incomeTypeRadio"
                                                                id="@("income_" + name)"
-                                                               checked="@(Model.TaxableIncomeType.ToString() == name)"
-                                                               @onchange="() => SetIncomeType(name)" />
+                                                               checked="@(isInterest)"
+                                                               disabled />
                                                         <label class="form-check-label" for="@("income_" + name)">
                                                             <strong>@FormatIncomeTypeName(name)</strong>
                                                             <div class="small text-muted">@GetIncomeTypeDescription(name)</div>
@@ -884,6 +884,9 @@
 
     protected override void OnParametersSet()
     {
+        if (Model != null)
+            Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MostlyInterest;
+
         if (Visible)
         {
             if (!_wasVisible)
