@@ -44,26 +44,28 @@
     // Group definitions using an enum + metadata dictionary (safer than raw strings)
     private enum GroupKey
     {
-        Timeline,
+        TimelineBreakDown,
         RetirementEquation,
         WithdrawalCOLBreakDown,
         IncomeBreakDown,
         EndingBalancesBreakDown,
         TaxPaidOnIncomeBreakDown,
-        TaxPaidTraditionalBreakDown
+        TaxPaidTraditionalBreakDown,
+        TotalWithdrawalBreakDown,
     }
 
     private record GroupInfo(string Label, bool DefaultVisible = true, int ColSpan = 1, string? Tooltip = null);
 
     private static Dictionary<GroupKey, GroupInfo> GroupMap = new()
     {
-        { GroupKey.Timeline, new GroupInfo("Timeline & Milestones", true, 4) },
+        { GroupKey.TimelineBreakDown, new GroupInfo("Timeline & Milestones", true, 4) },
         { GroupKey.RetirementEquation, new GroupInfo("Retirement Equation", true, 2, "Cost of Living") },
         { GroupKey.WithdrawalCOLBreakDown, new GroupInfo("Withdrawals for Cost Of Living", true, 3, "Actual withdrawals for Cost of Living") },
         { GroupKey.IncomeBreakDown, new GroupInfo("Income and Growth Breakdown", true, 4) },
         { GroupKey.EndingBalancesBreakDown, new GroupInfo("Ending Balances Breakdown", true, 3) },
         { GroupKey.TaxPaidOnIncomeBreakDown, new GroupInfo("Tax Paid (Income Breakdown)", true, 3) },
-        { GroupKey.TaxPaidTraditionalBreakDown, new GroupInfo("Tax (Traditional A/c withdrawal for Income Tax)", true, 2) }
+        { GroupKey.TaxPaidTraditionalBreakDown, new GroupInfo("Tax (Traditional A/c withdrawal for Income Tax)", true, 2) },
+        { GroupKey.TotalWithdrawalBreakDown, new GroupInfo("Total Withdrawals", true, 3) }
     };
 
     // Visible groups set based on GroupMap defaults
@@ -71,13 +73,14 @@
 
     private HashSet<GroupKey> VisibleGroups = new HashSet<GroupKey>
     {
-        GroupKey.Timeline,
+        GroupKey.TimelineBreakDown,
         GroupKey.RetirementEquation,
         // GroupKey.WithdrawalCOLBreakDown,
         // GroupKey.IncomeBreakDown,
         GroupKey.EndingBalancesBreakDown,
          GroupKey.TaxPaidOnIncomeBreakDown,
-        // GroupKey.TaxPaidTraditionalBreakDown
+        // GroupKey.TaxPaidTraditionalBreakDown,
+        // GroupKey.TotalWithdrawalBreakDown
     };
 
     // Toggle group visibility (can be bound to a switch)
@@ -346,8 +349,8 @@
 
             <div class="group-modal-body">
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
-                    <input class="form-check-input" type="checkbox" role="switch" id="cbTimeLine" checked="@VisibleGroups.Contains(GroupKey.Timeline)"
-                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.Timeline)" />
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbTimeLine" checked="@VisibleGroups.Contains(GroupKey.TimelineBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TimelineBreakDown)" />
                     <label class="form-check-label" for="cbTimeLine">Show Timeline Group</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
@@ -374,6 +377,11 @@
                     <input class="form-check-input" type="checkbox" role="switch" id="cbTaxPaidTraditional" checked="@VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TaxPaidTraditionalBreakDown)" />
                     <label class="form-check-label" for="cbTaxPaidTraditional">Show Tax Paid (Traditional Breakdown)</label>
+                </div>
+                <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cbTotalWithdrawal" checked="@VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown)"
+                           @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TotalWithdrawalBreakDown)" />
+                    <label class="form-check-label" for="cbTotalWithdrawal">Show Total Withdrawals</label>
                 </div>
             </div>
 
@@ -466,7 +474,7 @@
         <thead class="table-light">
             <!-- Top Row: Groupings with separators -->
             <tr>
-                @if (VisibleGroups.Contains(GroupKey.Timeline))
+                @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                 {
                     <th colspan="4" class="col-timeline" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">Timeline & Milestones</th>
                 }
@@ -511,12 +519,15 @@
                     <th colspan="2" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid (Traditional A/c withdrawal for Income Tax)</th>
                 }
                 <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">Tax Paid Total (Traditional A/c withdrawal for Income Tax)</th>
-
+                @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
+                {
+                    <th colspan="3" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">Total Withdrawals</th>
+                }
 
             </tr>
             <!-- Second Row: Specific Columns with separators and tooltips -->
             <tr>
-                @if (VisibleGroups.Contains(GroupKey.Timeline))
+                @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                 {
                     <th class="col-timeline-milestones">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYear = !showToolTipYear" tabindex="0" title="Click for more info"></span>
@@ -830,6 +841,42 @@
                         </div>
                     }
                 </th>
+                @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
+                {
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(28)Taxable Total W/d
+                        @if (showToolTipTaxableWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(29)Traditional Total w/d
+                        @if (showToolTipTraditionalWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
+                        @Numbered(30)Roth Total w/d
+                        @if (showToolTipRothWithdrawal)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                            </div>
+                        }
+                    </th>
+                }
             </tr>
         </thead>
         <tbody>
@@ -837,7 +884,7 @@
             {
                 var rowClass = string.IsNullOrEmpty(row.Notes) ? string.Empty : "depleted";
                 <tr class="@rowClass">
-                    @if (VisibleGroups.Contains(GroupKey.Timeline))
+                    @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                     {
                         <td class="text-end col-income-sources">
                             @row.Year
@@ -953,6 +1000,20 @@
                     <td class="text-end col-account-activity">
                         @( (row.TraditionalWithdrawnForTaxOnTraditional + row.RothWithdrawnForTaxOnTraditional).ToString("C0") )
                     </td>
+
+                    @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
+                    {
+
+                        <td class="text-end col-account-activity">
+                            @row.TotalTaxableWithdrawn.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity">
+                            @row.TotalTraditionalWithdrawn.ToString("C0")
+                        </td>
+                        <td class="text-end col-account-activity">
+                            @row.TotalRothWithdrawn.ToString("C0")
+                        </td>
+                    }
                 </tr>
             }
         </tbody>

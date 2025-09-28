@@ -1000,7 +1000,7 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome { get; internal set; }
         public decimal TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal RothWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
-       // public decimal TotalWithdrawalOfAllType { get; internal set; }
+        // public decimal TotalWithdrawalOfAllType { get; internal set; }
         public decimal TotalWithdrawForInitialTaxPaymentOnTaxableIncome { get; internal set; }
         public decimal TotalWithdrawForCostOfLivingExcludingTaxes { get; internal set; }
         public decimal TaxableWithdrawnForCostOfLivingIfAtAll { get; internal set; }
@@ -1009,5 +1009,38 @@ namespace FinPlan.Shared.Models.Spending
         public decimal TraditionalWithdrawnForTaxOnTraditional { get; set; }
         public decimal RothWithdrawnForTaxOnTraditional { get; set; }
         public decimal TaxDueDueToTraditionalWithdrawnForTaxOnTraditional { get; internal set; }
+
+        public decimal TotalTaxableWithdrawn
+        {
+            get
+            {
+                return
+
+                    TaxableWithdrawnForCostOfLivingIfAtAll +
+                    TaxableWithdrawForInitialAndProbablyOnlyTaxPaymenOnTaxableIncome;
+            }
+        }
+
+        public decimal TotalTraditionalWithdrawn
+        {
+            get
+            {
+                return
+                    TradWithdrawnForCostOfLivingIfAtAll +
+                    TraditionalWithdrawForInitialTaxPaymentOnTaxableIncome +
+                    TraditionalWithdrawnForTaxOnTraditional;
+            }
+        }
+
+        public decimal TotalRothWithdrawn
+        {
+            get
+            {
+                return
+                    RothWithdrawnForCostOfLivingIfAtAll +
+                    RothWithdrawForInitialTaxPaymentOnTaxableIncome +
+                    RothWithdrawnForTaxOnTraditional;
+            }
+        }
     }
 }
