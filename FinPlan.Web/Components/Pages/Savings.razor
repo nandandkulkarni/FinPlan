@@ -21,6 +21,59 @@
         --brand-yellow: #FFD600;
     }
 
+.summary-cards-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.savings-card {
+    background: #fff;
+    color: #222;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(31,111,235,0.08);
+    min-width: 132px;
+    max-width: 132px;
+    min-height: 132px;
+    max-height: 132px;
+    width: 132px;
+    height: 132px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 10px;
+    font-size: 1rem;
+}
+.savings-card-yellow { background: #FFD600; color: #222; }
+.savings-card-teal { background: #38B2AC; color: #fff; }
+.savings-card-purple { background: #6D5DFC; color: #fff; }
+.savings-card-red { background: #F56565; color: #fff; }
+
+.savings-card .bi {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+    color: inherit;
+}
+
+.savings-card .card-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+    color: inherit;
+    text-align: center;
+}
+
+.savings-card .card-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: inherit;
+    text-align: center;
+    margin-top: 2px;
+}
+
     .survey-card {
         border-right: 8px solid #1F6FEB !important;
         border-top: 1px solid #e9ecef;
@@ -472,28 +525,28 @@
 
                         @if (results != null)
                         {
-                            <div class="summary-cards-row" style="display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap;">
-                                <div class="summary-card" style="flex:1; min-width:140px; background: #FFD600; color: #222; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 12px; display: flex; flex-direction: column; align-items: center;">
-                                    <span class="bi bi-piggy-bank" style="font-size:1.5rem; margin-bottom:6px;"></span>
-                                    <div style="font-weight:700;">Final Savings</div>
-                                    <div class="summary-money">@results.FinalAmount.ToString("C0")</div>
-                                </div>
-                                <div class="summary-card" style="flex:1; min-width:140px; background: #38B2AC; color: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 12px; display: flex; flex-direction: column; align-items: center;">
-                                    <span class="bi bi-arrow-up-circle" style="font-size:1.5rem; margin-bottom:6px;"></span>
-                                    <div style="font-weight:700;">Total Contributions</div>
-                                    <div class="summary-money">@results.TotalContributions.ToString("C0")</div>
-                                </div>
-                                <div class="summary-card" style="flex:1; min-width:140px; background: #6D5DFC; color: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 12px; display: flex; flex-direction: column; align-items: center;">
-                                    <span class="bi bi-graph-up" style="font-size:1.5rem; margin-bottom:6px;"></span>
-                                    <div style="font-weight:700;">Total Growth</div>
-                                    <div class="summary-money">@results.TotalInterestEarned.ToString("C0")</div>
-                                </div>
-                                <div class="summary-card" style="flex:1; min-width:140px; background: #F56565; color: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 12px; display: flex; flex-direction: column; align-items: center;">
-                                    <span class="bi bi-receipt" style="font-size:1.5rem; margin-bottom:6px;"></span>
-                                    <div style="font-weight:700;">Taxes Paid</div>
-                                    <div class="summary-money">@results.TotalTaxesPaid.ToString("C0")</div>
-                                </div>
-                            </div>
+                            <div class="summary-cards-row">
+    <div class="summary-card savings-card savings-card-yellow">
+        <span class="bi bi-piggy-bank"></span>
+        <div class="card-label">Final Savings</div>
+        <div class="card-value">@results.FinalAmount.ToString("C0")</div>
+    </div>
+    <div class="summary-card savings-card savings-card-teal">
+        <span class="bi bi-arrow-up-circle"></span>
+        <div class="card-label">Total Contributions</div>
+        <div class="card-value">@results.TotalContributions.ToString("C0")</div>
+    </div>
+    <div class="summary-card savings-card savings-card-purple">
+        <span class="bi bi-graph-up"></span>
+        <div class="card-label">Total Growth</div>
+        <div class="card-value">@results.TotalInterestEarned.ToString("C0")</div>
+    </div>
+    <div class="summary-card savings-card savings-card-red">
+        <span class="bi bi-receipt"></span>
+        <div class="card-label">Taxes Paid</div>
+        <div class="card-value">@results.TotalTaxesPaid.ToString("C0")</div>
+    </div>
+</div>
                         }
                         <!-- Centered heading with Edit Plan button -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
