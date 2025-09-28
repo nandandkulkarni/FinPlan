@@ -110,33 +110,33 @@
                                         <div class="mb-3">
                                             <label class="form-label">Retirement Age</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" @bind="Model.RetirementAgeYou" min="40" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.RetirementAgeYou ?? 0)" min="40" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RetirementAgeYou), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Life Expectancy</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" @bind="LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" />
+                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyYou), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
                                         </div>
                                         <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
                                             <div class="small text-center mb-1">Retirement Timeline</div>
                                             <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (Model!.RetirementAgeYou - Model!.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%;">
                                                 </div>
-                                                <div class="retirement-period" style="position: absolute; left: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (Model.RetirementAgeYou - Model.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(LifeExpectancyAgeYou > Model.CurrentAgeYou ? (LifeExpectancyAgeYou - Model.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model.CurrentAgeYou) : 0)%;">
+                                                <div class="retirement-period" style="position: absolute; left: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (Model!.RetirementAgeYou - Model!.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (LifeExpectancyAgeYou - Model!.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%;">
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-between mt-1">
-                                                <span class="small">@Model.CurrentAgeYou</span>
-                                                <span class="small">@Model.RetirementAgeYou</span>
+                                                <span class="small">@Model!.CurrentAgeYou</span>
+                                                <span class="small">@Model!.RetirementAgeYou</span>
                                                 <span class="small">@LifeExpectancyAgeYou</span>
                                             </div>
                                             <div class="text-muted small mt-2 text-center">
-                                                Approx. @(Model.RetirementAgeYou - Model.CurrentAgeYou) years until retirement,
-                                                @(LifeExpectancyAgeYou - Model.RetirementAgeYou) years in retirement
+                                                Approx. @(Model!.RetirementAgeYou - Model!.CurrentAgeYou) years until retirement,
+                                                @(LifeExpectancyAgeYou - Model!.RetirementAgeYou) years in retirement
                                             </div>
                                         </div>
                                     </div>
@@ -164,35 +164,35 @@
                                         <div class="mb-3">
                                             <label class="form-label">Retirement Age</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" @bind="Model.RetirementAgePartner" min="40" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.RetirementAgePartner ?? 0)" min="40" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RetirementAgePartner), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Life Expectancy</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" @bind="LifeExpectancyAgePartner" min="55" max="120" style="border-width: 2px; border-color: #ccc;" />
+                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgePartner" min="55" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyPartner), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
                                             <div class="small-note">Leave as 0 if no partner or to use your life expectancy</div>
                                         </div>
 
                                         <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
-                                            @if (Model.CurrentAgePartner > 0 && Model.RetirementAgePartner > Model.CurrentAgePartner)
+                                            @if (Model!.CurrentAgePartner > 0 && Model!.RetirementAgePartner > Model!.CurrentAgePartner)
                                             {
                                                 <div class="small text-center mb-1">Retirement Timeline</div>
                                                 <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
-                                                    <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner))%;"></div>
-                                                    <div class="retirement-period" style="position: absolute; left: @((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner))%; top: 0; height: 10px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - ((Model.RetirementAgePartner - Model.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model.CurrentAgePartner : LifeExpectancyAgeYou - Model.CurrentAgePartner)))%;"></div>
+                                                    <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner))%;"></div>
+                                                    <div class="retirement-period" style="position: absolute; left: @((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner))%; top: 0; height: 10px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - ((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner)))%;"></div>
                                                 </div>
                                                 <div class="d-flex justify-content-between mt-1">
-                                                    <span class="small">@Model.CurrentAgePartner</span>
-                                                    <span class="small">@Model.RetirementAgePartner</span>
+                                                    <span class="small">@Model!.CurrentAgePartner</span>
+                                                    <span class="small">@Model!.RetirementAgePartner</span>
                                                     <span class="small">@(LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou)</span>
                                                 </div>
                                                 <div class="text-muted small mt-2 text-center">
-                                                    Approx. @(Model.RetirementAgePartner - Model.CurrentAgePartner) years until retirement,
-                                                    @((LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou) - Model.RetirementAgePartner) years in retirement
+                                                    Approx. @(Model!.RetirementAgePartner - Model!.CurrentAgePartner) years until retirement,
+                                                    @((LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou) - Model!.RetirementAgePartner) years in retirement
                                                 </div>
                                             }
                                             else
@@ -214,28 +214,28 @@
                                     <i class="bi bi-calendar2-week me-2" style="color: #059669;"></i>
                                     Combined Retirement Timeline
                                 </h5>
-                                @if (Model.CurrentAgePartner > 0 && Model.RetirementAgePartner > 0 && Model.RetirementAgeYou > 0)
+                                        @if (Model!.CurrentAgePartner > 0 && Model!.RetirementAgePartner > 0 && Model!.RetirementAgeYou > 0)
                                 {
                                     <div class="position-relative" style="height: 60px; background-color: #f8fafc; border-radius: 8px; padding: 10px;">
                                         <!-- Your timeline -->
                                         <div class="position-absolute" style="top: 15px; left: 0; right: 0;">
-                                            <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%;"></div>
-                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%; top: 0; height: 8px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou))%;"></div>
+                                                <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%;"></div>
+                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%; top: 0; height: 8px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou))%;"></div>
                                             </div>
-                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model.CurrentAgeYou, Model.RetirementAgeYou)%; top: -15px; transform: translateX(-50%);">
-                                                <span class="badge bg-primary">You: @Model.RetirementAgeYou</span>
+                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%; top: -15px; transform: translateX(-50%);">
+                                                <span class="badge bg-primary">You: @Model!.RetirementAgeYou</span>
                                             </div>
                                         </div>
 
                                         <!-- Partner timeline -->
                                         <div class="position-absolute" style="top: 35px; left: 0; right: 0;">
-                                            <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%;"></div>
-                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%; top: 0; height: 8px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner))%;"></div>
+                                                <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
+                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%;"></div>
+                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%; top: 0; height: 8px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner))%;"></div>
                                             </div>
-                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model.CurrentAgePartner, Model.RetirementAgePartner)%; top: 15px; transform: translateX(-50%);">
-                                                <span class="badge bg-purple">Partner: @Model.RetirementAgePartner</span>
+                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%; top: 15px; transform: translateX(-50%);">
+                                                <span class="badge bg-purple">Partner: @Model!.RetirementAgePartner</span>
                                             </div>
                                         </div>
                                     </div>
@@ -299,7 +299,7 @@
                                         }
                                         <div class="input-group mb-2">
                                             <span class="input-group-text">$</span>
-                                            <input class="form-control currency-input" type="number" @bind="Model.TaxableBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <input class="form-control currency-input" type="number" value="@(Model?.TaxableBalance ?? 0m)" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.TaxableBalance), e.Value!)" />
                                         </div>
                                         <div class="account-footer text-muted">
                                             <small>Subject to annual taxes on earnings</small>
@@ -328,7 +328,7 @@
                                         }
                                         <div class="input-group mb-2">
                                             <span class="input-group-text">$</span>
-                                            <input class="form-control currency-input" type="number" @bind="Model.TraditionalBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <input class="form-control currency-input" type="number" value="@(Model?.TraditionalBalance ?? 0m)" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.TraditionalBalance), e.Value!)" />
                                         </div>
                                         <div class="account-footer text-muted">
                                             <small>Tax-deferred until withdrawal</small>
@@ -357,7 +357,7 @@
                                         }
                                         <div class="input-group mb-2">
                                             <span class="input-group-text">$</span>
-                                            <input class="form-control currency-input" type="number" @bind="Model.RothBalance" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <input class="form-control currency-input" type="number" value="@(Model?.RothBalance ?? 0m)" step="1000" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RothBalance), e.Value!)" />
                                         </div>
                                         <div class="account-footer text-muted">
                                             <small>Tax-free growth and withdrawals</small>
@@ -377,9 +377,9 @@
 
                                 @{
                                     decimal total = TotalStarting;
-                                    decimal taxablePct = total > 0 ? Math.Round((Model.TaxableBalance / total) * 100, 1) : 0;
-                                    decimal traditionalPct = total > 0 ? Math.Round((Model.TraditionalBalance / total) * 100, 1) : 0;
-                                    decimal rothPct = total > 0 ? Math.Round((Model.RothBalance / total) * 100, 1) : 0;
+                                    decimal taxablePct = total > 0 ? Math.Round((Model!.TaxableBalance / total) * 100, 1) : 0;
+                                    decimal traditionalPct = total > 0 ? Math.Round((Model!.TraditionalBalance / total) * 100, 1) : 0;
+                                    decimal rothPct = total > 0 ? Math.Round((Model!.RothBalance / total) * 100, 1) : 0;
                                 }
 
                                 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -450,11 +450,11 @@
                                         }
 
                                         <div class="text-center mb-2">
-                                            <span style="font-size: 2rem; font-weight: bold; color: #2563EB;">@Model.InvestmentReturn.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
+                                            <span style="font-size: 2rem; font-weight: bold; color: #2563EB;">@Model!.InvestmentReturn.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
                                         </div>
 
                                         <input type="range" class="form-range mb-2" min="1" max="12" step="0.1"
-                                               value="@Model.InvestmentReturn"
+                                               value="@(Model!.InvestmentReturn)"
                                                @oninput="(e => Model.InvestmentReturn = Convert.ToDecimal(e.Value))" />
 
                                         <div class="d-flex justify-content-between small text-muted">
@@ -507,11 +507,11 @@
                                         }
 
                                         <div class="text-center mb-2">
-                                            <span style="font-size: 2rem; font-weight: bold; color: #DC2626;">@Model.InflationRate.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
+                                            <span style="font-size: 2rem; font-weight: bold; color: #DC2626;">@Model!.InflationRate.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
                                         </div>
 
                                         <input type="range" class="form-range mb-2" min="0" max="8" step="0.1"
-                                               value="@Model.InflationRate"
+                                               value="@(Model!.InflationRate)"
                                                @oninput="(e => Model.InflationRate = Convert.ToDecimal(e.Value))" />
 
                                         <div class="d-flex justify-content-between small text-muted">
@@ -591,7 +591,7 @@
 
                                             <div class="d-flex align-items-center">
                                                 <input type="range" class="form-range" min="62" max="70" step="1"
-                                                       value="@Model.SSStartAgeYou"
+                                                       value="@(Model!.SSStartAgeYou)"
                                                        @oninput="(e => Model.SSStartAgeYou = Convert.ToInt32(e.Value))" />
                                             </div>
                                             <div class="d-flex justify-content-between small">
@@ -600,7 +600,7 @@
                                                 <span class="text-primary">Max: 70</span>
                                             </div>
                                             <div class="d-flex justify-content-center">
-                                                <div class="badge bg-primary mt-2 fs-6">Selected Age: @Model.SSStartAgeYou</div>
+                                                <div class="badge bg-primary mt-2 fs-6">Selected Age: @Model!.SSStartAgeYou</div>
                                             </div>
                                         </div>
                                     </div>
@@ -621,11 +621,11 @@
                                             }
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text">$</span>
-                                                <input class="form-control currency-input" type="number" @bind="Model.SocialSecurityMonthlyYou" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                <input class="form-control currency-input" type="number" value="@(Model?.SocialSecurityMonthlyYou ?? 0m)" step="100" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.SocialSecurityMonthlyYou), e.Value!)" />
                                                 <span class="input-group-text">/month</span>
                                             </div>
                                             <div class="text-center text-muted small">
-                                                Approximately $@((Model.SocialSecurityMonthlyYou * 12).ToString("N0")) per year
+                                                Approximately $@((Model!.SocialSecurityMonthlyYou * 12).ToString("N0")) per year
                                             </div>
                                         </div>
                                     </div>
@@ -634,7 +634,7 @@
                                 <div class="p-3 rounded" style="background-color: #f0f9ff;">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div class="text-muted small">Claiming at age @Model.SSStartAgeYou</div>
+                                            <div class="text-muted small">Claiming at age @Model!.SSStartAgeYou</div>
                                             <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</div>
                                         </div>
                                         <div class="text-end">
@@ -675,7 +675,7 @@
 
                                                 <div class="d-flex align-items-center">
                                                     <input type="range" class="form-range" min="62" max="70" step="1"
-                                                           value="@Model.SSStartAgePartner"
+                                                           value="@(Model!.SSStartAgePartner)"
                                                            @oninput="(e => Model.SSStartAgePartner = Convert.ToInt32(e.Value))" />
                                                 </div>
                                                 <div class="d-flex justify-content-between small">
@@ -684,7 +684,7 @@
                                                     <span class="text-primary">Max: 70</span>
                                                 </div>
                                                 <div class="d-flex justify-content-center">
-                                                    <div class="badge" style="background-color: #8B5CF6; margin-top: 0.5rem; font-size: 1rem;">Selected Age: @Model.SSStartAgePartner</div>
+                                                    <div class="badge" style="background-color: #8B5CF6; margin-top: 0.5rem; font-size: 1rem;">Selected Age: @Model!.SSStartAgePartner</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -705,11 +705,11 @@
                                                 }
                                                 <div class="input-group mb-3">
                                                     <span class="input-group-text">$</span>
-                                                    <input class="form-control currency-input" type="number" @bind="Model.SocialSecurityMonthlyPartner" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                    <input class="form-control currency-input" type="number" value="@(Model?.SocialSecurityMonthlyPartner ?? 0m)" step="100" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.SocialSecurityMonthlyPartner), e.Value!)" />
                                                     <span class="input-group-text">/month</span>
                                                 </div>
                                                 <div class="text-center text-muted small">
-                                                    Approximately $@((Model.SocialSecurityMonthlyPartner * 12).ToString("N0")) per year
+                                                    Approximately $@((Model!.SocialSecurityMonthlyPartner * 12).ToString("N0")) per year
                                                 </div>
                                             </div>
                                         </div>
@@ -718,7 +718,7 @@
                                     <div class="p-3 rounded" style="background-color: #faf5ff;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div class="text-muted small">Claiming at age @Model.SSStartAgePartner</div>
+                                                <div class="text-muted small">Claiming at age @Model!.SSStartAgePartner</div>
                                                 <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</div>
                                             </div>
                                             <div class="text-end">
@@ -742,11 +742,11 @@
                                         <div class="col-md-6">
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Your monthly benefit:</span>
-                                                <strong>$@Model.SocialSecurityMonthlyYou.ToString("N0")</strong>
+                                                <strong>$@Model!.SocialSecurityMonthlyYou.ToString("N0")</strong>
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Partner's monthly benefit:</span>
-                                                <strong>$@Model.SocialSecurityMonthlyPartner.ToString("N0")</strong>
+                                                <strong>$@Model!.SocialSecurityMonthlyPartner.ToString("N0")</strong>
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Combined monthly:</span>
@@ -756,7 +756,7 @@
                                         <div class="col-md-6">
                                             <div class="text-center p-3 rounded" style="background-color: #ecfdf5;">
                                                 <div class="text-muted">Combined Annual Social Security</div>
-                                                <div class="fs-3 fw-bold" style="color: #059669;">$@(((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12).ToString("N0"))</div>
+                                                <div class="fs-3 fw-bold" style="color: #059669;">$@(((Model!.SocialSecurityMonthlyYou + Model!.SocialSecurityMonthlyPartner) * 12).ToString("N0"))</div>
                                             </div>
                                         </div>
                                     </div>
@@ -766,7 +766,7 @@
                                         Math.Min(100, Math.Round((((Model.SocialSecurityMonthlyYou + Model.SocialSecurityMonthlyPartner) * 12) / (Model.AnnualWithdrawalBoth > 0 ? Model.AnnualWithdrawalBoth : 50000)) * 100, 1)) : 0;
                                     }
 
-                                    @if (Model.AnnualWithdrawalBoth > 0)
+                                    @if (Model!.AnnualWithdrawalBoth > 0)
                                     {
                                         <div class="mt-3">
                                             <div class="d-flex justify-content-between mb-1">
@@ -804,8 +804,8 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="d-flex justify-content-between mb-2">
-                                                <span>Monthly benefit at age @Model.SSStartAgeYou:</span>
-                                                <strong>$@Model.SocialSecurityMonthlyYou.ToString("N0")</strong>
+                                                <span>Monthly benefit at age @Model!.SSStartAgeYou:</span>
+                                                <strong>$@Model!.SocialSecurityMonthlyYou.ToString("N0")</strong>
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Annual benefit:</span>
@@ -878,7 +878,7 @@
                                 </div>
 
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="rmEnabled" @bind="ReverseMortgageEnabled" style="width: 3em; height: 1.5em;" />
+                                    <input class="form-check-input" type="checkbox" id="rmEnabled" checked="@ReverseMortgageEnabled" style="width: 3em; height: 1.5em;" @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageStartAge), (bool)(e.Value ?? false) ? (object)(((Model?.ReverseMortgageStartAge ?? 0) == 0) ? (Model?.CurrentAgeYou ?? 0) : (Model?.ReverseMortgageStartAge ?? 0)) : 0)" />
                                     <label class="form-check-label ms-2 fs-5" for="rmEnabled">Enable reverse mortgage</label>
                                 </div>
 
@@ -911,9 +911,9 @@
 
                                                     <div class="d-flex align-items-center mb-3">
                                                         <input type="range" class="form-range me-3" min="62" max="85" step="1"
-                                                               value="@Model.ReverseMortgageStartAge"
+                                                               value="@(Model!.ReverseMortgageStartAge)"
                                                                @oninput="(e => Model.ReverseMortgageStartAge = Convert.ToInt32(e.Value))" />
-                                                        <span class="badge bg-warning text-dark fs-5">@Model.ReverseMortgageStartAge</span>
+                                                        <span class="badge bg-warning text-dark fs-5">@Model!.ReverseMortgageStartAge</span>
                                                     </div>
 
                                                     <div class="d-flex justify-content-between small">
@@ -950,12 +950,12 @@
 
                                                     <div class="input-group mb-3">
                                                         <span class="input-group-text">$</span>
-                                                        <input class="form-control currency-input" type="number" @bind="Model.ReverseMortgageMonthly" step="100" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                                        <input class="form-control currency-input" type="number" value="@(Model?.ReverseMortgageMonthly ?? 0m)" step="100" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageMonthly), e.Value!)" />
                                                         <span class="input-group-text">/month</span>
                                                     </div>
 
-                                                    <div class="text-center text-success fs-5 mt-3">
-                                                        $@((Model.ReverseMortgageMonthly * 12).ToString("N0")) additional income per year
+                                                        <div class="text-center text-success fs-5 mt-3">
+                                                        $@((Model!.ReverseMortgageMonthly * 12).ToString("N0")) additional income per year
                                                     </div>
                                                 </div>
                                             </div>
@@ -999,9 +999,9 @@
                                             </div>
 
                                             <div class="d-flex justify-content-between mt-2 small text-muted">
-                                                <span>Age @Model.CurrentAgeYou</span>
-                                                <span>Age @Model.RetirementAgeYou</span>
-                                                <span>Age @Model.ReverseMortgageStartAge</span>
+                                                <span>Age @Model!.CurrentAgeYou</span>
+                                                <span>Age @Model!.RetirementAgeYou</span>
+                                                <span>Age @Model!.ReverseMortgageStartAge</span>
                                                 <span>Age @LifeExpectancyAgeYou</span>
                                             </div>
                                         </div>
@@ -1061,14 +1061,14 @@
 
                                                 <div class="input-group mt-3 mb-3">
                                                     <span class="input-group-text">$</span>
-                                                    <input class="form-control currency-input" type="number"
-                                                           @bind="Model.AnnualWithdrawalOne" step="1000" min="0"
-                                                           style="border-width: 2px; border-color: #ccc;" />
+                               <input class="form-control currency-input" type="number"
+                                   value="@(Model?.AnnualWithdrawalOne ?? 0m)" @onchange="e => OnInputChanged(nameof(Model.AnnualWithdrawalOne), e.Value!)" step="1000" min="0"
+                                   style="border-width: 2px; border-color: #ccc;" />
                                                     <span class="input-group-text">/year</span>
                                                 </div>
 
                                                 <div class="text-center text-muted">
-                                                    $@((Model.AnnualWithdrawalOne / 12).ToString("N0")) per month
+                                                    $@((Model!.AnnualWithdrawalOne / 12).ToString("N0")) per month
                                                 </div>
 
                                                 <div class="d-flex align-items-center mt-3 p-2" style="background-color: #f0f7ff; border-radius: 6px;">
@@ -1115,14 +1115,14 @@
 
                                                 <div class="input-group mt-3 mb-3">
                                                     <span class="input-group-text">$</span>
-                                                    <input class="form-control currency-input" type="number"
-                                                           @bind="Model.AnnualWithdrawalBoth" step="1000" min="0"
-                                                           style="border-width: 2px; border-color: #ccc;" />
+                               <input class="form-control currency-input" type="number"
+                                   value="@(Model?.AnnualWithdrawalBoth ?? 0m)" @onchange="e => OnInputChanged(nameof(Model.AnnualWithdrawalBoth), e.Value!)" step="1000" min="0"
+                                   style="border-width: 2px; border-color: #ccc;" />
                                                     <span class="input-group-text">/year</span>
                                                 </div>
 
                                                 <div class="text-center text-muted">
-                                                    $@((Model.AnnualWithdrawalBoth / 12).ToString("N0")) per month
+                                                    $@((Model!.AnnualWithdrawalBoth / 12).ToString("N0")) per month
                                                 </div>
 
                                                 <div class="d-flex align-items-center mt-3 p-2" style="background-color: #ecfdf5; border-radius: 6px;">
@@ -1263,13 +1263,13 @@
                                                 </div>
 
                                                 <div class="input-group mb-3">
-                                                    <input class="form-control currency-input" type="number" @bind="Model.CurrentAgeYou" min="18" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                    <input class="form-control currency-input" type="number" value="@(Model?.CurrentAgeYou ?? 0)" min="18" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgeYou), e.Value!)" />
                                                     <span class="input-group-text">years</span>
                                                 </div>
 
                                                 <div class="text-center p-2 mt-2" style="background-color: #f0f7ff; border-radius: 6px;">
                                                     <div>Years until retirement:</div>
-                                                    <strong class="fs-4 text-primary">@(Model.RetirementAgeYou - Model.CurrentAgeYou)</strong>
+                                                    <strong class="fs-4 text-primary">@(Model!.RetirementAgeYou - Model!.CurrentAgeYou)</strong>
                                                 </div>
                                             </div>
                                         </div>
@@ -1296,13 +1296,13 @@
                                                 </div>
 
                                                 <div class="input-group mb-3">
-                                                    <input class="form-control currency-input" type="number" @bind="Model.CurrentAgePartner" min="0" max="100" style="border-width: 2px; border-color: #ccc;" />
+                                                    <input class="form-control currency-input" type="number" value="@(Model?.CurrentAgePartner ?? 0)" min="0" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgePartner), e.Value!)" />
                                                     <span class="input-group-text">years</span>
                                                 </div>
 
                                                 <div class="small-note">Leave as 0 if no partner</div>
 
-                                                @if (Model.CurrentAgePartner > 0)
+                                                @if (Model!.CurrentAgePartner > 0)
                                                 {
                                                     <div class="text-center p-2 mt-2" style="background-color: #faf5ff; border-radius: 6px;">
                                                         <div>Partner's years until retirement:</div>
@@ -1346,10 +1346,10 @@
                                                 <div class="input-group mb-3">
                                                     <input class="form-control currency-input"
                                                            type="number"
-                                                           value="@Model.SimulationStartYear"
+                                                           value="@(Model!.SimulationStartYear)"
                                                            min="2025" max="2100"
                                                            style="border-width: 2px; border-color: #ccc;"
-                                                           @onchange="e => OnInputChanged(nameof(Model.SimulationStartYear), e.Value)" />
+                                                           @onchange="e => OnInputChanged(nameof(Model.SimulationStartYear), e.Value!)" />
                                                 </div>
 
                                                 <div class="small-note">Year to begin the retirement simulation</div>
@@ -1377,16 +1377,16 @@
                                             <tbody>
                                                 <tr>
                                                     <td><i class="bi bi-play-circle me-1 text-primary"></i> Simulation Start</td>
-                                                    <td>@Model.CurrentAgeYou</td>
-                                                    <td>@Model.SimulationStartYear</td>
+                                                    <td>@Model!.CurrentAgeYou</td>
+                                                    <td>@Model!.SimulationStartYear</td>
                                                     @if (Model.CurrentAgePartner > 0)
                                                     {
-                                                        <td>@Model.CurrentAgePartner</td>
+                                                        <td>@Model!.CurrentAgePartner</td>
                                                     }
                                                 </tr>
                                                 <tr>
                                                     <td><i class="bi bi-person-check me-1 text-success"></i> Your Retirement</td>
-                                                    <td>@Model.RetirementAgeYou</td>
+                                                    <td>@Model!.RetirementAgeYou</td>
                                                     <td>@(Model.SimulationStartYear + (Model.RetirementAgeYou - Model.CurrentAgeYou))</td>
                                                     @if (Model.CurrentAgePartner > 0)
                                                     {
@@ -1399,12 +1399,12 @@
                                                         <td><i class="bi bi-people me-1" style="color: #8B5CF6;"></i> Partner's Retirement</td>
                                                         <td>@(Model.CurrentAgeYou + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
                                                         <td>@(Model.SimulationStartYear + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@Model.RetirementAgePartner</td>
+                                                        <td>@Model!.RetirementAgePartner</td>
                                                     </tr>
                                                 }
                                                 <tr>
                                                     <td><i class="bi bi-piggy-bank me-1 text-primary"></i> Your Social Security</td>
-                                                    <td>@Model.SSStartAgeYou</td>
+                                                    <td>@Model!.SSStartAgeYou</td>
                                                     <td>@(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</td>
                                                     @if (Model.CurrentAgePartner > 0)
                                                     {
@@ -1417,14 +1417,14 @@
                                                         <td><i class="bi bi-piggy-bank me-1" style="color: #8B5CF6;"></i> Partner's Social Security</td>
                                                         <td>@(Model.CurrentAgeYou + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
                                                         <td>@(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@Model.SSStartAgePartner</td>
+                                                        <td>@Model!.SSStartAgePartner</td>
                                                     </tr>
                                                 }
                                                 @if (Model.ReverseMortgageStartAge > 0)
                                                 {
                                                     <tr>
                                                         <td><i class="bi bi-house-heart me-1 text-warning"></i> Reverse Mortgage</td>
-                                                        <td>@Model.ReverseMortgageStartAge</td>
+                                                        <td>@Model!.ReverseMortgageStartAge</td>
                                                         <td>@(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</td>
                                                         @if (Model.CurrentAgePartner > 0)
                                                         {
@@ -1535,7 +1535,7 @@
             LifeExpectancyAgeYou,
             LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou
         );
-        int minAge = Math.Min(Model.CurrentAgeYou, Model.CurrentAgePartner > 0 ? Model.CurrentAgePartner : Model.CurrentAgeYou);
+    int minAge = Math.Min(Model?.CurrentAgeYou ?? 0, (Model?.CurrentAgePartner ?? 0) > 0 ? (Model?.CurrentAgePartner ?? 0) : (Model?.CurrentAgeYou ?? 0));
         double totalSpan = maxAge - minAge;
 
         return Math.Min(100, Math.Max(0, ((targetAge - minAge) / totalSpan) * 100));
