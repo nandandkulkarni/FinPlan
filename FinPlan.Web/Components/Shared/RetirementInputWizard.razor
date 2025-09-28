@@ -1344,7 +1344,12 @@
                                                 </div>
 
                                                 <div class="input-group mb-3">
-                                                    <input class="form-control currency-input" type="number" @bind="Model.SimulationStartYear" min="2025" max="2100" style="border-width: 2px; border-color: #ccc;" />
+                                                    <input class="form-control currency-input"
+                                                           type="number"
+                                                           value="@Model.SimulationStartYear"
+                                                           min="2025" max="2100"
+                                                           style="border-width: 2px; border-color: #ccc;"
+                                                           @onchange="e => OnInputChanged(nameof(Model.SimulationStartYear), e.Value)" />
                                                 </div>
 
                                                 <div class="small-note">Year to begin the retirement simulation</div>
@@ -1497,7 +1502,21 @@
 
     private decimal TotalStarting => (Model?.TaxableBalance ?? 0) + (Model?.TraditionalBalance ?? 0) + (Model?.RothBalance ?? 0);
 
+    private async Task OnInputChanged(string propertyName, object value)
+    {
+        if (Model == null) return;
 
+        var prop = Model.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+        if (prop != null && prop.CanWrite)
+        {
+            // Convert value to the correct type
+            var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            var safeValue = Convert.ChangeType(value, targetType);
+            prop.SetValue(Model, safeValue);
+            TrySyncModel();
+            await InvokeOnSaveSafe();
+        }
+    }
     private int GetOverlapYears()
     {
         if (Model == null || Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0) return 0;
