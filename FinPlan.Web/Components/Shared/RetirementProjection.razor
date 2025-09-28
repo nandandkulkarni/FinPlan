@@ -524,6 +524,46 @@
     .rp-table thead tr:first-child th {
         position: relative;
     }
+
+    /* Position second row headers relatively for absolute tooltip positioning */
+    .rp-table thead tr:nth-child(2) th {
+        position: relative;
+    }
+
+    /* Update second row tooltips to use same styling as first row */
+    .info-tooltip {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 12px 16px;
+        z-index: 1000;
+        max-width: 300px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: #374151;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .info-tooltip strong {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .info-tooltip .close-btn {
+        float: right;
+        cursor: pointer;
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-left: 8px;
+    }
+
+    .info-tooltip .close-btn:hover {
+        color: #374151;
+    }
 </style>
 
 <div id="table-scrollbar-top" style="width:100%; overflow-x:auto; overflow-y:hidden; height:18px;">
@@ -738,8 +778,8 @@
                         @if (showToolTipYear)
                         {
                             <div class="info-tooltip">
-                                <strong>Year:</strong> The calendar year for the projection.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYear = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Year:</strong> The calendar year for this retirement projection row.
+                                <span class="close-btn" @onclick="() => showToolTipYear = false">×</span>
                             </div>
                         }
                     </th>
@@ -749,8 +789,8 @@
                         @if (showToolTipYourAge)
                         {
                             <div class="info-tooltip">
-                                <strong>Your Age:</strong> Your age during the specified year.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourAge = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Your Age:</strong> Your age during this specific year of the retirement projection.
+                                <span class="close-btn" @onclick="() => showToolTipYourAge = false">×</span>
                             </div>
                         }
                     </th>
@@ -760,8 +800,8 @@
                         @if (showToolTipPartnerAge)
                         {
                             <div class="info-tooltip">
-                                <strong>Partner Age:</strong> Your partner's age during the specified year.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerAge = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Partner Age:</strong> Your partner's age during this specific year of the retirement projection.
+                                <span class="close-btn" @onclick="() => showToolTipPartnerAge = false">×</span>
                             </div>
                         }
                     </th>
@@ -771,8 +811,8 @@
                         @if (showToolTipMilestones)
                         {
                             <div class="info-tooltip">
-                                <strong>Milestones:</strong> Key events or goals for the year.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMilestones = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Milestones:</strong> Important life events, goals, or financial milestones for this year (e.g., retirement, major purchases, etc.).
+                                <span class="close-btn" @onclick="() => showToolTipMilestones = false">×</span>
                             </div>
                         }
                     </th>
@@ -783,8 +823,8 @@
                     @if (showToolTipAmountNeeded)
                     {
                         <div class="info-tooltip">
-                            <strong>Amount Needed:</strong> The total amount required for the year.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipAmountNeeded = false"><span class="bi bi-x-lg"></span></span>
+                            <strong>Amount Needed:</strong> Total annual cost of living expenses for this year, including all living costs and inflation adjustments.
+                                <span class="close-btn" @onclick="() => showToolTipAmountNeeded = false">×</span>
                         </div>
                     }
                 </th>
@@ -795,8 +835,8 @@
                     @if (showToolTipAmountWithdrawn)
                     {
                         <div class="info-tooltip">
-                            <strong>Amount Withdrawn:</strong> Amount withdrawn for living expenses, excluding taxes.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipAmountWithdrawn = false"><span class="bi bi-x-lg"></span></span>
+                            <strong>Amount Withdrawn:</strong> Total amount withdrawn from all accounts to cover living expenses for this year, excluding any tax payments.
+                                <span class="close-btn" @onclick="() => showToolTipAmountWithdrawn = false">×</span>
                         </div>
                     }
                 </th>
@@ -809,8 +849,8 @@
                         @if (showToolTipTaxableWithdrawal)
                         {
                             <div class="info-tooltip">
-                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for living expenses.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable investment accounts to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -820,8 +860,8 @@
                         @if (showToolTipTraditionalWithdrawal)
                         {
                             <div class="info-tooltip">
-                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for living expenses.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts (401k, IRA) to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -831,8 +871,8 @@
                         @if (showToolTipRothWithdrawal)
                         {
                             <div class="info-tooltip">
-                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for living expenses.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth retirement accounts (Roth IRA, Roth 401k) to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -845,8 +885,8 @@
                         @if (showToolTipSSYou)
                         {
                             <div class="info-tooltip">
-                                <strong>Social Security (You):</strong> Your annual Social Security benefit.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSYou = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Social Security (You):</strong> Your annual Social Security benefit for this year, based on your claiming age and earnings history.
+                                <span class="close-btn" @onclick="() => showToolTipSSYou = false">×</span>
                             </div>
                         }
                     </th>
@@ -856,8 +896,8 @@
                         @if (showToolTipSSPartner)
                         {
                             <div class="info-tooltip">
-                                <strong>Social Security (Partner):</strong> Your partner's annual Social Security benefit.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSPartner = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Social Security (Partner):</strong> Your partner's annual Social Security benefit for this year, based on their claiming age and earnings history.
+                                <span class="close-btn" @onclick="() => showToolTipSSPartner = false">×</span>
                             </div>
                         }
                     </th>
@@ -869,8 +909,8 @@
                         @if (showToolTipReverseMortgage)
                         {
                             <div class="info-tooltip">
-                                <strong>Reverse Mortgage:</strong> Annual income from reverse mortgage.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgage = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Reverse Mortgage:</strong> Annual income received from reverse mortgage loan against your home equity for this year.
+                                <span class="close-btn" @onclick="() => showToolTipReverseMortgage = false">×</span>
                             </div>
                         }
                     </th>
@@ -881,8 +921,8 @@
                         @if (showToolTipGrowth)
                         {
                             <div class="info-tooltip">
-                                <strong>Growth:</strong> Interest, Dividend & Investment growth for the year.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipGrowth = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Growth:</strong> Investment growth from interest, dividends, and capital gains on your portfolio for this year, before taxes.
+                                <span class="close-btn" @onclick="() => showToolTipGrowth = false">×</span>
                             </div>
                         }
                     </th>
@@ -901,8 +941,8 @@
                         @if (showToolTipTaxableEnding)
                         {
                             <div class="info-tooltip">
-                                <strong>Taxable Balance:</strong> Year-end balance of taxable accounts.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableEnding = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Taxable Balance:</strong> Year-end balance of taxable investment accounts after all withdrawals, growth, and transactions.
+                                <span class="close-btn" @onclick="() => showToolTipTaxableEnding = false">×</span>
                             </div>
                         }
                     </th>
@@ -912,8 +952,8 @@
                         @if (showToolTipTraditionalEnding)
                         {
                             <div class="info-tooltip">
-                                <strong>Traditional Balance:</strong> Year-end balance of traditional retirement accounts.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalEnding = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Traditional Balance:</strong> Year-end balance of traditional retirement accounts (401k, IRA) after all withdrawals, growth, and transactions.
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalEnding = false">×</span>
                             </div>
                         }
                     </th>
@@ -924,8 +964,8 @@
                         @if (showToolTipRothEnding)
                         {
                             <div class="info-tooltip">
-                                <strong>Roth Balance:</strong> Year-end balance of Roth accounts.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothEnding = false"><span class="bi bi-x-lg"></span></span>
+                                <strong>Roth Balance:</strong> Year-end balance of Roth retirement accounts (Roth IRA, Roth 401k) after all withdrawals, growth, and transactions.
+                                <span class="close-btn" @onclick="() => showToolTipRothEnding = false">×</span>
                             </div>
                         }
                     </th>
@@ -943,8 +983,8 @@
                     @if (showToolTipTaxesPaid)
                     {
                         <div class="info-tooltip">
-                            <strong>Taxes Due:</strong> Taxes due on all taxable growth and income.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxesPaid = false"><span class="bi bi-x-lg"></span></span>
+                            <strong>Taxes Due:</strong> Total tax liability on all taxable investment growth and income for this year.
+                                <span class="close-btn" @onclick="() => showToolTipTaxesPaid = false">×</span>
                         </div>
                     }
                 </th>
@@ -957,7 +997,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -968,7 +1008,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -979,7 +1019,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -1016,7 +1056,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Traditional Withdrawal:</strong> Traditional withdrawn for tax on traditional.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTaxPaid = false">×</span>
                             </div>
                         }
                     </th>
@@ -1028,7 +1068,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Roth Withdrawal:</strong> Roth withdrawn for tax on traditional.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxPaid = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTaxPaid = false">×</span>
                             </div>
                         }
                     </th>
@@ -1053,7 +1093,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -1064,7 +1104,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
@@ -1075,7 +1115,7 @@
                         {
                             <div class="info-tooltip">
                                 <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for tax payments.
-                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothWithdrawal = false"><span class="bi bi-x-lg"></span></span>
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal = false">×</span>
                             </div>
                         }
                     </th>
