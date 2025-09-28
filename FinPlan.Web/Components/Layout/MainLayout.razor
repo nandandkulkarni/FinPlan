@@ -1,11 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject NavigationManager Navigation
 @using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject IJSRuntime JSRuntime
 
 <style>
     /* Top strip: primary navigation shortcuts */
@@ -73,6 +75,128 @@
             gap: 8px;
             align-items: center;
         }
+
+    /* Mobile hamburger menu */
+    .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: #222;
+        font-size: 1.5rem;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+        .mobile-menu-toggle:hover {
+            background: rgba(0,0,0,0.04);
+        }
+
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1040;
+    }
+
+    .mobile-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 280px;
+        height: 100vh;
+        background: #fff;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        z-index: 1050;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .mobile-menu.show {
+        display: block !important;
+    }
+
+    .mobile-menu-overlay {
+        display: none;
+    }
+
+    .mobile-menu-overlay.show {
+        display: block !important;
+    }
+
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-menu-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .mobile-menu-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mobile-menu-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #222;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+        .mobile-menu-link:hover {
+            background: #f8f9fa;
+            text-decoration: none;
+        }
+
+        .mobile-menu-link.active {
+            background: #fff8d6;
+            color: #111;
+            font-weight: 600;
+        }
+
+    .mobile-menu-step-badge {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #222;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-link.active .mobile-menu-step-badge {
+        background: #fff8d6;
+        color: #111;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
 
     /* separator + auth box */
     .top-sep {
@@ -165,7 +289,24 @@
         font-size: 1.05rem;
     }
 
-    /* On smaller screens scale down the badge */
+    /* Mobile responsive breakpoints */
+    @@media (max-width: 992px) {
+        .top-strip .menu-links {
+            display: none; /* Hide desktop menu on tablets and below */
+        }
+        
+        .mobile-menu-toggle {
+            display: block; /* Show hamburger menu */
+        }
+        
+        .top-strip .menu-actions {
+            position: static;
+            transform: none;
+            margin-left: auto;
+        }
+        
+    }
+
     @@media (max-width: 768px) {
         .step-badge {
             width: 30px;
@@ -179,6 +320,14 @@
             padding: 6px 8px;
             font-size: .92rem;
         }
+        
+        .top-strip {
+            padding: 8px 0;
+        }
+        
+        .top-strip .menu-container {
+            padding: 0 15px;
+        }
     }
 
     @@media (max-width: 480px) {
@@ -189,6 +338,14 @@
             min-width: 26px;
             font-size: 0.85rem;
             margin-right: 6px;
+        }
+        
+        .top-strip .menu-container {
+            padding: 0 10px;
+        }
+        
+        .mobile-menu {
+            width: 100vw;
         }
     }
 
@@ -215,6 +372,26 @@
     .content-rail {
         width: 100%;
     }
+
+    /* Mobile content improvements */
+    @@media (max-width: 768px) {
+        .content {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        
+        .page-with-sidebars {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .content {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+    }
 </style>
 
 <!-- Feedback strip placed above navigation -->
@@ -234,14 +411,17 @@
 
 <div class="top-strip">
     <div class="container menu-container">
+        <!-- Mobile hamburger menu button -->
+        <button class="mobile-menu-toggle" @onclick="ToggleMobileMenu" aria-label="Open navigation menu">
+            <span class="bi bi-list"></span>
+        </button>
 
+        <!-- Desktop menu links -->
         <div class="menu-links">
-
             <NavLink class="menu-link" href="/home">
                 <span class="bi bi-house-door" aria-hidden="true"></span>
                 <span>Home</span>
             </NavLink>
-
 
             <NavLink class="menu-link" href="/future-cost-of-living">
                 <span class="step-badge" aria-hidden="true">1</span>
@@ -260,6 +440,7 @@
                 <span class="bi bi-wallet2" aria-hidden="true"></span>
                 <span>Retirement Income Planner</span>
             </NavLink>
+            
             <NavLink class="menu-link" href="/about-rewealthen">
                 <span>About</span>
             </NavLink>
@@ -295,6 +476,47 @@
                 </div>
             }
         </div>
+    </div>
+</div>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu-overlay @(showMobileMenu ? "show" : "")" @onclick="CloseMobileMenu"></div>
+<div class="mobile-menu @(showMobileMenu ? "show" : "")">
+    <div class="mobile-menu-header">
+        <h5 class="mb-0">Navigation</h5>
+        <button class="mobile-menu-close" @onclick="CloseMobileMenu" aria-label="Close menu">
+            <span class="bi bi-x"></span>
+        </button>
+    </div>
+    
+    <div class="mobile-menu-links">
+        <NavLink class="mobile-menu-link" href="/home" @onclick="CloseMobileMenu">
+            <span class="bi bi-house-door" aria-hidden="true"></span>
+            <span>Home</span>
+        </NavLink>
+
+        <NavLink class="mobile-menu-link" href="/future-cost-of-living" @onclick="CloseMobileMenu">
+            <span class="mobile-menu-step-badge" aria-hidden="true">1</span>
+            <span class="bi bi-list-ul" aria-hidden="true"></span>
+            <span>Future Cost of Living</span>
+        </NavLink>
+
+        <NavLink class="mobile-menu-link" href="/savings-wealth-building" @onclick="CloseMobileMenu">
+            <span class="mobile-menu-step-badge" aria-hidden="true">2</span>
+            <span class="bi bi-piggy-bank" aria-hidden="true"></span>
+            <span>Savings & Wealth-Building</span>
+        </NavLink>
+
+        <NavLink class="mobile-menu-link" href="/retirement-income-planner" @onclick="CloseMobileMenu">
+            <span class="mobile-menu-step-badge" aria-hidden="true">3</span>
+            <span class="bi bi-wallet2" aria-hidden="true"></span>
+            <span>Retirement Income Planner</span>
+        </NavLink>
+        
+        <NavLink class="mobile-menu-link" href="/about-rewealthen" @onclick="CloseMobileMenu">
+            <span class="bi bi-info-circle" aria-hidden="true"></span>
+            <span>About</span>
+        </NavLink>
     </div>
 </div>
 
@@ -488,6 +710,18 @@
         // Start init after a short tick to allow Blazor to render
         setTimeout(initWhenReady, 50);
 
+        // Handle escape key for mobile menu
+        window.addMobileMenuEscapeListener = function(dotNetRef) {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const mobileMenu = document.querySelector('.mobile-menu.show');
+                    if (mobileMenu) {
+                        dotNetRef.invokeMethodAsync('CloseMobileMenu');
+                    }
+                }
+            });
+        };
+
     })();
 </script>
 
@@ -530,6 +764,10 @@
     private int pendingItemCount = 0;
     private string? pendingEmail;
 
+    // mobile menu state
+    private bool showMobileMenu = false;
+    private DotNetObjectReference<MainLayout>? dotNetRef;
+
     private void SignOutClicked()
     {
         // Force full navigation so the server signout endpoint runs and cookies are cleared
@@ -540,6 +778,17 @@
     {
         await base.OnInitializedAsync();
         await LoadAuthStateAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Add escape key listener for mobile menu after first render
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("addMobileMenuEscapeListener", dotNetRef);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task LoadAuthStateAsync()
@@ -691,7 +940,21 @@
         Navigation.NavigateTo("/signout", forceLoad: true);
     }
 
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void CloseMobileMenu()
+    {
+        showMobileMenu = false;
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
+        dotNetRef?.Dispose();
     }
 }
