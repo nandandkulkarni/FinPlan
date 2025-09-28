@@ -48,10 +48,8 @@
         RetirementEquation,
         WithdrawalCOLBreakDown,
         IncomeBreakDown,
-        IncomeConsolidated,
         EndingBalancesBreakDown,
         TaxPaidOnIncomeBreakDown,
-        TaxPaidOnGrowthIncomeBreakDown,
         TaxPaidTraditionalBreakDown
     }
 
@@ -63,15 +61,24 @@
         { GroupKey.RetirementEquation, new GroupInfo("Retirement Equation", true, 2, "Cost of Living") },
         { GroupKey.WithdrawalCOLBreakDown, new GroupInfo("Withdrawals for Cost Of Living", true, 3, "Actual withdrawals for Cost of Living") },
         { GroupKey.IncomeBreakDown, new GroupInfo("Income and Growth Breakdown", true, 4) },
-        { GroupKey.IncomeConsolidated, new GroupInfo("Total Inflow", true, 1) },
         { GroupKey.EndingBalancesBreakDown, new GroupInfo("Ending Balances Breakdown", true, 3) },
         { GroupKey.TaxPaidOnIncomeBreakDown, new GroupInfo("Tax Paid (Income Breakdown)", true, 3) },
-        { GroupKey.TaxPaidOnGrowthIncomeBreakDown, new GroupInfo("Tax (Growth & Income)", true, 4) },
         { GroupKey.TaxPaidTraditionalBreakDown, new GroupInfo("Tax (Traditional A/c withdrawal for Income Tax)", true, 2) }
     };
 
     // Visible groups set based on GroupMap defaults
-    private HashSet<GroupKey> VisibleGroups = new(GroupMap.Where(kv => kv.Value.DefaultVisible).Select(kv => kv.Key));
+    //private HashSet<GroupKey> VisibleGroups = new(GroupMap.Where(kv => kv.Value.DefaultVisible).Select(kv => kv.Key));
+
+    private HashSet<GroupKey> VisibleGroups = new HashSet<GroupKey>
+    {
+        GroupKey.Timeline,
+        GroupKey.RetirementEquation,
+        // GroupKey.WithdrawalCOLBreakDown,
+        // GroupKey.IncomeBreakDown,
+        GroupKey.EndingBalancesBreakDown,
+        // GroupKey.TaxPaidOnIncomeBreakDown,
+        // GroupKey.TaxPaidTraditionalBreakDown
+    };
 
     // Toggle group visibility (can be bound to a switch)
     void ToggleGroup(GroupKey group)
