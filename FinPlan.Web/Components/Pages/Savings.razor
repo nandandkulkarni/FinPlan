@@ -22,14 +22,23 @@
     }
 
     .survey-card {
-    border-right: 8px solid #1F6FEB !important;
-    border-top: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
-    border-left: 1px solid #e9ecef;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(31,111,235,0.08);
-    background: #fff;
-}
+        border-right: 8px solid #1F6FEB !important;
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+        border-left: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(31,111,235,0.08);
+        background: #fff;
+    }
+
+    .survey-card-narrow {
+        width: 75%;
+        min-width: 180px;
+        max-width: 320px;
+        margin-left: 0;
+        margin-right: auto;
+        align-self: flex-start;
+    }
 
     /* CSS Variables - convert to actual values for better compatibility */
     .container-wire {
@@ -193,21 +202,21 @@
         background: #fff;
     }
 
-    .section-card .actions {
-    margin-top: auto;
-    display: flex;
-    justify-content: flex-start;
-    gap: 8px;
-    padding-top: 16px; /* Increased from 6px to 16px for more space */
-}
-
-        /* .section-card .actions {
+        .section-card .actions {
             margin-top: auto;
             display: flex;
             justify-content: flex-start;
             gap: 8px;
-            padding-top: 6px;
-        } */
+            padding-top: 16px; /* Increased from 6px to 16px for more space */
+        }
+
+    /* .section-card .actions {
+                margin-top: auto;
+                display: flex;
+                justify-content: flex-start;
+                gap: 8px;
+                padding-top: 6px;
+            } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -238,25 +247,7 @@
         background: linear-gradient(180deg, #fff, #fff);
     }
 
-            .step-badge {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--brand-yellow);
-    color: #111;
-    font-weight: 800;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    margin-right: 8px;
-    margin-bottom: 12px; /* Added margin-bottom for spacing */
-    flex-shrink: 0;
-}
-
-    /* .step-badge {
+    .step-badge {
         width: 36px;
         height: 36px;
         min-width: 36px;
@@ -264,14 +255,32 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: #FFD600;
+        background: var(--brand-yellow);
         color: #111;
         font-weight: 800;
         font-size: 1rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         margin-right: 8px;
+        margin-bottom: 12px; /* Added margin-bottom for spacing */
         flex-shrink: 0;
-    } */
+    }
+
+    /* .step-badge {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFD600;
+            color: #111;
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            margin-right: 8px;
+            flex-shrink: 0;
+        } */
 
     .small-note {
         font-size: 0.9rem;
@@ -433,7 +442,7 @@
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <a href="/" class="badge">Home</a>
                             <a href="/about-rewealthen" class="badge">About</a>
-                            <div class="card survey-card mb-2">
+                            <div class="card survey-card survey-card-narrow mb-2">
                                 <div class="card-body text-center">
                                     <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
                                     <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
@@ -462,7 +471,7 @@
                     </ul>
                     <!-- Yellow border section panel that touches the tabs -->
                     <div class="section-panel" style="margin-top: -1px; border-top-left-radius: 0; border-top-right-radius: 0;">
-                      
+
                         @if (results != null)
                         {
                             <div class="summary-cards-row" style="display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap;">
@@ -827,7 +836,7 @@
                         <div style="font-weight:700; margin-bottom:8px;">Quick Links</div>
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <a href="/" class="badge">Home</a>
-                            <a href="/contact" class="badge">Contact</a>
+                            <a href="/about-rewealthen" class="badge">About</a>
                         </div>
                     </div>
                 </div>
