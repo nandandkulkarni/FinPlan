@@ -71,6 +71,7 @@ namespace FinPlan.Shared.Services
             decimal totalNonQualifiedIncome = 0;
             decimal totalLongTermGains = 0;
             decimal totalShortTermGains = 0;
+            decimal totalInterestGains = 0;
             decimal totalTaxesPaid = 0;
             for (int year = 1; year <= model.Years; year++)
             {
@@ -92,34 +93,48 @@ namespace FinPlan.Shared.Services
                     rothBalance += monthlyInterest + monthlyRothContribution;
                 }
                 rothInterest += yearlyRothInterest;
-                decimal yearlyTaxableInterest = 0;
+
+                decimal yearlyTaxableInterestAccrued = 0;
                 decimal yearlyTaxableContribution = monthlyTaxableContribution * 12;
                 for (int month = 1; month <= 12; month++)
                 {
-                    decimal monthlyInterest = taxableBalance * monthlyRateTaxable;
-                    yearlyTaxableInterest += monthlyInterest;
-                    taxableBalance += monthlyInterest + monthlyTaxableContribution;
+                    decimal monthlyInterestAccrued = taxableBalance * monthlyRateTaxable;
+                    yearlyTaxableInterestAccrued += monthlyInterestAccrued;
+                    taxableBalance += monthlyInterestAccrued + monthlyTaxableContribution;
                 }
-                decimal qualifiedDividendIncome = yearlyTaxableInterest * qualifiedPercent;
-                decimal nonQualifiedIncome = yearlyTaxableInterest * nonQualifiedPercent;
-                decimal longTermGains = yearlyTaxableInterest * longTermPercent;
-                decimal shortTermGains = yearlyTaxableInterest * shortTermPercent;
-                decimal qualifiedDividendsTax = qualifiedDividendIncome * longTermGainsTaxRate;
-                decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
-                decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
-                decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
-                decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
-                taxableBalance -= yearlyTaxes;
-                totalQualifiedDividendIncome += qualifiedDividendIncome;
-                totalNonQualifiedIncome += nonQualifiedIncome;
-                totalLongTermGains += longTermGains;
-                totalShortTermGains += shortTermGains;
-                totalTaxesPaid += yearlyTaxes;
+                //FOR NOW, ITS ASSUMED EVERYTHING IS INTEREST
+
+                //decimal qualifiedDividendIncome = yearlyTaxableInterestAccrued * qualifiedPercent;
+                //decimal nonQualifiedIncome = yearlyTaxableInterestAccrued * nonQualifiedPercent;
+                //decimal longTermGains = yearlyTaxableInterestAccrued * longTermPercent;
+                //decimal shortTermGains = yearlyTaxableInterestAccrued * shortTermPercent;
+                //decimal interestGains = yearlyTaxableInterestAccrued * 1;  //everything is assumed to be taxable interest for now
+
+
+                ////CALCULATE TAXES   -- FOR NOW EVERYTHING IS ASSUMED TO BE INTEREST
+                //decimal qualifiedDividendsTax = qualifiedDividendIncome * longTermGainsTaxRate;
+                //decimal nonQualifiedTax = nonQualifiedIncome * ordinaryTaxRate;
+                //decimal longTermGainsTax = longTermGains * longTermGainsTaxRate;
+                //decimal shortTermGainsTax = shortTermGains * ordinaryTaxRate;
+                //decimal yearlyTaxes = qualifiedDividendsTax + nonQualifiedTax + longTermGainsTax + shortTermGainsTax;
+                decimal yearlyInterestTaxesDue = yearlyTaxableInterestAccrued * ordinaryTaxRate;
+
+                taxableBalance -= yearlyInterestTaxesDue;
+                //totalQualifiedDividendIncome += qualifiedDividendIncome;
+                //totalNonQualifiedIncome += nonQualifiedIncome;
+                //totalLongTermGains += longTermGains;
+                //totalShortTermGains += shortTermGains;
+                totalInterestGains += yearlyTaxableInterestAccrued;
+                totalTaxesPaid += yearlyInterestTaxesDue;
                 // FIXED: Don't subtract taxes from taxable interest - they're already subtracted from balance
-                taxableInterest += yearlyTaxableInterest;
+                taxableInterest += yearlyTaxableInterestAccrued;
             }
-            decimal totalTaxableIncome = totalQualifiedDividendIncome + totalNonQualifiedIncome +
-                                       totalLongTermGains + totalShortTermGains;
+            //decimal totalTaxableIncome = totalQualifiedDividendIncome + totalNonQualifiedIncome +
+            //                           totalLongTermGains + totalShortTermGains;
+
+            decimal totalTaxableIncome = totalInterestGains;
+
+
             decimal effectiveTaxRate = totalTaxableIncome > 0 ? totalTaxesPaid / totalTaxableIncome : 0;
             decimal totalRegularTaxes = (traditionalInterest + rothInterest + totalTaxableIncome) * effectiveTaxRate;
             decimal estimatedTaxSavings = totalRegularTaxes - totalTaxesPaid;
