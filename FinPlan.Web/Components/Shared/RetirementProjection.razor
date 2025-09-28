@@ -586,13 +586,13 @@
 
                 <th class="col-income-sources">
                     <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                    @Numbered("13.5")Income
+                    @Numbered(14)Income
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
                     <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableEnding = !showToolTipTaxableEnding" tabindex="0" title="Click for more info"></span>
-                        @Numbered(14)Taxable A/c
+                        @Numbered(15)Taxable A/c
                         @if (showToolTipTaxableEnding)
                         {
                             <div class="info-tooltip">
@@ -603,7 +603,7 @@
                     </th>
                     <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalEnding = !showToolTipTraditionalEnding" tabindex="0" title="Click for more info"></span>
-                        @Numbered(15)Traditional A/c
+                        @Numbered(16)Traditional A/c
                         @if (showToolTipTraditionalEnding)
                         {
                             <div class="info-tooltip">
@@ -615,7 +615,7 @@
 
                     <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothEnding = !showToolTipRothEnding" tabindex="0" title="Click for more info"></span>
-                        @Numbered(16)Roth A/c
+                        @Numbered(17)Roth A/c
                         @if (showToolTipRothEnding)
                         {
                             <div class="info-tooltip">
@@ -629,12 +629,12 @@
                 }
                 <th class="col-ending-balances">
                     <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                    @Numbered("16.5")Total Ending Balance
+                    @Numbered(18)Total Ending Balance
                 </th>
 
                 <th >
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxesPaid = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(17)Taxes Due (Growth & Income)
+                    @Numbered(19)Taxes Due (Growth & Income)
                     @if (showToolTipTaxesPaid)
                     {
                         <div class="info-tooltip">
@@ -647,7 +647,7 @@
                 {
                     <th class="col-account-activity">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal = !showToolTipTaxableWithdrawal" tabindex="0" title="Click for more info"></span>
-                        @Numbered(18)Taxable A/c
+                        @Numbered(20)Taxable A/c
                         @if (showToolTipTaxableWithdrawal)
                         {
                             <div class="info-tooltip">
@@ -658,7 +658,7 @@
                     </th>
                     <th class="col-account-activity">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal = !showToolTipTraditionalWithdrawal" tabindex="0" title="Click for more info"></span>
-                        @Numbered(19)Traditional A/c
+                        @Numbered(21)Traditional A/c
                         @if (showToolTipTraditionalWithdrawal)
                         {
                             <div class="info-tooltip">
@@ -669,7 +669,7 @@
                     </th>
                     <th class="col-account-activity">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                        @Numbered(20)Roth A/c
+                        @Numbered(22)Roth A/c
                         @if (showToolTipRothWithdrawal)
                         {
                             <div class="info-tooltip">
@@ -681,7 +681,7 @@
                 }
                 <th >
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal = !showToolTipRothWithdrawal" tabindex="0" title="Click for more info"></span>
-                    @Numbered("20.5")Tax Paid Total (Growth & Income)
+                    @Numbered(23)Tax Paid Total (Growth & Income)
                     @if (showToolTipRothWithdrawal)
                     {
                         <div class="info-tooltip">
@@ -692,7 +692,7 @@
                 </th>
                 <th >
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(21)Tax Due
+                    @Numbered(24)Tax Due
                     @if (showToolTipTaxPaid)
                     {
                         <div class="info-tooltip">
@@ -706,7 +706,7 @@
 
                     <th >
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                        @Numbered(22)Tax Paid (Traditional A/c)
+                        @Numbered(25)Tax Paid (Traditional A/c)
                         @if (showToolTipTaxPaid)
                         {
                             <div class="info-tooltip">
@@ -718,7 +718,7 @@
 
                     <th >
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                        @Numbered(23)Tax Paid (Roth A/c)
+                        @Numbered(26)Tax Paid (Roth A/c)
                         @if (showToolTipTaxPaid)
                         {
                             <div class="info-tooltip">
@@ -730,7 +730,7 @@
                 }
                 <th >
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxPaid = !showToolTipTaxPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(24)Tax Paid Total (Traditional A/c Withdraw)
+                    @Numbered(27)Tax Paid Total (Traditional A/c Withdraw)
                     @if (showToolTipTaxPaid)
                     {
                         <div class="info-tooltip">
