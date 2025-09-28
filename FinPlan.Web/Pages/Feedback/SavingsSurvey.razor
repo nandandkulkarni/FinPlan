@@ -5,30 +5,40 @@
 
 <PageTitle>Savings & Wealth Building Planner - Survey</PageTitle>
 
-
 <SurveyForm Questions="@questions" Title="Savings & Wealth Building Planner - Survey" SurveyType="WealthJourney" Description="Thank you for helping us improve! Please answer the following questions about your experience. No personal information is collected." />
 
 @code {
     private List<SurveyQuestion> questions = new()
     {
+        // Navigation & Discovery
         new SurveyQuestion("How easy was it to find the Savings & Wealth Building Planner on the site?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How clear were the instructions for using the planner?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
-        new SurveyQuestion("How would you rate the visual design of the planner?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
-        new SurveyQuestion("How easy was it to enter your current balances?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How easy was it to enter your monthly contributions?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How easy was it to understand the growth rate settings?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How clear was the meaning of 'Taxable', 'Traditional', and 'Roth' accounts?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
-        new SurveyQuestion("How useful did you find the 'Yearly Projection'?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
-        new SurveyQuestion("How easy was it to interpret 'Yearly Projection'?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How clear was the meaning of 'Tax Treatment'?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
-        new SurveyQuestion("How useful did you find the summary cards (Final Savings, Growth, etc.)?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
-        new SurveyQuestion("How useful did you find the 'Your Retirement Plan Summary'?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
-        new SurveyQuestion("How easy was it to switch between 'Your Savings' and 'Partner Savings' tabs?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
-        new SurveyQuestion("How would you rate the speed/performance of the planner?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
-        new SurveyQuestion("How likely are you to recommend this planner to others?", new List<string>{"Very Likely","Likely","Neutral","Unlikely","Very Unlikely"}),
-        new SurveyQuestion("Overall, how satisfied are you with the Savings & Wealth Building Planner?", new List<string>{"Very Satisfied","Satisfied","Neutral","Dissatisfied","Very Dissatisfied"}),
 
-        // Essay questions
+        // Instructions & Onboarding
+        new SurveyQuestion("How clear were the instructions for starting and using the planner?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+        // Data Entry Experience
+        new SurveyQuestion("How easy was it to enter your current age and planned retirement age?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to enter your starting account balances (Taxable, Traditional, Roth)?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to enter your monthly contributions for each account type?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+        new SurveyQuestion("How easy was it to set or understand the growth rate for each account type?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+
+        // Tax Settings
+        new SurveyQuestion("How clear was the meaning of 'Taxable Income Type' and 'Tax Bracket' settings?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+        // Results & Projections
+        new SurveyQuestion("How useful did you find the summary cards (Final Savings, Contributions, Growth, Taxes Paid)?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How useful did you find the yearly projection table?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+        new SurveyQuestion("How easy was it to interpret the yearly projection table?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+
+        // Tabs & Partner Mode
+        new SurveyQuestion("How easy was it to switch between 'Your Savings' and 'Partner Savings' tabs?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+
+        // Performance & Satisfaction
+        new SurveyQuestion("How would you rate the speed/performance of the planner?", new List<string>{"Excellent","Good","Average","Poor","Very Poor"}),
+        new SurveyQuestion("Overall, how satisfied are you with the Savings & Wealth Building Planner?", new List<string>{"Very Satisfied","Satisfied","Neutral","Dissatisfied","Very Dissatisfied"}),
+        new SurveyQuestion("How likely are you to recommend this planner to others?", new List<string>{"Very Likely","Likely","Neutral","Unlikely","Very Unlikely"}),
+
+        // Open Feedback
         new SurveyQuestion("What did you like most about the Savings & Wealth Building Planner?"),
         new SurveyQuestion("What did you find confusing or difficult to use?"),
         new SurveyQuestion("What features would you like to see added or improved?"),
