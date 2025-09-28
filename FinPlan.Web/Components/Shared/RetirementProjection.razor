@@ -379,7 +379,7 @@ private bool showToolTipTotalGrowthAndIncome = false;
     <div id="groupModal" class="group-modal" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
         <div class="group-modal-content">
             <div class="group-modal-header">
-                <h5 id="groupModalTitle" class="m-0">Columns & Groups</h5>
+                <h5 id="groupModalTitle" class="m-0">Hide/Show Columns & Groups</h5>
                 <button class="btn btn-sm btn-outline-secondary" aria-label="Close" @onclick="CloseGroupModal"><span class="bi bi-x-lg"></span></button>
             </div>
 
@@ -387,37 +387,37 @@ private bool showToolTipTotalGrowthAndIncome = false;
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbTimeLine" checked="@VisibleGroups.Contains(GroupKey.TimelineBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TimelineBreakDown)" />
-                    <label class="form-check-label" for="cbTimeLine">Show Timeline Group</label>
+                    <label class="form-check-label" for="cbTimeLine">Timeline Group</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbWithdrawal" checked="@VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.WithdrawalCOLBreakDown)" />
-                    <label class="form-check-label" for="cbWithdrawal">Show Withdrawals for Cost Of Living</label>
+                    <label class="form-check-label" for="cbWithdrawal">Withdrawals for Cost Of Living</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbIncomeBreakDown" checked="@VisibleGroups.Contains(GroupKey.IncomeBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.IncomeBreakDown)" />
-                    <label class="form-check-label" for="cbIncomeBreakDown">Show Income & Growth</label>
+                    <label class="form-check-label" for="cbIncomeBreakDown">Income & Growth</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbEndingBalances" checked="@VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.EndingBalancesBreakDown)" />
-                    <label class="form-check-label" for="cbEndingBalances">Show Ending Balances</label>
+                    <label class="form-check-label" for="cbEndingBalances">Ending Balances</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbTaxPaidIncome" checked="@VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TaxPaidOnIncomeBreakDown)" />
-                    <label class="form-check-label" for="cbTaxPaidIncome">Show Tax Paid (Income Breakdown)</label>
+                    <label class="form-check-label" for="cbTaxPaidIncome">Tax Paid (Income Breakdown)</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbTaxPaidTraditional" checked="@VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TaxPaidTraditionalBreakDown)" />
-                    <label class="form-check-label" for="cbTaxPaidTraditional">Show Tax Paid (Traditional Breakdown)</label>
+                    <label class="form-check-label" for="cbTaxPaidTraditional">Tax Paid (Traditional Breakdown)</label>
                 </div>
                 <div class="form-check form-switch" style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                     <input class="form-check-input" type="checkbox" role="switch" id="cbTotalWithdrawal" checked="@VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown)"
                            @onchange="(ChangeEventArgs e) => ToggleGroupAndAnnounce(GroupKey.TotalWithdrawalBreakDown)" />
-                    <label class="form-check-label" for="cbTotalWithdrawal">Show Total Withdrawals</label>
+                    <label class="form-check-label" for="cbTotalWithdrawal">Total Withdrawals</label>
                 </div>
             </div>
 
@@ -608,52 +608,55 @@ private bool showToolTipTotalGrowthAndIncome = false;
                 @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                 {
                     <th colspan="4" class="col-timeline" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
-                        Timeline & Milestones
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTimelineMilestones = !showToolTipTimelineMilestones" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipTimelineMilestones)
                         {
                             <div class="first-row-tooltip">
-                                <strong>Timeline & Milestones:</strong> Key dates, ages, and important life events that affect your retirement planning timeline.
+                                <strong>A. Timeline & Milestones:</strong> Key dates, ages, and important life events that affect your retirement planning timeline.
                                 <span class="close-btn" @onclick="() => showToolTipTimelineMilestones = false">×</span>
                             </div>
                         }
+                        A. Timeline & Milestones
+
                     </th>
                 }
 
                 <th colspan="2" class="col-retirement-equation" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
-                    Retirement Equation
-                    <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipRetirementEquation = !showToolTipRetirementEquation" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipRetirementEquation)
                     {
                         <div class="first-row-tooltip">
-                            <strong>Retirement Equation:</strong> The fundamental calculation showing how much you need versus how much you withdraw for living expenses.
+                            <strong>B. Retirement Equation:</strong> The fundamental calculation showing how much you need versus how much you withdraw for living expenses.
                             <span class="close-btn" @onclick="() => showToolTipRetirementEquation = false">×</span>
                         </div>
                     }
+                                        B. Retirement Equation
+                    <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
+
                 </th>
                 @* Withdrawals for Cost Of Living *@
                 @if (VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown))
                 {
 
                     <th colspan="3" class="col-account-activity" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
-                        Withdrawals for Cost Of Living
-                        <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Actual withdrawals for Cost of Living </span>
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipWithdrawalCOL = !showToolTipWithdrawalCOL" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipWithdrawalCOL)
                         {
                             <div class="first-row-tooltip">
-                                <strong>Withdrawals for Cost Of Living:</strong> Detailed breakdown of how much is withdrawn from each account type (Taxable, Traditional, Roth) to cover your living expenses.
+                                <strong>C. Withdrawals for Cost Of Living:</strong> Detailed breakdown of how much is withdrawn from each account type (Taxable, Traditional, Roth) to cover your living expenses.
                                 <span class="close-btn" @onclick="() => showToolTipWithdrawalCOL = false">×</span>
                             </div>
                         }
+                        C. Withdrawals for Cost Of Living
+                        <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Actual withdrawals for Cost of Living </span>
+
                     </th>
                 }
                 @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
                 {
                     <th colspan="4" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">
-                        Income and Growth
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipIncomeGrowth = !showToolTipIncomeGrowth" tabindex="0" title="Click for more info"></span>
+
                         @if (showToolTipIncomeGrowth)
                         {
                             <div class="first-row-tooltip">
@@ -661,10 +664,11 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipIncomeGrowth = false">×</span>
                             </div>
                         }
+                        D. Income and Growth
+
                     </th>
                 }
                 <th colspan="1" class="col-income-sources" style="background-color: rgba(5,150,105,0.08); border-right: 2px solid #d1d5db; text-align: center;">
-                    Total Inflow
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTotalInflow = !showToolTipTotalInflow" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipTotalInflow)
                     {
@@ -673,12 +677,12 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTotalInflow = false">×</span>
                         </div>
                     }
+                    E. Total Inflow
                 </th>
 
                 @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
                     <th colspan="3" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                        Ending Balances
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipEndingBalances = !showToolTipEndingBalances" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipEndingBalances)
                         {
@@ -687,22 +691,26 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipEndingBalances = false">×</span>
                             </div>
                         }
+                        F. Ending Balances
+
                     </th>
                 }
-                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    Total Ending Balance
-                    <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTotalEndingBalance = !showToolTipTotalEndingBalance" tabindex="0" title="Click for more info"></span>
+                                                        <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">
+
                     @if (showToolTipTotalEndingBalance)
                     {
+
                         <div class="first-row-tooltip">
                             <strong>Total Ending Balance:</strong> Combined year-end balance across all account types (Taxable + Traditional + Roth).
                             <span class="close-btn" @onclick="() => showToolTipTotalEndingBalance = false">×</span>
                         </div>
                     }
+                    G. Total Ending Balance
+                    <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTotalEndingBalance = !showToolTipTotalEndingBalance" tabindex="0" title="Click for more info"></span>
+
                 </th>
 
                 <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    Tax Due (Growth & Income)
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxDueGrowthIncome = !showToolTipTaxDueGrowthIncome" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipTaxDueGrowthIncome)
                     {
@@ -711,11 +719,12 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxDueGrowthIncome = false">×</span>
                         </div>
                     }
+                                        H. Tax Due (Growth & Income)
+
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
                 {
                     <th colspan="3" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                        Tax Paid Breakdown(Growth & Income)
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidBreakdown = !showToolTipTaxPaidBreakdown" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipTaxPaidBreakdown)
                         {
@@ -724,10 +733,11 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipTaxPaidBreakdown = false">×</span>
                             </div>
                         }
+                        I. Tax Paid Breakdown(Growth & Income)
+
                     </th>
                 }
                 <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    Tax Paid Total (Growth & Income)
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidTotal = !showToolTipTaxPaidTotal" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipTaxPaidTotal)
                     {
@@ -736,10 +746,11 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxPaidTotal = false">×</span>
                         </div>
                     }
+                    J. Tax Paid Total (Growth & Income)
+
                 </th>
 
                 <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    Tax Due (Traditional A/c withdrawal for Income Tax)
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxDueTraditional = !showToolTipTaxDueTraditional" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipTaxDueTraditional)
                     {
@@ -748,12 +759,13 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxDueTraditional = false">×</span>
                         </div>
                     }
+                                        K. Tax Due (Traditional A/c withdrawal for Income Tax)
+
                 </th>
 
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
                 {
                     <th colspan="2" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                        Tax Paid (Traditional A/c withdrawal for Income Tax)
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidTraditional = !showToolTipTaxPaidTraditional" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipTaxPaidTraditional)
                         {
@@ -762,10 +774,11 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipTaxPaidTraditional = false">×</span>
                             </div>
                         }
+                                                L. Tax Paid (Traditional A/c withdrawal for Income Tax)
+
                     </th>
                 }
                 <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    Tax Paid Total (Traditional A/c withdrawal for Income Tax)
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidTotalTraditional = !showToolTipTaxPaidTotalTraditional" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipTaxPaidTotalTraditional)
                     {
@@ -774,11 +787,12 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxPaidTotalTraditional = false">×</span>
                         </div>
                     }
+                                        M. Tax Paid Total (Traditional A/c withdrawal for Income Tax)
+
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
                 {
                     <th colspan="3" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                        Total Withdrawals
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTotalWithdrawals = !showToolTipTotalWithdrawals" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipTotalWithdrawals)
                         {
@@ -787,7 +801,10 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipTotalWithdrawals = false">×</span>
                             </div>
                         }
+                         N. Total Withdrawals
                     </th>
+                                           
+
                 }
 
             </tr>
