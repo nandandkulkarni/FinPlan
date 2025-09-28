@@ -25,6 +25,25 @@
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
     }
 
+     .survey-card {
+        border-right: 8px solid #1F6FEB !important;
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+        border-left: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(31,111,235,0.08);
+        background: #fff;
+    }
+
+    .survey-card-narrow {
+        width: 75%;
+        min-width: 180px;
+        max-width: 320px;
+        margin-left: 0;
+        margin-right: auto;
+        align-self: flex-start;
+    }
+
 
     /* Add missing empty-state styles */
     .empty-state {
@@ -805,7 +824,16 @@
             <ul class="list-unstyled mb-0">
                 <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
             </ul>
-
+            <a href="/about-rewealthen" class="badge">About</a>
+            <div class="card survey-card survey-card-narrow mb-2">
+                <div class="card-body text-center">
+                    <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
+                    <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
+                    <a href="/survey-future-cost-of-living" class="btn btn-primary btn-sm">
+                        Take Living Cost  Survey
+                    </a>
+                </div>
+            </div>
             <!-- Ad container for long Adsterra banner in left column -->
             <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
                 @((MarkupString)AdHtmlLeft)
