@@ -46,6 +46,8 @@ private bool showToolTipRothWithdrawForTradTaxPaid = false;
 private bool showToolTipTotalWithdrawForTradTaxPaid = false;
 private bool showToolTipTotalTaxDueForTradTaxPaid = false;
 private bool showToolTipTotalTaxPaidOnIncome = false;
+private bool showToolTipTotalEndingBalanceAllAc = false;
+private bool showToolTipTotalGrowthAndIncome = false;
 
     [Parameter]
     public CalendarSpendingModel Model { get; set; }
@@ -951,8 +953,17 @@ private bool showToolTipTotalTaxPaidOnIncome = false;
                 }
 
                 <th class="col-income-sources">
-                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
-                    @Numbered(14)Income
+                     <th class="col-ending-balances">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalGrowthAndIncome = !showToolTipTotalGrowthAndIncome" tabindex="0" title="Click for more info"></span>
+                        @Numbered(14)Income
+                        @if (showToolTipTotalGrowthAndIncome)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Taxable Balance:</strong> Total income for the year from all accounts.
+                                <span class="close-btn" @onclick="() => showToolTipTotalGrowthAndIncome = false">×</span>
+                            </div>
+                        }
+                    </th>
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
@@ -962,7 +973,7 @@ private bool showToolTipTotalTaxPaidOnIncome = false;
                         @if (showToolTipTaxableEnding)
                         {
                             <div class="first-row-tooltip">
-                                <strong>Taxable Balance:</strong> Year-end balance of taxable investment accounts after all withdrawals, growth, and transactions.
+                                <strong>Taxable Balance:</strong> Year-end balance of taxable accounts after all withdrawals, growth, and transactions.
                                 <span class="close-btn" @onclick="() => showToolTipTaxableEnding = false">×</span>
                             </div>
                         }
@@ -999,13 +1010,13 @@ private bool showToolTipTotalTaxPaidOnIncome = false;
                 </th>
 
                 <th>
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxesPaid = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalEndingBalanceAllAc = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(19)Taxes Due (Growth & Income)
-                    @if (showToolTipTaxesPaid)
+                    @if (showToolTipTotalEndingBalanceAllAc)
                     {
                         <div class="first-row-tooltip">
-                            <strong>Taxes Due:</strong> Total tax liability on all taxable investment growth and income for this year.
-                                <span class="close-btn" @onclick="() => showToolTipTaxesPaid = false">×</span>
+                            <strong>Taxes Due:</strong> Total ending balance on all accounts.
+                                <span class="close-btn" @onclick="() => showToolTipTotalEndingBalanceAllAc = false">×</span>
                         </div>
                     }
                 </th>
