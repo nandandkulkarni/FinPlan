@@ -3,10 +3,15 @@
 @using FinPlan.Web.Components.Survey
 @using Microsoft.AspNetCore.Components
 
-<PageTitle>Retirement Drawdown Planner - Survey</PageTitle>
+@* <PageTitle>Retirement Income Planner - Survey</PageTitle>
+ *@
 
+<div class="alert alert-info" style="margin-bottom:18px; border-radius:10px; font-size:1.05rem;">
+    <strong>Thank you for trying the Retirement Income Planner</strong><br />
+    We truly appreciate you taking the time to share your feedback. There are many questions below, but please feel free to answer only those you wish—every response helps us improve. No personal information is collected
+</div>
 
-<SurveyForm Questions="@questions" Title="Retirement Drawdown Planner - Survey" SurveyType="RetirementDrawdown" Description="Please answer the following questions about the Retirement Drawdown Planner. No personal information is collected." />
+<SurveyForm Questions="@questions" Title="Retirement Income Planner - Survey" SurveyType="RetirementDrawdown"/>
 
 @code {
     private List<SurveyQuestion> questions = new()
@@ -44,6 +49,44 @@
         new SurveyQuestion("How clear was the year-by-year breakdown of withdrawals and balances?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
         // new SurveyQuestion("How helpful was the 'Money Lasts Until' / sustainability indicator in interpreting results?", new List<string>{"Very Helpful","Helpful","Neutral","Not Helpful","Did Not Use"}),
         new SurveyQuestion("How useful is the ability to view Range, Depletion, Shortfalll?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+
+        // Yearly Projection Table Experience
+new SurveyQuestion("How easy was it to understand the yearly projection table?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+new SurveyQuestion("How useful was the ability to hide or show column groups in the projection table?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+new SurveyQuestion("How clear were the tooltips and info icons for each column?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+// Timeline & Milestones
+new SurveyQuestion("How helpful were the timeline and milestone columns (Year, Your Age, Partner Age, Milestones) in tracking retirement events?", new List<string>{"Very Helpful","Helpful","Neutral","Not Helpful","Did Not Use"}),
+
+// Retirement Equation
+new SurveyQuestion("How clear was the calculation of 'Amount Needed' and 'Amount Withdrawn' for each year?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+// Withdrawals for Cost Of Living
+new SurveyQuestion("How useful was the breakdown of withdrawals by account type (Taxable, Traditional, Roth) for covering living expenses?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+
+// Income and Growth
+new SurveyQuestion("How easy was it to interpret the income sources (Social Security, Reverse Mortgage, Growth) for each year?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+new SurveyQuestion("How useful was the 'Total Inflow' column in understanding your annual income?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+
+// Ending Balances
+new SurveyQuestion("How clear were the ending balance columns for each account type and the total?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+// Tax Paid (Income Breakdown)
+new SurveyQuestion("How useful was the tax paid breakdown for growth and income?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+
+// Tax Paid (Traditional Breakdown)
+new SurveyQuestion("How clear was the tax paid breakdown for traditional account withdrawals?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
+
+// Total Withdrawals
+new SurveyQuestion("How useful was the total withdrawals breakdown by account type?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
+
+// Interaction & Usability
+new SurveyQuestion("How easy was it to scroll, navigate, and view all years in the projection table?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
+
+
+// Open feedback
+new SurveyQuestion("Did you encounter any confusion or difficulty with the column group toggles or the grid layout?"),
+new SurveyQuestion("Are there any columns or data you wish were included or excluded in the yearly projection?"),
 
         // Warnings & Performance
         new SurveyQuestion("How useful were warnings or alerts (e.g., money may run out) in guiding decisions?", new List<string>{"Very Useful","Useful","Neutral","Not Useful","Did Not Use"}),
