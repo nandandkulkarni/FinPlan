@@ -479,7 +479,42 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
+                    <div class="projection-cards">
+                        <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
+                             style="background: #FFD600; color: #222; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                            <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px;"></span>
+                            <div class="card-label" style="font-weight:700;">Projection range</div>
+                            <div class="card-value" style="font-size:1.2rem;">@GetProjectionRangeText()</div>
+                        </div>
 
+                        <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
+                             style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                            <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px;"></span>
+                            <div class="card-label" style="font-weight:700;">Projected depletion</div>
+                            <div class="card-value" style="font-size:1.2rem;">@GetDepletionText()</div>
+                        </div>
+
+                        <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
+                             style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                            <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px;"></span>
+                            <div class="card-label" style="font-weight:700;">Runway</div>
+                            <div class="card-value" style="font-size:1.2rem;">@GetRunwayYearsText()</div>
+                        </div>
+
+                        <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
+                             style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                            <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px;"></span>
+                            <div class="card-label" style="font-weight:700;">Net shortfall (last year)</div>
+                            <div class="card-value" style="font-size:1.2rem;">@GetNetShortfallText()</div>
+                        </div>
+
+                        <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
+                             style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                            <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px;"></span>
+                            <div class="card-label" style="font-weight:700;">Final portfolio (last year)</div>
+                            <div class="card-value" style="font-size:1.2rem;">@GetFinalPortfolioText()</div>
+                        </div>
+                    </div>
 
                     <!-- Complete State - Normal View -->
                     <div class="panel section-panel">
@@ -1488,5 +1523,68 @@
             DebugService.AddMessage($"Calculation error: {ex.Message}");
             DebugService.AddMessage($"Stack trace: {ex.StackTrace}");
         }
+    }
+
+    private string GetDepletionText()
+    {
+        var year = GetProjectedDepletionYear();
+        return year.HasValue ? year.Value.ToString() : "No depletion projected";
+    }
+
+    private string GetProjectionRangeText()
+    {
+        var first = YearRows.FirstOrDefault()?.Year;
+        var last = YearRows.LastOrDefault()?.Year;
+        if (first == null || last == null) return "No projection";
+        return $"{first} – {last}";
+    }
+
+    private decimal GetNetAnnualShortfallLastYear()
+    {
+        var last = YearRows.LastOrDefault();
+        if (last == null) return 0m;
+        var income = SafeDecimal(last.SSYou) + SafeDecimal(last.SSPartner) + SafeDecimal(last.ReverseMortgage) + SafeDecimal(last.GrowthBeforeTaxes);
+        var need = SafeDecimal(last.AmountNeededForCostOfLiving);
+        return need - income;
+    }
+
+    private string GetNetShortfallText()
+    {
+        var val = GetNetAnnualShortfallLastYear();
+        if (val <= 0m) return "Surplus";
+        return val.ToString("C0");
+    }
+
+    private string GetRunwayYearsText()
+    {
+        var first = YearRows.FirstOrDefault()?.Year;
+        var deplete = GetProjectedDepletionYear();
+        if (first == null) return "—";
+        if (!deplete.HasValue) return "No depletion";
+        return (deplete.Value - first.Value).ToString() + " yrs";
+    }
+
+    private string GetFinalPortfolioText()
+    {
+        var last = YearRows.LastOrDefault();
+        if (last == null) return "—";
+        var total = SafeDecimal(last.EndingTaxable) + SafeDecimal(last.EndingTraditional) + SafeDecimal(last.EndingRoth);
+        return total.ToString("C0");
+    }
+    private decimal SafeDecimal(object? v)
+    {
+        if (v == null) return 0m;
+        try { return Convert.ToDecimal(v); } catch { return 0m; }
+    }
+    // Macro helpers for the projection strip
+    private int? GetProjectedDepletionYear()
+    {
+        foreach (var r in YearRows)
+        {
+            var totalEnding = SafeDecimal(r.EndingTaxable) + SafeDecimal(r.EndingTraditional) + SafeDecimal(r.EndingRoth);
+            if (totalEnding <= 0m)
+                return r.Year;
+        }
+        return null;
     }
 }

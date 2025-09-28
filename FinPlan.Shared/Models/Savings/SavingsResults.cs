@@ -18,5 +18,22 @@
         public decimal ShortTermCapitalGains { get; set; }
         public decimal TotalTaxesPaid { get; set; }
         public decimal EffectiveTaxRate { get; set; }
+
+        public decimal EffectiveTaxRateNew
+        {
+            get
+            {
+                decimal taxableIncome = TotalInterestEarned
+                    + QualifiedDividendIncome
+                    + NonQualifiedIncome
+                    + LongTermCapitalGains
+                    + ShortTermCapitalGains;
+
+                if (taxableIncome > 0)
+                    return TotalTaxesPaid / taxableIncome;
+                else
+                    return 0;
+            }
+        }
     }
 }
