@@ -11,24 +11,24 @@ namespace FinPlan.Tests
             var model = new CalendarSpendingModel
             {
                 CurrentAgeYou = 55,
-                CurrentAgePartner = 53,
+                CurrentAgePartner = 52,
                 RetirementAgeYou = 67,
                 RetirementAgePartner = 67,
                 LifeExpectancyYou = 99,
                 LifeExpectancyPartner = 99,
                 TaxableBalance = 200_000m,
-                TraditionalBalance = 500_000m,
-                RothBalance = 500_000m,
-                SocialSecurityMonthlyYou = 1500m,
-                SocialSecurityMonthlyPartner = 2500m,
+                TraditionalBalance = 100_000m,
+                RothBalance = 100_000m,
+                SocialSecurityMonthlyYou = 4000,
+                SocialSecurityMonthlyPartner = 3000m,
                 AnnualWithdrawalOne = 120_000m,
                 AnnualWithdrawalBoth = 150_000m,
                 InvestmentReturn = 5.0m,
                 InflationRate = 2.5m,
                 TraditionalTaxRate = 20.0m,
-                ReverseMortgageMonthly = 3000m,
+                ReverseMortgageMonthly = 5000m,
                 ReverseMortgageStartYear=2034,
-                SimulationStartYear = 2037
+                SimulationStartYear = 2035
 
             };
 

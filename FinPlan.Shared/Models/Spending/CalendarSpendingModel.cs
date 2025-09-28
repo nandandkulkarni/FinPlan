@@ -462,7 +462,7 @@ namespace FinPlan.Shared.Models.Spending
                         taxableBalanceSoFar,
                         traditionalBalanceSoFar,
                         rothBalanceSoFar,
-                        calendarYearRow.AmountNeededForCostOfLiving);
+                        calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome);
 
 
                     //SUBTRACT THE AMOUNT WITHDRAWN FROM BALANCE
