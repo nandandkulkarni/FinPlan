@@ -465,6 +465,71 @@
         }
     }
 
+    /* Tooltip: light blue background and black foreground, rectangle, bigger X */
+.info-tooltip, .first-row-tooltip {
+    position: absolute;
+    background: #e6f2ff !important;   /* Light blue */
+    color: #111 !important;           /* Black text */
+    border: 1px solid #b6d4fe;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08);
+    padding: 16px 20px;
+    z-index: 9999;
+    max-width: 320px;
+    min-width: 220px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    animation: tooltipFadeIn 0.2s ease-out;
+}
+@@keyframes tooltipFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-4px);}
+    to   { opacity: 1; transform: translateX(-50%) translateY(0);}
+}
+.info-tooltip strong, .first-row-tooltip strong {
+    color: #000 !important;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+}
+.info-tooltip .float-end, .first-row-tooltip .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    cursor: pointer;
+    color: #111 !important;
+    font-size: 1.25rem !important; /* Bigger X */
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+.info-tooltip .float-end:hover, .first-row-tooltip .close-btn:hover {
+    color: #0056b3 !important;
+    background-color: #d0e7ff !important;
+}
+.info-tooltip::before, .first-row-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #e6f2ff !important;
+    filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.05));
+}
+
 </style>
 
 <PageTitle>Savings & Wealth Building</PageTitle>
