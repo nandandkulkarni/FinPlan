@@ -534,6 +534,14 @@
             background-color: var(--rp-bg-total-withdrawals) !important;
         }
 
+    /* Insufficient withdrawal highlighting */
+    .rp-table tbody td.insufficient-withdrawal {
+        background-color: rgba(239, 68, 68, 0.15) !important; /* Light red background */
+        color: #dc2626 !important; /* Dark red text */
+        font-weight: 700 !important; /* Bold text */
+        border: 2px solid rgba(239, 68, 68, 0.3) !important; /* Red border */
+    }
+
     /* Header alignment */
     .rp-table thead th {
         text-align: center !important;
@@ -1263,8 +1271,13 @@
                         <td class="col-timeline-milestones">@row.Milestone</td>
                     }
 
-                    <td class="col-equation">@row.AmountNeededForCostOfLiving.ToString("C0")</td>
-                    <td class="col-equation">@row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")</td>
+                    @{
+                        var isInsufficientWithdrawal = row.TotalWithdrawForCostOfLivingExcludingTaxes < row.AmountNeededForCostOfLiving;
+                        var insufficientClass = isInsufficientWithdrawal ? "insufficient-withdrawal" : "";
+                    }
+
+                    <td class="col-equation @insufficientClass">@row.AmountNeededForCostOfLiving.ToString("C0")</td>
+                    <td class="col-equation @insufficientClass">@row.TotalWithdrawForCostOfLivingExcludingTaxes.ToString("C0")</td>
 
                     @if (VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown))
                     {
