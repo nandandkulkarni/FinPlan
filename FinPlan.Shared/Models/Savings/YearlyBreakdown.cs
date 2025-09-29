@@ -16,13 +16,13 @@
         public decimal TaxesPaid { get; set; }
 
 
-        public decimal TaxableEOYBalance;
+        public decimal TaxableEOYBalance { get; set; }
 
-        public decimal TraditionalEOYBalance;
+        public decimal TraditionalEOYBalance { get; set; }
 
-        public decimal TaxableBOYBalance;
+        public decimal TaxableBOYBalance { get; set; }
 
-        public decimal TraditionalBOYBalance;
+        public decimal TraditionalBOYBalance { get; set; }
         public decimal RothBOYBalance { get; set; }
 
         public decimal RothEOYBalance { get; set; }

@@ -865,6 +865,9 @@
                                         {
                                             <div class="info-tooltip">
                                                 <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                                
+                                                <br><br><strong>Important:</strong> Real returns vary significantly year-to-year. This calculator assumes steady annual growth, but actual markets have volatility, recessions, and booms not reflected in these projections.
+                                                
                                                 <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
                                                     <span class="bi bi-x-lg"></span>
                                                 </span>
@@ -931,6 +934,13 @@
                                         {
                                             <div class="info-tooltip">
                                                 <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
+                                                
+                                                <br><br><strong>Simplified Assumptions:</strong><br>
+                                                • State taxes not included in calculations<br>
+                                                • Tax rates assumed constant over time<br>
+                                                • No consideration of changing tax laws<br>
+                                                • Standard deduction and other tax benefits not modeled
+                                                
                                                 <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
                                                     <span class="bi bi-x-lg"></span>
                                                 </span>
@@ -963,6 +973,23 @@
     <div class="grid-panel panel mt-3">
         <div class="grid-header">
             <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
+            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMethodology = !showToolTipMethodology" tabindex="0" title="Click for calculation methodology"></span>
+            @if (showToolTipMethodology)
+            {
+                <div class="info-tooltip" style="max-width: 400px;">
+                    <strong>Calculation Methodology:</strong>
+                    <br>• Contributions added monthly at month beginning
+                    <br>• Annual growth applied to average account balance
+                    <br>• Taxes calculated on taxable account growth only
+                    <br>• No consideration of market volatility or timing
+                    <br>• Tax rates held constant throughout projection period
+                    <br>• No inflation adjustments to contribution amounts
+                    
+                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMethodology = false" title="Close">
+                        <span class="bi bi-x-lg"></span>
+                    </span>
+                </div>
+            }
         </div>
 
         @if (calculatorModel.IsModelEmpty())
@@ -1155,8 +1182,7 @@
                             foreach (var r in yearlyBreakdown)
                             {
 
-                                var age = calculatorModel.CurrentAge + r.Year; // approximate
-
+var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
                                 <tr>
                                     <td>@r.Year</td>
                                     <td>@age</td>
@@ -1249,10 +1275,15 @@
                 <i class="bi bi-exclamation-triangle" style="font-size: 1.1rem;"></i>
             </div>
             <div>
-                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
+                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers & Assumptions</div>
                 <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
-                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational purposes only. Results are projections based on your inputs and assumptions.</p>
-                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors who can provide personalized advice for your complete financial situation.</p>
+                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational purposes only. Results are projections based on your inputs and simplified assumptions.</p>
+                    
+                    <p style="margin-bottom: 8px;"><strong>Key Assumptions:</strong> Calculations assume steady annual growth, constant tax rates, monthly contributions at month start, and no market volatility, emergencies, or changing life circumstances.</p>
+                    
+                    <p style="margin-bottom: 8px;"><strong>Limitations:</strong> Does not include state taxes, inflation effects on contributions, changing tax laws, market crashes, or personal financial emergencies that could affect your actual results.</p>
+                    
+                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors who can provide personalized advice for your complete financial situation and account for factors not modeled here.</p>
                 </div>
             </div>
         </div>
@@ -1294,6 +1325,7 @@
 
     private bool showToolTipIncomeType = false;
     private bool showToolTipTaxBracket = false;
+    private bool showToolTipMethodology = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
