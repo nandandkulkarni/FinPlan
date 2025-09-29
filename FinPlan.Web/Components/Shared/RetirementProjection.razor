@@ -49,6 +49,8 @@
     private bool showToolTipTotalEndingBalanceAllAc = false;
     private bool showToolTipTotalGrowthAndIncome = false;
 
+    private bool showToolTipTaxLiability = false;
+
     [Parameter]
     public CalendarSpendingModel Model { get; set; }
     public List<CalendarYearRow> YearRows => Model?.YearRows ?? new();
@@ -1029,14 +1031,14 @@
                 </th>
 
                 <th class="col-tax-activity">
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalEndingBalanceAllAc = !showToolTipTotalEndingBalanceAllAc" tabindex="0" title="Click for more info"></span>
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxLiability = !showToolTipTaxLiability" tabindex="0" title="Click for more info"></span>
                     @Numbered(19)Tax Liability
                     <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Income & Growth</span>
-                    @if (showToolTipTotalEndingBalanceAllAc)
+                    @if (showToolTipTaxLiability)
                     {
                         <div class="first-row-tooltip">
                             <strong>Tax Liability:</strong> Total tax owed on all taxable investment growth and income for the year.
-                            <span class="close-btn" @onclick="() => showToolTipTotalEndingBalanceAllAc = false">×</span>
+                            <span class="close-btn" @onclick="() => showToolTipTaxLiability = false">×</span>
                         </div>
                     }
                 </th>
@@ -1101,7 +1103,7 @@
                     @if (showToolTipTotalTaxDueForTradTaxPaid)
                     {
                         <div class="first-row-tooltip">
-                            <strong>Additional Tax:</strong> Extra tax liability created when withdrawing from traditional accounts to pay other taxes.
+                            <strong>Additional Tax:</strong> Extra tax liability created when withdrawing from traditional accounts to pay other taxes (creates a tax cascade effect).
                             <span class="close-btn" @onclick="() => showToolTipTotalTaxDueForTradTaxPaid = false">×</span>
                         </div>
                     }
@@ -1118,6 +1120,7 @@
                             <span class="close-btn" @onclick="() => showToolTipTotalWithdrawForTradTaxPaid = false">×</span>
                         </div>
                     }
+
                 </th>
 
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
@@ -1129,7 +1132,7 @@
                         @if (showToolTipTradWithdrawForTradTaxPaid)
                         {
                             <div class="first-row-tooltip">
-                                <strong>Traditional Account:</strong> Amount withdrawn from traditional accounts to pay the additional tax created by traditional withdrawals.
+                                <strong>Traditional Account:</strong> Amount withdrawn from traditional accounts to pay the additional tax created by traditional withdrawals (part of tax cascade).
                                 <span class="close-btn" @onclick="() => showToolTipTradWithdrawForTradTaxPaid = false">×</span>
                             </div>
                         }
@@ -1139,12 +1142,13 @@
                         @Numbered(27)Roth Account
                         <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Additional Tax</span>
                         @if (showToolTipRothWithdrawForTradTaxPaid)
-                        {
-                            <div class="first-row-tooltip">
-                                <strong>Roth Account:</strong> Amount withdrawn from Roth accounts to pay the additional tax created by traditional withdrawals.
-                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawForTradTaxPaid = false">×</span>
-                            </div>
-                        }
+                            @if (showToolTipRothWithdrawForTradTaxPaid)
+                            {
+                                <div class="first-row-tooltip">
+                                    <strong>Roth Account:</strong> Amount withdrawn from Roth accounts to pay the additional tax created by traditional withdrawals (part of tax cascade).
+                                    <span class="close-btn" @onclick="() => showToolTipRothWithdrawForTradTaxPaid = false">×</span>
+                                </div>
+                            }
                     </th>
                 }
 
