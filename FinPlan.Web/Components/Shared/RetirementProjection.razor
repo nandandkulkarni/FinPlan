@@ -471,22 +471,56 @@
 
 <style>
     /* Centralized styling: apply column-8 visuals to all table headers and body cells */
+    /* group-specific background vars */
+    :root {
+        --rp-bg-timeline: rgba(248,249,250,1); /* Timeline / neutral */
+        --rp-bg-income: rgba(5,150,105,0.06); /* Income / green tint */
+        --rp-bg-ending: rgba(107,114,128,0.06); /* Ending balances / gray */
+        --rp-bg-account: rgba(37,99,235,0.06); /* Account activity / blue */
+        --rp-bg-equation: rgba(13,110,253,0.06); /* Blue (updated) */
+    }
+
+    /* keep the shared sizing/typography (no background here) */
     .rp-table thead th,
     .rp-table tbody td,
     .rp-table thead th.col-timeline-milestones,
+    .rp-table thead th.col-equation,
     .rp-table thead th.col-income-sources,
     .rp-table thead th.col-ending-balances,
     .rp-table thead th.col-account-activity,
     .rp-table tbody td.col-timeline-milestones,
+    .rp-table tbody td.col-equation,
     .rp-table tbody td.col-income-sources,
     .rp-table tbody td.col-ending-balances,
     .rp-table tbody td.col-account-activity {
         font-size: 0.78rem !important;
-        background-color: rgba(37, 99, 235, 0.08) !important;
         font-weight: 600 !important;
         text-align: right !important;
         font-variant-numeric: tabular-nums !important;
+        border-right: 1px solid blue !important;
+        /* background-color intentionally omitted so group rules control it */
     }
+
+        /* per-group backgrounds (placed after the shared rule so they win) */
+        .rp-table thead th.col-timeline-milestones,
+        .rp-table tbody td.col-timeline-milestones {
+            background-color: var(--rp-bg-timeline) !important;
+        }
+
+        .rp-table thead th.col-equation,
+        .rp-table tbody td.col-equation {
+            background-color: var(--rp-bg-equation) !important;
+        }
+
+        .rp-table thead th.col-income-sources,
+        .rp-table tbody td.col-income-sources {
+            background-color: var(--rp-bg-income) !important;
+        }
+
+        .rp-table thead th.col-ending-balances,
+        .rp-table tbody td.col-ending-balances {
+            background-color: var(--rp-bg-ending) !important;
+        }
 
     /* Ensure header text is visually distinct but still follows the same sizing/alignment */
     .rp-table thead th {
@@ -586,6 +620,14 @@
             .first-row-tooltip .close-btn:hover {
                 color: #374151;
             }
+
+
+    /* prefer single place to keep consistent separators */
+    /* prefer single place to keep consistent separators */
+    .rp-table thead th.group-separator {
+        border-right: 1px solid blue !important;
+        text-align: center;
+    }
 </style>
 
 <div id="table-scrollbar-top" style="width:100%; overflow-x:auto; overflow-y:hidden; height:18px;">
@@ -606,7 +648,7 @@
             <tr>
                 @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                 {
-                    <th colspan="4" class="col-timeline" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
+                    <th colspan="1" class="col-timeline-milestones" style="text-align: center">
                         <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTimelineMilestones = !showToolTipTimelineMilestones" tabindex="0" title="Click for more info"></span>
                         @if (showToolTipTimelineMilestones)
                         {
@@ -615,12 +657,12 @@
                                 <span class="close-btn" @onclick="() => showToolTipTimelineMilestones = false">×</span>
                             </div>
                         }
-                        A. Timeline & Milestones
+                        AX1. Timeline & Milestones
 
                     </th>
                 }
 
-                <th colspan="2" class="col-retirement-equation" style="background-color: #f8f9fa; border-right: 2px solid #d1d5db; text-align: center;">
+                <th colspan="2" class="col-equation">
                     <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipRetirementEquation = !showToolTipRetirementEquation" tabindex="0" title="Click for more info"></span>
                     @if (showToolTipRetirementEquation)
                     {
@@ -629,7 +671,7 @@
                             <span class="close-btn" @onclick="() => showToolTipRetirementEquation = false">×</span>
                         </div>
                     }
-                    B. Retirement Equation
+                    Bx.Retirement Equation
                     <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
 
                 </th>
@@ -812,7 +854,7 @@
             <tr>
                 @if (VisibleGroups.Contains(GroupKey.TimelineBreakDown))
                 {
-                    <th class="col-timeline-milestones">
+                    <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYear = !showToolTipYear" tabindex="0" title="Click for more info"></span>
                         @Numbered(1)Year
                         @if (showToolTipYear)
@@ -823,7 +865,7 @@
                             </div>
                         }
                     </th>
-                    <th class="col-timeline-milestones">
+                    <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourAge = !showToolTipYourAge" tabindex="0" title="Click for more info"></span>
                         @Numbered(2)Your Age
                         @if (showToolTipYourAge)
@@ -834,7 +876,7 @@
                             </div>
                         }
                     </th>
-                    <th class="col-timeline">
+                    <th class="col-ending-balances">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerAge = !showToolTipPartnerAge" tabindex="0" title="Click for more info"></span>
                         @Numbered(3)Partner Age
                         @if (showToolTipPartnerAge)
