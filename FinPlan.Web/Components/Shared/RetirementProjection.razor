@@ -42,12 +42,12 @@
     private bool showToolTipTotalWithdrawals = false;
 
     private bool showToolTipTradWithdrawForTradTaxPaid = false;
-private bool showToolTipRothWithdrawForTradTaxPaid = false;
-private bool showToolTipTotalWithdrawForTradTaxPaid = false;
-private bool showToolTipTotalTaxDueForTradTaxPaid = false;
-private bool showToolTipTotalTaxPaidOnIncome = false;
-private bool showToolTipTotalEndingBalanceAllAc = false;
-private bool showToolTipTotalGrowthAndIncome = false;
+    private bool showToolTipRothWithdrawForTradTaxPaid = false;
+    private bool showToolTipTotalWithdrawForTradTaxPaid = false;
+    private bool showToolTipTotalTaxDueForTradTaxPaid = false;
+    private bool showToolTipTotalTaxPaidOnIncome = false;
+    private bool showToolTipTotalEndingBalanceAllAc = false;
+    private bool showToolTipTotalGrowthAndIncome = false;
 
     [Parameter]
     public CalendarSpendingModel Model { get; set; }
@@ -511,22 +511,22 @@ private bool showToolTipTotalGrowthAndIncome = false;
         word-wrap: break-word;
     }
 
-    .first-row-tooltip strong {
-        font-weight: 600;
-        color: #111827;
-    }
+        .first-row-tooltip strong {
+            font-weight: 600;
+            color: #111827;
+        }
 
-    .first-row-tooltip .close-btn {
-        float: right;
-        cursor: pointer;
-        color: #6b7280;
-        font-size: 0.875rem;
-        margin-left: 8px;
-    }
+        .first-row-tooltip .close-btn {
+            float: right;
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-left: 8px;
+        }
 
-    .first-row-tooltip .close-btn:hover {
-        color: #374151;
-    }
+            .first-row-tooltip .close-btn:hover {
+                color: #374151;
+            }
 
     /* Info icon for first row headers */
     .first-row-info-icon {
@@ -536,9 +536,9 @@ private bool showToolTipTotalGrowthAndIncome = false;
         font-size: 0.875rem;
     }
 
-    .first-row-info-icon:hover {
-        color: #374151;
-    }
+        .first-row-info-icon:hover {
+            color: #374151;
+        }
 
     /* Position first row headers relatively for absolute tooltip positioning */
     .rp-table thead tr:first-child th {
@@ -550,7 +550,6 @@ private bool showToolTipTotalGrowthAndIncome = false;
         position: relative;
     }
 
-    
 </style>
 <style>
     /* Update second row tooltips to use same styling as first row */
@@ -571,22 +570,22 @@ private bool showToolTipTotalGrowthAndIncome = false;
         word-wrap: break-word;
     }
 
-    .first-row-tooltip strong {
-        font-weight: 600;
-        color: #111827;
-    }
+        .first-row-tooltip strong {
+            font-weight: 600;
+            color: #111827;
+        }
 
-    .first-row-tooltip .close-btn {
-        float: right;
-        cursor: pointer;
-        color: #6b7280;
-        font-size: 0.875rem;
-        margin-left: 8px;
-    }
+        .first-row-tooltip .close-btn {
+            float: right;
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-left: 8px;
+        }
 
-    .first-row-tooltip .close-btn:hover {
-        color: #374151;
-    }
+            .first-row-tooltip .close-btn:hover {
+                color: #374151;
+            }
 </style>
 
 <div id="table-scrollbar-top" style="width:100%; overflow-x:auto; overflow-y:hidden; height:18px;">
@@ -630,7 +629,7 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipRetirementEquation = false">×</span>
                         </div>
                     }
-                                        B. Retirement Equation
+                    B. Retirement Equation
                     <span style="display:block; font-size:0.72em; color:#6c757d; font-weight:400; margin-top:2px;">Cost of Living </span>
 
                 </th>
@@ -695,7 +694,7 @@ private bool showToolTipTotalGrowthAndIncome = false;
 
                     </th>
                 }
-                                                        <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">
+                <th colspan="1" class="col-ending-balances" style="background-color: rgba(107,114,128,0.08); text-align: center;">
 
                     @if (showToolTipTotalEndingBalance)
                     {
@@ -719,7 +718,7 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxDueGrowthIncome = false">×</span>
                         </div>
                     }
-                                        H. Tax Due (Growth & Income)
+                    H. Tax Due (Growth & Income)
 
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
@@ -759,10 +758,23 @@ private bool showToolTipTotalGrowthAndIncome = false;
                             <span class="close-btn" @onclick="() => showToolTipTaxDueTraditional = false">×</span>
                         </div>
                     }
-                                        K. Tax Due (Traditional A/c withdrawal for Income Tax)
+                    K. Tax Due (Traditional A/c withdrawal for Income Tax)
 
                 </th>
 
+
+                <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
+                    <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidTotalTraditional = !showToolTipTaxPaidTotalTraditional" tabindex="0" title="Click for more info"></span>
+                    @if (showToolTipTaxPaidTotalTraditional)
+                    {
+                        <div class="first-row-tooltip">
+                            <strong>Tax Paid Total (Traditional A/c withdrawal for Income Tax):</strong> Total amount withdrawn from all accounts to pay the additional tax created by traditional account withdrawals.
+                            <span class="close-btn" @onclick="() => showToolTipTaxPaidTotalTraditional = false">×</span>
+                        </div>
+                    }
+                    L. Tax Paid Total (Traditional A/c withdrawal for Income Tax)
+
+                </th>
                 @if (VisibleGroups.Contains(GroupKey.TaxPaidTraditionalBreakDown))
                 {
                     <th colspan="2" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
@@ -774,22 +786,10 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipTaxPaidTraditional = false">×</span>
                             </div>
                         }
-                                                L. Tax Paid (Traditional A/c withdrawal for Income Tax)
+                        M. Tax Paid (Traditional A/c withdrawal for Income Tax)
 
                     </th>
                 }
-                <th colspan="1" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
-                    <span class="bi bi-info-circle first-row-info-icon" @onclick="() => showToolTipTaxPaidTotalTraditional = !showToolTipTaxPaidTotalTraditional" tabindex="0" title="Click for more info"></span>
-                    @if (showToolTipTaxPaidTotalTraditional)
-                    {
-                        <div class="first-row-tooltip">
-                            <strong>Tax Paid Total (Traditional A/c withdrawal for Income Tax):</strong> Total amount withdrawn from all accounts to pay the additional tax created by traditional account withdrawals.
-                            <span class="close-btn" @onclick="() => showToolTipTaxPaidTotalTraditional = false">×</span>
-                        </div>
-                    }
-                                        M. Tax Paid Total (Traditional A/c withdrawal for Income Tax)
-
-                </th>
                 @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
                 {
                     <th colspan="3" class="col-account-activity" style="background-color: rgba(107,114,128,0.08); text-align: center;">
@@ -801,9 +801,9 @@ private bool showToolTipTotalGrowthAndIncome = false;
                                 <span class="close-btn" @onclick="() => showToolTipTotalWithdrawals = false">×</span>
                             </div>
                         }
-                         N. Total Withdrawals
+                        N. Total Withdrawals
                     </th>
-                                           
+
 
                 }
 
@@ -864,7 +864,7 @@ private bool showToolTipTotalGrowthAndIncome = false;
                     {
                         <div class="first-row-tooltip">
                             <strong>Amount Needed:</strong> Total annual cost of living expenses for this year, including all living costs and inflation adjustments.
-                                <span class="close-btn" @onclick="() => showToolTipAmountNeeded = false">×</span>
+                            <span class="close-btn" @onclick="() => showToolTipAmountNeeded = false">×</span>
                         </div>
                     }
                 </th>
@@ -876,47 +876,47 @@ private bool showToolTipTotalGrowthAndIncome = false;
                     {
                         <div class="first-row-tooltip">
                             <strong>Amount Withdrawn:</strong> Total amount withdrawn from all accounts to cover living expenses for this year, excluding any tax payments.
-                                <span class="close-btn" @onclick="() => showToolTipAmountWithdrawn = false">×</span>
+                            <span class="close-btn" @onclick="() => showToolTipAmountWithdrawn = false">×</span>
                         </div>
                     }
                 </th>
                 @* Withdrawals for Cost Of Living *@
-              @if (VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown))
-{
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_COL = !showToolTipTaxableWithdrawal_COL" tabindex="0" title="Click for more info"></span>
-        @Numbered(7)Taxable A/c
-        @if (showToolTipTaxableWithdrawal_COL)
-        {
-            <div class="first-row-tooltip">
-                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable investment accounts to cover living expenses for this year.
-                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_COL = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_COL = !showToolTipTraditionalWithdrawal_COL" tabindex="0" title="Click for more info"></span>
-        @Numbered(8)Traditional A/c
-        @if (showToolTipTraditionalWithdrawal_COL)
-        {
-            <div class="first-row-tooltip">
-                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts (401k, IRA) to cover living expenses for this year.
-                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_COL = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_COL = !showToolTipRothWithdrawal_COL" tabindex="0" title="Click for more info"></span>
-        @Numbered(9)Roth A/c
-        @if (showToolTipRothWithdrawal_COL)
-        {
-            <div class="first-row-tooltip">
-                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth retirement accounts (Roth IRA, Roth 401k) to cover living expenses for this year.
-                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_COL = false">×</span>
-            </div>
-        }
-    </th>
-}
+                @if (VisibleGroups.Contains(GroupKey.WithdrawalCOLBreakDown))
+                {
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_COL = !showToolTipTaxableWithdrawal_COL" tabindex="0" title="Click for more info"></span>
+                        @Numbered(7)Taxable A/c
+                        @if (showToolTipTaxableWithdrawal_COL)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable investment accounts to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_COL = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_COL = !showToolTipTraditionalWithdrawal_COL" tabindex="0" title="Click for more info"></span>
+                        @Numbered(8)Traditional A/c
+                        @if (showToolTipTraditionalWithdrawal_COL)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts (401k, IRA) to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_COL = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_COL = !showToolTipRothWithdrawal_COL" tabindex="0" title="Click for more info"></span>
+                        @Numbered(9)Roth A/c
+                        @if (showToolTipRothWithdrawal_COL)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth retirement accounts (Roth IRA, Roth 401k) to cover living expenses for this year.
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_COL = false">×</span>
+                            </div>
+                        }
+                    </th>
+                }
                 @if (VisibleGroups.Contains(GroupKey.IncomeBreakDown))
                 {
                     <th class="col-income-sources">
@@ -970,17 +970,15 @@ private bool showToolTipTotalGrowthAndIncome = false;
                 }
 
                 <th class="col-income-sources">
-                     <th class="col-ending-balances">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalGrowthAndIncome = !showToolTipTotalGrowthAndIncome" tabindex="0" title="Click for more info"></span>
-                        @Numbered(14)Income
-                        @if (showToolTipTotalGrowthAndIncome)
-                        {
-                            <div class="first-row-tooltip">
-                                <strong>Taxable Balance:</strong> Total income for the year from all accounts.
-                                <span class="close-btn" @onclick="() => showToolTipTotalGrowthAndIncome = false">×</span>
-                            </div>
-                        }
-                    </th>
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalGrowthAndIncome = !showToolTipTotalGrowthAndIncome" tabindex="0" title="Click for more info"></span>
+                    @Numbered(14)Income
+                    @if (showToolTipTotalGrowthAndIncome)
+                    {
+                        <div class="first-row-tooltip">
+                            <strong>Income:</strong> Total income for the year from Social Security, reverse mortgage and portfolio growth (before taxes).
+                            <span class="close-btn" @onclick="() => showToolTipTotalGrowthAndIncome = false">×</span>
+                        </div>
+                    }
                 </th>
                 @if (VisibleGroups.Contains(GroupKey.EndingBalancesBreakDown))
                 {
@@ -1022,23 +1020,30 @@ private bool showToolTipTotalGrowthAndIncome = false;
 
                 }
                 <th class="col-ending-balances">
-                    <span class="bi bi-info-circle info-icon" tabindex="0" title="Click for more info"></span>
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalEndingBalance = !showToolTipTotalEndingBalance" tabindex="0" title="Click for more info"></span>
                     @Numbered(18)Total Ending Balance
-                </th>
-
-                <th>
-                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalEndingBalanceAllAc = !showToolTipTaxesPaid" tabindex="0" title="Click for more info"></span>
-                    @Numbered(19)Taxes Due (Growth & Income)
-                    @if (showToolTipTotalEndingBalanceAllAc)
+                    @if (showToolTipTotalEndingBalance)
                     {
                         <div class="first-row-tooltip">
-                            <strong>Taxes Due:</strong> Total ending balance on all accounts.
-                                <span class="close-btn" @onclick="() => showToolTipTotalEndingBalanceAllAc = false">×</span>
+                            <strong>Total Ending Balance:</strong> Combined year-end balance across all account types (Taxable + Traditional + Roth).
+                            <span class="close-btn" @onclick="() => showToolTipTotalEndingBalance = false">×</span>
                         </div>
                     }
                 </th>
 
-                               <th>
+                <th>
+                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalEndingBalanceAllAc = !showToolTipTotalEndingBalanceAllAc" tabindex="0" title="Click for more info"></span>
+                    @Numbered(19)Taxes Due (Growth & Income)
+                    @if (showToolTipTotalEndingBalanceAllAc)
+                    {
+                        <div class="first-row-tooltip">
+                            <strong>Taxes Due:</strong> Total tax liability on all taxable investment growth and income for the year.
+                            <span class="close-btn" @onclick="() => showToolTipTotalEndingBalanceAllAc = false">×</span>
+                        </div>
+                    }
+                </th>
+
+                <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalTaxPaidOnIncome = !showToolTipTotalTaxPaidOnIncome" tabindex="0" title="Click for more info"></span>
                     @Numbered(20)Tax Paid Total (Growth & Income)
                     @if (showToolTipTotalTaxPaidOnIncome)
@@ -1050,43 +1055,43 @@ private bool showToolTipTotalGrowthAndIncome = false;
                     }
                 </th>
 
-           @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
-{
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_TaxPaid = !showToolTipTaxableWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
-        @Numbered(21)Taxable A/c
-        @if (showToolTipTaxableWithdrawal_TaxPaid)
-        {
-            <div class="first-row-tooltip">
-                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for income & growth tax payments.
-                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_TaxPaid = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_TaxPaid = !showToolTipTraditionalWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
-        @Numbered(22)Traditional A/c
-        @if (showToolTipTraditionalWithdrawal_TaxPaid)
-        {
-            <div class="first-row-tooltip">
-                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for income & growth tax payments.
-                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_TaxPaid = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_TaxPaid = !showToolTipRothWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
-        @Numbered(23)Roth A/c
-        @if (showToolTipRothWithdrawal_TaxPaid)
-        {
-            <div class="first-row-tooltip">
-                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for income & growth tax payments.
-                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_TaxPaid = false">×</span>
-            </div>
-        }
-    </th>
-}
- 
+                @if (VisibleGroups.Contains(GroupKey.TaxPaidOnIncomeBreakDown))
+                {
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_TaxPaid = !showToolTipTaxableWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
+                        @Numbered(21)Taxable A/c
+                        @if (showToolTipTaxableWithdrawal_TaxPaid)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Amount withdrawn from taxable accounts for income & growth tax payments.
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_TaxPaid = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_TaxPaid = !showToolTipTraditionalWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
+                        @Numbered(22)Traditional A/c
+                        @if (showToolTipTraditionalWithdrawal_TaxPaid)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Amount withdrawn from traditional retirement accounts for income & growth tax payments.
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_TaxPaid = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_TaxPaid = !showToolTipRothWithdrawal_TaxPaid" tabindex="0" title="Click for more info"></span>
+                        @Numbered(23)Roth A/c
+                        @if (showToolTipRothWithdrawal_TaxPaid)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Roth Withdrawal:</strong> Amount withdrawn from Roth accounts for income & growth tax payments.
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_TaxPaid = false">×</span>
+                            </div>
+                        }
+                    </th>
+                }
+
                 <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalTaxDueForTradTaxPaid = !showToolTipTotalTaxDueForTradTaxPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(24)Tax Due
@@ -1098,9 +1103,9 @@ private bool showToolTipTotalGrowthAndIncome = false;
                         </div>
                     }
                 </th>
-                 
-                
-                
+
+
+
                 <th>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTotalWithdrawForTradTaxPaid = !showToolTipTotalWithdrawForTradTaxPaid" tabindex="0" title="Click for more info"></span>
                     @Numbered(25)Tax Paid Total (Traditional A/c Withdraw)
@@ -1133,49 +1138,49 @@ private bool showToolTipTotalGrowthAndIncome = false;
                         @if (showToolTipRothWithdrawForTradTaxPaid)
                         {
                             <div class="first-row-tooltip">
-                            <strong>Roth Withdrawal:</strong> Roth withdrawal for  tax paid on amount withdrawn from traditional a/c.to pay for income tax on growth and income.
+                                <strong>Roth Withdrawal:</strong> Roth withdrawal for  tax paid on amount withdrawn from traditional a/c.to pay for income tax on growth and income.
                                 <span class="close-btn" @onclick="() => showToolTipRothWithdrawForTradTaxPaid = false">×</span>
                             </div>
                         }
                     </th>
                 }
-           
-            @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
-{
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_Total = !showToolTipTaxableWithdrawal_Total" tabindex="0" title="Click for more info"></span>
-        @Numbered(28)Taxable Total W/d
-        @if (showToolTipTaxableWithdrawal_Total)
-        {
-            <div class="first-row-tooltip">
-                <strong>Taxable Withdrawal:</strong> Total withdrawn from taxable accounts.
-                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_Total = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_Total = !showToolTipTraditionalWithdrawal_Total" tabindex="0" title="Click for more info"></span>
-        @Numbered(29)Traditional Total w/d
-        @if (showToolTipTraditionalWithdrawal_Total)
-        {
-            <div class="first-row-tooltip">
-                <strong>Traditional Withdrawal:</strong> Total withdrawn from Traditional retirement accounts.
-                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_Total = false">×</span>
-            </div>
-        }
-    </th>
-    <th class="col-account-activity">
-        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_Total = !showToolTipRothWithdrawal_Total" tabindex="0" title="Click for more info"></span>
-        @Numbered(30)Roth Total w/d
-        @if (showToolTipRothWithdrawal_Total)
-        {
-            <div class="first-row-tooltip">
-                <strong>Roth Withdrawal:</strong> Total withdrawn from Roth accounts.
-                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_Total = false">×</span>
-            </div>
-        }
-    </th>
-}
+
+                @if (VisibleGroups.Contains(GroupKey.TotalWithdrawalBreakDown))
+                {
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableWithdrawal_Total = !showToolTipTaxableWithdrawal_Total" tabindex="0" title="Click for more info"></span>
+                        @Numbered(28)Taxable Total W/d
+                        @if (showToolTipTaxableWithdrawal_Total)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Taxable Withdrawal:</strong> Total withdrawn from taxable accounts.
+                                <span class="close-btn" @onclick="() => showToolTipTaxableWithdrawal_Total = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalWithdrawal_Total = !showToolTipTraditionalWithdrawal_Total" tabindex="0" title="Click for more info"></span>
+                        @Numbered(29)Traditional Total w/d
+                        @if (showToolTipTraditionalWithdrawal_Total)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Traditional Withdrawal:</strong> Total withdrawn from Traditional retirement accounts.
+                                <span class="close-btn" @onclick="() => showToolTipTraditionalWithdrawal_Total = false">×</span>
+                            </div>
+                        }
+                    </th>
+                    <th class="col-account-activity">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothWithdrawal_Total = !showToolTipRothWithdrawal_Total" tabindex="0" title="Click for more info"></span>
+                        @Numbered(30)Roth Total w/d
+                        @if (showToolTipRothWithdrawal_Total)
+                        {
+                            <div class="first-row-tooltip">
+                                <strong>Roth Withdrawal:</strong> Total withdrawn from Roth accounts.
+                                <span class="close-btn" @onclick="() => showToolTipRothWithdrawal_Total = false">×</span>
+                            </div>
+                        }
+                    </th>
+                }
             </tr>
         </thead>
         <tbody>
