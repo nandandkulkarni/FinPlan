@@ -248,8 +248,8 @@
                 min-width: 160px;
             }
 
-    /* Numbered step badge (filled circle) to indicate order */
-    .step-badge {
+    /* Numbered step badge for navigation */
+    .nav-step-badge {
         width: 36px;
         height: 36px;
         min-width: 36px;
@@ -257,7 +257,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: #222; /* dark filled circle */
+        background: #1F6FEB;
         color: #fff;
         font-weight: 800;
         font-size: 1rem;
@@ -268,7 +268,7 @@
 
     /* Slightly larger badge for emphasis on desktop */
     @@media (min-width: 1200px) {
-        .step-badge {
+        .nav-step-badge {
             width: 40px;
             height: 40px;
             min-width: 40px;
@@ -277,8 +277,8 @@
     }
 
     /* When the menu-link is active, invert badge so it matches active background */
-    .top-strip .menu-link.active .step-badge,
-    .top-strip .menu-link[aria-current="page"] .step-badge {
+    .top-strip .menu-link.active .nav-step-badge,
+    .top-strip .menu-link[aria-current="page"] .nav-step-badge {
         background: #fff8d6;
         color: #111;
         border: 1px solid rgba(0,0,0,0.04);
@@ -308,7 +308,7 @@
     }
 
     @@media (max-width: 768px) {
-        .step-badge {
+        .nav-step-badge {
             width: 30px;
             height: 30px;
             min-width: 30px;
@@ -332,7 +332,7 @@
 
     @@media (max-width: 480px) {
         /* If extremely small, reduce label length (use existing icons + smaller text) */
-        .step-badge {
+        .nav-step-badge {
             width: 26px;
             height: 26px;
             min-width: 26px;
@@ -424,19 +424,19 @@
             </NavLink>
 
             <NavLink class="menu-link" href="/future-cost-of-living">
-                <span class="step-badge" aria-hidden="true">1</span>
+                <span class="nav-step-badge" aria-hidden="true">1</span>
                 <span class="bi bi-list-ul" aria-hidden="true"></span>
                 <span>Future Cost of Living</span>
             </NavLink>
 
             <NavLink class="menu-link" href="/savings-wealth-building">
-                <span class="step-badge" aria-hidden="true">2</span>
+                <span class="nav-step-badge" aria-hidden="true">2</span>
                 <span class="bi bi-piggy-bank" aria-hidden="true"></span>
                 <span>Savings & Wealth-Building</span>
             </NavLink>
 
             <NavLink class="menu-link" href="/retirement-income-planner">
-                <span class="step-badge" aria-hidden="true">3</span>
+                <span class="nav-step-badge" aria-hidden="true">3</span>
                 <span class="bi bi-wallet2" aria-hidden="true"></span>
                 <span>Retirement Income Planner</span>
             </NavLink>
