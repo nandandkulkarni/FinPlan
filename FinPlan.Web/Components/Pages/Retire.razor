@@ -194,12 +194,12 @@
             padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
     /* .section-card .actions {
-                                        margin-top: auto;
-                                        display: flex;
-                                        justify-content: flex-start;
-                                        gap: 8px;
-                                        padding-top: 6px;
-                                    } */
+                                            margin-top: auto;
+                                            display: flex;
+                                            justify-content: flex-start;
+                                            gap: 8px;
+                                            padding-top: 6px;
+                                        } */
 
     .btn-update {
         background: #1F6FEB;
@@ -361,21 +361,21 @@
     }
 
     /* .step-badge {
-                                    width: 36px;
-                                    height: 36px;
-                                    min-width: 36px;
-                                    border-radius: 50%;
-                                    display: inline-flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    background: var(--brand-yellow);
-                                    color: #111;
-                                    font-weight: 800;
-                                    font-size: 1rem;
-                                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                                    margin-right: 8px;
-                                    flex-shrink: 0;
-                                } */
+                                        width: 36px;
+                                        height: 36px;
+                                        min-width: 36px;
+                                        border-radius: 50%;
+                                        display: inline-flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        background: var(--brand-yellow);
+                                        color: #111;
+                                        font-weight: 800;
+                                        font-size: 1rem;
+                                        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                        margin-right: 8px;
+                                        flex-shrink: 0;
+                                    } */
 
     .empty-state {
         text-align: center;
@@ -562,79 +562,80 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
-
-                    <div class="projection-cards">
-                        @if (isSimpleMode)
-                        {
-                            <!-- Simplified macro cards for beginners -->
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Retirement timeline"
-                                 style="background: #FFD600; color: #333; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                <span class="bi bi-calendar-heart" style="font-size:2rem; margin-bottom:8px; color:#333;"></span>
-                                <div class="card-label" style="font-weight:700; color:#333;">Your Retirement Plan</div>
-                                <div class="card-value" style="font-size:1.1rem; color:#333;">@GetProjectionRangeText()</div>
-                                <small class="text-muted mt-1 text-center">Planning period for your retirement</small>
-                            </div>
-
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Money status"
-                                 style="background: @(GetDepletionText().Contains("Never") ? "#38B2AC" : "#F56565"); color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                <span class="bi @(GetDepletionText().Contains("Never") ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Money Status</div>
-                                <div class="card-value" style="font-size:1.1rem; color:#fff;">
-                                    @(GetDepletionText().Contains("Never") ? "✓ Looks Good" : "⚠ Needs Attention")
+                    @if (!Model.IsModelEmpty())
+                    {
+                        <div class="projection-cards">
+                            @if (isSimpleMode)
+                            {
+                                <!-- Simplified macro cards for beginners -->
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Retirement timeline"
+                                     style="background: #FFD600; color: #333; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                    <span class="bi bi-calendar-heart" style="font-size:2rem; margin-bottom:8px; color:#333;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#333;">Your Retirement Plan</div>
+                                    <div class="card-value" style="font-size:1.1rem; color:#333;">@GetProjectionRangeText()</div>
+                                    <small class="text-muted mt-1 text-center">Planning period for your retirement</small>
                                 </div>
-                                <small class="text-white-50 mt-1 text-center">
-                                    @(GetDepletionText().Contains("Never") ? "Your money should last" : "You may run short")
-                                </small>
-                            </div>
 
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Final amount remaining"
-                                 style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Money Left Over</div>
-                                <div class="card-value" style="font-size:1.1rem; color:#fff;">@GetFinalPortfolioText()</div>
-                                <small class="text-white-50 mt-1 text-center">Estimated at end of plan</small>
-                            </div>
-                        }
-                        else
-                        {
-                            <!-- Advanced macro cards (original) -->
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
-                                 style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Projection range</div>
-                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetProjectionRangeText()</div>
-                            </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Money status"
+                                     style="background: @(GetDepletionText().Contains("Never") ? "#38B2AC" : "#F56565"); color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                    <span class="bi @(GetDepletionText().Contains("Never") ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Money Status</div>
+                                    <div class="card-value" style="font-size:1.1rem; color:#fff;">
+                                        @(GetDepletionText().Contains("Never") ? "✓ Looks Good" : "⚠ Needs Attention")
+                                    </div>
+                                    <small class="text-white-50 mt-1 text-center">
+                                        @(GetDepletionText().Contains("Never") ? "Your money should last" : "You may run short")
+                                    </small>
+                                </div>
 
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
-                                 style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
-                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
-                            </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Final amount remaining"
+                                     style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                    <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Money Left Over</div>
+                                    <div class="card-value" style="font-size:1.1rem; color:#fff;">@GetFinalPortfolioText()</div>
+                                    <small class="text-white-50 mt-1 text-center">Estimated at end of plan</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Advanced macro cards (original) -->
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
+                                     style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Projection range</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetProjectionRangeText()</div>
+                                </div>
 
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
-                                 style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
-                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
-                            </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
+                                     style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
+                                </div>
 
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
-                                 style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
-                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
-                            </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
+                                     style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
+                                </div>
 
-                            <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
-                                 style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
-                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
-                            </div>
-                        }
-                    </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
+                                     style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
+                                </div>
 
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
+                                     style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
+                                </div>
+                            }
+                        </div>
+                    }
                     <!-- Beginner Help Section (Simple Mode Only) -->
                     @if (isSimpleMode) //isSimpleMode && (Model == null || Model.IsModelEmpty()))
                     {
@@ -657,8 +658,15 @@
                                         <button class="btn btn-primary btn-sm" @onclick="() => OpenWizard(1)">
                                             <i class="bi bi-play-fill me-1"></i>Start Planning
                                         </button>
-                                        <button class="btn btn-outline-primary btn-sm" @onclick="() => showSampleDataModal = true">
+                                        @* <button class="btn btn-outline-primary btn-sm" @onclick="() => showSampleDataModal = true">
                                             <i class="bi bi-eye me-1"></i>See Example
+                                        </button> *@
+
+                                        <button class="btn btn-outline-primary"
+                                                style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
+                                                @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
+                                            <i class="bi bi-clipboard-data me-2"></i>
+                                            Try Sample Data
                                         </button>
                                     </div>
                                 </div>
@@ -1261,12 +1269,20 @@
                                     <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
                                         Takes about 2-3 minutes to complete
                                     </div>
-                                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                            @*         <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
                                         <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
                                             <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
                                             Want to try with sample data? Click here
                                         </button>
-                                    </div>
+                                    </div> *@
+
+                                    <button class="btn btn-primary"
+                                                style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
+                                                @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
+                                            <i class="bi bi-clipboard-data me-2"></i>
+                                            Try Sample Data
+                                        </button>
+
                                     @* <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
                                         <i class="bi bi-list-check" style="margin-right: 6px;"></i>
                                         What data's missing
@@ -1756,8 +1772,8 @@
         // Only show intro modal if model is empty and user hasn't opted out
         //if (Model == null || Model.IsModelEmpty())
         //{
-            var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-retirement-income-planner-hide-intro");
-            showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
+        var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-retirement-income-planner-hide-intro");
+        showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
         //}
     }
 
