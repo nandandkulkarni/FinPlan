@@ -8,7 +8,7 @@
 
 <div class="alert alert-info" style="margin-bottom:18px; border-radius:10px; font-size:1.05rem;">
     <strong>Thank you for trying the Retirement Income Planner</strong><br />
-    We truly appreciate you taking the time to share your feedback. There are many questions below, but please feel free to answer only those you wish—every response helps us improve. No personal information is collected
+    We truly appreciate you taking the time to share your feedback. There are many questions below, but please feel free to answer only those you wishï¿½every response helps us improve. No personal information is collected
 </div>
 
 <SurveyForm Questions="@questions" Title="Retirement Income Planner - Survey" SurveyType="RetirementPlanner"/>
@@ -40,6 +40,7 @@
         // new SurveyQuestion("Did any results or calculations seem incorrect? Please describe any discrepancies or bugs."),
         // new SurveyQuestion("Any other comments, suggestions or use-cases you'd like to share?")
 
+        new SurveyQuestion("How easy was it to find advanced mode?", new List<string>{"Very Clear","Clear","Neutral","Unclear","Very Unclear"}),
         // Data Entry
         new SurveyQuestion("How easy was it to enter your post-tax, traditional and Roth balances at retirement?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),
         new SurveyQuestion("How easy was it to set Social Security claim ages and benefits?", new List<string>{"Very Easy","Easy","Neutral","Difficult","Very Difficult"}),

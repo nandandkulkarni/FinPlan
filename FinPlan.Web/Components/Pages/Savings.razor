@@ -10,6 +10,7 @@
 @inject IConfiguration Configuration
 @inject DebugMessageService DebugService
 @inject UserGuidService UserGuidService
+@inject NavigationManager Navigation
 
 
 <style>
@@ -21,58 +22,74 @@
         --brand-yellow: #FFD600;
     }
 
-.summary-cards-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
+    .summary-cards-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-.savings-card {
-    background: #fff;
-    color: #222;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(31,111,235,0.08);
-    min-width: 132px;
-    max-width: 132px;
-    min-height: 132px;
-    max-height: 132px;
-    width: 132px;
-    height: 132px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 10px;
-    font-size: 1rem;
-}
-.savings-card-yellow { background: #FFD600; color: #222; }
-.savings-card-teal { background: #38B2AC; color: #fff; }
-.savings-card-purple { background: #6D5DFC; color: #fff; }
-.savings-card-red { background: #F56565; color: #fff; }
+    .savings-card {
+        background: #fff;
+        color: #222;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(31,111,235,0.08);
+        min-width: 132px;
+        max-width: 132px;
+        min-height: 132px;
+        max-height: 132px;
+        width: 132px;
+        height: 132px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 10px;
+        font-size: 1rem;
+    }
 
-.savings-card .bi {
-    font-size: 1.4rem;
-    margin-bottom: 4px;
-    color: inherit;
-}
+    .savings-card-yellow {
+        background: #FFD600;
+        color: #222;
+    }
 
-.savings-card .card-label {
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin-bottom: 2px;
-    color: inherit;
-    text-align: center;
-}
+    .savings-card-teal {
+        background: #38B2AC;
+        color: #fff;
+    }
 
-.savings-card .card-value {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: inherit;
-    text-align: center;
-    margin-top: 2px;
-}
+    .savings-card-purple {
+        background: #6D5DFC;
+        color: #fff;
+    }
+
+    .savings-card-red {
+        background: #F56565;
+        color: #fff;
+    }
+
+    .savings-card .bi {
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+        color: inherit;
+    }
+
+    .savings-card .card-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+        color: inherit;
+        text-align: center;
+    }
+
+    .savings-card .card-value {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: inherit;
+        text-align: center;
+        margin-top: 2px;
+    }
 
     .survey-card {
         border-right: 8px solid #1F6FEB !important;
@@ -264,12 +281,12 @@
         }
 
     /* .section-card .actions {
-                margin-top: auto;
-                display: flex;
-                justify-content: flex-start;
-                gap: 8px;
-                padding-top: 6px;
-            } */
+                    margin-top: auto;
+                    display: flex;
+                    justify-content: flex-start;
+                    gap: 8px;
+                    padding-top: 6px;
+                } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -319,21 +336,21 @@
     }
 
     /* .step-badge {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #FFD600;
-            color: #111;
-            font-weight: 800;
-            font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            margin-right: 8px;
-            flex-shrink: 0;
-        } */
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: #FFD600;
+                color: #111;
+                font-weight: 800;
+                font-size: 1rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                margin-right: 8px;
+                flex-shrink: 0;
+            } */
 
     .small-note {
         font-size: 0.9rem;
@@ -466,69 +483,81 @@
     }
 
     /* Tooltip: light blue background and black foreground, rectangle, bigger X */
-.info-tooltip, .first-row-tooltip {
-    position: absolute;
-    background: #e6f2ff !important;   /* Light blue */
-    color: #111 !important;           /* Black text */
-    border: 1px solid #b6d4fe;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08);
-    padding: 16px 20px;
-    z-index: 9999;
-    max-width: 320px;
-    min-width: 220px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 8px;
-    animation: tooltipFadeIn 0.2s ease-out;
-}
-@@keyframes tooltipFadeIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(-4px);}
-    to   { opacity: 1; transform: translateX(-50%) translateY(0);}
-}
-.info-tooltip strong, .first-row-tooltip strong {
-    color: #000 !important;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-}
-.info-tooltip .float-end, .first-row-tooltip .close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    cursor: pointer;
-    color: #111 !important;
-    font-size: 1.25rem !important; /* Bigger X */
-    font-weight: 700;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-    line-height: 1;
-}
-.info-tooltip .float-end:hover, .first-row-tooltip .close-btn:hover {
-    color: #0056b3 !important;
-    background-color: #d0e7ff !important;
-}
-.info-tooltip::before, .first-row-tooltip::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #e6f2ff !important;
-    filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.05));
-}
+    .info-tooltip, .first-row-tooltip {
+        position: absolute;
+        background: #e6f2ff !important; /* Light blue */
+        color: #111 !important; /* Black text */
+        border: 1px solid #b6d4fe;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08);
+        padding: 16px 20px;
+        z-index: 9999;
+        max-width: 320px;
+        min-width: 220px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        animation: tooltipFadeIn 0.2s ease-out;
+    }
+
+    @@keyframes tooltipFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    .info-tooltip strong, .first-row-tooltip strong {
+        color: #000 !important;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .info-tooltip .float-end, .first-row-tooltip .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        cursor: pointer;
+        color: #111 !important;
+        font-size: 1.25rem !important; /* Bigger X */
+        font-weight: 700;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        line-height: 1;
+    }
+
+        .info-tooltip .float-end:hover, .first-row-tooltip .close-btn:hover {
+            color: #0056b3 !important;
+            background-color: #d0e7ff !important;
+        }
+
+    .info-tooltip::before, .first-row-tooltip::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #e6f2ff !important;
+        filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.05));
+    }
 
 </style>
 
@@ -568,7 +597,7 @@
                         </div>
                     </div>
                     <!-- Ad container for long Adsterra banner in left column -->
-                  
+
                 </div>
 
                 <div class="col-12 col-md-8">
@@ -591,44 +620,77 @@
                         @if (results != null)
                         {
                             <div class="summary-cards-row">
-    <div class="summary-card savings-card savings-card-yellow">
-        <span class="bi bi-piggy-bank"></span>
-        <div class="card-label">Final Savings</div>
-        <div class="card-value">@results.FinalAmount.ToString("C0")</div>
-    </div>
-    <div class="summary-card savings-card savings-card-teal">
-        <span class="bi bi-arrow-up-circle"></span>
-        <div class="card-label">Total Contributions</div>
-        <div class="card-value">@results.TotalContributions.ToString("C0")</div>
-    </div>
-    <div class="summary-card savings-card savings-card-purple">
-        <span class="bi bi-graph-up"></span>
-        <div class="card-label">Total Growth</div>
-        <div class="card-value">@results.TotalInterestEarned.ToString("C0")</div>
-    </div>
-    <div class="summary-card savings-card savings-card-red">
-        <span class="bi bi-receipt"></span>
-        <div class="card-label">Taxes Paid</div>
-        <div class="card-value">@results.TotalTaxesPaid.ToString("C0")</div>
-    </div>
-</div>
+                                <div class="summary-card savings-card savings-card-yellow">
+                                    <span class="bi bi-piggy-bank"></span>
+                                    <div class="card-label">Final Savings</div>
+                                    <div class="card-value">@results.FinalAmount.ToString("C0")</div>
+                                </div>
+                                <div class="summary-card savings-card savings-card-teal">
+                                    <span class="bi bi-arrow-up-circle"></span>
+                                    <div class="card-label">Total Contributions</div>
+                                    <div class="card-value">@results.TotalContributions.ToString("C0")</div>
+                                </div>
+                                <div class="summary-card savings-card savings-card-purple">
+                                    <span class="bi bi-graph-up"></span>
+                                    <div class="card-label">Total Growth</div>
+                                    <div class="card-value">@results.TotalInterestEarned.ToString("C0")</div>
+                                </div>
+                                <div class="summary-card savings-card savings-card-red">
+                                    <span class="bi bi-receipt"></span>
+                                    <div class="card-label">Taxes Paid</div>
+                                    <div class="card-value">@results.TotalTaxesPaid.ToString("C0")</div>
+                                </div>
+                            </div>
 
-                        <!-- Simple Progress Indicator for General Public -->
-                        @if (results != null && results.FinalAmount > 0)
-                        {
-                            <div class="alert" style="margin: 16px 0; padding: 12px; border-radius: 8px; 
-                                @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <i class="bi @(GetSavingsProgressMessage().isGood ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size: 1.2rem;"></i>
-                                    <div>
-                                        <strong>@GetSavingsProgressMessage().title</strong>
-                                        <div style="font-size: 0.9rem; margin-top: 4px;">@GetSavingsProgressMessage().message</div>
+                            <!-- Simple Progress Indicator for General Public -->
+                            @if (results != null && results.FinalAmount > 0)
+                            {
+                                <div class="alert" style="margin: 16px 0; padding: 12px; border-radius: 8px;
+                                        @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="bi @(GetSavingsProgressMessage().isGood ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size: 1.2rem;"></i>
+                                        <div>
+                                            <strong>@GetSavingsProgressMessage().title</strong>
+                                            <div style="font-size: 0.9rem; margin-top: 4px;">@GetSavingsProgressMessage().message</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <!-- Centered heading with Edit Plan button -->
+                        @* <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
+                            <div style="flex: 1;"></div>
+                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
+                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
+                                <div class="form-check form-switch" style="margin-right: 12px;">
+                                    <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
+                                    <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
+                                </div>
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                    Update Plan
+                                </button>
+                                <!-- Centered heading with Edit Plan button -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
+                                    <div style="flex: 1;"></div>
+                                    <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
+                                    <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
+                                        <div class="form-check form-switch" style="margin-right: 12px;">
+                                            <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
+                                            <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
+                                        </div>
+                                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                            <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                            Update Plan
+                                        </button>
+                                        <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data for current calculator">
+                                            <i class="bi bi-trash me-1"></i>
+                                            Clear Plan Data
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        }
-                        }
-                        <!-- Centered heading with Edit Plan button -->
+                        </div> *@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
                             <div style="flex: 1;"></div>
                             <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
@@ -640,6 +702,10 @@
                                 <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                     <i class="bi bi-gear" style="margin-right: 6px;"></i>
                                     Update Plan
+                                </button>
+                                <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data for current calculator">
+                                    <i class="bi bi-trash me-1"></i>
+                                    Clear Plan Data
                                 </button>
                             </div>
                         </div>
@@ -749,9 +815,9 @@
 
                                     <!-- Simple explanation for general public -->
                                     <div class="alert alert-info mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #e8f4f8; border-left: 3px solid #1F6FEB;">
-                                        <strong>Quick Guide:</strong> 
-                                        <strong>Taxable</strong> = Regular savings/investment accounts. 
-                                        <strong>Traditional</strong> = 401k, Traditional IRA (tax-deferred). 
+                                        <strong>Quick Guide:</strong>
+                                        <strong>Taxable</strong> = Regular savings/investment accounts.
+                                        <strong>Traditional</strong> = 401k, Traditional IRA (tax-deferred).
                                         <strong>Roth</strong> = Roth IRA, Roth 401k (tax-free growth).
                                     </div>
 
@@ -894,102 +960,102 @@
                                             <span class="step-badge">4</span>
                                             <div>Estimated Growth Rate</div>
                                         </div>
-                                    <div class="small-note">
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
-                                        Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
-                                        @if (showToolTipTaxableGrowth)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
-                                                
-                                                <br><br><strong>Important:</strong> Real returns vary significantly year-to-year. This calculator assumes steady annual growth, but actual markets have volatility, recessions, and booms not reflected in these projections.
-                                                
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
+                                        <div class="small-note">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                            Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
+                                            @if (showToolTipTaxableGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+
+                                                    <br><br><strong>Important:</strong> Real returns vary significantly year-to-year. This calculator assumes steady annual growth, but actual markets have volatility, recessions, and booms not reflected in these projections.
+
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="small-note">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                            Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)
+                                            @if (showToolTipTraditionalGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="small-note">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                            Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)
+                                            @if (showToolTipRothGrowth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                    <div class="small-note">
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
-                                        Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)
-                                        @if (showToolTipTraditionalGrowth)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="small-note">
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
-                                        Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)
-                                        @if (showToolTipRothGrowth)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(4)">Update</button>
                                     </div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Update</button>
-                                </div>
-                            </div>
                             }
 
                             @if (showAdvancedSetup)
                             {
                                 <div class="section-card"
                                      style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid #4FD1C5;">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">5</span>
-                                        <div>Tax Treatment</div>
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">5</span>
+                                            <div>Tax Treatment</div>
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
+                                            Taxable Income Type: @calculatorModel.TaxableIncomeType
+                                            @if (showToolTipIncomeType)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="small-note" style="margin-top:8px;">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
+                                            Tax Bracket: @calculatorModel.TaxBracket
+                                            @if (showToolTipTaxBracket)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
+
+                                                    <br><br><strong>Simplified Assumptions:</strong><br>
+                                                    • State taxes not included in calculations<br>
+                                                    • Tax rates assumed constant over time<br>
+                                                    • No consideration of changing tax laws<br>
+                                                    • Standard deduction and other tax benefits not modeled
+
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
-                                        Taxable Income Type: @calculatorModel.TaxableIncomeType
-                                        @if (showToolTipIncomeType)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
-                                        Tax Bracket: @calculatorModel.TaxBracket
-                                        @if (showToolTipTaxBracket)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
-                                                
-                                                <br><br><strong>Simplified Assumptions:</strong><br>
-                                                • State taxes not included in calculations<br>
-                                                • Tax rates assumed constant over time<br>
-                                                • No consideration of changing tax laws<br>
-                                                • Standard deduction and other tax benefits not modeled
-                                                
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
+                                    <div class="actions">
+                                        <button class="btn-edit" @onclick="() => OpenWizard(5)">Update</button>
                                     </div>
                                 </div>
-                                <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Update</button>
-                                </div>
-                            </div>
                             }
                         </div>
                     </div>
@@ -1029,7 +1095,7 @@
                     <br>• No consideration of market volatility or timing
                     <br>• Tax rates held constant throughout projection period
                     <br>• No inflation adjustments to contribution amounts
-                    
+
                     <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipMethodology = false" title="Close">
                         <span class="bi bi-x-lg"></span>
                     </span>
@@ -1227,10 +1293,10 @@
                             foreach (var r in yearlyBreakdown)
                             {
 
-var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
-                                <tr>
-                                    <td>@r.Year</td>
-                                    <td>@age</td>
+                                var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
+                                                                                      <tr>
+                                                                                          <td>@r.Year</td>
+                                                                                          <td>@age</td>
 
                                     <!-- Taxable columns -->
                                     <!-- Taxable columns with inline styles -->
@@ -1323,11 +1389,11 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
                 <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers & Assumptions</div>
                 <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
                     <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational purposes only. Results are projections based on your inputs and simplified assumptions.</p>
-                    
+
                     <p style="margin-bottom: 8px;"><strong>Key Assumptions:</strong> Calculations assume steady annual growth, constant tax rates, monthly contributions at month start, and no market volatility, emergencies, or changing life circumstances.</p>
-                    
+
                     <p style="margin-bottom: 8px;"><strong>Limitations:</strong> Does not include state taxes, inflation effects on contributions, changing tax laws, market crashes, or personal financial emergencies that could affect your actual results.</p>
-                    
+
                     <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial advisors who can provide personalized advice for your complete financial situation and account for factors not modeled here.</p>
                 </div>
             </div>
@@ -1371,7 +1437,7 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
     private bool showToolTipIncomeType = false;
     private bool showToolTipTaxBracket = false;
     private bool showToolTipMethodology = false;
-    
+
     // UX Enhancement toggles
     private bool showSimpleView = true;
     private bool showAdvancedSetup = false;
@@ -1644,6 +1710,46 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api.finplan.example";
 #endif
     }
+    // Add this method to your @code section
+private async Task ClearDataAsync()
+{
+    try
+    {
+        // Confirm with user before deleting
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to clear all saved data for {(calculatorType == calculatorTypeYours ? "Your" : "Partners")} savings plan? This action cannot be undone.");
+        
+        if (!confirm) return;
+
+        if (string.IsNullOrWhiteSpace(userGuid))
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        }
+
+        var apiBaseUrl = GetApiBaseUrl();
+        var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+        
+        var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+        var response = await client.DeleteAsync(url);
+        
+        if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            DebugService.AddMessage("Plan data cleared successfully.");
+            
+            // Reload the page to reflect the cleared state
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+        else
+        {
+            DebugService.AddMessage($"Failed to clear data: {response.StatusCode}");
+        }
+    }
+    catch (Exception ex)
+    {
+        DebugService.AddMessage($"Error clearing data: {ex.Message}");
+    }
+}
+
 
     // UX Enhancement Methods
     private void ToggleSimpleView(ChangeEventArgs e)
@@ -1662,8 +1768,8 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
     {
         if (results == null || calculatorModel == null) return ("", "", true);
 
-        var monthlyContributions = calculatorModel.MonthlyTaxableContribution + 
-                                  calculatorModel.MonthlyTraditionalContribution + 
+        var monthlyContributions = calculatorModel.MonthlyTaxableContribution +
+                                  calculatorModel.MonthlyTraditionalContribution +
                                   calculatorModel.MonthlyRothContribution;
         var annualContributions = monthlyContributions * 12;
         var yearsToRetirement = calculatorModel.RetirementAge - calculatorModel.CurrentAge;

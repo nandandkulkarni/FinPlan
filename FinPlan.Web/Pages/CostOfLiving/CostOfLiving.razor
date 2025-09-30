@@ -44,6 +44,39 @@
         align-self: flex-start;
     }
 
+    /* Compact Mode Toggle Styles */
+    .form-switch .form-check-input {
+        transition: all 0.2s ease;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .form-switch .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+    }
+
+    /* Large form switch for modal - 2x bigger */
+    .form-check-modal-lg .form-check-input {
+        width: 4rem;
+        height: 2rem;
+    }
+    
+    .form-check-modal-lg .form-check-label {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-left: 0.75rem;
+    }
+    
+    .modal-mode-toggle {
+        padding: 0.5rem 1rem;
+        background: rgba(13, 110, 253, 0.05);
+        border: 1px solid rgba(13, 110, 253, 0.1);
+        border-radius: 8px;
+    }
+
 
     /* Add missing empty-state styles */
     .empty-state {
@@ -358,6 +391,39 @@
         padding: 0.45rem 0.5rem;
     }
 
+    /* Simple Mode Styling */
+    .simple-mode .complex-column { 
+        display: none !important; 
+    }
+    
+    .simple-mode .table { 
+        font-size: 1rem; 
+    }
+    
+    .simple-mode .card-header { 
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        font-size: 1.1rem;
+        border: none;
+    }
+
+    .simple-mode .card-header .small {
+        font-size: 0.9rem !important;
+    }
+
+    /* Reduce tooltip overload in simple mode */
+    .simple-mode .info-tooltip { 
+        display: none; 
+    }
+
+    .simple-mode .bi-info-circle {
+        display: none;
+    }
+
+    /* Keep essential info icons in simple mode */
+    .simple-mode .essential-info {
+        display: inline !important;
+    }
+
     }
 </style>
 
@@ -384,18 +450,47 @@
 {
     <div class="modal-backdrop fade show" style="z-index:1040"></div>
     <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title d-flex align-items-center">
+                <div class="modal-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title d-flex align-items-center mb-0">
                         <span class="bi @(isEditItemMode ? "bi-pencil-square" : "bi-plus-circle") me-2 text-primary"></span>
-                        @(isEditItemMode ? "Edit Item" : "Add New Item")
+                        @if (isSimpleMode)
+                        {
+                            @(isEditItemMode ? "Edit Expense" : "Add New Expense")
+                        }
+                        else
+                        {
+                            @(isEditItemMode ? "Edit Item" : "Add New Item")
+                        }
                         @if (!string.IsNullOrWhiteSpace(addItemCategory))
                         {
                             <small class="text-muted ms-2">in @addItemCategory</small>
                         }
                     </h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddItemModal"></button>
+                    
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Large Mode Toggle in Modal -->
+                        <div class="modal-mode-toggle d-flex align-items-center gap-3">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary mb-1">
+                                    @(isSimpleMode ? "🎯 Simple Mode" : "⚙️ Advanced Mode")
+                                </div>
+                                <small class="text-muted">
+                                    @(isSimpleMode ? "Easy & basic" : "All features")
+                                </small>
+                            </div>
+                            <div class="form-check form-switch form-check-modal-lg">
+                                <input class="form-check-input" type="checkbox" id="modalModeToggle" 
+                                       checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                                <label class="form-check-label" for="modalModeToggle" style="cursor: pointer;">
+                                    @(isSimpleMode ? "Enable Advanced" : "Simplify")
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddItemModal"></button>
+                    </div>
                 </div>
 
                 <div class="modal-body py-4" style="background-color: #f8faff;">
@@ -405,14 +500,14 @@
                         <input type="text"
                                class="form-control"
                                id="newItemName"
-                               placeholder="e.g., Rent, Groceries, Utilities"
+                               placeholder="@(isSimpleMode ? "Rent, Groceries, Gas, etc." : "e.g., Rent, Groceries, Utilities")"
                                @bind="NewItemName"
                                @bind:event="oninput"
                                @onkeydown="HandleAddItemKeyModal"
                                autofocus />
                         <label for="newItemName" class="d-flex align-items-center">
-                            <span>Item Name</span>
-                            <span class="bi bi-info-circle text-info ms-2"
+                            <span>@(isSimpleMode ? "What do you spend money on?" : "Item Name")</span>
+                            <span class="bi bi-info-circle text-info ms-2 @(isSimpleMode ? "" : "")"
                                   style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
                                   title="What is this?"
                                   @onclick="() => showTipItemName = !showTipItemName"></span>
@@ -428,65 +523,88 @@
                         </div>
                     }
 
-                    <div class="row g-3">
-                        @* Frequency *@
-                        <div class="col-12 col-md-6">
-                            <label class="form-label d-flex align-items-center">
-                                <span>Frequency</span>
-                                <span class="bi bi-info-circle text-info ms-2"
-                                      style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
-                                      title="What is this?"
-                                      @onclick="() => showTipFrequency = !showTipFrequency"></span>
-                            </label>
-                            <select class="form-select" @bind="NewItemFrequency">
-                                <option value="Monthly">Monthly</option>
-                                <option value="Quarterly">Quarterly</option>
-                                <option value="Yearly">Yearly</option>
-                            </select>
-                            @if (showTipFrequency)
-                            {
-                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
-                                    How often you pay this amount. We convert it to a monthly equivalent for totals.
-                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipFrequency = false">
-                                        <span class="bi bi-x-lg"></span>
-                                    </span>
-                                </div>
-                            }
-                        </div>
-
-                        @* Amount *@
-                        <div class="col-12 col-md-6">
-                            <label class="form-label d-flex align-items-center">
-                                <span>Amount ($)</span>
-                                <span class="bi bi-info-circle text-info ms-2"
-                                      style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
-                                      title="What is this?"
-                                      @onclick="() => showTipAmount = !showTipAmount"></span>
-                            </label>
+                    @if (isSimpleMode)
+                    {
+                        <!-- Simplified view for beginners -->
+                        <div class="form-floating mb-3">
                             <input class="form-control"
                                    type="number"
                                    step="0.01"
                                    min="0"
+                                   id="newItemAmountSimple"
+                                   placeholder="0"
                                    @bind="NewItemAmount"
                                    @onkeydown="HandleAddItemKeyModal" />
-                            @if (showTipAmount)
-                            {
-                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
-                                    Enter the amount in the selected frequency (e.g., a yearly premium if Frequency is Yearly).
-                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAmount = false">
-                                        <span class="bi bi-x-lg"></span>
-                                    </span>
-                                </div>
-                            }
+                            <label for="newItemAmountSimple">How much per month? ($)</label>
                         </div>
-                    </div>
+                        <!-- Force monthly frequency in simple mode -->
+                    }
+                    else
+                    {
+                        <!-- Advanced view with frequency options -->
+                        <div class="row g-3">
+                            @* Frequency *@
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>@(isSimpleMode ? "How often do you pay this?" : "Frequency")</span>
+                                    @if (!isSimpleMode)
+                                    {
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                              title="What is this?"
+                                              @onclick="() => showTipFrequency = !showTipFrequency"></span>
+                                    }
+                                </label>
+                                <select class="form-select" @bind="NewItemFrequency">
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Yearly">Yearly</option>
+                                </select>
+                                @if (showTipFrequency)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        How often you pay this amount. We convert it to a monthly equivalent for totals.
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipFrequency = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+
+                            @* Amount *@
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>Amount ($)</span>
+                                    <span class="bi bi-info-circle text-info ms-2"
+                                          style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                          title="What is this?"
+                                          @onclick="() => showTipAmount = !showTipAmount"></span>
+                                </label>
+                                <input class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       @bind="NewItemAmount"
+                                       @onkeydown="HandleAddItemKeyModal" />
+                                @if (showTipAmount)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        Enter the amount in the selected frequency (e.g., a yearly premium if Frequency is Yearly).
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAmount = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
 
                     @* Include in Retirement *@
                     <div class="form-check mt-3">
                         <input class="form-check-input" type="checkbox" id="newItemInclude" @bind="NewItemIncludeInRetirement" />
                         <label class="form-check-label d-inline-flex align-items-center" for="newItemInclude">
-                            <span>Include in Retirement</span>
-                            <span class="bi bi-info-circle text-info ms-2"
+                            <span>@(isSimpleMode ? "Will you still have this cost in retirement?" : "Include in Retirement")</span>
+                            <span class="bi bi-info-circle text-info ms-2 @(isSimpleMode ? "" : "")"
                                   style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
                                   title="What is this?"
                                   @onclick="() => showTipInclude = !showTipInclude"></span>
@@ -504,32 +622,47 @@
 
                     @if (NewItemIncludeInRetirement)
                     {
-                        @* Retirement Adjustment *@
-                        <div class="mt-3">
-                            <label class="form-label d-flex align-items-center">
-                                <span>Retirement Adjustment</span>
-                                <span class="bi bi-info-circle text-info ms-2"
-                                      style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
-                                      title="What is this?"
-                                      @onclick="() => showTipAdjust = !showTipAdjust"></span>
-                            </label>
-                            <select class="form-select" @bind="NewItemAdjustOption">
-                                <option value="Same">Same</option>
-                                <option value="CustomPercentage">Custom %</option>
-                                <option value="Manual">Manual</option>
-                                <option value="Inflation">Inflation</option>
-                            </select>
-                            @if (showTipAdjust)
-                            {
-                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
-                                    Choose how this item changes at retirement: keep the same, apply a custom percent,
-                                    enter a manual retirement amount, or grow by inflation.
-                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAdjust = false">
-                                        <span class="bi bi-x-lg"></span>
-                                    </span>
+                        @if (isSimpleMode)
+                        {
+                            <!-- Simple mode: Default to inflation adjustment -->
+                            <div class="mt-3">
+                                <div class="alert alert-light py-2 px-3 border">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        This cost will grow with inflation (@InflationRate% per year) until retirement.
+                                    </small>
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @* Advanced mode: Full retirement adjustment options *@
+                            <div class="mt-3">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>Retirement Adjustment</span>
+                                    <span class="bi bi-info-circle text-info ms-2"
+                                          style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                          title="What is this?"
+                                          @onclick="() => showTipAdjust = !showTipAdjust"></span>
+                                </label>
+                                <select class="form-select" @bind="NewItemAdjustOption">
+                                    <option value="Same">Same</option>
+                                    <option value="CustomPercentage">Custom %</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Inflation">Inflation</option>
+                                </select>
+                                @if (showTipAdjust)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        Choose how this item changes at retirement: keep the same, apply a custom percent,
+                                        enter a manual retirement amount, or grow by inflation.
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAdjust = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        }
 
                         @* Custom % *@
                         @if (NewItemAdjustOption == "CustomPercentage")
@@ -655,11 +788,33 @@
 @if (showDetailsModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.25); z-index:2000;" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Item Details</h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDetailsModal"></button>
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title mb-0">@(isSimpleMode ? "Expense Details" : "Item Details")</h5>
+                    
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Large Mode Toggle in Edit Modal -->
+                        <div class="modal-mode-toggle d-flex align-items-center gap-3">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary mb-1">
+                                    @(isSimpleMode ? "🎯 Simple Mode" : "⚙️ Advanced Mode")
+                                </div>
+                                <small class="text-muted">
+                                    @(isSimpleMode ? "Easy & basic" : "All features")
+                                </small>
+                            </div>
+                            <div class="form-check form-switch form-check-modal-lg">
+                                <input class="form-check-input" type="checkbox" id="editModalModeToggle" 
+                                       checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                                <label class="form-check-label" for="editModalModeToggle" style="cursor: pointer;">
+                                    @(isSimpleMode ? "Enable Advanced" : "Simplify")
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDetailsModal"></button>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -674,7 +829,7 @@
                         }
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Frequency</label>
+                        <label class="form-label">@(isSimpleMode ? "How Often" : "Frequency")</label>
                         @if (detailsEditMode)
                         {
                             <select class="form-select" @bind="modalFrequency">
@@ -841,9 +996,8 @@
         </div>
 
         <!-- Center column (8) - main planner content -->
-        <div class="col-12 col-md-8">
-            <h4 class="text-center">Cost of Living Projection</h4>
-            <p class="text-muted">Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.</p>
+        <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">
+            <p class="text-muted mb-3">@(isSimpleMode ? "List your monthly expenses to see how they'll grow by retirement." : "Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.")</p>
 
             @* <b>Multi-city and City tiered plan coming soon</b> *@
             <!-- Save status indicator -->
@@ -902,12 +1056,74 @@
 
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
             <div class="tab-panel-box position-relative">
+                <!-- Mode Toggle positioned to the left of Show Intro button -->
+                <div class="position-absolute d-flex align-items-center gap-3" style="top: 10px; right: 120px; z-index: 100;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size: 1rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
+                        <span class="fw-bold small @(isSimpleMode ? "text-success" : "text-primary")">
+                            @(isSimpleMode ? "Beginner" : "Advanced")
+                        </span>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="compactModeToggle" 
+                               checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                        <label class="form-check-label small fw-bold ms-1" for="compactModeToggle" style="cursor: pointer;">
+                            @(isSimpleMode ? "Advanced" : "Simple")
+                        </label>
+                    </div>
+                </div>
+                
                 <!-- Show Intro button in top-right corner -->
                 <button class="btn btn-sm btn-warning position-absolute"
                         style="top: 10px; right: 10px; z-index: 100;"
                         @onclick="ShowIntroWithReset">
                     <i class="bi bi-info-circle me-1"></i> Show Intro
                 </button>
+
+                <!-- Beginner-Friendly Onboarding (Simple Mode Only) - 4x Bigger -->
+                @if (isSimpleMode && (!Items?.Any() ?? true))
+                {
+                    <div class="alert alert-primary border-0 mb-6" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); padding: 4rem 3rem; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-lightbulb-fill text-primary me-5" style="font-size: 4rem; margin-top: 8px;"></i>
+                            <div class="w-100">
+                                <div class="d-flex align-items-center gap-4 mb-5">
+                                    <h2 class="text-primary mb-0 display-6">Plan Your Future Living Costs</h2>
+                                    <span class="badge bg-primary px-4 py-2 fs-6">Beginner Mode</span>
+                                </div>
+                                <p class="mb-6 text-dark fs-4 lh-base">Let's figure out how much you'll spend in retirement. We'll start with your current expenses and project them forward.</p>
+                                <div class="row g-5 mb-6">
+                                    <div class="col-md-6">
+                                        <div class="card border-primary border-opacity-25 h-100 shadow-sm">
+                                            <div class="card-body text-center py-6">
+                                                <i class="bi bi-1-circle-fill text-primary mb-4" style="font-size: 4rem;"></i>
+                                                <h4 class="mb-4 text-primary">Add Your Expenses</h4>
+                                                <p class="mb-0 text-muted fs-5">List what you spend money on monthly</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-primary border-opacity-25 h-100 shadow-sm">
+                                            <div class="card-body text-center py-6">
+                                                <i class="bi bi-2-circle-fill text-primary mb-4" style="font-size: 4rem;"></i>
+                                                <h4 class="mb-4 text-primary">See Future Costs</h4>
+                                                <p class="mb-0 text-muted fs-5">We'll project your retirement expenses</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-4 justify-content-center">
+                                    <button class="btn btn-primary btn-lg px-5 py-4 fs-5 fw-bold" @onclick="StartWithCommonExpenses">
+                                        <i class="bi bi-lightning-fill me-3"></i>Start with Common Expenses
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-lg px-5 py-4 fs-5 fw-bold" @onclick="StartFromScratch">
+                                        <i class="bi bi-pencil me-3"></i>Start from Scratch
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <!-- Planner Controls Strip -->
 
                 <div class="section-card">
@@ -1173,20 +1389,23 @@
                                     <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                 </button>
                                 <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
-                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
-                                <span class="bi bi-info-circle text-info me-2"
+                                <span class="bi bi-info-circle text-info me-2 @(isSimpleMode ? "" : "")"
                                       style="cursor: pointer; font-size: .95rem;"
                                       title="What is this?"
                                       @onclick:stopPropagation="true"
                                       @onclick="() => ToggleCatInfo(groupKey)"></span>
-                                <span class="small text-muted d-none d-md-inline" title="Current total">Current: @FormatCurrency(groupCurrentTotal)</span>
-                                <span class="small text-muted ms-2 d-none d-md-inline" title="Retirement total">Retirement: @FormatCurrency(groupRetirementTotal)</span>
+                                <span class="small text-muted d-none d-md-inline" title="@(isSimpleMode ? "Current monthly total" : "Current total")">
+                                    @(isSimpleMode ? "Monthly" : "Current"): @FormatCurrency(groupCurrentTotal)
+                                </span>
+                                <span class="small text-muted ms-2 d-none d-md-inline" title="@(isSimpleMode ? "Future monthly total" : "Retirement total")">
+                                    @(isSimpleMode ? "Future" : "Retirement"): @FormatCurrency(groupRetirementTotal)
+                                </span>
 
                                 <div class="ms-auto d-flex gap-2 align-items-center">
-                                    <button class="btn btn-success btn-sm" title="Add item" @onclick:stopPropagation="true" @onclick="() => OpenAddItemModal(groupKey)">
-                                        <span class="bi bi-plus"></span> Add Item
+                                    <button class="btn btn-success btn-sm" title="@(isSimpleMode ? "Add expense" : "Add item")" @onclick:stopPropagation="true" @onclick="() => OpenAddItemModal(groupKey)">
+                                        <span class="bi bi-plus"></span> @(isSimpleMode ? "Add Expense" : "Add Item")
                                     </button>
-                                    <span class="bi bi-info-circle text-info"
+                                    <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
                                           style="cursor: pointer; font-size: .95rem;"
                                           title="What is this?"
                                           @onclick:stopPropagation="true"
@@ -1218,14 +1437,22 @@
                                         <thead>
                                             <tr>
                                                 <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
-                                                <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">Item</th>
-                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Frequency<br /><span class="small">(Units)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Unit<br /><span class="small">($)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">Per Month<br /><span class="small">($)</span></th>
-                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">Include In<br /><span class="small">Retirement</span></th>
-                                                <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
-                                                <th class="fw-bold text-center align-middle" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">Retirement<br /><span class="small">Value</span></th>
+                                                <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">
+                                                    @(isSimpleMode ? "Expense" : "Item")
+                                                </th>
+                                                <th class="fw-bold text-center align-middle complex-column" style="width:120px; font-weight: bold !important;">@(isSimpleMode ? "How Often" : "Frequency")<br /><span class="small">@(isSimpleMode ? "" : "(Units)")</span></th>
+                                                <th class="fw-bold text-end align-middle complex-column" style="width:140px; font-weight: bold !important;">@(isSimpleMode ? "Amount" : "Per Unit")<br /><span class="small">($)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">
+                                                    @(isSimpleMode ? "Monthly Cost" : "Per Month")<br /><span class="small">($)</span>
+                                                </th>
+                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">
+                                                    @(isSimpleMode ? "Retirement?" : "Include In")<br /><span class="small">@(isSimpleMode ? "" : "Retirement")</span>
+                                                </th>
+                                                <th class="fw-bold text-center align-middle complex-column" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
+                                                <th class="fw-bold text-center align-middle complex-column" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
+                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">
+                                                    @(isSimpleMode ? "Future Cost" : "Retirement")<br /><span class="small">@(isSimpleMode ? "($)" : "Value")</span>
+                                                </th>
                                             </tr>
                                         </thead>
 
@@ -1242,23 +1469,37 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-left align-middle">@item.Subcategory</td>
-                                                    <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
+                                                    <td class="text-center align-middle complex-column" style="width:120px;">@item.Frequency</td>
 
-                                                    <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                                                    <td class="text-end align-middle complex-column" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
                                                     <td class="text-end align-middle" style="width:140px;">
                                                         <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                                                     </td>
                                                     <td class="text-center align-middle" style="width:60px;">
                                                         @if (item.IncludeInRetirement)
                                                         {
-                                                            <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
+                                                            @if (isSimpleMode)
+                                                            {
+                                                                <span class="badge bg-success">Yes</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
+                                                            }
                                                         }
                                                         else
                                                         {
-                                                            <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
+                                                            @if (isSimpleMode)
+                                                            {
+                                                                <span class="badge bg-secondary">No</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
+                                                            }
                                                         }
                                                     </td>
-                                                    <td class="text-center align-middle" style="width:320px;">
+                                                    <td class="text-center align-middle complex-column" style="width:320px;">
                                                         @if (item.IncludeInRetirement)
                                                         {
                                                             @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
@@ -1279,7 +1520,7 @@
                                                             }
                                                         }
                                                     </td>
-                                                    <td class="text-center align-middle" style="width:160px;">
+                                                    <td class="text-center align-middle complex-column" style="width:160px;">
                                                         @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
                                                         {
                                                             @if (@item.PerItemInflationSource == InflationSource.UseGlobal)
@@ -1301,12 +1542,12 @@
                                                         <div class="d-flex align-items-center gap-2 justify-content-end">
                                                             <button class="btn btn-sm btn-outline-primary px-2 py-1"
                                                                     style="font-size:0.92rem; white-space:nowrap;"
-                                                                    title="View or edit this item"
+                                                                    title="@(isSimpleMode ? "Edit this expense" : "View or edit this item")"
                                                                     @onclick="() => OpenEditItemModal(idx)">
                                                                 <i class="bi bi-pencil-square me-1"></i>
-                                                                <span class="d-none d-md-inline">View/Edit</span>
+                                                                <span class="d-none d-md-inline">@(isSimpleMode ? "Edit" : "View/Edit")</span>
                                                             </button>
-                                                            <span class="bi bi-info-circle text-info"
+                                                            <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
                                                                   style="cursor: pointer; font-size: .95rem;"
                                                                   title="What is this?"
                                                                   @onclick="() => ToggleViewEditInfo(idx)"></span>
@@ -1588,6 +1829,15 @@
 </div>
 
 @code {
+    // Simple Mode Toggle
+    private bool isSimpleMode = true; // Start in beginner mode by default
+    
+    private void ToggleSimpleMode()
+    {
+        isSimpleMode = !isSimpleMode;
+        StateHasChanged();
+    }
+
     // Ghost tab creation modal state
 
     // Returns true if the Add Category button should be disabled
@@ -1690,7 +1940,48 @@
     {
         showIntroModal = false;
         StateHasChanged();
+    }
 
+    // Onboarding Methods for Simple Mode
+    private async Task StartWithCommonExpenses()
+    {
+        // Load preset common expense categories
+        Items = GetCommonExpensePreset();
+        RecalculateAll(save: true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task StartFromScratch()
+    {
+        // Clear any existing items and let user build from scratch
+        Items = new List<CostItem>();
+        RecalculateAll(save: true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private List<CostItem> GetCommonExpensePreset()
+    {
+        return new List<CostItem>
+        {
+            // Housing
+            new CostItem { Category = "Housing", Subcategory = "Rent/Mortgage", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 2000, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
+            new CostItem { Category = "Housing", Subcategory = "Utilities", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
+            
+            // Food
+            new CostItem { Category = "Food", Subcategory = "Groceries", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 600, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
+            new CostItem { Category = "Food", Subcategory = "Dining Out", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 300, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 75 },
+            
+            // Transportation
+            new CostItem { Category = "Transportation", Subcategory = "Car Payment", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 400, IncludeInRetirement = false },
+            new CostItem { Category = "Transportation", Subcategory = "Gas & Maintenance", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 50 },
+            
+            // Healthcare
+            new CostItem { Category = "Healthcare", Subcategory = "Insurance Premiums", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 300, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Inflation, PerItemInflationSource = InflationSource.Custom, PerItemInflationPercent = 4 },
+            
+            // Personal
+            new CostItem { Category = "Personal", Subcategory = "Entertainment", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
+            new CostItem { Category = "Personal", Subcategory = "Clothing", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 100, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 75 }
+        };
     }
 
 
@@ -2961,13 +3252,6 @@
         StateHasChanged();
     }
 
-    private void StartFromScratch()
-    {
-        Items = StandardCostCategories.GetBlankDefaults();
-        ScheduleAutosave();
-        StateHasChanged();
-    }
-
     private bool showIntroModal = true; // Show by default unless user has opted out
     private bool dontShowIntroAgain = false;
 
@@ -3035,6 +3319,24 @@
     private void AddItemModalSave()
     {
         if (IsAddItemDisabled) return;
+
+        // Set defaults for simple mode
+        if (isSimpleMode)
+        {
+            // Use sensible defaults for beginners
+            if (string.IsNullOrEmpty(NewItemFrequency))
+            {
+                NewItemFrequency = "Monthly";
+            }
+            if (string.IsNullOrEmpty(NewItemAdjustOption))
+            {
+                NewItemAdjustOption = "Inflation";
+            }
+            if (string.IsNullOrEmpty(NewItemPerItemInflationSource))
+            {
+                NewItemPerItemInflationSource = "UseGlobal";
+            }
+        }
 
         if (!Enum.TryParse<Frequency>(NewItemFrequency, out var freq))
             freq = Frequency.Monthly;

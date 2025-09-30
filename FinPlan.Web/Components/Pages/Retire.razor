@@ -199,6 +199,17 @@
                                 padding-top: 6px;
                             } */
 
+    .btn-update {
+        background: #1F6FEB;
+        color: #ffffff;
+        border: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    
+    /* Keep old class name for backward compatibility */
     .btn-edit {
         background: #1F6FEB;
         color: #ffffff;
@@ -422,6 +433,52 @@
             min-width: 900px;
         }
     }
+
+    /* Large Mode Toggle Styles - Same as Cost of Living */
+    .form-switch .form-check-input {
+        transition: all 0.2s ease;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .form-switch .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+    }
+
+    /* Large form switch for prominent toggle */
+    .form-switch-lg .form-check-input {
+        width: 3rem !important;
+        height: 1.5rem !important;
+        background-color: #6c757d;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .form-switch-lg .form-check-input:checked {
+        background-color: #0d6efd;
+        box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+    }
+    
+    .form-switch-lg .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .mode-toggle-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .simple-mode .mode-toggle-header {
+        background: linear-gradient(135deg, #d1e7dd 0%, #a3cfbb 100%);
+        border-bottom: 2px solid #75b798;
+    }
 </style>
 
 <div class="container-wire">
@@ -503,53 +560,172 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
+
                     <div class="projection-cards">
-                        <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
-                             style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                            <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                            <div class="card-label" style="font-weight:700; color:#fff;">Projection range</div>
-                            <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetProjectionRangeText()</div>
-                        </div>
+                        @if (isSimpleMode)
+                        {
+                            <!-- Simplified macro cards for beginners -->
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Retirement timeline"
+                                 style="background: #FFD600; color: #333; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                <span class="bi bi-calendar-heart" style="font-size:2rem; margin-bottom:8px; color:#333;"></span>
+                                <div class="card-label" style="font-weight:700; color:#333;">Your Retirement Plan</div>
+                                <div class="card-value" style="font-size:1.1rem; color:#333;">@GetProjectionRangeText()</div>
+                                <small class="text-muted mt-1 text-center">Planning period for your retirement</small>
+                            </div>
 
-                        <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
-                             style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                            <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                            <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
-                            <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
-                        </div>
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Money status"
+                                 style="background: @(GetDepletionText().Contains("Never") ? "#38B2AC" : "#F56565"); color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                <span class="bi @(GetDepletionText().Contains("Never") ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Money Status</div>
+                                <div class="card-value" style="font-size:1.1rem; color:#fff;">
+                                    @(GetDepletionText().Contains("Never") ? "✓ Looks Good" : "⚠ Needs Attention")
+                                </div>
+                                <small class="text-white-50 mt-1 text-center">
+                                    @(GetDepletionText().Contains("Never") ? "Your money should last" : "You may run short")
+                                </small>
+                            </div>
 
-                        <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
-                             style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                            <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                            <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
-                            <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
-                        </div>
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Final amount remaining"
+                                 style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
+                                <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Money Left Over</div>
+                                <div class="card-value" style="font-size:1.1rem; color:#fff;">@GetFinalPortfolioText()</div>
+                                <small class="text-white-50 mt-1 text-center">Estimated at end of plan</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Advanced macro cards (original) -->
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
+                                 style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Projection range</div>
+                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetProjectionRangeText()</div>
+                            </div>
 
-                        <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
-                             style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                            <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                            <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
-                            <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
-                        </div>
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
+                                 style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
+                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
+                            </div>
 
-                        <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
-                             style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                            <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                            <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
-                            <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
-                        </div>
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
+                                 style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
+                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
+                            </div>
+
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
+                                 style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
+                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
+                            </div>
+
+                            <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
+                                 style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
+                                <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
+                            </div>
+                        }
                     </div>
+
+                    <!-- Beginner Help Section (Simple Mode Only) -->
+                    @if (isSimpleMode && (Model == null || Model.IsModelEmpty()))
+                    {
+                        <div class="alert alert-primary border-0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); margin-bottom: 20px;">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-lightbulb-fill text-primary me-3" style="font-size: 1.5rem; margin-top: 2px;"></i>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <h6 class="text-primary mb-0">New to Retirement Planning?</h6>
+                                        <span class="badge bg-primary px-2 py-1 small">Beginner Mode</span>
+                                    </div>
+                                    <p class="mb-2 text-dark">This tool helps you see if your savings will last through retirement. Here's what you'll need:</p>
+                                    <ul class="mb-3 text-dark">
+                                        <li><strong>Your retirement age</strong> - When you plan to stop working</li>
+                                        <li><strong>Your savings</strong> - How much you have in retirement accounts</li>
+                                        <li><strong>Your expenses</strong> - How much you'll spend each year in retirement</li>
+                                        <li><strong>Social Security</strong> - Your estimated monthly benefit (optional)</li>
+                                    </ul>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm" @onclick="() => OpenWizard(1)">
+                                            <i class="bi bi-play-fill me-1"></i>Start Planning
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" @onclick="() => showSampleDataModal = true">
+                                            <i class="bi bi-eye me-1"></i>See Example
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Setup Progress Indicator -->
+                    @if (isSimpleMode)
+                    {
+                        <div class="card border-0 mb-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-list-check text-primary me-2" style="font-size: 1.2rem;"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-primary">Setup Progress</h6>
+                                            <small class="text-muted">@GetSetupProgressText()</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-3" style="width: 120px; height: 6px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                 style="width: @(GetSetupProgressPercentage())%" 
+                                                 aria-valuenow="@GetSetupProgressPercentage()" 
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="badge bg-primary">@GetSetupProgressPercentage()%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
 
                     <!-- Complete State - Normal View -->
                     <div class="panel section-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
-                            <div style="flex: 1;"></div>
-                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
-                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end;">
-                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
-                                    Edit Plan
-                                </button>
+                        <!-- Prominent Mode Toggle Header - Same as Cost of Living -->
+                        <div class="mode-toggle-header @(isSimpleMode ? "simple-mode" : "")">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="mb-1">@(isSimpleMode ? "Your Retirement Plan Details" : "Plan Input Data")</h4>
+                                    <p class="text-muted mb-0 small">@(isSimpleMode ? "Simple planning for your retirement future" : "Advanced retirement modeling with detailed projections")</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="text-end">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span style="font-size: 1.2rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
+                                            <span class="fw-bold @(isSimpleMode ? "text-success" : "text-primary")">
+                                                @(isSimpleMode ? "Beginner Mode" : "Advanced Mode")
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            @(isSimpleMode ? "Simple & easy to use" : "All features & controls")
+                                        </small>
+                                    </div>
+                                    <div class="border-start ps-4 d-flex align-items-center gap-3">
+                                        <div class="form-check form-switch form-switch-lg">
+                                            <input class="form-check-input" type="checkbox" id="prominentModeToggle" 
+                                                   checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                                            <label class="form-check-label fw-bold ms-2" for="prominentModeToggle" style="cursor: pointer;">
+                                                @(isSimpleMode ? "Enable Advanced Features" : "Simplify Interface")
+                                            </label>
+                                        </div>
+                                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                            <i class="bi bi-gear me-2"></i>
+                                            Update Plan
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -561,12 +737,12 @@
                                     <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                                         <div style="display:flex; align-items:center; gap:8px;">
                                             <span class="step-badge">1</span>
-                                            <div>Retirement ages & life expectancy</div>
+                                            <div>@(isSimpleMode ? "When You'll Retire" : "Retirement ages & life expectancy")</div>
                                         </div>
                                         @if (!IsRetirementAgesSectionComplete())
                                         {
                                             <span style="font-size:0.75rem; color:#dc3545;">
-                                                <i class="bi bi-exclamation-circle"></i> Required fields missing
+                                                <i class="bi bi-exclamation-circle"></i> @(isSimpleMode ? "Needed" : "Required fields missing")
                                             </span>
                                         }
                                     </div>
@@ -660,7 +836,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Update</button>
                                 </div>
                             </div>
 
@@ -671,12 +847,12 @@
                                     <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                                         <div style="display:flex; align-items:center; gap:8px;">
                                             <span class="step-badge">2</span>
-                                            <div>Starting Balances & Returns</div>
+                                            <div>@(isSimpleMode ? "Your Savings & Growth" : "Starting Balances & Returns")</div>
                                         </div>
                                         @if (!IsStartingBalancesSectionComplete())
                                         {
                                             <span style="font-size:0.75rem; color:#dc3545;">
-                                                <i class="bi bi-exclamation-circle"></i> At least one account required
+                                                <i class="bi bi-exclamation-circle"></i> @(isSimpleMode ? "Need at least one account" : "At least one account required")
                                             </span>
                                         }
                                     </div>
@@ -785,7 +961,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(2)">Update</button>
                                 </div>
                             </div>
 
@@ -874,7 +1050,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(3)">Update</button>
                                 </div>
                             </div>
 
@@ -925,7 +1101,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(4)">Update</button>
                                 </div>
                             </div>
 
@@ -991,7 +1167,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(5)">Update</button>
                                 </div>
                             </div>
 
@@ -1061,7 +1237,7 @@
                                     </div>
                                 </div>
                                 <div class="actions">
-                                    <button class="btn-edit" @onclick="() => OpenWizard(6)">Edit</button>
+                                    <button class="btn-edit" @onclick="() => OpenWizard(6)">Update</button>
                                 </div>
                             </div>
                         </div>
@@ -1166,13 +1342,24 @@
     <!-- Yearly Projection Grid -->
     <div class="grid-panel panel">
         <div class="grid-header">
-            <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
+            <div style="font-weight:800; font-size:1rem;">
+                @(isSimpleMode ? "Year-by-Year Retirement Plan" : "Yearly Projection")
+            </div>
             @if (!Model.IsModelEmpty())
             {
                 <div class="legend">
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+                    @if (isSimpleMode)
+                    {
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Important Year</small></div>
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Money Growing</small></div>
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Running Low</small></div>
+                    }
+                    else
+                    {
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
+                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+                    }
                 </div>
             }
         </div>
@@ -1182,13 +1369,22 @@
             <!-- Empty State Message for Grid -->
             <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
                 <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
-                <h5 style="color: #495057; margin-bottom: 12px;">No Projection Available</h5>
-                <p style="margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
-                    Complete your retirement plan setup to see year-by-year projections of your income and account balances.
+                <h5 style="color: #495057; margin-bottom: 12px;">
+                    @(isSimpleMode ? "Ready to Start Planning?" : "No Projection Available")
+                </h5>
+                <p style="margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    @if (isSimpleMode)
+                    {
+                        @:Let's create your retirement plan! We'll ask you a few simple questions about when you want to retire, how much you've saved, and what you expect to spend. Then we'll show you year-by-year how your money will last.
+                    }
+                    else
+                    {
+                        @:Complete your retirement plan setup to see year-by-year projections of your income and account balances.
+                    }
                 </p>
                 <button class="btn btn-primary" @onclick="() => OpenWizard(1)">
                     <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                    Get Started
+                    @(isSimpleMode ? "Start My Plan" : "Get Started")
                 </button>
             </div>
         }
@@ -1227,8 +1423,29 @@
                     </div>
                     <!-- Actual table with bottom scrollbar -->
 
-                    <!-- Retirement input wizard: shown when _isDataAvaiableForTheUser is true -->
-                    <RetirementProjection Model="@Model"/>
+                    <!-- Retirement Projection with Simple/Advanced Mode Support -->
+                    @if (isSimpleMode)
+                    {
+                        <!-- Simple Mode: Show beginner-friendly summary first -->
+                        <div class="alert alert-light border-primary mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle text-primary me-3" style="font-size: 1.2rem; margin-top: 3px;"></i>
+                                <div>
+                                    <h6 class="text-primary mb-2">Your Retirement Plan Summary</h6>
+                                    <p class="mb-2 text-dark">
+                                        <strong>What this shows:</strong> Each row represents one year of your retirement. 
+                                        You'll see your age, how much money you need, where it comes from, and how much you have left.
+                                    </p>
+                                    <p class="mb-0 text-dark">
+                                        <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year. 
+                                        The goal is to avoid running out of money before your life expectancy.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                    <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode"/>
                     
                 </div>
             </div>
@@ -1252,6 +1469,78 @@
         </div>
     </div>
 
+    <!-- Methodology Explanation (Simple Mode) -->
+    @if (isSimpleMode)
+    {
+        <div class="mt-3 p-3" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;">
+            <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <div style="color: #0369a1; margin-top: 2px;">
+                    <i class="bi bi-lightbulb" style="font-size: 1.1rem;"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 600; color: #0369a1; margin-bottom: 8px;">How This Retirement Calculator Works</div>
+                    <div style="font-size: 0.9rem; color: #0369a1; line-height: 1.4;">
+                        <p style="margin-bottom: 8px;"><strong>1. Your Income Needs:</strong> We calculate how much money you'll need each year in retirement based on your expected cost of living.</p>
+                        <p style="margin-bottom: 8px;"><strong>2. Income Sources:</strong> We add up all your income sources (Social Security, reverse mortgage payments) to see how much outside income you'll have.</p>
+                        <p style="margin-bottom: 8px;"><strong>3. Portfolio Withdrawals:</strong> If your income sources don't cover all expenses, we withdraw the difference from your investment accounts in tax-efficient order: Taxable first, then Traditional, then Roth.</p>
+                        <p style="margin-bottom: 8px;"><strong>4. Growth & Taxes:</strong> Your remaining money grows each year, but we also calculate taxes on withdrawals from Traditional accounts and investment growth.</p>
+                        <p style="margin-bottom: 0;"><strong>5. Year-by-Year Projection:</strong> We repeat this process for each year of retirement to show you when you might run out of money.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Items for Problems (Simple Mode) -->
+        @if (!GetDepletionText().Contains("Never"))
+        {
+            <div class="mt-3 p-3" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <div style="color: #dc2626; margin-top: 2px;">
+                        <i class="bi bi-exclamation-circle" style="font-size: 1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: #dc2626; margin-bottom: 8px;">Your Plan Needs Attention</div>
+                        <p style="font-size: 0.9rem; color: #dc2626; margin-bottom: 8px;">Based on your current plan, you may run short of money during retirement. Here are some options to consider:</p>
+                        <ul style="font-size: 0.9rem; color: #dc2626; line-height: 1.4; margin-bottom: 8px;">
+                            <li><strong>Save More Now:</strong> Increase your retirement contributions while you're still working</li>
+                            <li><strong>Work Longer:</strong> Delay retirement by a few years to build more savings</li>
+                            <li><strong>Reduce Expenses:</strong> Plan to spend less in retirement</li>
+                            <li><strong>Delay Social Security:</strong> Waiting until age 70 increases your monthly benefit</li>
+                            <li><strong>Consider Part-Time Work:</strong> Small income in early retirement can make a big difference</li>
+                        </ul>
+                        <div style="font-size: 0.85rem; color: #991b1b; font-style: italic;">
+                            💡 Even small changes can have a big impact over time. Consider speaking with a financial advisor for personalized strategies.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="mt-3 p-3" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <div style="color: #16a34a; margin-top: 2px;">
+                        <i class="bi bi-check-circle" style="font-size: 1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 8px;">Your Plan Looks Good!</div>
+                        <p style="font-size: 0.9rem; color: #16a34a; margin-bottom: 8px;">Based on your current plan, your money should last through retirement. Here are some tips to stay on track:</p>
+                        <ul style="font-size: 0.9rem; color: #16a34a; line-height: 1.4; margin-bottom: 8px;">
+                            <li><strong>Review Annually:</strong> Update your plan each year as circumstances change</li>
+                            <li><strong>Monitor Market Performance:</strong> Actual returns may differ from projections</li>
+                            <li><strong>Plan for Healthcare:</strong> Medical costs can increase significantly in retirement</li>
+                            <li><strong>Consider Inflation:</strong> Make sure your plan accounts for rising costs over time</li>
+                            <li><strong>Build in Buffers:</strong> Having extra cushion helps handle unexpected expenses</li>
+                        </ul>
+                        <div style="font-size: 0.85rem; color: #15803d; font-style: italic;">
+                            💡 Remember, this is just a projection. Regular reviews and adjustments help keep you on track.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
     <!-- Important Disclaimers -->
     <div class="mt-3 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
         <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -1259,14 +1548,26 @@
                 <i class="bi bi-exclamation-triangle" style="font-size: 1.1rem;"></i>
             </div>
             <div>
-                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">Important Disclaimers</div>
+                <div style="font-weight: 600; color: #856404; margin-bottom: 8px;">
+                    @(isSimpleMode ? "Important Things to Remember" : "Important Disclaimers")
+                </div>
                 <div style="font-size: 0.9rem; color: #856404; line-height: 1.4;">
-                    <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational and planning purposes only. Results are estimates based on your inputs and assumptions. This is not personalized financial, tax, or investment advice.</p>
-                    <p style="margin-bottom: 8px;"><strong>Social Security Taxation:</strong> Social Security benefits may be taxable based on your combined income thresholds. This calculator may not fully account for the complex taxation rules applied to Social Security benefits.</p>
-                    <p style="margin-bottom: 8px;"><strong>Market Risk:</strong> Actual investment returns will vary and may be negative. Past performance does not guarantee future results. Market conditions, economic changes, and other factors can significantly impact outcomes.</p>
-                    <p style="margin-bottom: 8px;"><strong>Tax Considerations:</strong> Tax laws are complex and subject to change. This calculator uses simplified tax calculations that may not reflect your actual tax situation, including state taxes, tax bracket changes, or future legislation.</p>
-                    <p style="margin-bottom: 8px;"><strong>Health Care Costs:</strong> Medicare premiums, long-term care, and rising healthcare costs are not specifically modeled and could significantly impact your retirement expenses.</p>
-                    <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial, tax, and legal professionals who can provide personalized advice based on your complete financial situation.</p>
+                    @if (isSimpleMode)
+                    {
+                        <p style="margin-bottom: 8px;"><strong>This is Not Financial Advice:</strong> This tool helps you explore different scenarios, but it's not personalized advice. Always consult with a financial advisor for your specific situation.</p>
+                        <p style="margin-bottom: 8px;"><strong>Results Are Estimates:</strong> Real life is unpredictable. Market returns, inflation, taxes, and your actual expenses may be different than projected.</p>
+                        <p style="margin-bottom: 8px;"><strong>Healthcare Costs:</strong> Medical expenses often increase significantly in retirement and aren't fully captured in this calculation.</p>
+                        <p style="margin-bottom: 0;"><strong>Get Professional Help:</strong> Consider working with a financial advisor, tax professional, or estate planning attorney for comprehensive planning.</p>
+                    }
+                    else
+                    {
+                        <p style="margin-bottom: 8px;"><strong>Not Financial Advice:</strong> This tool is for educational and planning purposes only. Results are estimates based on your inputs and assumptions. This is not personalized financial, tax, or investment advice.</p>
+                        <p style="margin-bottom: 8px;"><strong>Social Security Taxation:</strong> Social Security benefits may be taxable based on your combined income thresholds. This calculator may not fully account for the complex taxation rules applied to Social Security benefits.</p>
+                        <p style="margin-bottom: 8px;"><strong>Market Risk:</strong> Actual investment returns will vary and may be negative. Past performance does not guarantee future results. Market conditions, economic changes, and other factors can significantly impact outcomes.</p>
+                        <p style="margin-bottom: 8px;"><strong>Tax Considerations:</strong> Tax laws are complex and subject to change. This calculator uses simplified tax calculations that may not reflect your actual tax situation, including state taxes, tax bracket changes, or future legislation.</p>
+                        <p style="margin-bottom: 8px;"><strong>Health Care Costs:</strong> Medicare premiums, long-term care, and rising healthcare costs are not specifically modeled and could significantly impact your retirement expenses.</p>
+                        <p style="margin-bottom: 0;"><strong>Professional Guidance:</strong> Consider consulting with qualified financial, tax, and legal professionals who can provide personalized advice based on your complete financial situation.</p>
+                    }
                 </div>
             </div>
         </div>
@@ -1289,6 +1590,15 @@
     });
 </script>
 @code {
+    // Simple Mode Toggle
+    private bool isSimpleMode = true; // Start in beginner mode by default
+    
+    private void ToggleSimpleMode()
+    {
+        isSimpleMode = !isSimpleMode;
+        StateHasChanged();
+    }
+    
     private int _wizardOpenStep = 1;
     private bool showClearConfirm = false;
     private bool showClearResult = false;
@@ -1610,5 +1920,49 @@
                 return r.Year;
         }
         return null;
+    }
+
+    // Progress Indicator Helper Methods
+    private int GetSetupProgressPercentage()
+    {
+        if (Model == null) return 0;
+        
+        int completed = 0;
+        int total = 6; // Total number of setup sections
+
+        // Section 1: Retirement ages & life expectancy
+        if (IsRetirementAgesSectionComplete()) completed++;
+        
+        // Section 2: Starting Balances & Returns  
+        if (IsStartingBalancesSectionComplete()) completed++;
+        
+        // Section 3: Social Security (optional, but count if has any data)
+        if (Model.SSYou > 0 || Model.SSPartner > 0) completed++;
+        else if (Model.SSYou == 0 && Model.SSPartner == 0) completed++; // Count as complete if explicitly set to 0
+        
+        // Section 4: Reverse Mortgage (optional, but count if has any data)
+        if (Model.ReverseMortgageStartYear > 0 || Model.ReverseMortgageMonthly > 0) completed++;
+        else completed++; // Count as complete since it's optional
+        
+        // Section 5: Cost of Living
+        if (Model.WithdrawalOne > 0 || Model.WithdrawalBoth > 0) completed++;
+        
+        // Section 6: Current Ages & Start Year
+        if (Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0 && Model.SimulationStartYear > 0) completed++;
+
+        return (int)Math.Round((completed * 100.0) / total);
+    }
+
+    private string GetSetupProgressText()
+    {
+        if (Model == null) return "No data entered yet";
+        
+        var percentage = GetSetupProgressPercentage();
+        
+        if (percentage == 0) return "Ready to get started";
+        if (percentage < 50) return "Getting started - add your basic information";
+        if (percentage < 80) return "Looking good - a few more details needed";
+        if (percentage < 100) return "Almost complete - just a couple more items";
+        return "Setup complete - ready to generate projections";
     }
 }
