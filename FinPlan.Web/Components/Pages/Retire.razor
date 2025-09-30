@@ -7,6 +7,7 @@
 @using Microsoft.AspNetCore.Components.Web
 
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
 
 @namespace FinPlan.Web.Components.Pages
 
@@ -80,6 +81,7 @@
         margin-right: auto;
         align-self: flex-start;
     }
+
     .missing-badge {
         background-color: rgba(220, 53, 69, 0.1);
         color: #dc3545;
@@ -192,12 +194,12 @@
             padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
     /* .section-card .actions {
-                                margin-top: auto;
-                                display: flex;
-                                justify-content: flex-start;
-                                gap: 8px;
-                                padding-top: 6px;
-                            } */
+                                    margin-top: auto;
+                                    display: flex;
+                                    justify-content: flex-start;
+                                    gap: 8px;
+                                    padding-top: 6px;
+                                } */
 
     .btn-update {
         background: #1F6FEB;
@@ -208,7 +210,7 @@
         cursor: pointer;
         font-weight: 600;
     }
-    
+
     /* Keep old class name for backward compatibility */
     .btn-edit {
         background: #1F6FEB;
@@ -359,21 +361,21 @@
     }
 
     /* .step-badge {
-                            width: 36px;
-                            height: 36px;
-                            min-width: 36px;
-                            border-radius: 50%;
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            background: var(--brand-yellow);
-                            color: #111;
-                            font-weight: 800;
-                            font-size: 1rem;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                            margin-right: 8px;
-                            flex-shrink: 0;
-                        } */
+                                width: 36px;
+                                height: 36px;
+                                min-width: 36px;
+                                border-radius: 50%;
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: var(--brand-yellow);
+                                color: #111;
+                                font-weight: 800;
+                                font-size: 1rem;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                margin-right: 8px;
+                                flex-shrink: 0;
+                            } */
 
     .empty-state {
         text-align: center;
@@ -438,15 +440,15 @@
     .form-switch .form-check-input {
         transition: all 0.2s ease;
     }
-    
-    .form-switch .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    
-    .form-switch .form-check-input:focus {
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
-    }
+
+        .form-switch .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+        }
 
     /* Large form switch for prominent toggle */
     .form-switch-lg .form-check-input {
@@ -456,15 +458,15 @@
         border: none;
         transition: all 0.3s ease;
     }
-    
-    .form-switch-lg .form-check-input:checked {
-        background-color: #0d6efd;
-        box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
-    }
-    
-    .form-switch-lg .form-check-input:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
+
+        .form-switch-lg .form-check-input:checked {
+            background-color: #0d6efd;
+            box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+        }
+
+        .form-switch-lg .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
 
     .mode-toggle-header {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -679,9 +681,9 @@
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <div class="progress me-3" style="width: 120px; height: 6px;">
-                                            <div class="progress-bar bg-primary" role="progressbar" 
-                                                 style="width: @(GetSetupProgressPercentage())%" 
-                                                 aria-valuenow="@GetSetupProgressPercentage()" 
+                                            <div class="progress-bar bg-primary" role="progressbar"
+                                                 style="width: @(GetSetupProgressPercentage())%"
+                                                 aria-valuenow="@GetSetupProgressPercentage()"
                                                  aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                         <span class="badge bg-primary">@GetSetupProgressPercentage()%</span>
@@ -700,31 +702,22 @@
                                     <h4 class="mb-1">@(isSimpleMode ? "Your Retirement Plan Details" : "Plan Input Data")</h4>
                                     <p class="text-muted mb-0 small">@(isSimpleMode ? "Simple planning for your retirement future" : "Advanced retirement modeling with detailed projections")</p>
                                 </div>
-                                <div class="d-flex align-items-center gap-4">
-                                    <div class="text-end">
-                                        <div class="d-flex align-items-center gap-2 mb-1">
-                                            <span style="font-size: 1.2rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
-                                            <span class="fw-bold @(isSimpleMode ? "text-success" : "text-primary")">
-                                                @(isSimpleMode ? "Beginner Mode" : "Advanced Mode")
-                                            </span>
-                                        </div>
-                                        <small class="text-muted">
-                                            @(isSimpleMode ? "Simple & easy to use" : "All features & controls")
-                                        </small>
+                                <div class="border-start ps-4 d-flex align-items-center gap-3">
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" id="prominentModeToggle"
+                                               checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                                        <label class="form-check-label fw-bold ms-2" for="prominentModeToggle" style="cursor: pointer;">
+                                            @(isSimpleMode ? "Enable Advanced Features" : "Simplify Interface")
+                                        </label>
                                     </div>
-                                    <div class="border-start ps-4 d-flex align-items-center gap-3">
-                                        <div class="form-check form-switch form-switch-lg">
-                                            <input class="form-check-input" type="checkbox" id="prominentModeToggle" 
-                                                   checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
-                                            <label class="form-check-label fw-bold ms-2" for="prominentModeToggle" style="cursor: pointer;">
-                                                @(isSimpleMode ? "Enable Advanced Features" : "Simplify Interface")
-                                            </label>
-                                        </div>
-                                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                            <i class="bi bi-gear me-2"></i>
-                                            Update Plan
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                        <i class="bi bi-gear me-2"></i>
+                                        Update Plan
+                                    </button>
+                                    <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data">
+                                        <i class="bi bi-trash me-1"></i>
+                                        Clear Plan Data
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1422,7 +1415,6 @@
                         <div style="width:1100px; height:1px;"></div>
                     </div>
                     <!-- Actual table with bottom scrollbar -->
-
                     <!-- Retirement Projection with Simple/Advanced Mode Support -->
                     @if (isSimpleMode)
                     {
@@ -1433,20 +1425,20 @@
                                 <div>
                                     <h6 class="text-primary mb-2">Your Retirement Plan Summary</h6>
                                     <p class="mb-2 text-dark">
-                                        <strong>What this shows:</strong> Each row represents one year of your retirement. 
+                                        <strong>What this shows:</strong> Each row represents one year of your retirement.
                                         You'll see your age, how much money you need, where it comes from, and how much you have left.
                                     </p>
                                     <p class="mb-0 text-dark">
-                                        <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year. 
+                                        <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year.
                                         The goal is to avoid running out of money before your life expectancy.
                                     </p>
                                 </div>
                             </div>
                         </div>
                     }
-                    
-                    <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode"/>
-                    
+
+                    <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode" />
+
                 </div>
             </div>
         }
@@ -1592,13 +1584,13 @@
 @code {
     // Simple Mode Toggle
     private bool isSimpleMode = true; // Start in beginner mode by default
-    
+
     private void ToggleSimpleMode()
     {
         isSimpleMode = !isSimpleMode;
         StateHasChanged();
     }
-    
+
     private int _wizardOpenStep = 1;
     private bool showClearConfirm = false;
     private bool showClearResult = false;
@@ -1922,31 +1914,80 @@
         return null;
     }
 
+    // Add this method to your @code section
+    private async Task ClearDataAsync()
+    {
+        try
+        {
+            string userGuid = string.Empty;
+
+            // Confirm with user before deleting
+            var confirm = await JSRuntime.InvokeAsync<bool>("confirm",
+            "Are you sure you want to clear all saved retirement plan data? This action cannot be undone.");
+
+            if (!confirm) return;
+
+            if (string.IsNullOrWhiteSpace(userGuid))
+            {
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            }
+
+            var apiBaseUrl = GetApiBaseUrl(); // You'll need to implement this based on your configuration
+            var calculatorType = "retirement_planner"; // Or whatever identifier you use for retirement data
+            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+
+            using var httpClient = new HttpClient(); // Or use your existing HTTP client service
+            var response = await httpClient.DeleteAsync(url);
+
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // Reload the page to reflect the cleared state
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Failed to clear data: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error clearing data: {ex.Message}");
+        }
+    }
+
+    // You'll need to implement these helper methods based on your existing services:
+    private async Task<string> GetCurrentUserGuidAsync()
+    {
+        // Implement based on your UserGuidService or similar service
+        // This should match how you handle user identification in the Savings page
+        throw new NotImplementedException("Implement based on your user service");
+    }
+
     // Progress Indicator Helper Methods
     private int GetSetupProgressPercentage()
     {
         if (Model == null) return 0;
-        
+
         int completed = 0;
         int total = 6; // Total number of setup sections
 
         // Section 1: Retirement ages & life expectancy
         if (IsRetirementAgesSectionComplete()) completed++;
-        
-        // Section 2: Starting Balances & Returns  
+
+        // Section 2: Starting Balances & Returns
         if (IsStartingBalancesSectionComplete()) completed++;
-        
+
         // Section 3: Social Security (optional, but count if has any data)
         if (Model.SSYou > 0 || Model.SSPartner > 0) completed++;
         else if (Model.SSYou == 0 && Model.SSPartner == 0) completed++; // Count as complete if explicitly set to 0
-        
+
         // Section 4: Reverse Mortgage (optional, but count if has any data)
         if (Model.ReverseMortgageStartYear > 0 || Model.ReverseMortgageMonthly > 0) completed++;
         else completed++; // Count as complete since it's optional
-        
+
         // Section 5: Cost of Living
         if (Model.WithdrawalOne > 0 || Model.WithdrawalBoth > 0) completed++;
-        
+
         // Section 6: Current Ages & Start Year
         if (Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0 && Model.SimulationStartYear > 0) completed++;
 
@@ -1956,9 +1997,9 @@
     private string GetSetupProgressText()
     {
         if (Model == null) return "No data entered yet";
-        
+
         var percentage = GetSetupProgressPercentage();
-        
+
         if (percentage == 0) return "Ready to get started";
         if (percentage < 50) return "Getting started - add your basic information";
         if (percentage < 80) return "Looking good - a few more details needed";
