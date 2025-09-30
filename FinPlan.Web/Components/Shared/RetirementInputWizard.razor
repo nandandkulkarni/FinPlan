@@ -117,11 +117,12 @@
                                         <div class="mb-3">
                                             <label class="form-label">Life Expectancy</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyYou), e.Value!)" />
+                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" 
+                                                @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyYou), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
                                         </div>
-                                        <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
+                                       @*  <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
                                             <div class="small text-center mb-1">Retirement Timeline</div>
                                             <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
                                                 <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (Model!.RetirementAgeYou - Model!.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%;">
@@ -138,7 +139,7 @@
                                                 Approx. @(Model!.RetirementAgeYou - Model!.CurrentAgeYou) years until retirement,
                                                 @(LifeExpectancyAgeYou - Model!.RetirementAgeYou) years in retirement
                                             </div>
-                                        </div>
+                                        </div> *@
                                     </div>
                                 </div>
                             </div>
@@ -177,7 +178,7 @@
                                             <div class="small-note">Leave as 0 if no partner or to use your life expectancy</div>
                                         </div>
 
-                                        <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
+                                    @*     <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
                                             @if (Model!.CurrentAgePartner > 0 && Model!.RetirementAgePartner > Model!.CurrentAgePartner)
                                             {
                                                 <div class="small text-center mb-1">Retirement Timeline</div>
@@ -200,79 +201,17 @@
                                                 <div class="text-muted text-center">
                                                     <i class="bi bi-person-dash"></i> No partner data entered
                                                 </div>
-                                            }
-                                        </div>
+                                            } 
+                                        </div>*@
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Overlay timeline showing retirement overlap -->
-                        <div class="card mb-3" style="border-top: 4px solid #059669;">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">
-                                    <i class="bi bi-calendar2-week me-2" style="color: #059669;"></i>
-                                    Combined Retirement Timeline
-                                </h5>
-                                        @if (Model!.CurrentAgePartner > 0 && Model!.RetirementAgePartner > 0 && Model!.RetirementAgeYou > 0)
-                                {
-                                    <div class="position-relative" style="height: 60px; background-color: #f8fafc; border-radius: 8px; padding: 10px;">
-                                        <!-- Your timeline -->
-                                        <div class="position-absolute" style="top: 15px; left: 0; right: 0;">
-                                                <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%;"></div>
-                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%; top: 0; height: 8px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou))%;"></div>
-                                            </div>
-                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model!.CurrentAgeYou, Model!.RetirementAgeYou)%; top: -15px; transform: translateX(-50%);">
-                                                <span class="badge bg-primary">You: @Model!.RetirementAgeYou</span>
-                                            </div>
-                                        </div>
+@*                         
 
-                                        <!-- Partner timeline -->
-                                        <div class="position-absolute" style="top: 35px; left: 0; right: 0;">
-                                                <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 8px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%;"></div>
-                                                <div class="retirement-period" style="position: absolute; left: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%; top: 0; height: 8px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner))%;"></div>
-                                            </div>
-                                            <div class="position-absolute" style="left: @GetTimelinePercentage(Model!.CurrentAgePartner, Model!.RetirementAgePartner)%; top: 15px; transform: translateX(-50%);">
-                                                <span class="badge bg-purple">Partner: @Model!.RetirementAgePartner</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Legend and explanation -->
-                                    <div class="d-flex justify-content-center mt-3">
-                                        <span class="me-3"><span class="badge" style="background-color: #2563EB">■</span> You working</span>
-                                        <span class="me-3"><span class="badge" style="background-color: #34D399">■</span> You retired</span>
-                                        <span class="me-3"><span class="badge" style="background-color: #8B5CF6">■</span> Partner working</span>
-                                        <span class="me-3"><span class="badge" style="background-color: #F472B6">■</span> Partner retired</span>
-                                    </div>
-
-                                    <div class="alert alert-info mt-3">
-                                        <i class="bi bi-info-circle-fill me-2"></i>
-                                        @if (GetOverlapYears() > 0)
-                                        {
-                                            <span>You will have approximately <strong>@GetOverlapYears() years</strong> where both of you are retired.</span>
-                                        }
-                                        else if (Model.RetirementAgeYou < Model.RetirementAgePartner)
-                                        {
-                                            <span>You will retire <strong>@(Model.RetirementAgePartner - Model.RetirementAgeYou) years</strong> before your partner.</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Your partner will retire <strong>@(Model.RetirementAgeYou - Model.RetirementAgePartner) years</strong> before you.</span>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="alert alert-light text-center">
-                                        Enter both your and your partner's information to see the combined retirement timeline.
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
+ *@                    }
                     else if (wizardStep == 2)
                     {
                         <label class="form-label mb-3">Starting Balances & Expected Returns</label>
@@ -386,181 +325,187 @@
                                     <h5 class="mb-0">Total Balance:</h5>
                                     <h4 class="mb-0" style="font-variant-numeric: tabular-nums;">@TotalStarting.ToString("C0")</h4>
                                 </div>
-
-                                @if (total > 0)
-                                {
-                                    <div class="progress" style="height: 20px; margin-bottom: 1rem;">
-                                        <div class="progress-bar" role="progressbar" style="width: @taxablePct%; background-color: #4299E1;" aria-valuenow="@taxablePct" aria-valuemin="0" aria-valuemax="100" title="Taxable: @taxablePct%"></div>
-                                        <div class="progress-bar" role="progressbar" style="width: @traditionalPct%; background-color: #48BB78;" aria-valuenow="@traditionalPct" aria-valuemin="0" aria-valuemax="100" title="Traditional: @traditionalPct%"></div>
-                                        <div class="progress-bar" role="progressbar" style="width: @rothPct%; background-color: #805AD5;" aria-valuenow="@rothPct" aria-valuemin="0" aria-valuemax="100" title="Roth: @rothPct%"></div>
-                                    </div>
-
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <div style="width: 12px; height: 12px; background-color: #4299E1; margin-right: 5px;"></div>
-                                                <span>Taxable: @taxablePct%</span>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <div style="width: 12px; height: 12px; background-color: #48BB78; margin-right: 5px;"></div>
-                                                <span>Traditional: @traditionalPct%</span>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <div style="width: 12px; height: 12px; background-color: #805AD5; margin-right: 5px;"></div>
-                                                <span>Roth: @rothPct%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="alert alert-light text-center">
-                                        Enter your account balances to see your portfolio allocation.
-                                    </div>
-                                }
                             </div>
                         </div>
 
                         <!-- Growth Rates Section -->
-                        <div class="row mb-3">
-                            <!-- Investment Return Card -->
-                            <div class="col-md-6 mb-3">
-                                <div class="card" style="border-top: 4px solid #2563EB;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <div>
-                                                <i class="bi bi-graph-up-arrow me-2" style="color: #2563EB;"></i>
-                                                <span class="card-title">Expected Return</span>
-                                            </div>
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInvestmentReturn = !showToolTipInvestmentReturn" tabindex="0" title="Click for more info"></span>
-                                        </div>
 
-                                        @if (showToolTipInvestmentReturn)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Expected Return:</strong> The average annual growth rate you expect from your investments before inflation. Historical average for a balanced portfolio is around 6-8%, but future returns may vary.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInvestmentReturn = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
+                    }
+else if (wizardStep == 3)
+{
+    <label class="form-label mb-3">Social Security Benefits</label>
 
-                                        <div class="text-center mb-2">
-                                            <span style="font-size: 2rem; font-weight: bold; color: #2563EB;">@Model!.InvestmentReturn.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
-                                        </div>
-
-                                        <input type="range" class="form-range mb-2" min="1" max="12" step="0.1"
-                                               value="@(Model!.InvestmentReturn)"
-                                               @oninput="(e => Model.InvestmentReturn = Convert.ToDecimal(e.Value))" />
-
-                                        <div class="d-flex justify-content-between small text-muted">
-                                            <span>Conservative (1%)</span>
-                                            <span>Moderate (6%)</span>
-                                            <span>Aggressive (12%)</span>
-                                        </div>
-
-                                        <div class="mt-3 p-2" style="background-color: #f8fafc; border-radius: 6px;">
-                                            <div class="small">$10,000 would grow to approximately:</div>
-                                            <div class="d-flex justify-content-between">
-                                                <div>
-                                                    <div class="small text-muted">In 10 years:</div>
-                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 10).ToString("C0")</strong>
-                                                </div>
-                                                <div>
-                                                    <div class="small text-muted">In 20 years:</div>
-                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 20).ToString("C0")</strong>
-                                                </div>
-                                                <div>
-                                                    <div class="small text-muted">In 30 years:</div>
-                                                    <strong>@CalculateProjectedAmount(10000, Model.InvestmentReturn, 30).ToString("C0")</strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Inflation Rate Card -->
-                            <div class="col-md-6 mb-3">
-                                <div class="card" style="border-top: 4px solid #DC2626;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <div>
-                                                <i class="bi bi-currency-dollar me-2" style="color: #DC2626;"></i>
-                                                <span class="card-title">Expected Inflation</span>
-                                            </div>
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInflationRate = !showToolTipInflationRate" tabindex="0" title="Click for more info"></span>
-                                        </div>
-
-                                        @if (showToolTipInflationRate)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Expected Inflation:</strong> The annual rate at which the purchasing power of money decreases. This affects your real returns and how much income you'll need in the future. Historical average is around 2-3%.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationRate = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-
-                                        <div class="text-center mb-2">
-                                            <span style="font-size: 2rem; font-weight: bold; color: #DC2626;">@Model!.InflationRate.ToString("0.0")<span style="font-size: 1.5rem;">%</span></span>
-                                        </div>
-
-                                        <input type="range" class="form-range mb-2" min="0" max="8" step="0.1"
-                                               value="@(Model!.InflationRate)"
-                                               @oninput="(e => Model.InflationRate = Convert.ToDecimal(e.Value))" />
-
-                                        <div class="d-flex justify-content-between small text-muted">
-                                            <span>Low (0%)</span>
-                                            <span>Average (2-3%)</span>
-                                            <span>High (8%)</span>
-                                        </div>
-
-                                        <div class="mt-3 p-2" style="background-color: #f8fafc; border-radius: 6px;">
-                                            <div class="small">$1,000 of today's purchasing power will require:</div>
-                                            <div class="d-flex justify-content-between">
-                                                <div>
-                                                    <div class="small text-muted">In 10 years:</div>
-                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 10).ToString("C0")</strong>
-                                                </div>
-                                                <div>
-                                                    <div class="small text-muted">In 20 years:</div>
-                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 20).ToString("C0")</strong>
-                                                </div>
-                                                <div>
-                                                    <div class="small text-muted">In 30 years:</div>
-                                                    <strong>@CalculateInflationAdjusted(1000, Model.InflationRate, 30).ToString("C0")</strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Real Return Summary -->
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="mb-0">Real Return (After Inflation)</h5>
-                                        <div class="text-muted small">Expected investment growth adjusted for inflation</div>
-                                    </div>
-                                    <div class="text-center">
-                                        <h4 class="mb-0" style="color: @(Model.InvestmentReturn > Model.InflationRate ? "#16A34A" : "#DC2626");">
-                                            @((Model.InvestmentReturn - Model.InflationRate).ToString("0.0"))%
-                                        </h4>
-                                        <div class="small text-muted">@(Model.InvestmentReturn > Model.InflationRate ? "Positive growth" : "Negative growth")</div>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="row mb-3">
+        <!-- Your Claiming Age Card -->
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-top: 4px solid #2563EB;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-calendar-check me-2" style="color: #2563EB;"></i>
+                        <h6 class="card-title mb-0">Your Claiming Age</h6>
+                        <span class="bi bi-info-circle info-icon ms-auto" @onclick="() => showToolTipSSStartAgeYou = !showToolTipSSStartAgeYou" tabindex="0" title="Click for more info"></span>
+                    </div>
+                    @if (showToolTipSSStartAgeYou)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your SS Start Age:</strong> The age you plan to claim Social Security. Benefits can start as early as 62 (reduced amount), at full retirement age (66-67) for 100%, or delayed until 70 for maximum benefit.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgeYou = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
                         </div>
                     }
-                    else if (wizardStep == 3)
+
+                    <div class="input-group">
+                        <input class="form-control" type="number" value="@(Model!.SSStartAgeYou)" 
+                               min="62" max="70" style="border-width: 2px;"
+                               @onchange="e => OnInputChanged(nameof(Model.SSStartAgeYou), e.Value!)" />
+                        <span class="input-group-text">years</span>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        Age 62: Early (reduced) | 67: Full | 70: Maximum
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Monthly Benefit Card -->
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-top: 4px solid #2563EB;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-currency-dollar me-2" style="color: #2563EB;"></i>
+                        <h6 class="card-title mb-0">Your Monthly Benefit</h6>
+                        <span class="bi bi-info-circle info-icon ms-auto" @onclick="() => showToolTipSocialSecurityYou = !showToolTipSocialSecurityYou" tabindex="0" title="Click for more info"></span>
+                    </div>
+                    @if (showToolTipSocialSecurityYou)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Social Security Benefit:</strong> Your expected monthly Social Security payment. You can estimate this amount from your earnings record at ssa.gov. The average benefit in 2023 is around $1,800/month.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityYou = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input class="form-control" type="number" value="@(Model?.SocialSecurityMonthlyYou ?? 0m)"
+                               step="100" min="0" style="border-width: 2px;"
+                               @onchange="e => OnInputChanged(nameof(Model.SocialSecurityMonthlyYou), e.Value!)" />
+                    </div>
+                    <div class="text-center text-muted small mt-1">
+                        $@((Model!.SocialSecurityMonthlyYou * 12).ToString("N0")) annually
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.CurrentAgePartner > 0)
+        {
+            <!-- Partner Claiming Age Card -->
+            <div class="col-md-6 mb-3">
+                <div class="card" style="border-top: 4px solid #8B5CF6;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-calendar-check me-2" style="color: #8B5CF6;"></i>
+                            <h6 class="card-title mb-0">Partner's Claiming Age</h6>
+                            <span class="bi bi-info-circle info-icon ms-auto" @onclick="() => showToolTipSSStartAgePartner = !showToolTipSSStartAgePartner" tabindex="0" title="Click for more info"></span>
+                        </div>
+                        @if (showToolTipSSStartAgePartner)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Partner's SS Start Age:</strong> The age your partner plans to claim Social Security. Couples often coordinate claiming strategies to maximize lifetime benefits.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgePartner = false" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+
+                        <div class="input-group">
+                            <input class="form-control" type="number" value="@(Model!.SSStartAgePartner)" 
+                                   min="62" max="70" style="border-width: 2px;"
+                                   @onchange="e => OnInputChanged(nameof(Model.SSStartAgePartner), e.Value!)" />
+                            <span class="input-group-text">years</span>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Age 62: Early (reduced) | 67: Full | 70: Maximum
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partner Monthly Benefit Card -->
+            <div class="col-md-6 mb-3">
+                <div class="card" style="border-top: 4px solid #8B5CF6;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-currency-dollar me-2" style="color: #8B5CF6;"></i>
+                            <h6 class="card-title mb-0">Partner's Monthly Benefit</h6>
+                            <span class="bi bi-info-circle info-icon ms-auto" @onclick="() => showToolTipSocialSecurityPartner = !showToolTipSocialSecurityPartner" tabindex="0" title="Click for more info"></span>
+                        </div>
+                        @if (showToolTipSocialSecurityPartner)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Partner's Social Security Benefit:</strong> Your partner's expected monthly Social Security payment. If they didn't work enough to qualify, they may still be eligible for spousal benefits.
+                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityPartner = false" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input class="form-control" type="number" value="@(Model?.SocialSecurityMonthlyPartner ?? 0m)"
+                                   step="100" min="0" style="border-width: 2px;"
+                                   @onchange="e => OnInputChanged(nameof(Model.SocialSecurityMonthlyPartner), e.Value!)" />
+                        </div>
+                        <div class="text-center text-muted small mt-1">
+                            $@((Model!.SocialSecurityMonthlyPartner * 12).ToString("N0")) annually
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card mb-3" style="border-top: 4px solid #059669;">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="mb-0">
+                        <i class="bi bi-calculator me-2" style="color: #059669;"></i>
+                        Total Annual Social Security
+                    </h6>
+                    <div class="text-muted small mt-1">
+                        @if (Model.CurrentAgePartner > 0)
+                        {
+                            <span>Combined for both of you</span>
+                        }
+                        else
+                        {
+                            <span>Your annual benefit at age @Model!.SSStartAgeYou</span>
+                        }
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fs-3 fw-bold" style="color: #059669;">
+                        $@(((Model!.SocialSecurityMonthlyYou + Model!.SocialSecurityMonthlyPartner) * 12).ToString("N0"))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Social Security Claiming Tips:</strong>
+        <ul class="mb-0 mt-1">
+            <li>Claiming early (age 62) provides reduced benefits but for a longer period</li>
+            <li>Waiting until Full Retirement Age (66-67) provides 100% of your earned benefit</li>
+            <li>Delaying until 70 increases your benefit by approximately 8% per year past FRA</li>
+            <li>For married couples, coordinating your claiming strategies can maximize lifetime benefits</li>
+        </ul>
+    </div>
+}                    else if (wizardStep == 35)
                     {
                         <label class="form-label mb-3">Social Security Benefits</label>
 
@@ -646,7 +591,7 @@
                             </div>
                         </div>
 
-                        @if (Model.CurrentAgePartner > 0)
+                        @if (Model.CurrentAgePartner >= 0)
                         {
                             <!-- Partner Social Security Card -->
                             <div class="card mb-4" style="border-top: 4px solid #8B5CF6;">
@@ -866,7 +811,8 @@
                             </ul>
                         </div>
                     }
-                    else if (wizardStep == 4)
+                    
+            else if (wizardStep == 4)
                     {
                         <label class="form-label mb-3">Reverse Mortgage</label>
 
