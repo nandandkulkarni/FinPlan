@@ -281,12 +281,12 @@
         }
 
     /* .section-card .actions {
-                    margin-top: auto;
-                    display: flex;
-                    justify-content: flex-start;
-                    gap: 8px;
-                    padding-top: 6px;
-                } */
+                            margin-top: auto;
+                            display: flex;
+                            justify-content: flex-start;
+                            gap: 8px;
+                            padding-top: 6px;
+                        } */
 
     .btn-edit {
         background: #1F6FEB;
@@ -336,21 +336,21 @@
     }
 
     /* .step-badge {
-                width: 36px;
-                height: 36px;
-                min-width: 36px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background: #FFD600;
-                color: #111;
-                font-weight: 800;
-                font-size: 1rem;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                margin-right: 8px;
-                flex-shrink: 0;
-            } */
+                        width: 36px;
+                        height: 36px;
+                        min-width: 36px;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: #FFD600;
+                        color: #111;
+                        font-weight: 800;
+                        font-size: 1rem;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                        margin-right: 8px;
+                        flex-shrink: 0;
+                    } */
 
     .small-note {
         font-size: 0.9rem;
@@ -563,15 +563,15 @@
     .form-switch .form-check-input {
         transition: all 0.2s ease;
     }
-    
-    .form-switch .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    
-    .form-switch .form-check-input:focus {
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
-    }
+
+        .form-switch .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+        }
 
     /* Large form switch for prominent toggle */
     .form-switch-lg .form-check-input {
@@ -581,15 +581,15 @@
         border: none;
         transition: all 0.3s ease;
     }
-    
-    .form-switch-lg .form-check-input:checked {
-        background-color: #0d6efd;
-        box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
-    }
-    
-    .form-switch-lg .form-check-input:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
+
+        .form-switch-lg .form-check-input:checked {
+            background-color: #0d6efd;
+            box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+        }
+
+        .form-switch-lg .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
 
     .mode-toggle-header {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -664,6 +664,54 @@
                     <!-- Yellow border section panel that touches the tabs -->
                     <div class="section-panel" style="margin-top: -1px; border-top-left-radius: 0; border-top-right-radius: 0;">
 
+                        @if (showIntroModal)
+                        {
+                            <div class="start-planning-overlay">
+                                <div class="empty-state" style="max-width: 500px;">
+                                    <!-- X Close Button -->
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                aria-label="Close"
+                                                @onclick="CloseIntroModal">
+                                            &#10005;
+                                        </button>
+                                    </div>
+                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
+                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Savings Planning!</h4>
+                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                        Let's create your personalized retirement income plan. We'll walk you through the setup in just a few quick steps.
+                                    </p>
+                                    <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                                        <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
+                                            <i class="bi bi-play-circle me-2"></i>
+                                            Start Planning
+                                        </button>
+                                        <button class="btn btn-outline-primary"
+                                                style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
+                                                @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
+                                            <i class="bi bi-clipboard-data me-2"></i>
+                                            Try Sample Data
+                                        </button>
+                                    </div>
+                                    <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
+                                        <div class="form-check d-flex align-items-center justify-content-center gap-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="dontShowIntroAgainCheck"
+                                                   @onchange="OnDontShowIntroChanged"
+                                                   style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
+                                            <label class="form-check-label"
+                                                   for="dontShowIntroAgainCheck"
+                                                   style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
+                                                Don't show this welcome screen again
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
                         @if (results != null)
                         {
                             <div class="summary-cards-row">
@@ -693,7 +741,7 @@
                             @if (results != null && results.FinalAmount > 0)
                             {
                                 <div class="alert" style="margin: 16px 0; padding: 12px; border-radius: 8px;
-                                        @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
+                                                        @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <i class="bi @(GetSavingsProgressMessage().isGood ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size: 1.2rem;"></i>
                                         <div>
@@ -741,12 +789,15 @@
                         <!-- Enhanced header with large mode toggle - Same as Cost of Living -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
                             <div style="flex: 1;"></div>
-                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">
+                            @* <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">
                                 @(showAdvancedSetup ? "Advanced Savings Planning" : "Simple Savings Plan")
+                            </h5> *@
+                            <h5>
+                                Savings & Wealth Building - Inputs
                             </h5>
                             <div style="display: flex; gap: 16px; flex: 1; justify-content: flex-end; align-items: center;">
                                 <!-- Large Mode Toggle - Same as Cost of Living -->
-                                <div class="d-flex align-items-center gap-3">
+                                @*  <div class="d-flex align-items-center gap-3">
                                     <div class="text-end">
                                         <div class="d-flex align-items-center gap-2 mb-1">
                                             <span style="font-size: 1.1rem;">@(showAdvancedSetup ? "⚙️" : "🎯")</span>
@@ -764,7 +815,7 @@
                                             @(showAdvancedSetup ? "Simplify Interface" : "Enable Advanced Features")
                                         </label>
                                     </div>
-                                </div>
+                                </div> *@
                                 <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                     <i class="bi bi-gear me-2"></i>
                                     Update Plan
@@ -905,10 +956,16 @@
                                     <div class="small-note" style="margin-top:8px;">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
                                         Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)
+                                        <!-- Fix the taxable account tooltip to be more beginner-friendly -->
                                         @if (showToolTipTaxableBalance)
                                         {
                                             <div class="info-tooltip">
-                                                <strong>Taxable Accounts:</strong> Regular investment accounts that don't have special tax advantages. These include brokerage accounts, savings accounts, CDs, and other non-retirement investments. Earnings from these accounts are typically taxed annually.
+                                                <strong>Taxable Accounts:</strong> Regular investment and savings accounts that don't have special tax benefits. Examples include:
+                                                <br>• Bank savings accounts
+                                                <br>• Brokerage accounts (stocks, bonds, mutual funds)
+                                                <br>• Certificates of deposit (CDs)
+                                                <br>• Money market accounts
+                                                <br><br><strong>Tax Impact:</strong> You pay taxes each year on interest, dividends, and capital gains, but you can access your money anytime without penalties.
                                                 <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
                                                     <span class="bi bi-x-lg"></span>
                                                 </span>
@@ -1029,12 +1086,16 @@
                                         <div class="small-note">
                                             <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
                                             Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
+                                            <!-- Enhance the growth rate tooltip with context -->
                                             @if (showToolTipTaxableGrowth)
                                             {
                                                 <div class="info-tooltip">
-                                                    <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                                    <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This is usually lower than retirement accounts because:
+                                                    <br>• You pay taxes on dividends and capital gains each year
+                                                    <br>• This "tax drag" reduces your effective returns
+                                                    <br>• Historical average: 6-7% before taxes, 4-5% after taxes
 
-                                                    <br><br><strong>Important:</strong> Real returns vary significantly year-to-year. This calculator assumes steady annual growth, but actual markets have volatility, recessions, and booms not reflected in these projections.
+                                                    <br><br><strong>Reality Check:</strong> Markets don't grow steadily - some years are up 20%, others down 10%. This calculator uses averages for planning purposes.
 
                                                     <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
                                                         <span class="bi bi-x-lg"></span>
@@ -1271,11 +1332,11 @@
                             <th style="width:100px;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableYearBegin = !showToolTipTableHeaderTaxableYearBegin" tabindex="0" title="Click for more info"></span>
                                 Year Begin
-                                @if (showToolTipTableHeaderTaxableYearBegin)
+                                @if (showToolTipTableHeaderTraditionalYearBegin)
                                 {
                                     <div class="info-tooltip">
-                                        <strong>Year Begin:</strong> The starting balance for the taxable account at the beginning of the year.
-                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableYearBegin = false" title="Close">
+                                        <strong>Traditional Year Begin:</strong> The starting balance for your tax-deferred retirement accounts (401k, Traditional IRA) at the beginning of the year.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTraditionalYearBegin = false" title="Close">
                                             <span class="bi bi-x-lg"></span>
                                         </span>
                                     </div>
@@ -1294,13 +1355,15 @@
                                     </div>
                                 }
                             </th>
+                            <!-- Make column headers more descriptive -->
+                            <!-- Change "Growth" to "Annual Growth" for clarity -->
                             <th style="width:100px;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableGrowth = !showToolTipTableHeaderTaxableGrowth" tabindex="0" title="Click for more info"></span>
-                                Growth
+                                Annual Growth
                                 @if (showToolTipTableHeaderTaxableGrowth)
                                 {
                                     <div class="info-tooltip">
-                                        <strong>Growth:</strong> The growth in the taxable account due to investments.
+                                        <strong>Annual Growth:</strong> How much your taxable investments grew this year from interest, dividends, and capital gains before taxes are deducted.
                                         <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTableHeaderTaxableGrowth = false" title="Close">
                                             <span class="bi bi-x-lg"></span>
                                         </span>
@@ -1506,7 +1569,7 @@
 
     // UX Enhancement toggles
     private bool showSimpleView = true;
-    private bool showAdvancedSetup = false;
+    private bool showAdvancedSetup = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -1532,7 +1595,7 @@
     {
         showIntroModal = false;
 
-        if (calculatorModel == null || calculatorModel.IsModelEmpty())
+        if (!calculatorModel.HasRealData)
         {
             // Check localStorage for intro modal preference
             string key = calculatorType == calculatorTypeYours
@@ -1777,44 +1840,50 @@
 #endif
     }
     // Add this method to your @code section
-private async Task ClearDataAsync()
-{
-    try
+    private async Task ClearDataAsync()
     {
-        // Confirm with user before deleting
-        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", 
-            $"Are you sure you want to clear all saved data for {(calculatorType == calculatorTypeYours ? "Your" : "Partners")} savings plan? This action cannot be undone.");
-        
-        if (!confirm) return;
+        try
+        {
+            // Confirm with user before deleting
+            var confirm = await JSRuntime.InvokeAsync<bool>("confirm",
+                $"Are you sure you want to clear all saved data for {(calculatorType == calculatorTypeYours ? "Your" : "Partners")} savings plan? This action cannot be undone.");
 
-        if (string.IsNullOrWhiteSpace(userGuid))
-        {
-            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-        }
+            if (!confirm) return;
 
-        var apiBaseUrl = GetApiBaseUrl();
-        var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
-        
-        var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-        var response = await client.DeleteAsync(url);
-        
-        if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            DebugService.AddMessage("Plan data cleared successfully.");
-            
-            // Reload the page to reflect the cleared state
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            if (string.IsNullOrWhiteSpace(userGuid))
+            {
+                userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            }
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.DeleteAsync(url);
+
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                DebugService.AddMessage("Plan data cleared successfully.");
+                // Remove the intro modal hide localStorage key
+                string key = calculatorType == calculatorTypeYours
+                    ? "finplan-your-savings-wealth-building-hide-intro"
+                    : "finplan-partner-savings-wealth-building-hide-intro";
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+                // Reset the model to empty so IsModelEmpty() returns true on reload
+                calculatorModel = new SavingsCalculatorModel();
+                // Reload the page to reflect the cleared state
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                DebugService.AddMessage($"Failed to clear data: {response.StatusCode}");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            DebugService.AddMessage($"Failed to clear data: {response.StatusCode}");
+            DebugService.AddMessage($"Error clearing data: {ex.Message}");
         }
     }
-    catch (Exception ex)
-    {
-        DebugService.AddMessage($"Error clearing data: {ex.Message}");
-    }
-}
 
 
     // UX Enhancement Methods

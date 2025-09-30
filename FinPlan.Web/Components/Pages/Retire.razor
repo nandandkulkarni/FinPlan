@@ -194,12 +194,12 @@
             padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
     /* .section-card .actions {
-                                    margin-top: auto;
-                                    display: flex;
-                                    justify-content: flex-start;
-                                    gap: 8px;
-                                    padding-top: 6px;
-                                } */
+                                        margin-top: auto;
+                                        display: flex;
+                                        justify-content: flex-start;
+                                        gap: 8px;
+                                        padding-top: 6px;
+                                    } */
 
     .btn-update {
         background: #1F6FEB;
@@ -361,21 +361,21 @@
     }
 
     /* .step-badge {
-                                width: 36px;
-                                height: 36px;
-                                min-width: 36px;
-                                border-radius: 50%;
-                                display: inline-flex;
-                                align-items: center;
-                                justify-content: center;
-                                background: var(--brand-yellow);
-                                color: #111;
-                                font-weight: 800;
-                                font-size: 1rem;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                                margin-right: 8px;
-                                flex-shrink: 0;
-                            } */
+                                    width: 36px;
+                                    height: 36px;
+                                    min-width: 36px;
+                                    border-radius: 50%;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    background: var(--brand-yellow);
+                                    color: #111;
+                                    font-weight: 800;
+                                    font-size: 1rem;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                    margin-right: 8px;
+                                    flex-shrink: 0;
+                                } */
 
     .empty-state {
         text-align: center;
@@ -636,7 +636,7 @@
                     </div>
 
                     <!-- Beginner Help Section (Simple Mode Only) -->
-                    @if (isSimpleMode && (Model == null || Model.IsModelEmpty()))
+                    @if (isSimpleMode) //isSimpleMode && (Model == null || Model.IsModelEmpty()))
                     {
                         <div class="alert alert-primary border-0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); margin-bottom: 20px;">
                             <div class="d-flex align-items-start">
@@ -703,13 +703,13 @@
                                     <p class="text-muted mb-0 small">@(isSimpleMode ? "Simple planning for your retirement future" : "Advanced retirement modeling with detailed projections")</p>
                                 </div>
                                 <div class="border-start ps-4 d-flex align-items-center gap-3">
-                                    <div class="form-check form-switch form-switch-lg">
+                                    @* <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" id="prominentModeToggle"
                                                checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
                                         <label class="form-check-label fw-bold ms-2" for="prominentModeToggle" style="cursor: pointer;">
                                             @(isSimpleMode ? "Enable Advanced Features" : "Simplify Interface")
                                         </label>
-                                    </div>
+                                    </div> *@
                                     <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                         <i class="bi bi-gear me-2"></i>
                                         Update Plan
@@ -1234,7 +1234,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (Model.IsModelEmpty() && showIntroModal)
+                        @if (showIntroModal)
                         {
                             <!-- Overlay with Start Planning Button -->
                             <div class="start-planning-overlay">
@@ -1583,7 +1583,7 @@
 </script>
 @code {
     // Simple Mode Toggle
-    private bool isSimpleMode = true; // Start in beginner mode by default
+    private bool isSimpleMode = false; // Start in beginner mode by default
 
     private void ToggleSimpleMode()
     {
@@ -1644,6 +1644,9 @@
     // Helper properties to display life expectancy as age not calendar year
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
     private int DisplayLifeExpectancyPartner => ComputeLifeExpectancyAge(Model?.LifeExpectancyPartner ?? 0, Model?.CurrentAgePartner ?? 0);
+
+    const string calculatorType = "retirement_planner"; // Or whatever identifier you use for retirement data
+
 
     private int ComputeLifeExpectancyAge(int lifeValue, int currentAge)
     {
@@ -1751,11 +1754,11 @@
         showIntroModal = false;
 
         // Only show intro modal if model is empty and user hasn't opted out
-        if (Model == null || Model.IsModelEmpty())
-        {
+        //if (Model == null || Model.IsModelEmpty())
+        //{
             var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-retirement-income-planner-hide-intro");
             showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
-        }
+        //}
     }
 
     private async Task OnDontShowIntroChanged(ChangeEventArgs e)
@@ -1785,6 +1788,7 @@
     private bool showToolTipWithdrawals = false;
     private bool showToolTipEndingBalances = false;
     private bool showToolTipTaxPaid = false;
+
     private void TestCalculation()
     {
         try
@@ -1818,6 +1822,8 @@
 
             DebugService.AddMessage($"Balances: Tax={Model.TaxableBalance:C0}, Trad={Model.TraditionalBalance:C0}, Roth={Model.RothBalance:C0}");
             DebugService.AddMessage($"Withdrawals: One={Model.AnnualWithdrawalOne:C0}, Both={Model.AnnualWithdrawalBoth:C0}");
+
+            Model.Calculate();
 
             // Clear existing rows
             Model.YearRows.Clear();
@@ -1933,7 +1939,6 @@
             }
 
             var apiBaseUrl = GetApiBaseUrl(); // You'll need to implement this based on your configuration
-            var calculatorType = "retirement_planner"; // Or whatever identifier you use for retirement data
             var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
 
             using var httpClient = new HttpClient(); // Or use your existing HTTP client service
@@ -1941,8 +1946,14 @@
 
             if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
+                // Remove the intro modal hide cookie/localStorage key
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "finplan-retirement-income-planner-hide-intro");
                 // Reload the page to reflect the cleared state
                 Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+
+                Model = new CalendarSpendingModel();
+
+                showIntroModal = true; // Show intro modal again
             }
             else
             {

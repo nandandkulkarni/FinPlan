@@ -206,17 +206,17 @@ namespace FinPlan.Shared.Models.Spending
         public int RetirementAgePartner { get; set; } = 0; // Changed from 68 to 0 for empty state
 
         // Stored retirement years (kept in sync with ages)
-        public int RetirementYearYou { get; set; } = DateTime.Now.Year + 5;
-        public int RetirementYearPartner { get; set; } = DateTime.Now.Year + 8;
+        public int RetirementYearYou { get; set; } = 0; //= DateTime.Now.Year + 5;
+        public int RetirementYearPartner { get; set; } = 0; //<|cursor|>= DateTime.Now.Year + 8;
 
         // Auto-calc toggle (persisted with model)
         public bool AutoCalculate { get; set; } = false;
 
-        public int SSStartYearYou { get; set; } = DateTime.Now.Year + 9;
-        public int SSStartYearPartner { get; set; } = DateTime.Now.Year + 12;
+        public int SSStartYearYou { get; set; } = 0;// DateTime.Now.Year + 9;
+        public int SSStartYearPartner { get; set; } = 0;// DateTime.Now.Year + 12;
         // New: allow user to enter SS start ages; years are computed from current ages
-        public int SSStartAgeYou { get; set; } = 67; // Keep reasonable defaults for SS ages
-        public int SSStartAgePartner { get; set; } = 67; // Keep reasonable defaults for SS ages
+        public int SSStartAgeYou { get; set; } = 0;//67; // Keep reasonable defaults for SS ages
+        public int SSStartAgePartner { get; set; } = 0; // Keep reasonable defaults for SS ages
 
         // New: expected Social Security benefit (monthly) for each person
         public decimal SocialSecurityMonthlyYou { get; set; } = 0m;

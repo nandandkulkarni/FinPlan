@@ -134,7 +134,7 @@ namespace FinPlan.Web.Components.Pages
                 var saveRequest = new PersistCalendarSpendingRequest
                 {
                     UserGuid = await UserGuidService.GetOrCreateUserGuidAsync(),
-                    CalculatorType = "CalendarWireframe",
+                    CalculatorType = calculatorType,
                     Data = Model
                 };
 
@@ -213,12 +213,14 @@ namespace FinPlan.Web.Components.Pages
                 var response = await client.DeleteAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
-                    DebugService.AddMessage("Calendar deleted on server.");
+                    DebugService.AddMessage("deleted on server.");
                     deleteSuccess = true;
+
+                    Model = new CalendarSpendingModel();
                 }
                 else
                 {
-                    DebugService.AddMessage($"Calendar delete returned: {response.StatusCode}");
+                    DebugService.AddMessage($"delete returned: {response.StatusCode}");
                 }
             }
             catch (Exception ex)

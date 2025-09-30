@@ -3,10 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinPlan.Shared.Models.Savings
 {
+
+
     public class SavingsCalculatorModel
     {
 
-   
+
+        public bool HasRealData { get; set; } = false;
 
         public void RoundDecimals(int decimals = 2)
         {
