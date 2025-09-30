@@ -194,12 +194,12 @@
             padding-top: 16px; /* Increased from 6px to 16px for more space */
         }
     /* .section-card .actions {
-                                            margin-top: auto;
-                                            display: flex;
-                                            justify-content: flex-start;
-                                            gap: 8px;
-                                            padding-top: 6px;
-                                        } */
+                                                margin-top: auto;
+                                                display: flex;
+                                                justify-content: flex-start;
+                                                gap: 8px;
+                                                padding-top: 6px;
+                                            } */
 
     .btn-update {
         background: #1F6FEB;
@@ -361,21 +361,21 @@
     }
 
     /* .step-badge {
-                                        width: 36px;
-                                        height: 36px;
-                                        min-width: 36px;
-                                        border-radius: 50%;
-                                        display: inline-flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        background: var(--brand-yellow);
-                                        color: #111;
-                                        font-weight: 800;
-                                        font-size: 1rem;
-                                        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                                        margin-right: 8px;
-                                        flex-shrink: 0;
-                                    } */
+                                            width: 36px;
+                                            height: 36px;
+                                            min-width: 36px;
+                                            border-radius: 50%;
+                                            display: inline-flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            background: var(--brand-yellow);
+                                            color: #111;
+                                            font-weight: 800;
+                                            font-size: 1rem;
+                                            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                            margin-right: 8px;
+                                            flex-shrink: 0;
+                                        } */
 
     .empty-state {
         text-align: center;
@@ -562,7 +562,7 @@
 
                 <!-- Center combined column (8) -> Sections -->
                 <div class="col-12 col-md-8">
-                    @if (!Model.IsModelEmpty())
+                    @if (!Model.IsModelEmpty() && YearRows.Count > 1)
                     {
                         <div class="projection-cards">
                             @if (isSimpleMode)
@@ -1269,7 +1269,7 @@
                                     <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
                                         Takes about 2-3 minutes to complete
                                     </div>
-                            @*         <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                                    @*         <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
                                         <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
                                             <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
                                             Want to try with sample data? Click here
@@ -1277,11 +1277,11 @@
                                     </div> *@
 
                                     <button class="btn btn-primary"
-                                                style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
-                                                @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
-                                            <i class="bi bi-clipboard-data me-2"></i>
-                                            Try Sample Data
-                                        </button>
+                                            style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
+                                            @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
+                                        <i class="bi bi-clipboard-data me-2"></i>
+                                        Try Sample Data
+                                    </button>
 
                                     @* <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
                                         <i class="bi bi-list-check" style="margin-right: 6px;"></i>
@@ -1348,118 +1348,120 @@
         </div>
     </div>
 
-    <!-- Yearly Projection Grid -->
-    <div class="grid-panel panel">
-        <div class="grid-header">
-            <div style="font-weight:800; font-size:1rem;">
-                @(isSimpleMode ? "Year-by-Year Retirement Plan" : "Yearly Projection")
+    @if (YearRows.Count > 1)
+    {
+        <!-- Yearly Projection Grid -->
+        <div class="grid-panel panel">
+            <div class="grid-header">
+                <div style="font-weight:800; font-size:1rem;">
+                    @(isSimpleMode ? "Year-by-Year Retirement Plan" : "Yearly Projection")
+                </div>
+                @if (!Model.IsModelEmpty())
+                {
+                    <div class="legend">
+                        @if (isSimpleMode)
+                        {
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Important Year</small></div>
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Money Growing</small></div>
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Running Low</small></div>
+                        }
+                        else
+                        {
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
+                            <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
+                        }
+                    </div>
+                }
             </div>
-            @if (!Model.IsModelEmpty())
+
+            @if (Model.IsModelEmpty())
             {
-                <div class="legend">
-                    @if (isSimpleMode)
-                    {
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Important Year</small></div>
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Money Growing</small></div>
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Running Low</small></div>
-                    }
-                    else
-                    {
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--brand-yellow)"></span><small> Milestone</small></div>
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--success)"></span><small> Growth</small></div>
-                        <div style="display:flex; gap:8px; align-items:center;"><span class="swatch" style="background:var(--danger)"></span><small> Depletion</small></div>
-                    }
+                <!-- Empty State Message for Grid -->
+                <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                    <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
+                    <h5 style="color: #495057; margin-bottom: 12px;">
+                        @(isSimpleMode ? "Ready to Start Planning?" : "No Projection Available")
+                    </h5>
+                    <p style="margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        @if (isSimpleMode)
+                        {
+                            @:Let's create your retirement plan! We'll ask you a few simple questions about when you want to retire, how much you've saved, and what you expect to spend. Then we'll show you year-by-year how your money will last.
+                        }
+                        else
+                        {
+                            @:Complete your retirement plan setup to see year-by-year projections of your income and account balances.
+                        }
+                    </p>
+                    <button class="btn btn-primary" @onclick="() => OpenWizard(1)">
+                        <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
+                        @(isSimpleMode ? "Start My Plan" : "Get Started")
+                    </button>
+                </div>
+            }
+            else if (Model.IsModelPartiallyComplete())
+            {
+                <!-- Partial State Message -->
+                <div style="text-align: center; padding: 40px 20px; background: #fff3cd; border-radius: 8px; color: #856404;">
+                    <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
+                    <h6 style="margin-bottom: 12px;">Projection Incomplete</h6>
+                    <p style="margin-bottom: 16px;">
+                        Add missing information to your retirement plan to generate accurate year-by-year projections.
+                    </p>
+                    <button class="btn" style="background: #ffc107; border-color: #ffc107; color: #000;" @onclick="() => OpenWizard(1)">
+                        Complete Setup
+                    </button>
+                </div>
+            }
+            else if (!YearRows.Any())
+            {
+                <!-- No Data Generated Yet -->
+                <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
+                    <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
+                    <h6 style="color: #495057; margin-bottom: 12px;">Generating Projections...</h6>
+                    <p>Please wait while we calculate your retirement projections.</p>
+                </div>
+            }
+            else
+            {
+                <!-- Normal Grid View -->
+                <div class="grid">
+                    <div style="position: relative;">
+                        <!-- Top scrollbar -->
+                        <div id="table-scrollbar-top" style="width:100%; overflow-x:auto;">
+                            <!-- This empty div will mimic the table's width and scrollbar -->
+                            <div style="width:1100px; height:1px;"></div>
+                        </div>
+                        <!-- Actual table with bottom scrollbar -->
+                        <!-- Retirement Projection with Simple/Advanced Mode Support -->
+                        @if (isSimpleMode)
+                        {
+                            <!-- Simple Mode: Show beginner-friendly summary first -->
+                            <div class="alert alert-light border-primary mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-info-circle text-primary me-3" style="font-size: 1.2rem; margin-top: 3px;"></i>
+                                    <div>
+                                        <h6 class="text-primary mb-2">Your Retirement Plan Summary</h6>
+                                        <p class="mb-2 text-dark">
+                                            <strong>What this shows:</strong> Each row represents one year of your retirement.
+                                            You'll see your age, how much money you need, where it comes from, and how much you have left.
+                                        </p>
+                                        <p class="mb-0 text-dark">
+                                            <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year.
+                                            The goal is to avoid running out of money before your life expectancy.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode" />
+
+                    </div>
                 </div>
             }
         </div>
-
-        @if (Model.IsModelEmpty())
-        {
-            <!-- Empty State Message for Grid -->
-            <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
-                <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
-                <h5 style="color: #495057; margin-bottom: 12px;">
-                    @(isSimpleMode ? "Ready to Start Planning?" : "No Projection Available")
-                </h5>
-                <p style="margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                    @if (isSimpleMode)
-                    {
-                        @:Let's create your retirement plan! We'll ask you a few simple questions about when you want to retire, how much you've saved, and what you expect to spend. Then we'll show you year-by-year how your money will last.
-                    }
-                    else
-                    {
-                        @:Complete your retirement plan setup to see year-by-year projections of your income and account balances.
-                    }
-                </p>
-                <button class="btn btn-primary" @onclick="() => OpenWizard(1)">
-                    <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                    @(isSimpleMode ? "Start My Plan" : "Get Started")
-                </button>
-            </div>
-        }
-        else if (Model.IsModelPartiallyComplete())
-        {
-            <!-- Partial State Message -->
-            <div style="text-align: center; padding: 40px 20px; background: #fff3cd; border-radius: 8px; color: #856404;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
-                <h6 style="margin-bottom: 12px;">Projection Incomplete</h6>
-                <p style="margin-bottom: 16px;">
-                    Add missing information to your retirement plan to generate accurate year-by-year projections.
-                </p>
-                <button class="btn" style="background: #ffc107; border-color: #ffc107; color: #000;" @onclick="() => OpenWizard(1)">
-                    Complete Setup
-                </button>
-            </div>
-        }
-        else if (!YearRows.Any())
-        {
-            <!-- No Data Generated Yet -->
-            <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
-                <h6 style="color: #495057; margin-bottom: 12px;">Generating Projections...</h6>
-                <p>Please wait while we calculate your retirement projections.</p>
-            </div>
-        }
-        else
-        {
-            <!-- Normal Grid View -->
-            <div class="grid">
-                <div style="position: relative;">
-                    <!-- Top scrollbar -->
-                    <div id="table-scrollbar-top" style="width:100%; overflow-x:auto;">
-                        <!-- This empty div will mimic the table's width and scrollbar -->
-                        <div style="width:1100px; height:1px;"></div>
-                    </div>
-                    <!-- Actual table with bottom scrollbar -->
-                    <!-- Retirement Projection with Simple/Advanced Mode Support -->
-                    @if (isSimpleMode)
-                    {
-                        <!-- Simple Mode: Show beginner-friendly summary first -->
-                        <div class="alert alert-light border-primary mb-3">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-info-circle text-primary me-3" style="font-size: 1.2rem; margin-top: 3px;"></i>
-                                <div>
-                                    <h6 class="text-primary mb-2">Your Retirement Plan Summary</h6>
-                                    <p class="mb-2 text-dark">
-                                        <strong>What this shows:</strong> Each row represents one year of your retirement.
-                                        You'll see your age, how much money you need, where it comes from, and how much you have left.
-                                    </p>
-                                    <p class="mb-0 text-dark">
-                                        <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year.
-                                        The goal is to avoid running out of money before your life expectancy.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode" />
-
-                </div>
-            </div>
-        }
-    </div>
-
+    }
     <!-- RMD Notice -->
     <div class="mt-3 p-3" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
         <div style="display: flex; align-items: flex-start; gap: 8px;">
