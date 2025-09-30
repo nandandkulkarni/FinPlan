@@ -742,7 +742,7 @@
                             {
                                 <div class="alert" style="margin: 16px 0; padding: 12px; border-radius: 8px;
                                                         @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="display: flex; align-items: center, flex-direction: row; gap: 8px;">
                                         <i class="bi @(GetSavingsProgressMessage().isGood ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size: 1.2rem;"></i>
                                         <div>
                                             <strong>@GetSavingsProgressMessage().title</strong>
@@ -1328,8 +1328,8 @@
                         </tr>
                         <!-- Second Row: Specific Headers -->
                         <tr>
-                            <!-- Taxable Columns -->
-                            <th style="width:100px;">
+                            <!-- Taxable Columns - Match parent color -->
+                            <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableYearBegin = !showToolTipTableHeaderTaxableYearBegin" tabindex="0" title="Click for more info"></span>
                                 Year Begin
                                 @if (showToolTipTableHeaderTraditionalYearBegin)
@@ -1342,7 +1342,7 @@
                                     </div>
                                 }
                             </th>
-                            <th style="width:100px;">
+                            <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableContribution = !showToolTipTableHeaderTaxableContribution" tabindex="0" title="Click for more info"></span>
                                 Contribution
                                 @if (showToolTipTableHeaderTaxableContribution)
@@ -1357,7 +1357,7 @@
                             </th>
                             <!-- Make column headers more descriptive -->
                             <!-- Change "Growth" to "Annual Growth" for clarity -->
-                            <th style="width:100px;text-align:right">
+                            <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableGrowth = !showToolTipTableHeaderTaxableGrowth" tabindex="0" title="Click for more info"></span>
                                 Growth
                                 @if (showToolTipTableHeaderTaxableGrowth)
@@ -1370,7 +1370,7 @@
                                     </div>
                                 }
                             </th>
-                            <th style="width:100px;text-align:right">
+                            <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableTaxPaid = !showToolTipTableHeaderTaxableTaxPaid" tabindex="0" title="Click for more info"></span>
                                 Tax Paid
                                 @if (showToolTipTableHeaderTaxableTaxPaid)
@@ -1383,7 +1383,7 @@
                                     </div>
                                 }
                             </th>
-                            <th style="width:100px;text-align:right">
+                            <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">
                                 <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTableHeaderTaxableYearEnd = !showToolTipTableHeaderTaxableYearEnd" tabindex="0" title="Click for more info"></span>
                                 Year End
                                 @if (showToolTipTableHeaderTaxableYearEnd)
@@ -1396,20 +1396,20 @@
                                     </div>
                                 }
                             </th>
-                           <!-- Traditional Columns -->
-        <th style="text-align:right;">Year Begin</th>
-        <th style="text-align:right;">Contribution</th>
-        <th style="text-align:right;">Growth</th>
-        <th style="text-align:right;">Year End</th>
-        <!-- Roth Columns -->
-        <th style="text-align:right;">Year Begin</th>
-        <th style="text-align:right;">Contribution</th>
-        <th style="text-align:right;">Growth</th>
-        <th style="text-align:right;">Year End</th>
-        <!-- Totals Columns -->
-        <th style="text-align:right;">Contributions</th>
-        <th style="text-align:right;">Growth</th>
-        <th style="text-align:right;">Year End</th>
+                           <!-- Traditional Columns - Match parent color -->
+        <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Year Begin</th>
+        <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Contribution</th>
+        <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Growth</th>
+        <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Year End</th>
+        <!-- Roth Columns - Match parent color -->
+        <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Year Begin</th>
+        <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Contribution</th>
+        <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Growth</th>
+        <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Year End</th>
+        <!-- Totals Columns - Match parent color -->
+        <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Contributions</th>
+        <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Growth</th>
+        <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Year End</th>
                         </tr>
                     </thead>
                     <tbody>
