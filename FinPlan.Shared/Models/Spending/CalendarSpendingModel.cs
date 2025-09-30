@@ -578,6 +578,13 @@ namespace FinPlan.Shared.Models.Spending
                 //                                        calendarYearRow.TraditionalWithdrawalForCostOfLivingAndTaxes +
                 //                                        calendarYearRow.RothWithdrawalForCostOfLivingAndTaxes;
 
+                if (calendarYearRow.AmountNeededForCostOfLiving > 0m && calendarYearRow.TotalWithdrawForCostOfLivingExcludingTaxes < calendarYearRow.AmountNeededForCostOfLiving)
+                {
+                    if (!string.IsNullOrWhiteSpace(calendarYearRow.Milestone))
+                        calendarYearRow.Milestone += ", ";
+                    calendarYearRow.Milestone += "Depleted";
+                }
+
                 YearRows.Add(calendarYearRow);
 
                 //// --- ADD "Depleted" milestone if withdrawals are less than needed ---
