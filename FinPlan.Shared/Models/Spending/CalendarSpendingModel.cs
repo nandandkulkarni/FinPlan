@@ -238,6 +238,31 @@ namespace FinPlan.Shared.Models.Spending
         // Withdrawals - Updated for empty state management
         public decimal AnnualWithdrawalOne { get; set; } = 0m; // Changed from 80_000m to 0 for empty state
         public decimal AnnualWithdrawalBoth { get; set; } = 0m; // Changed from 100_000m to 0 for empty state
+        
+        // Alternative property names for compatibility with UI
+        public decimal WithdrawalOne 
+        { 
+            get => AnnualWithdrawalOne; 
+            set => AnnualWithdrawalOne = value; 
+        }
+        public decimal WithdrawalBoth 
+        { 
+            get => AnnualWithdrawalBoth; 
+            set => AnnualWithdrawalBoth = value; 
+        }
+        
+        // Social Security Benefits - Alternative property names
+        public decimal SSYou 
+        { 
+            get => SocialSecurityMonthlyYou * 12; // Convert monthly to annual
+            set => SocialSecurityMonthlyYou = value / 12; // Store as monthly
+        }
+        public decimal SSPartner 
+        { 
+            get => SocialSecurityMonthlyPartner * 12; // Convert monthly to annual
+            set => SocialSecurityMonthlyPartner = value / 12; // Store as monthly
+        }
+        
         public int ReverseMortgageStartYear { get; set; }
         public decimal ReverseMortgageMonthly { get; set; }
 
