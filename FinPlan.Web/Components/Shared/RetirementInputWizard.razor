@@ -811,170 +811,135 @@ else if (wizardStep == 3)
                             </ul>
                         </div>
                     }
-                    
-            else if (wizardStep == 4)
-                    {
-                        <label class="form-label mb-3">Reverse Mortgage</label>
 
-                        <div class="card mb-4" style="border-top: 4px solid #F59E0B;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-house-heart-fill me-2" style="color: #F59E0B; font-size: 1.25rem;"></i>
-                                    <h5 class="card-title mb-0">Reverse Mortgage Option</h5>
-                                </div>
+                        else if (wizardStep == 4)
+                        {
+                            <label class="form-label mb-3">Reverse Mortgage</label>
 
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="rmEnabled" checked="@ReverseMortgageEnabled" style="width: 3em; height: 1.5em;" @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageStartAge), (bool)(e.Value ?? false) ? (object)(((Model?.ReverseMortgageStartAge ?? 0) == 0) ? (Model?.CurrentAgeYou ?? 0) : (Model?.ReverseMortgageStartAge ?? 0)) : 0)" />
-                                    <label class="form-check-label ms-2 fs-5" for="rmEnabled">Enable reverse mortgage</label>
-                                </div>
-
-                                <div class="text-muted mb-4">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    A reverse mortgage allows homeowners 62+ to convert home equity into monthly income while continuing to live in their home.
-                                </div>
-
-                                @if (ReverseMortgageEnabled)
-                                {
-                                    <div class="row mb-3">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card" style="border-top: 4px solid #F59E0B;">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <label class="form-label mb-0">
-                                                            Start Age
-                                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageStartAge = !showToolTipReverseMortgageStartAge" tabindex="0" title="Click for more info"></span>
-                                                        </label>
-                                                        @if (showToolTipReverseMortgageStartAge)
-                                                        {
-                                                            <div class="info-tooltip">
-                                                                <strong>Reverse Mortgage Start Age:</strong> The age when you plan to begin receiving payments from a reverse mortgage. This income source allows homeowners 62+ to convert home equity into tax-free income while continuing to live in their home.
-                                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartAge = false" title="Close">
-                                                                    <span class="bi bi-x-lg"></span>
-                                                                </span>
-                                                            </div>
-                                                        }
-                                                    </div>
-
-                                                    <div class="d-flex align-items-center mb-3">
-                                                        <input type="range" class="form-range me-3" min="62" max="85" step="1"
-                                                               value="@(Model!.ReverseMortgageStartAge)"
-                                                               @oninput="(e => Model.ReverseMortgageStartAge = Convert.ToInt32(e.Value))" />
-                                                        <span class="badge bg-warning text-dark fs-5">@Model!.ReverseMortgageStartAge</span>
-                                                    </div>
-
-                                                    <div class="d-flex justify-content-between small">
-                                                        <span>Early (62)</span>
-                                                        <span>Later (85)</span>
-                                                    </div>
-
-                                                    <div class="small-note mt-3">
-                                                        <i class="bi bi-calendar-event me-1"></i>
-                                                        You would start receiving proceeds in year @(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card" style="border-top: 4px solid #10B981;">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <label class="form-label mb-0">
-                                                            Monthly Income
-                                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly" tabindex="0" title="Click for more info"></span>
-                                                        </label>
-                                                        @if (showToolTipReverseMortgageMonthly)
-                                                        {
-                                                            <div class="info-tooltip">
-                                                                <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage. The amount depends on your home value, interest rates, your age, and the specific payment plan you choose.
-                                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
-                                                                    <span class="bi bi-x-lg"></span>
-                                                                </span>
-                                                            </div>
-                                                        }
-                                                    </div>
-
-                                                    <div class="input-group mb-3">
-                                                        <span class="input-group-text">$</span>
-                                                        <input class="form-control currency-input" type="number" value="@(Model?.ReverseMortgageMonthly ?? 0m)" step="100" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageMonthly), e.Value!)" />
-                                                        <span class="input-group-text">/month</span>
-                                                    </div>
-
-                                                        <div class="text-center text-success fs-5 mt-3">
-                                                        $@((Model!.ReverseMortgageMonthly * 12).ToString("N0")) additional income per year
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="card mb-4" style="border-top: 4px solid #F59E0B;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-house-heart-fill me-2" style="color: #F59E0B; font-size: 1.25rem;"></i>
+                                        <h5 class="card-title mb-0">Reverse Mortgage Option</h5>
                                     </div>
 
-                                    <!-- Timeline showing when reverse mortgage starts -->
-                                    <div class="card mt-3" style="border: none; background-color: #f8f9fa; border-radius: 10px;">
-                                        <div class="card-body">
-                                            <h6 class="mb-3">Reverse Mortgage Timeline</h6>
-                                            <div class="position-relative" style="height: 40px;">
-                                                <div class="position-absolute" style="top: 10px; left: 0; right: 0;">
-                                                    <div class="timeline-bar position-relative" style="height: 8px; background-color: #e2e8f0; border-radius: 5px;">
-                                                        @{
-                                                            double startPercent = 0;
-                                                            double rmPercent = 0;
-                                                            if (Model.CurrentAgeYou > 0 && Model.RetirementAgeYou > 0 && LifeExpectancyAgeYou > Model.CurrentAgeYou)
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="rmEnabled"
+                                               checked="@ReverseMortgageEnabled"
+                                               style="width: 3em; height: 1.5em;"
+                                               @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageStartAge), (bool)(e.Value ?? false) ? (object)(Math.Max(62, Model?.CurrentAgeYou ?? 62)) : 0)" />
+                                        <label class="form-check-label ms-2 fs-5" for="rmEnabled">Enable reverse mortgage</label>
+                                    </div>
+
+                                    <div class="text-muted mb-4">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        A reverse mortgage allows homeowners 62+ to convert home equity into monthly income while continuing to live in their home.
+                                    </div>
+
+                                    @if (ReverseMortgageEnabled)
+                                    {
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card" style="border-top: 4px solid #F59E0B;">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <label class="form-label mb-0">
+                                                                Start Age
+                                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageStartAge = !showToolTipReverseMortgageStartAge" tabindex="0" title="Click for more info"></span>
+                                                            </label>
+                                                            @if (showToolTipReverseMortgageStartAge)
                                                             {
-                                                                startPercent = Math.Min(100, Math.Max(0, ((Model.RetirementAgeYou - Model.CurrentAgeYou) * 100.0 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))));
-                                                                rmPercent = Math.Min(100, Math.Max(0, ((Model.ReverseMortgageStartAge - Model.CurrentAgeYou) * 100.0 / (LifeExpectancyAgeYou - Model.CurrentAgeYou))));
+                                                                <div class="info-tooltip">
+                                                                    <strong>Reverse Mortgage Start Age:</strong> The age when you plan to begin receiving payments from a reverse mortgage. This income source allows homeowners 62+ to convert home equity into tax-free income while continuing to live in their home.
+                                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartAge = false" title="Close">
+                                                                        <span class="bi bi-x-lg"></span>
+                                                                    </span>
+                                                                </div>
                                                             }
-                                                        }
-                                                        <!-- Working Period -->
-                                                        <div style="position: absolute; left: 0; top: 0; height: 8px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @startPercent%;"></div>
-                                                        <!-- Retirement Period Before RM -->
-                                                        <div style="position: absolute; left: @startPercent%; top: 0; height: 8px; background-color: #34D399; width: @(rmPercent - startPercent)%;"></div>
-                                                        <!-- Retirement With RM -->
-                                                        <div style="position: absolute; left: @rmPercent%; top: 0; height: 8px; background-color: #F59E0B; border-radius: 0 5px 5px 0; width: @(100 - rmPercent)%;"></div>
+                                                        </div>
+
+                                                        <div class="input-group">
+                                                            <input class="form-control" type="number" value="@(Model!.ReverseMortgageStartAge)"
+                                                                   min="62" max="85" style="border-width: 2px;"
+                                                                   @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageStartAge), e.Value!)" />
+                                                            <span class="input-group-text">years</span>
+                                                        </div>
+                                                        <div class="text-muted small mt-1">
+                                                            Must be age 62 or older
+                                                        </div>
+
+                                                        <div class="mt-3 p-2" style="background-color: #fef3c7; border-radius: 6px;">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-calendar-event me-2" style="color: #F59E0B;"></i>
+                                                                <div>
+                                                                    <div class="small text-muted">Start Year</div>
+                                                                    <div class="fw-bold">@(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <!-- Retirement Marker -->
-                                                <div class="position-absolute" style="left: @startPercent%; top: -5px; transform: translateX(-50%);">
-                                                    <div class="badge bg-primary px-1 py-0">Retirement</div>
-                                                </div>
-
-                                                <!-- RM Start Marker -->
-                                                <div class="position-absolute" style="left: @rmPercent%; top: 15px; transform: translateX(-50%);">
-                                                    <div class="badge bg-warning text-dark px-1 py-0">RM Starts</div>
-                                                </div>
                                             </div>
 
-                                            <div class="d-flex justify-content-between mt-2 small text-muted">
-                                                <span>Age @Model!.CurrentAgeYou</span>
-                                                <span>Age @Model!.RetirementAgeYou</span>
-                                                <span>Age @Model!.ReverseMortgageStartAge</span>
-                                                <span>Age @LifeExpectancyAgeYou</span>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card" style="border-top: 4px solid #10B981;">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <label class="form-label mb-0">
+                                                                Monthly Income
+                                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly" tabindex="0" title="Click for more info"></span>
+                                                            </label>
+                                                            @if (showToolTipReverseMortgageMonthly)
+                                                            {
+                                                                <div class="info-tooltip">
+                                                                    <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage. The amount depends on your home value, interest rates, your age, and the specific payment plan you choose.
+                                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
+                                                                        <span class="bi bi-x-lg"></span>
+                                                                    </span>
+                                                                </div>
+                                                            }
+                                                        </div>
+
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">$</span>
+                                                            <input class="form-control currency-input" type="number" value="@(Model?.ReverseMortgageMonthly ?? 0m)" step="100" min="0" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.ReverseMortgageMonthly), e.Value!)" />
+                                                            <span class="input-group-text">/month</span>
+                                                        </div>
+
+                                                        <div class="mt-3 p-2" style="background-color: #d1fae5; border-radius: 6px;">
+                                                            <div class="text-center">
+                                                                <div class="small text-muted">Annual Income</div>
+                                                                <div class="fs-4 fw-bold" style="color: #10B981;">
+                                                                    $@((Model!.ReverseMortgageMonthly * 12).ToString("N0"))
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="alert alert-light text-center">
-                                        <i class="bi bi-house-slash me-2"></i> Reverse mortgage option is disabled
-                                    </div>
-                                }
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-light text-center">
+                                            <i class="bi bi-house-slash me-2"></i> Reverse mortgage option is disabled
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <strong>About Reverse Mortgages:</strong>
-                            <ul class="mb-0 mt-1">
-                                <li>Available to homeowners age 62 and older</li>
-                                <li>Converts home equity into tax-free income while you continue living in your home</li>
-                                <li>No monthly payments required – the loan is repaid when you sell the home, move out, or pass away</li>
-                                <li>Income can be received as a lump sum, monthly payment, or line of credit</li>
-                            </ul>
-                        </div>
-                    }
-                    else if (wizardStep == 5)
-                    {
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>About Reverse Mortgages:</strong>
+                                <ul class="mb-0 mt-1">
+                                    <li>Available to homeowners age 62 and older</li>
+                                    <li>Converts home equity into tax-free income while you continue living in your home</li>
+                                    <li>No monthly payments required – the loan is repaid when you sell the home, move out, or pass away</li>
+                                    <li>Income can be received as a lump sum, monthly payment, or line of credit</li>
+                                </ul>
+                            </div>
+                        }
+                            {
                         <label class="form-label mb-3">Withdrawal Strategy</label>
 
                         <div class="card mb-4" style="border-top: 4px solid #3B82F6;">
