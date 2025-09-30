@@ -10,14 +10,14 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
-
+@inject NavigationManager Navigation
 <style>
     /* ----------------------------
-                                                                                                                       Tweakable values
-                                                                                                                       - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                       - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                       Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                       ---------------------------- */
+                                                                                                                           Tweakable values
+                                                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                           ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -25,7 +25,7 @@
         --tab-panel-padding-top: 26px; /* Tweak this to add internal spacing at top if panel overlaps tabs */
     }
 
-     .survey-card {
+    .survey-card {
         border-right: 8px solid #1F6FEB !important;
         border-top: 1px solid #e9ecef;
         border-bottom: 1px solid #e9ecef;
@@ -48,28 +48,28 @@
     .form-switch .form-check-input {
         transition: all 0.2s ease;
     }
-    
-    .form-switch .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    
-    .form-switch .form-check-input:focus {
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
-    }
+
+        .form-switch .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .form-switch .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+        }
 
     /* Large form switch for modal - 2x bigger */
     .form-check-modal-lg .form-check-input {
         width: 4rem;
         height: 2rem;
     }
-    
+
     .form-check-modal-lg .form-check-label {
         font-size: 1rem;
         font-weight: 600;
         margin-left: 0.75rem;
     }
-    
+
     .modal-mode-toggle {
         padding: 0.5rem 1rem;
         background: rgba(13, 110, 253, 0.05);
@@ -114,7 +114,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                            margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                                margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -123,10 +123,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                            margin-bottom: 0 !important;
-                                            padding-bottom: 0;
-                                            position: relative;
-                                            z-index: 200; /* Higher than overlay */
+                                                margin-bottom: 0 !important;
+                                                padding-bottom: 0;
+                                                position: relative;
+                                                z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -184,8 +184,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                       Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                       Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                           Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -392,27 +392,27 @@
     }
 
     /* Simple Mode Styling */
-    .simple-mode .complex-column { 
-        display: none !important; 
+    .simple-mode .complex-column {
+        display: none !important;
     }
-    
-    .simple-mode .table { 
-        font-size: 1rem; 
+
+    .simple-mode .table {
+        font-size: 1rem;
     }
-    
-    .simple-mode .card-header { 
+
+    .simple-mode .card-header {
         background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
         font-size: 1.1rem;
         border: none;
     }
 
-    .simple-mode .card-header .small {
-        font-size: 0.9rem !important;
-    }
+        .simple-mode .card-header .small {
+            font-size: 0.9rem !important;
+        }
 
     /* Reduce tooltip overload in simple mode */
-    .simple-mode .info-tooltip { 
-        display: none; 
+    .simple-mode .info-tooltip {
+        display: none;
     }
 
     .simple-mode .bi-info-circle {
@@ -468,7 +468,7 @@
                             <small class="text-muted ms-2">in @addItemCategory</small>
                         }
                     </h5>
-                    
+
                     <div class="d-flex align-items-center gap-3">
                         <!-- Large Mode Toggle in Modal -->
                         <div class="modal-mode-toggle d-flex align-items-center gap-3">
@@ -481,14 +481,14 @@
                                 </small>
                             </div>
                             <div class="form-check form-switch form-check-modal-lg">
-                                <input class="form-check-input" type="checkbox" id="modalModeToggle" 
+                                <input class="form-check-input" type="checkbox" id="modalModeToggle"
                                        checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
                                 <label class="form-check-label" for="modalModeToggle" style="cursor: pointer;">
                                     @(isSimpleMode ? "Enable Advanced" : "Simplify")
                                 </label>
                             </div>
                         </div>
-                        
+
                         <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddItemModal"></button>
                     </div>
                 </div>
@@ -792,7 +792,7 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between align-items-center">
                     <h5 class="modal-title mb-0">@(isSimpleMode ? "Expense Details" : "Item Details")</h5>
-                    
+
                     <div class="d-flex align-items-center gap-3">
                         <!-- Large Mode Toggle in Edit Modal -->
                         <div class="modal-mode-toggle d-flex align-items-center gap-3">
@@ -805,14 +805,14 @@
                                 </small>
                             </div>
                             <div class="form-check form-switch form-check-modal-lg">
-                                <input class="form-check-input" type="checkbox" id="editModalModeToggle" 
+                                <input class="form-check-input" type="checkbox" id="editModalModeToggle"
                                        checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
                                 <label class="form-check-label" for="editModalModeToggle" style="cursor: pointer;">
                                     @(isSimpleMode ? "Enable Advanced" : "Simplify")
                                 </label>
                             </div>
                         </div>
-                        
+
                         <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDetailsModal"></button>
                     </div>
                 </div>
@@ -1057,31 +1057,49 @@
             <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
             <div class="tab-panel-box position-relative">
                 <!-- Mode Toggle positioned to the left of Show Intro button -->
-                <div class="position-absolute d-flex align-items-center gap-3" style="top: 10px; right: 120px; z-index: 100;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="font-size: 1rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
-                        <span class="fw-bold small @(isSimpleMode ? "text-success" : "text-primary")">
-                            @(isSimpleMode ? "Beginner" : "Advanced")
-                        </span>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="compactModeToggle" 
-                               checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
-                        <label class="form-check-label small fw-bold ms-1" for="compactModeToggle" style="cursor: pointer;">
-                            @(isSimpleMode ? "Advanced" : "Simple")
-                        </label>
+                <div class="position-absolute" style="top: 10px; right: 280px; z-index: 1;">
+                    <div style="
+                        background: linear-gradient(90deg,#fffbe6,#fffde7);
+                        border: 2px solid #FFD600;
+                        border-radius: 14px;
+                        box-shadow: 0 2px 12px rgba(255,214,0,0.08);
+                        padding: 8px 18px;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 12px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="font-size: 1rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
+                            <span class="fw-bold small @(isSimpleMode ? "text-success" : "text-primary")">
+                                @(isSimpleMode ? "Beginner" : "Advanced")
+                            </span>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="compactModeToggle"
+                                   checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                            <label class="form-check-label small fw-bold ms-1" for="compactModeToggle" style="cursor: pointer;">
+                                @(isSimpleMode ? "Advanced" : "Simple")
+                            </label>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Show Intro button in top-right corner -->
-                <button class="btn btn-sm btn-warning position-absolute"
-                        style="top: 10px; right: 10px; z-index: 100;"
-                        @onclick="ShowIntroWithReset">
-                    <i class="bi bi-info-circle me-1"></i> Show Intro
-                </button>
+
+                <!-- Buttons in top-right corner -->
+                <div class="position-absolute d-flex gap-2" style="top: 10px; right: 10px; z-index: 1;">
+                    <button class="btn btn-sm btn-warning"
+                            @onclick="ShowIntroWithReset">
+                        <i class="bi bi-info-circle me-1"></i> Show Intro
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger"
+                            @onclick="ClearDataAsync"
+                            title="Clear all saved plan data">
+                        <i class="bi bi-trash me-1"></i>
+                        Clear Plan Data
+                    </button>
+                </div>
 
                 <!-- Beginner-Friendly Onboarding (Simple Mode Only) - 4x Bigger -->
-                @if (isSimpleMode && (!Items?.Any() ?? true))
+                @* @if (isSimpleMode && (!Items?.Any() ?? true))
                 {
                     <div class="alert alert-primary border-0 mb-6" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); padding: 4rem 3rem; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
                         <div class="d-flex align-items-start">
@@ -1123,7 +1141,7 @@
                             </div>
                         </div>
                     </div>
-                }
+                } *@
                 <!-- Planner Controls Strip -->
 
                 <div class="section-card">
@@ -1831,11 +1849,51 @@
 @code {
     // Simple Mode Toggle
     private bool isSimpleMode = true; // Start in beginner mode by default
-    
+
     private void ToggleSimpleMode()
     {
         isSimpleMode = !isSimpleMode;
         StateHasChanged();
+    }
+
+    // Add this method to your @code section
+    private async Task ClearDataAsync()
+    {
+        try
+        {
+            // Confirm with user before deleting
+            var confirm = await JSRuntime.InvokeAsync<bool>("confirm",
+                "Are you sure you want to clear all saved cost of living data? This action cannot be undone.");
+
+            if (!confirm) return;
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var response = await client.DeleteAsync(url);
+
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // Clear the "don't show intro again" localStorage setting
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "finplan-cost-of-living-income-planner-hide-intro");
+
+                Log("Plan data cleared successfully.");
+
+                // Reload the page to reflect the cleared state
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                LogError($"Failed to clear data: {response.StatusCode}");
+                await JSRuntime.InvokeVoidAsync("alert", $"Failed to clear data: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error clearing data: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Error clearing data: {ex.Message}");
+        }
     }
 
     // Ghost tab creation modal state
@@ -1966,18 +2024,18 @@
             // Housing
             new CostItem { Category = "Housing", Subcategory = "Rent/Mortgage", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 2000, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
             new CostItem { Category = "Housing", Subcategory = "Utilities", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
-            
+
             // Food
             new CostItem { Category = "Food", Subcategory = "Groceries", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 600, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
             new CostItem { Category = "Food", Subcategory = "Dining Out", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 300, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 75 },
-            
+
             // Transportation
             new CostItem { Category = "Transportation", Subcategory = "Car Payment", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 400, IncludeInRetirement = false },
             new CostItem { Category = "Transportation", Subcategory = "Gas & Maintenance", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 50 },
-            
+
             // Healthcare
             new CostItem { Category = "Healthcare", Subcategory = "Insurance Premiums", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 300, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Inflation, PerItemInflationSource = InflationSource.Custom, PerItemInflationPercent = 4 },
-            
+
             // Personal
             new CostItem { Category = "Personal", Subcategory = "Entertainment", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 200, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.Same },
             new CostItem { Category = "Personal", Subcategory = "Clothing", Frequency = FinPlan.Shared.Models.LivingCosts.Frequency.Monthly, CurrentValue = 100, IncludeInRetirement = true, AdjustOption = RetirementAdjustOption.CustomPercentage, CustomPercentage = 75 }
@@ -3478,8 +3536,8 @@
     }
 
     // Plan‑A tab info tip
-private bool showTipPlanATab = false;
-private void TogglePlanATabInfo() => showTipPlanATab = !showTipPlanATab;
+    private bool showTipPlanATab = false;
+    private void TogglePlanATabInfo() => showTipPlanATab = !showTipPlanATab;
 
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
