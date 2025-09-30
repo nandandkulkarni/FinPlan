@@ -612,12 +612,31 @@
         <div class="card-value">@results.TotalTaxesPaid.ToString("C0")</div>
     </div>
 </div>
+
+                        <!-- Simple Progress Indicator for General Public -->
+                        @if (results != null && results.FinalAmount > 0)
+                        {
+                            <div class="alert" style="margin: 16px 0; padding: 12px; border-radius: 8px; 
+                                @(GetSavingsProgressMessage().isGood ? "background-color: #d4edda; border-color: #c3e6cb; color: #155724;" : "background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;")">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="bi @(GetSavingsProgressMessage().isGood ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size: 1.2rem;"></i>
+                                    <div>
+                                        <strong>@GetSavingsProgressMessage().title</strong>
+                                        <div style="font-size: 0.9rem; margin-top: 4px;">@GetSavingsProgressMessage().message</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                         }
                         <!-- Centered heading with Edit Plan button -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
                             <div style="flex: 1;"></div>
                             <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
-                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end;">
+                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
+                                <div class="form-check form-switch" style="margin-right: 12px;">
+                                    <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
+                                    <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
+                                </div>
                                 <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                     <i class="bi bi-gear" style="margin-right: 6px;"></i>
                                     Edit Plan
@@ -727,6 +746,21 @@
                                             </span>
                                         }
                                     </div>
+
+                                    <!-- Simple explanation for general public -->
+                                    <div class="alert alert-info mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #e8f4f8; border-left: 3px solid #1F6FEB;">
+                                        <strong>Quick Guide:</strong> 
+                                        <strong>Taxable</strong> = Regular savings/investment accounts. 
+                                        <strong>Traditional</strong> = 401k, Traditional IRA (tax-deferred). 
+                                        <strong>Roth</strong> = Roth IRA, Roth 401k (tax-free growth).
+                                    </div>
+
+                                    @if (!showAdvancedSetup)
+                                    {
+                                        <div class="alert alert-success mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #f0f9f0; border-left: 3px solid #28a745;">
+                                            <strong>💡 Beginner Tip:</strong> Start with just one account type you have money in. You can always add others later!
+                                        </div>
+                                    }
 
                                     @if (!IsStartingBalancesSectionComplete())
                                     {
@@ -851,13 +885,15 @@
                                 </div>
                             </div>
 
-                            <div class="section-card"
-                                 style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid #6D5DFC;">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                        <span class="step-badge">4</span>
-                                        <div>Estimated Growth Rate</div>
-                                    </div>
+                            @if (showAdvancedSetup)
+                            {
+                                <div class="section-card"
+                                     style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid #6D5DFC;">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">4</span>
+                                            <div>Estimated Growth Rate</div>
+                                        </div>
                                     <div class="small-note">
                                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
                                         Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
@@ -905,10 +941,12 @@
                                     <button class="btn-edit" @onclick="() => OpenWizard(4)">Edit</button>
                                 </div>
                             </div>
+                            }
 
-
-                            <div class="section-card"
-                                 style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid #4FD1C5;">
+                            @if (showAdvancedSetup)
+                            {
+                                <div class="section-card"
+                                     style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid #4FD1C5;">
                                 <div>
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                                         <span class="step-badge">5</span>
@@ -952,6 +990,7 @@
                                     <button class="btn-edit" @onclick="() => OpenWizard(5)">Edit</button>
                                 </div>
                             </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -973,7 +1012,13 @@
     <div class="grid-panel panel mt-3">
         <div class="grid-header">
             <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
-            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMethodology = !showToolTipMethodology" tabindex="0" title="Click for calculation methodology"></span>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="simpleViewToggle" @onchange="ToggleSimpleView" checked="@showSimpleView">
+                    <label class="form-check-label" for="simpleViewToggle" style="font-size: 0.9rem;">Simple View</label>
+                </div>
+                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMethodology = !showToolTipMethodology" tabindex="0" title="Click for calculation methodology"></span>
+            </div>
             @if (showToolTipMethodology)
             {
                 <div class="info-tooltip" style="max-width: 400px;">
@@ -1326,6 +1371,10 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
     private bool showToolTipIncomeType = false;
     private bool showToolTipTaxBracket = false;
     private bool showToolTipMethodology = false;
+    
+    // UX Enhancement toggles
+    private bool showSimpleView = true;
+    private bool showAdvancedSetup = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -1594,5 +1643,48 @@ var age = calculatorModel.CurrentAge + (r.Year - 1);  // r.Year is 1-based
 #else
         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api.finplan.example";
 #endif
+    }
+
+    // UX Enhancement Methods
+    private void ToggleSimpleView(ChangeEventArgs e)
+    {
+        showSimpleView = e.Value?.ToString()?.ToLower() == "true";
+        StateHasChanged();
+    }
+
+    private void ToggleAdvancedSetup(ChangeEventArgs e)
+    {
+        showAdvancedSetup = e.Value?.ToString()?.ToLower() == "true";
+        StateHasChanged();
+    }
+
+    private (string title, string message, bool isGood) GetSavingsProgressMessage()
+    {
+        if (results == null || calculatorModel == null) return ("", "", true);
+
+        var monthlyContributions = calculatorModel.MonthlyTaxableContribution + 
+                                  calculatorModel.MonthlyTraditionalContribution + 
+                                  calculatorModel.MonthlyRothContribution;
+        var annualContributions = monthlyContributions * 12;
+        var yearsToRetirement = calculatorModel.RetirementAge - calculatorModel.CurrentAge;
+        var finalSavings = results.FinalAmount;
+
+        // Simple rule of thumb: 10-15% of income saved, or $1M+ by retirement
+        if (finalSavings >= 1_000_000)
+        {
+            return ("Great job! 🎉", $"You're projected to have {finalSavings:C0} by retirement. You're on track for a comfortable retirement!", true);
+        }
+        else if (finalSavings >= 500_000)
+        {
+            return ("Good progress! 👍", $"You're projected to have {finalSavings:C0} by retirement. Consider increasing contributions if possible.", true);
+        }
+        else if (annualContributions < 10_000)
+        {
+            return ("Consider saving more 💡", $"You're currently saving {annualContributions:C0}/year. Financial experts suggest saving 10-15% of income for retirement.", false);
+        }
+        else
+        {
+            return ("Keep it up! 💪", $"You're saving {annualContributions:C0}/year. Your projected {finalSavings:C0} is a good start - consider increasing when possible.", true);
+        }
     }
 }
