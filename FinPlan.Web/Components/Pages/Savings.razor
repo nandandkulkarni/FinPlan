@@ -559,6 +559,52 @@
         filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.05));
     }
 
+    /* Large Mode Toggle Styles - Same as Cost of Living */
+    .form-switch .form-check-input {
+        transition: all 0.2s ease;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .form-switch .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+    }
+
+    /* Large form switch for prominent toggle */
+    .form-switch-lg .form-check-input {
+        width: 3rem !important;
+        height: 1.5rem !important;
+        background-color: #6c757d;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .form-switch-lg .form-check-input:checked {
+        background-color: #0d6efd;
+        box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+    }
+    
+    .form-switch-lg .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .mode-toggle-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .simple-mode .mode-toggle-header {
+        background: linear-gradient(135deg, #d1e7dd 0%, #a3cfbb 100%);
+        border-bottom: 2px solid #75b798;
+    }
+
 </style>
 
 <PageTitle>Savings & Wealth Building</PageTitle>
@@ -579,6 +625,7 @@
     <div class="page-header">
         <h3>Savings & Wealth Building</h3>
     </div>
+
 
     <div class="top-area">
         <div class="container-fluid">
@@ -691,16 +738,35 @@
                                 </div>
                             </div>
                         </div> *@
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
+                        <!-- Enhanced header with large mode toggle - Same as Cost of Living -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
                             <div style="flex: 1;"></div>
-                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
-                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
-                                <div class="form-check form-switch" style="margin-right: 12px;">
-                                    <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
-                                    <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
+                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">
+                                @(showAdvancedSetup ? "Advanced Savings Planning" : "Simple Savings Plan")
+                            </h5>
+                            <div style="display: flex; gap: 16px; flex: 1; justify-content: flex-end; align-items: center;">
+                                <!-- Large Mode Toggle - Same as Cost of Living -->
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="text-end">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span style="font-size: 1.1rem;">@(showAdvancedSetup ? "⚙️" : "🎯")</span>
+                                            <span class="fw-bold @(showAdvancedSetup ? "text-primary" : "text-success")">
+                                                @(showAdvancedSetup ? "Advanced Mode" : "Simple Mode")
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            @(showAdvancedSetup ? "All features & controls" : "Basic & easy to use")
+                                        </small>
+                                    </div>
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
+                                        <label class="form-check-label fw-bold ms-2" for="advancedSetupToggle" style="cursor: pointer;">
+                                            @(showAdvancedSetup ? "Simplify Interface" : "Enable Advanced Features")
+                                        </label>
+                                    </div>
                                 </div>
                                 <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
+                                    <i class="bi bi-gear me-2"></i>
                                     Update Plan
                                 </button>
                                 <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data for current calculator">
