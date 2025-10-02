@@ -1834,53 +1834,100 @@
     private string GetApiBaseUrl()
     {
 #if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
 #else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api.finplan.example";
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
 #endif
     }
+    // Add this method to your @code section
     // Add this method to your @code section
     private async Task ClearDataAsync()
     {
         try
         {
+            await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: Starting clear operation");
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Calculator type = {calculatorType}");
+
             // Confirm with user before deleting
             var confirm = await JSRuntime.InvokeAsync<bool>("confirm",
                 $"Are you sure you want to clear all saved data for {(calculatorType == calculatorTypeYours ? "Your" : "Partners")} savings plan? This action cannot be undone.");
 
-            if (!confirm) return;
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: User confirmation = {confirm}");
+
+            if (!confirm)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: User cancelled operation");
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(userGuid))
             {
+                await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: Getting user GUID");
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
             }
 
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Using user GUID = {userGuid}");
+
             var apiBaseUrl = GetApiBaseUrl();
-            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: API base URL = {apiBaseUrl}");
+
+            // Create request body for POST instead of query parameters for DELETE
+            var deleteRequest = new
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(deleteRequest);
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Request payload = {json}");
+
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.DeleteAsync(url);
+            var endpoint = $"{apiBaseUrl}/api/FinPlan/remove";
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Making POST request to {endpoint}");
+
+            // Use POST to delete endpoint instead of DELETE with query parameters
+            var response = await client.PostAsync(endpoint, content);
+
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Response status = {response.StatusCode}");
+            await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Response success = {response.IsSuccessStatusCode}");
 
             if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
+                await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: Clear operation succeeded");
                 DebugService.AddMessage("Plan data cleared successfully.");
+
                 // Remove the intro modal hide localStorage key
                 string key = calculatorType == calculatorTypeYours
                     ? "finplan-your-savings-wealth-building-hide-intro"
                     : "finplan-partner-savings-wealth-building-hide-intro";
+
+                await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Removing localStorage key = {key}");
                 await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+
                 // Reset the model to empty so IsModelEmpty() returns true on reload
+                await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: Resetting calculator model to empty state");
                 calculatorModel = new SavingsCalculatorModel();
+
                 // Reload the page to reflect the cleared state
+                await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Reloading page to {Navigation.Uri}");
                 Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
             }
             else
             {
+                await JSRuntime.InvokeVoidAsync("console.error", $"ClearDataAsync: Failed to clear data - Status: {response.StatusCode}");
                 DebugService.AddMessage($"Failed to clear data: {response.StatusCode}");
+
+                // Log response content for debugging
+                var responseContent = await response.Content.ReadAsStringAsync();
+                await JSRuntime.InvokeVoidAsync("console.error", $"ClearDataAsync: Response content = {responseContent}");
             }
         }
         catch (Exception ex)
         {
+            await JSRuntime.InvokeVoidAsync("console.error", $"ClearDataAsync: Exception occurred - {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"ClearDataAsync: Stack trace = {ex.StackTrace}");
             DebugService.AddMessage($"Error clearing data: {ex.Message}");
         }
     }

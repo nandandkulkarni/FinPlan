@@ -215,20 +215,25 @@ namespace FinPlan.ApiService.Controllers
             return Ok(entity.Data);
         }
 
-        // Delete saved calculator data
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromQuery] string userGuid, [FromQuery] string calculatorType)
+        [HttpPost("remove")]
+        public async Task<IActionResult> DeleteByPost([FromBody] DeleteRequest request)
         {
-            if (string.IsNullOrWhiteSpace(userGuid) || string.IsNullOrWhiteSpace(calculatorType))
+            if (string.IsNullOrWhiteSpace(request.UserGuid) || string.IsNullOrWhiteSpace(request.CalculatorType))
                 return BadRequest("Missing required fields.");
 
-            var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.CalculatorType == calculatorType);
+            var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == request.UserGuid && x.CalculatorType == request.CalculatorType);
             if (entity == null)
                 return NotFound();
 
             _db.FinPlans.Remove(entity);
             await _db.SaveChangesAsync();
             return Ok();
+        }
+
+        public class DeleteRequest
+        {
+            public string UserGuid { get; set; } = string.Empty;
+            public string CalculatorType { get; set; } = string.Empty;
         }
     }
 }

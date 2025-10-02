@@ -5,6 +5,8 @@
 @using FinPlan.Shared.Models.Spending
 @using FinPlan.Web.Components.Shared
 @using Microsoft.AspNetCore.Components.Web
+@using System.Text.Json
+@using System.Text
 
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -1939,6 +1941,7 @@
     }
 
     // Add this method to your @code section
+    // Add this method to your @code section
     private async Task ClearDataAsync()
     {
         try
@@ -1957,10 +1960,22 @@
             }
 
             var apiBaseUrl = GetApiBaseUrl(); // You'll need to implement this based on your configuration
-            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+            var url = $"{apiBaseUrl}/api/FinPlan/remove"; // Changed endpoint to match POST pattern
 
             using var httpClient = new HttpClient(); // Or use your existing HTTP client service
-            var response = await httpClient.DeleteAsync(url);
+
+            // Create request body for POST method
+            var requestBody = new
+            {
+                userGuid = userGuid,
+                calculatorType = calculatorType
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Changed from DELETE to POST
+            var response = await httpClient.PostAsync(url, content);
 
             if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {

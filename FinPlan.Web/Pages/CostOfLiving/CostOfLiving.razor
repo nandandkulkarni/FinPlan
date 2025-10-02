@@ -1857,6 +1857,7 @@
     }
 
     // Add this method to your @code section
+    // Add this method to your @code section
     private async Task ClearDataAsync()
     {
         try
@@ -1868,10 +1869,20 @@
             if (!confirm) return;
 
             var apiBaseUrl = GetApiBaseUrl();
-            var url = $"{apiBaseUrl}/api/FinPlan/delete?userGuid={userGuid}&calculatorType={calculatorType}";
+
+            // Create request body for POST method instead of query parameters
+            var deleteRequest = new
+            {
+                UserGuid = userGuid,
+                CalculatorType = calculatorType
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(deleteRequest);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.DeleteAsync(url);
+            // Use POST to clear endpoint instead of DELETE with query parameters
+            var response = await client.PostAsync($"{apiBaseUrl}/api/FinPlan/remove", content);
 
             if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
