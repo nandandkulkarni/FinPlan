@@ -19,8 +19,9 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
+        private string GetClientIpAddress() => HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
         // Helper method to get the client IP address
-        private string GetClientIpAddress()
+        private string GetClientIpAddress1()
         {
             string? ipAddress = null;
 
