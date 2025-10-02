@@ -520,42 +520,6 @@
     </div>
 </div>
 
-
-@* Confirmation modal for cookie association *@
-@if (false)
-{
-    <div class="modal-backdrop fade show" style="z-index:1040"></div>
-    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Associate locally-stored data with your account</h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="DeclineAssociate"></button>
-                </div>
-                <div class="modal-body">
-                    <p>We detected saved calculator data on this browser (<strong>@pendingItemCount</strong> items) that is tied to this device's local identifier. If you confirm, this data will be associated with your account <strong>@pendingEmail</strong> so you'll be able to access it from other devices.</p>
-                    <p><strong>What will happen if you accept</strong>:</p>
-                    <ul>
-                        <li>The locally-stored calculators and settings (saved on this device) will be linked to your account.</li>
-                        <li>Future sign-ins from other devices using your account will be able to load this data.</li>
-                        <li>No data will be deleted.</li>
-                    </ul>
-                    <p><strong>What will happen if you decline</strong>:</p>
-                    <ul>
-                        <li>The locally-stored data will remain only on this browser and will not be associated with your account.</li>
-                        <li>You will be signed out now to prevent accidental association.</li>
-                    </ul>
-                    <p class="text-muted small">If you'd like to review or export the items before associating, use the Debug > Saved Data tools (development only).</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary btn-sm" @onclick="DeclineAssociate">No, sign me out</button>
-                    <button class="btn btn-primary btn-sm" @onclick="ConfirmAssociate">Yes, associate my data</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
 <main>
     <div class="container-fluid page-with-sidebars">
         <div class="content-rail d-flex">
@@ -566,31 +530,6 @@
     </div>
 </main>
 
-<!-- Consent banner -->
-<div id="consent-banner" style="display:none; position:fixed; right:16px; bottom:16px; z-index:1050; max-width:420px;">
-    <div class="card shadow">
-        <div class="card-body">
-            <h6 class="card-title">Cookies & Consent</h6>
-            <p class="small">We use cookies to improve calculators and personalize ads. Manage consent:</p>
-            <div class="d-flex align-items-center mb-2">
-                <div class="form-check me-2">
-                    <input class="form-check-input" type="checkbox" id="consent-analytics" />
-                    <label class="form-check-label small" for="consent-analytics">Analytics</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="consent-ads" />
-                    <label class="form-check-label small" for="consent-ads">Ads personalization</label>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-link btn-sm me-2" id="consent-decline">Decline all</button>
-                <button class="btn btn-primary btn-sm" id="consent-accept">Accept all</button>
-                <button class="btn btn-primary btn-sm" id="consent-accept">Accept necessary ones</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
@@ -600,116 +539,67 @@
 <script src="/js/adLoader.js"></script>
 <script src="/js/audioInterop.js"></script>
 <script>
-    // Consent logic: show banner if no consent cookie exists
+    // Cookie consent functionality - COMPLETELY DISABLED
+    // Automatically set consent to decline all tracking to prevent any prompts
     (function(){
         const consentKey = 'finplan_consent_v1';
 
-        function showBanner() {
-            const el = document.getElementById('consent-banner');
-            if (!el) return;
-            el.style.display = 'block';
-            // initialise checkbox states from stored consent
-            const existing = window.cookieHandlerExtension.GetConsentObject(consentKey);
-            if (existing) {
-                const a = document.getElementById('consent-analytics');
-                const p = document.getElementById('consent-ads');
-                if (a) a.checked = !!existing.analytics;
-                if (p) p.checked = !!existing.personalizedAds;
-            } else {
-                const a = document.getElementById('consent-analytics');
-                const p = document.getElementById('consent-ads');
-                if (a) a.checked = true; // default analytics allowed
-                if (p) p.checked = false; // default ads off
+        function setDefaultConsent() {
+            const obj = { 
+                analytics: false, 
+                personalizedAds: false, 
+                timestamp: new Date().toISOString() 
+            };
+            try {
+                window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
+                window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
+            } catch(e) { 
+                console.log('Cookie handler not available, consent tracking disabled');
             }
         }
 
-        function saveConsent() {
-            const aEl = document.getElementById('consent-analytics');
-            const pEl = document.getElementById('consent-ads');
-            const obj = {
-                analytics: !!(aEl && aEl.checked),
-                personalizedAds: !!(pEl && pEl.checked),
-                timestamp: new Date().toISOString()
-            };
-            window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
-            window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
-            const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
-
-            // Initialize ads now that consent stored
-            if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
-        }
-
-        function declineAll() {
-            const obj = { analytics: false, personalizedAds: false, timestamp: new Date().toISOString() };
-            window.cookieHandlerExtension.SetConsentObject(consentKey, obj, 365);
-            window.cookieHandlerExtension.ApplyConsentToWindow(consentKey);
-            const el = document.getElementById('consent-banner'); if (el) el.style.display = 'none';
-
-            // Still init adLoader so non-personalized placeholders load
-            if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
-        }
-
-        // Wait for the layout DOM to be available (handles Blazor render replacing DOM)
+        // Wait for the layout DOM to be available
         function initWhenReady() {
             let attempts = 0;
-            const maxAttempts = 50; // ~5s
+            const maxAttempts = 50;
             const interval = setInterval(() => {
                 attempts++;
-                const banner = document.getElementById('consent-banner');
-                const accept = document.getElementById('consent-accept');
-                const decline = document.getElementById('consent-decline');
-                if (banner && accept && decline) {
-                    clearInterval(interval);
-
-                    // Attach listeners (avoid duplicate attachments)
-                    try {
-                        if (accept && typeof accept.addEventListener === 'function') {
-                            try { accept.removeEventListener('click', saveConsent); } catch(e) { /* ignore */ }
-                            accept.addEventListener('click', saveConsent);
-                        }
-                        if (decline && typeof decline.addEventListener === 'function') {
-                            try { decline.removeEventListener('click', declineAll); } catch(e) { /* ignore */ }
-                            decline.addEventListener('click', declineAll);
-                        }
-                    } catch (handlerEx) { console.error('Consent handlers attach failed', handlerEx); }
-
+                
+                try {
                     // wire blazor error UI controls safely
-                    try {
-                        const reloadLink = document.querySelector('#blazor-error-ui .reload');
-                        const dismissLink = document.querySelector('#blazor-error-ui .dismiss');
-                        if (reloadLink && typeof reloadLink.addEventListener === 'function') {
-                            reloadLink.removeEventListener('click', window.__fp_reload_handler__);
-                            window.__fp_reload_handler__ = function(ev) { ev.preventDefault(); try { window.location.reload(); } catch(e) { console.error(e); } };
-                            reloadLink.addEventListener('click', window.__fp_reload_handler__);
-                        }
-                        if (dismissLink && typeof dismissLink.addEventListener === 'function') {
-                            dismissLink.removeEventListener('click', window.__fp_dismiss_handler__);
-                            window.__fp_dismiss_handler__ = function(ev) { ev.preventDefault(); var ui = document.getElementById('blazor-error-ui'); if (ui) ui.style.display = 'none'; };
-                            dismissLink.addEventListener('click', window.__fp_dismiss_handler__);
-                        }
-                    } catch (e) { console.error('blazor-error-ui handlers', e); }
-
-                    // Apply stored consent to window flags
-                    try { window.cookieHandlerExtension.ApplyConsentToWindow(consentKey); } catch(e) { console.error(e); }
-
-                    const has = window.cookieHandlerExtension.GetConsentObject(consentKey);
-                    if (!has) {
-                        // slight delay so layout paint is visible and it doesn't flash due to re-render
-                        setTimeout(() => showBanner(), 80);
-                    } else {
-                        // If consent already present, initialize ad loader immediately
-                        if (window.adLoader && typeof window.adLoader.init === 'function') window.adLoader.init({ consentKey: consentKey });
+                    const reloadLink = document.querySelector('#blazor-error-ui .reload');
+                    const dismissLink = document.querySelector('#blazor-error-ui .dismiss');
+                    if (reloadLink && typeof reloadLink.addEventListener === 'function') {
+                        reloadLink.removeEventListener('click', window.__fp_reload_handler__);
+                        window.__fp_reload_handler__ = function(ev) { ev.preventDefault(); try { window.location.reload(); } catch(e) { console.error(e); } };
+                        reloadLink.addEventListener('click', window.__fp_reload_handler__);
                     }
+                    if (dismissLink && typeof dismissLink.addEventListener === 'function') {
+                        dismissLink.removeEventListener('click', window.__fp_dismiss_handler__);
+                        window.__fp_dismiss_handler__ = function(ev) { ev.preventDefault(); var ui = document.getElementById('blazor-error-ui'); if (ui) ui.style.display = 'none'; };
+                        dismissLink.addEventListener('click', window.__fp_dismiss_handler__);
+                    }
+                } catch (e) { console.error('blazor-error-ui handlers', e); }
+
+                // Always ensure consent is set to decline all
+                setDefaultConsent();
+                
+                // Initialize ad loader with no consent
+                try {
+                    if (window.adLoader && typeof window.adLoader.init === 'function') {
+                        window.adLoader.init({ consentKey: consentKey });
+                    }
+                } catch(e) { 
+                    console.log('Ad loader not available'); 
                 }
+                
+                clearInterval(interval);
 
                 if (attempts >= maxAttempts) {
                     clearInterval(interval);
                 }
             }, 100);
         }
-
-        // Start init after a short tick to allow Blazor to render
-        setTimeout(initWhenReady, 50);
 
         // Handle escape key for mobile menu
         window.addMobileMenuEscapeListener = function(dotNetRef) {
@@ -723,6 +613,8 @@
             });
         };
 
+        // Start init after a short tick to allow Blazor to render
+        setTimeout(initWhenReady, 50);
     })();
 </script>
 
@@ -758,12 +650,6 @@
     private bool isAuthenticated = false;
     private bool isAuthLoaded = false;
     private bool userRecordCreated = false;
-
-    // modal state
-    private bool showCookieAssocModal = false;
-    private string? pendingCookieGuid;
-    private int pendingItemCount = 0;
-    private string? pendingEmail;
 
     // mobile menu state
     private bool showMobileMenu = false;
@@ -868,28 +754,8 @@
 
             if (resp.IsSuccessStatusCode)
             {
-                try
-                {
-                    using var doc = System.Text.Json.JsonDocument.Parse(respBody);
-                    var root = doc.RootElement;
-                    if (root.TryGetProperty("needsCookieAssociation", out var needProp) && needProp.GetBoolean())
-                    {
-                        pendingCookieGuid = root.GetProperty("cookieGuid").GetString();
-                        pendingItemCount = root.GetProperty("itemCount").GetInt32();
-                        pendingEmail = email;
-                        showCookieAssocModal = false;           // DISABLING COOKIES WARNING FOR NOW
-                        StateHasChanged();
-                        return;
-                    }
-                    else
-                    {
-                        userRecordCreated = true;
-                    }
-                }
-                catch
-                {
-                    userRecordCreated = true;
-                }
+                // Cookie association functionality completely removed - just mark as created
+                userRecordCreated = true;
             }
             else
             {
@@ -900,45 +766,6 @@
         {
             try { Console.Error.WriteLine($"EnsureUserRecordAsync exception: {ex.Message}"); } catch { }
         }
-    }
-
-    private async Task ConfirmAssociate()
-    {
-        showCookieAssocModal = false;
-        StateHasChanged();
-
-        if (string.IsNullOrWhiteSpace(pendingEmail) || string.IsNullOrWhiteSpace(pendingCookieGuid))
-        {
-            // nothing to do
-            return;
-        }
-
-        try
-        {
-            var apiBase = GetApiBaseUrl();
-            var url = $"{apiBase}/api/User/associate-cookie";
-            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var req = new { UserEmail = pendingEmail, CookieGuid = pendingCookieGuid };
-            var json = System.Text.Json.JsonSerializer.Serialize(req);
-            var resp = await client.PostAsync(url, new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
-            var body = await resp.Content.ReadAsStringAsync();
-            Console.WriteLine($"AssociateCookie response: {resp.StatusCode}; body: {body}");
-
-            // Re-run upsert so server can proceed now that registration exists
-            await EnsureUserRecordAsync();
-        }
-        catch (Exception ex)
-        {
-            try { Console.Error.WriteLine($"ConfirmAssociate exception: {ex.Message}"); } catch { }
-        }
-    }
-
-    private void DeclineAssociate()
-    {
-        showCookieAssocModal = false;
-        StateHasChanged();
-        // if user declines, sign them out
-        Navigation.NavigateTo("/signout", forceLoad: true);
     }
 
     private void ToggleMobileMenu()
