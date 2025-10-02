@@ -2013,6 +2013,8 @@
     {
         // Clear any existing items and let user build from scratch
         Items = new List<CostItem>();
+        showIntroModal = false; // Add this line to close the modal
+
         RecalculateAll(save: true);
         await InvokeAsync(StateHasChanged);
     }
@@ -3306,6 +3308,8 @@
     private void StartWithDefaults()
     {
         Items = StandardCostCategories.GetDefaults();
+        showIntroModal = false; // Add this line to close the modal
+
         ScheduleAutosave();
         StateHasChanged();
     }

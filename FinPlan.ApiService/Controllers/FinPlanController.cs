@@ -9,9 +9,6 @@ using System.Text.Json;
 
 namespace FinPlan.ApiService.Controllers
 {
-
-
-
     [ApiController]
     [Route("api/[controller]")]
     public class FinPlanController : ControllerBase
@@ -20,6 +17,44 @@ namespace FinPlan.ApiService.Controllers
         public FinPlanController(FinPlanDbContext db)
         {
             _db = db;
+        }
+
+        // Helper method to get the client IP address
+        private string GetClientIpAddress()
+        {
+            string? ipAddress = null;
+
+            // Check for forwarded IP addresses (when behind proxy/load balancer)
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(ipAddress))
+                {
+                    // X-Forwarded-For can contain multiple IPs, take the first one
+                    ipAddress = ipAddress.Split(',')[0].Trim();
+                }
+            }
+
+            // Check for X-Real-IP header
+            if (string.IsNullOrEmpty(ipAddress) && Request.Headers.ContainsKey("X-Real-IP"))
+            {
+                ipAddress = Request.Headers["X-Real-IP"].FirstOrDefault();
+            }
+
+            // Fall back to remote IP address
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            }
+
+            return ipAddress ?? "Unknown";
+        }
+
+        // Helper method to get current Eastern Time
+        private DateTime GetEasternTime()
+        {
+            var easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);
         }
 
         // Save calculator data - read raw body and deserialize to return clearer errors when JSON is invalid
@@ -53,6 +88,10 @@ namespace FinPlan.ApiService.Controllers
             if (request == null)
                 return BadRequest("Request could not be deserialized to PersistCalendarSpendingRequest.");
 
+            // Get client IP address and Eastern Time
+            var clientIpAddress = GetClientIpAddress();
+            var easternTime = GetEasternTime();
+
             // Proceed as before
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
 
@@ -64,13 +103,18 @@ namespace FinPlan.ApiService.Controllers
                     Id = Guid.NewGuid(),
                     UserGuid = request.UserGuid,
                     CalculatorType = request.CalculatorType,
-                    Data = serializedData
+                    Data = serializedData,
+                    IpAddress = clientIpAddress,
+                    CreatedAt = easternTime,
+                    UpdatedAt = easternTime
                 };
                 _db.FinPlans.Add(entity);
             }
             else
             {
                 entity.Data = serializedData;
+                entity.IpAddress = clientIpAddress;
+                entity.UpdatedAt = easternTime;
                 _db.FinPlans.Update(entity);
             }
             await _db.SaveChangesAsync();
@@ -110,6 +154,5 @@ namespace FinPlan.ApiService.Controllers
             await _db.SaveChangesAsync();
             return Ok();
         }
-
     }
 }

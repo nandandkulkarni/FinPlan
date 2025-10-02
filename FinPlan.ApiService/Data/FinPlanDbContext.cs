@@ -17,7 +17,18 @@ namespace FinPlan.ApiService.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("finplan");
-            modelBuilder.Entity<FinPlanEntity>().ToTable("FinPlan");
+            
+            // Configure FinPlanEntity
+            modelBuilder.Entity<FinPlanEntity>(b =>
+            {
+                b.ToTable("FinPlan");
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.CreatedAt).ValueGeneratedNever();
+                b.Property(e => e.UpdatedAt).ValueGeneratedNever();
+                b.Property(e => e.IpAddress).HasMaxLength(45); // Support IPv6 addresses
+            });
+            
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<UserRegistration>().ToTable("UserRegistration");
 

@@ -13,6 +13,9 @@ namespace FinPlan.ApiService.Data
         public string CalculatorType { get; set; } = string.Empty;
         [Required]
         public string Data { get; set; } = string.Empty;
+        public string? IpAddress { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }
 

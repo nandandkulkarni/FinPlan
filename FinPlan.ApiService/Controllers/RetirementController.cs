@@ -19,6 +19,37 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
+        // Helper method to get the client IP address
+        private string GetClientIpAddress()
+        {
+            string? ipAddress = null;
+
+            // Check for forwarded IP addresses (when behind proxy/load balancer)
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(ipAddress))
+                {
+                    // X-Forwarded-For can contain multiple IPs, take the first one
+                    ipAddress = ipAddress.Split(',')[0].Trim();
+                }
+            }
+
+            // Check for X-Real-IP header
+            if (string.IsNullOrEmpty(ipAddress) && Request.Headers.ContainsKey("X-Real-IP"))
+            {
+                ipAddress = Request.Headers["X-Real-IP"].FirstOrDefault();
+            }
+
+            // Fall back to remote IP address
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            }
+
+            return ipAddress ?? "Unknown";
+        }
+
         // Simple ping for diagnostics
         [HttpGet("ping")]
         public IActionResult Ping()
@@ -58,6 +89,9 @@ namespace FinPlan.ApiService.Controllers
             if (request == null)
                 return BadRequest("Request could not be deserialized to PersistCalendarSpendingRequest.");
 
+            // Get client IP address
+            var clientIpAddress = GetClientIpAddress();
+
             // Proceed as before
             var serializedData = System.Text.Json.JsonSerializer.Serialize(request.Data);
 
@@ -69,13 +103,18 @@ namespace FinPlan.ApiService.Controllers
                     Id = Guid.NewGuid(),
                     UserGuid = request.UserGuid,
                     CalculatorType = request.CalculatorType,
-                    Data = serializedData
+                    Data = serializedData,
+                    IpAddress = clientIpAddress,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
                 };
                 _db.FinPlans.Add(entity);
             }
             else
             {
                 entity.Data = serializedData;
+                entity.IpAddress = clientIpAddress;
+                entity.UpdatedAt = DateTime.UtcNow;
                 _db.FinPlans.Update(entity);
             }
             await _db.SaveChangesAsync();
@@ -103,60 +142,5 @@ namespace FinPlan.ApiService.Controllers
                 return Ok(entity.Data);
             }
         }
-
-        //// Delete stored plan for a user/calculator
-        //[HttpPost("delete")]
-        //public async Task<IActionResult> Delete()
-        //{
-        //    string body;
-        //    using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
-        //    {
-        //        body = await reader.ReadToEndAsync();
-        //    }
-
-        //    if (string.IsNullOrWhiteSpace(body))
-        //        return BadRequest("Empty request body.");
-
-        //    // Try to deserialize to known request shapes to extract UserGuid and CalculatorType
-        //    string? userGuid = null;
-        //    string? calculatorType = null;
-
-        //    try
-        //    {
-        //        var spReq = JsonSerializer.Deserialize<PersistSpendingRequest>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        //        if (spReq != null && !string.IsNullOrWhiteSpace(spReq.UserGuid) && !string.IsNullOrWhiteSpace(spReq.CalculatorType))
-        //        {
-        //            userGuid = spReq.UserGuid;
-        //            calculatorType = spReq.CalculatorType;
-        //        }
-        //    }
-        //    catch { /* ignore */ }
-
-        //    if (userGuid == null || calculatorType == null)
-        //    {
-        //        try
-        //        {
-        //            var calReq = JsonSerializer.Deserialize<PersistCalendarSpendingRequest>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        //            if (calReq != null && !string.IsNullOrWhiteSpace(calReq.UserGuid) && !string.IsNullOrWhiteSpace(calReq.CalculatorType))
-        //            {
-        //                userGuid = calReq.UserGuid;
-        //                calculatorType = calReq.CalculatorType;
-        //            }
-        //        }
-        //        catch { /* ignore */ }
-        //    }
-
-        //    if (userGuid == null || calculatorType == null)
-        //        return BadRequest("Request must contain UserGuid and CalculatorType.");
-
-        //    var entity = await _db.FinPlans.FirstOrDefaultAsync(x => x.UserGuid == userGuid && x.CalculatorType == calculatorType);
-        //    if (entity == null)
-        //        return NotFound();
-
-        //    _db.FinPlans.Remove(entity);
-        //    await _db.SaveChangesAsync();
-        //    return Ok();
-        //}
-
     }
 }
