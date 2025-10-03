@@ -131,39 +131,12 @@
     }
 
     /* Growth rate styling */
-    .growth-rate-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #2D3748;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .growth-slider {
-        height: 8px;
-    }
-
-        .growth-slider::-webkit-slider-thumb {
-            height: 18px;
-            width: 18px;
-        }
-
-    .taxable-slider::-webkit-slider-thumb {
-        background: #4299E1;
-    }
-
-    .traditional-slider::-webkit-slider-thumb {
-        background: #48BB78;
-    }
-
-    .roth-slider::-webkit-slider-thumb {
-        background: #805AD5;
-    }
-
     .growth-preview {
         background: #f8f9fa;
-        padding: 8px 12px;
+        padding: 10px 12px;
         border-radius: 6px;
         font-size: 0.85rem;
+        margin-top: 0.5rem;
     }
 
     .presets-container {
@@ -534,149 +507,127 @@
                     }
                     else if (wizardStep == 4)
                     {
-                        <div class="mb-3">
-                            <h5 class="mb-3">Estimated Growth Rates (annual %)</h5>
-                            <div class="presets-container mb-3">
-                                <span class="me-2">Quick presets:</span>
-                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyConservativeRates">
-                                    <i class="bi bi-shield-fill me-1"></i> Conservative (4-6%)
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyModerateRates">
-                                    <i class="bi bi-circle-half me-1"></i> Moderate (6-8%)
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ApplyAggressiveRates">
-                                    <i class="bi bi-graph-up-arrow me-1"></i> Aggressive (8-10%)
-                                </button>
-                            </div>
+                        <label class="form-label mb-3">Estimated Growth Rates (annual %)</label>
+                        <div class="presets-container mb-3">
+                            <span class="me-2">Quick presets:</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyConservativeRates">
+                                <i class="bi bi-shield-fill me-1"></i> Conservative (4-6%)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyModerateRates">
+                                <i class="bi bi-circle-half me-1"></i> Moderate (6-8%)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ApplyAggressiveRates">
+                                <i class="bi bi-graph-up-arrow me-1"></i> Aggressive (8-10%)
+                            </button>
+                        </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-4">
-                                    <div class="card account-card taxable">
-                                        <div class="card-body">
-                                            <div class="account-header">
-                                                <i class="bi bi-wallet2"></i>
-                                                <h6 class="card-title">Taxable Growth</h6>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
                                             </div>
-                                            @if (showToolTipTaxableGrowth)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-
-                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateTaxable.ToString("0.0")%</div>
-
-                                            <input type="range" class="form-range growth-slider taxable-slider"
-                                                   min="0" max="12" step="0.1"
-                                                   value="@Model.AnnualGrowthRateTaxable"
-                                                   @oninput="(e) => UpdateTaxableGrowthRate(e)" />
-
-                                            <div class="d-flex justify-content-between small">
-                                                <span>Conservative</span>
-                                                <span>Aggressive</span>
-                                            </div>
-
-                                            <div class="growth-preview mt-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <small>$10,000 grows to in 10 years:</small>
-                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTaxable, 10).ToString("C0")</strong>
-                                                </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateTaxable" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTaxable, 10).ToString("C0")</strong>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="card account-card traditional">
-                                        <div class="card-body">
-                                            <div class="account-header">
-                                                <i class="bi bi-piggy-bank"></i>
-                                                <h6 class="card-title">Traditional Growth</h6>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
-                                            </div>
-                                            @if (showToolTipTraditionalGrowth)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-
-                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateTraditional.ToString("0.0")%</div>
-
-                                            <input type="range" class="form-range growth-slider traditional-slider"
-                                                   min="0" max="12" step="0.1"
-                                                   value="@Model.AnnualGrowthRateTraditional"
-                                                   @oninput="(e) => UpdateTraditionalGrowthRate(e)" />
-
-                                            <div class="d-flex justify-content-between small">
-                                                <span>Conservative</span>
-                                                <span>Aggressive</span>
-                                            </div>
-
-                                            <div class="growth-preview mt-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <small>$10,000 grows to in 10 years:</small>
-                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTraditional, 10).ToString("C0")</strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="card account-card roth">
-                                        <div class="card-body">
-                                            <div class="account-header">
-                                                <i class="bi bi-safe"></i>
-                                                <h6 class="card-title">Roth Growth</h6>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
-                                            </div>
-                                            @if (showToolTipRothGrowth)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-
-                                            <div class="growth-rate-value text-center mb-2">@Model.AnnualGrowthRateRoth.ToString("0.0")%</div>
-
-                                            <input type="range" class="form-range growth-slider roth-slider"
-                                                   min="0" max="12" step="0.1"
-                                                   value="@Model.AnnualGrowthRateRoth"
-                                                   @oninput="(e) => UpdateRothGrowthRate(e)" />
-
-                                            <div class="d-flex justify-content-between small">
-                                                <span>Conservative</span>
-                                                <span>Aggressive</span>
-                                            </div>
-
-                                            <div class="growth-preview mt-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <small>$10,000 grows to in 10 years:</small>
-                                                    <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateRoth, 10).ToString("C0")</strong>
-                                                </div>
-                                            </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 4-7% annually</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="alert alert-info">
-                                <i class="bi bi-lightbulb me-2"></i>
-                                <strong>Tip:</strong> Growth rates typically range from 4% (very conservative) to 10% (aggressive).
-                                The S&P 500 has averaged about 10% annually since 1926 (before inflation),
-                                while a balanced portfolio might average 7-8%.
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateTraditional" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTraditional, 10).ToString("C0")</strong>
+                                            </div>
+                                        </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 6-8% annually</small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateRoth" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateRoth, 10).ToString("C0")</strong>
+                                            </div>
+                                        </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 6-8% annually</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb me-2"></i>
+                            <strong>Tip:</strong> Growth rates typically range from 4% (very conservative) to 10% (aggressive).
+                            The S&P 500 has averaged about 10% annually since 1926 (before inflation),
+                            while a balanced portfolio might average 7-8%.
                         </div>
                     }
                     else if (wizardStep == 5)
@@ -966,33 +917,6 @@
     {
         await InvokeOnSave();
         StateHasChanged();
-    }
-
-    private void UpdateTaxableGrowthRate(ChangeEventArgs e)
-    {
-        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
-        {
-            Model.AnnualGrowthRateTaxable = value;
-            OnFieldChanged();
-        }
-    }
-
-    private void UpdateTraditionalGrowthRate(ChangeEventArgs e)
-    {
-        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
-        {
-            Model.AnnualGrowthRateTraditional = value;
-            OnFieldChanged();
-        }
-    }
-
-    private void UpdateRothGrowthRate(ChangeEventArgs e)
-    {
-        if (decimal.TryParse(e.Value?.ToString(), out decimal value))
-        {
-            Model.AnnualGrowthRateRoth = value;
-            OnFieldChanged();
-        }
     }
 
     private void ApplyConservativeRates()
