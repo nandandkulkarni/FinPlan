@@ -1,0 +1,36 @@
+{
+  "testDir": "./",
+  "timeout": 30000,
+  "expect": {
+    "timeout": 5000
+  },
+  "fullyParallel": true,
+  "forbidOnly": true,
+  "retries": 2,
+  "workers": 4,
+  "reporter": [
+    ["html"],
+    ["json", { "outputFile": "test-results.json" }]
+  ],
+  "use": {
+    "browserName": "chromium",
+    "channel": "msedge",
+    "headless": false,
+    "viewport": { "width": 1920, "height": 1080 },
+    "ignoreHTTPSErrors": true,
+    "video": "on-first-retry",
+    "screenshot": "only-on-failure",
+    "trace": "on-first-retry",
+    "slowMo": 1000
+  },
+  "projects": [
+    {
+      "name": "chromium",
+      "use": { 
+        "browserName": "chromium",
+        "channel": "msedge",
+        "headless": false
+      }
+    }
+  ]
+}

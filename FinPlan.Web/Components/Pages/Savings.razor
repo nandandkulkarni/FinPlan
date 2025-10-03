@@ -1593,6 +1593,18 @@
 
     private async Task HandleIntroModal()
     {
+        // Check for showIntro query parameter
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var showIntroParam = query["showIntro"];
+        
+        if (!string.IsNullOrEmpty(showIntroParam) && showIntroParam.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            // Query parameter explicitly says to hide intro
+            showIntroModal = false;
+            return;
+        }
+
         showIntroModal = false;
 
         if (!calculatorModel.HasRealData)
