@@ -14,5 +14,6 @@ namespace FinPlan.ApiService.Data
         // Default timestamps set to UTC now when created
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public string? IpAddress { get;  set; }
     }
 }

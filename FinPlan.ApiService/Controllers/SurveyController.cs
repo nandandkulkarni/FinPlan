@@ -16,6 +16,8 @@ public class SurveyController : ControllerBase
     [HttpPost("save")]
     public async Task<IActionResult> SaveSurvey([FromBody] SurveySaveRequest req)
     {
+        // Get client IP address
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
         var existing = await _db.SurveyResponses
             .FirstOrDefaultAsync(x => x.UserGuid == req.UserGuid && x.SurveyType == req.SurveyType);
@@ -29,7 +31,8 @@ public class SurveyController : ControllerBase
                 SurveyType = req.SurveyType,
                 SurveyJson = JsonSerializer.Serialize(req.SurveyJson),
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                IpAddress = ipAddress // log IP address
             };
             _db.SurveyResponses.Add(existing);
         }
@@ -37,6 +40,7 @@ public class SurveyController : ControllerBase
         {
             existing.SurveyJson = JsonSerializer.Serialize(req.SurveyJson);
             existing.UpdatedAt = DateTime.UtcNow;
+            existing.IpAddress = ipAddress; // update IP address
         }
 
         await _db.SaveChangesAsync();
