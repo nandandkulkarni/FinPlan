@@ -10,9 +10,33 @@ namespace FinPlan.Web.E2ETests
     {
         protected string BaseUrl { get; set; } = "https://rewealthen.com"; // Cloud-hosted production URL
         
+        // Override BrowserOptions to ensure browser is visible (headed mode)
+        public override BrowserTypeLaunchOptions LaunchOptions()
+        {
+            return new BrowserTypeLaunchOptions
+            {
+                Headless = false,
+                SlowMo = 1000, // Slow down by 1000ms to make actions visible
+                Channel = "msedge" // Use Microsoft Edge
+            };
+        }
+        
+        // Override ContextOptions to set viewport and other browser context settings
+        public override BrowserNewContextOptions ContextOptions()
+        {
+            return new BrowserNewContextOptions
+            {
+                ViewportSize = new ViewportSize { Width = 2560, Height = 1440 },
+                IgnoreHTTPSErrors = true
+            };
+        }
+        
         [SetUp]
         public async Task TestSetup()
         {
+            // Set viewport size to be twice the default (default is typically 1280x720)
+            await Page.SetViewportSizeAsync(2560, 1440);
+            
             // Set default timeout for element interactions
             Page.SetDefaultTimeout(30000);
         }

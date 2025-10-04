@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <Playwright>
+    <BrowserName>chromium</BrowserName>
+    <Channel>msedge</Channel>
+    <LaunchOptions>
+      <Headless>false</Headless>
+      <SlowMo>1000</SlowMo>
+    </LaunchOptions>
+  </Playwright>
+</RunSettings>
