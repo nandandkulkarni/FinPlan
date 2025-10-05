@@ -2230,6 +2230,41 @@
                         </div>
                     }
 
+                    @* Exclusion Reason (shown only when NOT included) *@
+                    @if (!NewItemIncludeInRetirement)
+                    {
+                        <div class="mt-3">
+                            <label class="form-label d-flex align-items-center">
+                                <span>Reason for exclusion</span>
+                                <span class="bi bi-info-circle text-info ms-2"
+                                      style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                      title="Why exclude this?"
+                                      @onclick="() => showTipExclusionReason = !showTipExclusionReason"></span>
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonNotNeeded" value="NotNeeded" @onchange="@(() => NewItemExclusionReason = "NotNeeded")" checked="@(NewItemExclusionReason == "NotNeeded")" />
+                                <label class="btn btn-outline-secondary" for="reasonNotNeeded">Not needed</label>
+
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonPaidOff" value="PaidOff" @onchange="@(() => NewItemExclusionReason = "PaidOff")" checked="@(NewItemExclusionReason == "PaidOff")" />
+                                <label class="btn btn-outline-secondary" for="reasonPaidOff">Paid off</label>
+
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonOther" value="Other" @onchange="@(() => NewItemExclusionReason = "Other")" checked="@(NewItemExclusionReason == "Other")" />
+                                <label class="btn btn-outline-secondary" for="reasonOther">Other</label>
+                            </div>
+                            @if (showTipExclusionReason)
+                            {
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                    <strong>Not needed:</strong> Expenses that won't apply in retirement (e.g., childcare, work clothes).<br />
+                                    <strong>Paid off:</strong> Debts that will be eliminated (e.g., mortgage, car loan).<br />
+                                    <strong>Other:</strong> Any other reason for exclusion.
+                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipExclusionReason = false">
+                                        <span class="bi bi-x-lg"></span>
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+
                     @if (NewItemIncludeInRetirement)
                     {
                         @if (isSimpleMode)
@@ -3316,13 +3351,53 @@
 
                                                 <!-- Card Body: Key Info in Grid -->
                                                 <div class="expense-card-body">
-                                                    <!-- Monthly Cost (most important) -->
+                                                    <!-- Now: Monthly Cost -->
                                                     <div class="expense-card-field expense-card-field-full">
-                                                        <div class="expense-card-label">Monthly Cost</div>
-                                                        <div class="expense-card-value-large">@FormatCurrency(item.GetMonthlyEquivalent)</div>
+                                                        <div class="expense-card-label">Now</div>
+                                                        <div class="expense-card-value-large" style="color: #0d6efd; font-weight: 600;">
+                                                            @FormatCurrency(item.GetMonthlyEquivalent)/mo
+                                                        </div>
                                                     </div>
 
-                                                    <!-- Frequency & Amount side by side -->
+                                                    <!-- Retirement: Smart Display -->
+                                                    <div class="expense-card-field expense-card-field-full">
+                                                        <div class="expense-card-label">Retirement</div>
+                                                        <div class="expense-card-value-large" style="color: #198754; font-weight: 600;">
+                                                            @if (item.IncludeInRetirement)
+                                                            {
+                                                                var retValue = item.GetRetirementValue(YearsToRetirement, InflationRate);
+                                                                var adjustment = "";
+                                                                
+                                                                if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                                {
+                                                                    adjustment = $" (+inflation)";
+                                                                }
+                                                                else if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                                {
+                                                                    adjustment = $" ({item.CustomPercentage}%)";
+                                                                }
+                                                                else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                                                {
+                                                                    adjustment = " (manual)";
+                                                                }
+                                                                
+                                                                <span>@FormatCurrency(retValue)/mo@adjustment</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                var reason = item.RetirementExclusionReason switch
+                                                                {
+                                                                    ExclusionReason.NotNeeded => "Not needed",
+                                                                    ExclusionReason.PaidOff => "Paid off",
+                                                                    ExclusionReason.Other => "Not included",
+                                                                    _ => "Not included"
+                                                                };
+                                                                <span style="color: #6c757d; font-style: italic;">@reason</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Frequency & Amount side by side (Advanced mode only) -->
                                                     @if (!isSimpleMode)
                                                     {
                                                         <div class="expense-card-field">
@@ -3332,55 +3407,6 @@
                                                         <div class="expense-card-field">
                                                             <div class="expense-card-label">Amount</div>
                                                             <div class="expense-card-value">@FormatCurrency(item.CurrentValue)</div>
-                                                        </div>
-                                                    }
-
-                                                    <!-- Retirement Status -->
-                                                    <div class="expense-card-field">
-                                                        <div class="expense-card-label">Retirement</div>
-                                                        <div class="expense-card-value">
-                                                            @if (item.IncludeInRetirement)
-                                                            {
-                                                                <span class="badge bg-success px-3 py-2">Included</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <span class="badge bg-secondary px-3 py-2">Excluded</span>
-                                                            }
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Future Cost -->
-                                                    <div class="expense-card-field">
-                                                        <div class="expense-card-label">Future Cost</div>
-                                                        <div class="expense-card-value expense-card-value-large">
-                                                            @FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Advanced details (collapsible) -->
-                                                    @if (!isSimpleMode && item.IncludeInRetirement)
-                                                    {
-                                                        <div class="expense-card-field expense-card-field-full">
-                                                            <div class="expense-card-label">Adjustment</div>
-                                                            <div class="expense-card-value small">
-                                                                @if (item.AdjustOption == RetirementAdjustOption.Inflation)
-                                                                {
-                                                                    <span>Inflation (@(item.PerItemInflationSource == InflationSource.UseGlobal ? $"{InflationRate}%" : $"{item.PerItemInflationPercent}%"))</span>
-                                                                }
-                                                                else if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
-                                                                {
-                                                                    <span>Custom @item.CustomPercentage%</span>
-                                                                }
-                                                                else if (item.AdjustOption == RetirementAdjustOption.Manual)
-                                                                {
-                                                                    <span>Manual @FormatCurrency(item.ManualRetirementValue ?? 0)</span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span>No change</span>
-                                                                }
-                                                            </div>
                                                         </div>
                                                     }
                                                 </div>
@@ -5016,6 +5042,7 @@
     private string NewItemFrequency = "Monthly"; // parsed to enum on save
     private decimal NewItemAmount = 0m;
     private bool NewItemIncludeInRetirement = true;
+    private string NewItemExclusionReason = "NotNeeded"; // NotNeeded | PaidOff | Other
 
     // Retirement fields
     private string NewItemAdjustOption = "Inflation"; // Same | CustomPercentage | Manual | Inflation
@@ -5042,6 +5069,7 @@
         NewItemFrequency = "Monthly";
         NewItemAmount = 0m;
         NewItemIncludeInRetirement = true;
+        NewItemExclusionReason = "NotNeeded";
 
         NewItemAdjustOption = "Inflation";
         NewItemPerItemInflationSource = "UseGlobal";
@@ -5092,6 +5120,13 @@
         if (!Enum.TryParse<InflationSource>(NewItemPerItemInflationSource, out var inflSrc))
             inflSrc = InflationSource.UseGlobal;
 
+        // Parse exclusion reason
+        ExclusionReason? exclusionReason = null;
+        if (!NewItemIncludeInRetirement && Enum.TryParse<ExclusionReason>(NewItemExclusionReason, out var exReason))
+        {
+            exclusionReason = exReason;
+        }
+
         decimal? manualValue = null;
         if (!string.IsNullOrWhiteSpace(NewItemManualRetirementValueString) &&
             decimal.TryParse(NewItemManualRetirementValueString, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CurrentCulture, out var mv) &&
@@ -5108,6 +5143,7 @@
             item.Frequency = freq;
             item.CurrentValue = NewItemAmount;
             item.IncludeInRetirement = NewItemIncludeInRetirement;
+            item.RetirementExclusionReason = exclusionReason;
             item.AdjustOption = adjust;
             item.PerItemInflationSource = inflSrc;
             item.PerItemInflationPercent = inflSrc == InflationSource.Custom ? NewItemPerItemInflationPercent : null;
@@ -5124,6 +5160,7 @@
                 CurrentValue = NewItemAmount,
                 Frequency = freq,
                 IncludeInRetirement = NewItemIncludeInRetirement,
+                RetirementExclusionReason = exclusionReason,
                 AdjustOption = adjust,
                 PerItemInflationSource = inflSrc,
                 PerItemInflationPercent = inflSrc == InflationSource.Custom ? NewItemPerItemInflationPercent : null,
@@ -5167,6 +5204,7 @@
         NewItemFrequency = it.Frequency.ToString();
         NewItemAmount = it.CurrentValue;
         NewItemIncludeInRetirement = it.IncludeInRetirement;
+        NewItemExclusionReason = it.RetirementExclusionReason?.ToString() ?? "NotNeeded";
 
         NewItemAdjustOption = it.AdjustOption.ToString(); // "Same" | "Inflation" | "CustomPercentage" | "Manual"
         NewItemPerItemInflationSource = it.PerItemInflationSource.ToString(); // "UseGlobal" | "Custom"
@@ -5182,6 +5220,7 @@
     private bool showTipFrequency = false;
     private bool showTipAmount = false;
     private bool showTipInclude = false;
+    private bool showTipExclusionReason = false;
     private bool showTipAdjust = false;
     private bool showTipCustomPercent = false;
     private bool showTipManualValue = false;

@@ -14,6 +14,13 @@ namespace FinPlan.Shared.Models.LivingCosts
         Weekly = 4
     }
 
+    public enum ExclusionReason
+    {
+        NotNeeded = 0,      // e.g., childcare, work expenses
+        PaidOff = 1,        // e.g., mortgage, car loan
+        Other = 2           // generic/other reason
+    }
+
     public class CostItem
     {
         public string Category { get; set; } = string.Empty;
@@ -26,6 +33,7 @@ namespace FinPlan.Shared.Models.LivingCosts
         public decimal CustomPercentage { get; set; } = 100m;
         public decimal? ManualRetirementValue { get; set; }
         public bool IncludeInRetirement { get; set; } = true;
+        public ExclusionReason? RetirementExclusionReason { get; set; } = null;
 
         // Convert CurrentValue (expressed in the configured Frequency) to a per-month amount
         //public decimal GetMonthlyEquivalent()
