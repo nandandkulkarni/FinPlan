@@ -758,6 +758,132 @@
             touch-action: manipulation;
         }
     }
+
+    /* Responsive Layout Fixes for Mobile */
+    @@media (max-width: 767px) {
+        /* Stack absolutely positioned elements */
+        .tab-panel-box > .position-absolute {
+            position: relative !important;
+            top: auto !important;
+            right: auto !important;
+            left: auto !important;
+            margin-bottom: 12px;
+        }
+
+        /* Mode toggle - full width on mobile */
+        .tab-panel-box > .position-absolute:first-child {
+            width: 100%;
+        }
+
+        .tab-panel-box > .position-absolute:first-child > div {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        /* Action buttons - full width stack */
+        .tab-panel-box > .position-absolute:nth-child(2) {
+            width: 100%;
+        }
+
+        .tab-panel-box > .position-absolute:nth-child(2).d-flex {
+            flex-direction: column;
+            gap: 8px !important;
+        }
+
+        .tab-panel-box > .position-absolute:nth-child(2) button {
+            width: 100%;
+        }
+
+        /* Totals strip - stack vertically */
+        .totals-strip {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+
+        .totals-box {
+            width: 100% !important;
+            min-width: auto !important;
+        }
+
+        /* Category header - wrap content */
+        .card-header {
+            flex-wrap: wrap;
+        }
+
+        .card-header .small {
+            display: block !important;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        /* Hide some less critical info on mobile */
+        .card-header .text-muted.d-none.d-md-inline {
+            display: none !important;
+        }
+
+        /* Assumptions section - stack vertically */
+        .section-card .d-flex.flex-wrap {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        .section-card .me-4 {
+            margin-right: 0 !important;
+            margin-bottom: 8px;
+        }
+
+        /* Add category button center */
+        .d-flex.justify-content-center.mb-3 {
+            flex-direction: column;
+        }
+
+        /* Collapse all button - full width */
+        .d-flex.align-items-center.mb-2 {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+
+        .d-flex.align-items-center.mb-2 button {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+    }
+
+    /* Tablet adjustments */
+    @@media (min-width: 768px) and (max-width: 991px) {
+        /* Mode toggle - adjust position for tablet */
+        .position-absolute[style*="right: 280px"] {
+            right: 180px !important;
+        }
+    }
+
+    /* Ensure tab panel content has proper spacing on mobile */
+    @@media (max-width: 767px) {
+        .tab-panel-box {
+            padding: 16px 12px !important;
+        }
+
+        /* Reduce top panel offset on mobile */
+        .tab-panel-box {
+            top: 0 !important;
+        }
+
+        /* Add some breathing room */
+        .section-card,
+        .card {
+            margin-bottom: 16px;
+        }
+
+        /* Survey card on left - hide or stack */
+        .col-md-2 {
+            margin-bottom: 20px;
+        }
+
+        .survey-card {
+            max-width: 100%;
+            width: 100%;
+        }
+    }
 </style>
 
 @* Replace the inline modal with the reusable component *@
