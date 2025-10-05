@@ -161,6 +161,55 @@
             gap: 8px;
         }
 
+    /* Totals boxes - make clearly non-interactive */
+    .totals-box {
+        cursor: default;
+        user-select: none;
+        box-shadow: none;
+        border: none;
+        border-left: 4px solid rgba(255, 255, 255, 0.4);
+        border-right: 4px solid rgba(255, 255, 255, 0.4);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px 12px 0 0;
+        min-width: 180px;
+        transition: none;
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+    }
+
+    .totals-box:hover {
+        transform: none;
+    }
+
+    .totals-box:active {
+        transform: none;
+    }
+
+    .totals-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.95;
+        margin-bottom: 4px;
+    }
+
+    .totals-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    /* Info icon in totals should be clearly clickable */
+    .totals-label .bi-info-circle {
+        cursor: pointer;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+    }
+
+    .totals-label .bi-info-circle:hover {
+        opacity: 1;
+    }
+
     .btn-edit {
         background: #1F6FEB; /* professional blue */
         color: #ffffff;
@@ -803,6 +852,21 @@
         .totals-box {
             width: 100% !important;
             min-width: auto !important;
+        }
+
+        /* Make totals boxes clearly non-interactive */
+        .totals-box {
+            cursor: default !important;
+            transition: none !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .totals-box:hover {
+            transform: none !important;
+        }
+
+        .totals-box:active {
+            transform: none !important;
         }
 
         /* Category header - wrap content */
@@ -2942,7 +3006,7 @@
                 <!-- Totals Strip: Current and Retirement side by side -->
                 <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
                     <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-2">
-                        <div class="totals-box bg-primary bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                        <div class="totals-box bg-primary bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
                             <span class="totals-label d-flex align-items-center">
                                 Current Total
                                 <span class="bi bi-info-circle text-warning ms-2"
@@ -2952,7 +3016,7 @@
                             </span>
                             <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
                         </div>
-                        <div class="totals-box bg-success bg-opacity-75 text-white rounded-3 px-4 py-2 d-flex flex-column align-items-center">
+                        <div class="totals-box bg-success bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
                             <span class="totals-label d-flex align-items-center">
                                 Retirement Total
                                 <span class="bi bi-info-circle text-warning ms-2"
