@@ -424,6 +424,36 @@
         display: inline !important;
     }
 
+    /* Modal backdrop and blur effect */
+    .intro-modal-active {
+        /* Mobile: completely hide content */
+        display: none;
+    }
+
+    /* Desktop/Laptop: show but blur */
+    @@media (min-width: 992px) {
+        .intro-modal-active {
+            display: block;
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.6;
+        }
+    }
+
+    /* Ensure modal backdrop is solid on mobile */
+    @@media (max-width: 991px) {
+        .modal-backdrop {
+            opacity: 1 !important;
+            background-color: #fff !important;
+        }
+    }
+
+    /* Make sure modal stays on top and centered */
+    .modal.d-block {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
     }
 </style>
 
@@ -970,33 +1000,121 @@
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
 
-<!-- Removed left sidebar nav; content moved to main container -->
+<!-- Intro Modal - Moved outside blurred wrapper -->
+@if (showIntroModal)
+{
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+    <div class="modal d-block" style="z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-top: 4px solid #FFD600;">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Welcome to Cost of Living Planning!
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseIntroModal"></button>
+                </div>
+                
+                <div class="modal-body" style="background-color: #fffef7;">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">📊</div>
+                        <p class="text-muted mb-0">
+                            Let's create your personalized cost of living projection
+                        </p>
+                    </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Left column (2) - moved from previous left-sidebar nav -->
-        <div class="col-12 col-md-2">
-            @* <ul class="list-unstyled mb-0">
-                <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
-            </ul> *@
-            <a href="/about-rewealthen" class="badge">About</a>
-            <div class="card survey-card survey-card-narrow mb-2">
-                <div class="card-body text-center">
-                    <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
-                    <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
-                    <a href="/survey-future-cost-of-living" class="btn btn-primary btn-sm">
-                        Take Living Cost  Survey
-                    </a>
+                    <!-- Single Key Assumption -->
+                    <div class="card bg-white mb-4 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
+
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <label class="form-label d-flex align-items-center justify-content-center">
+                                        <span class="fw-bold">Years to Retirement</span>
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer;"
+                                              @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                              title="Click for info"></span>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control form-control-lg text-center fw-bold" 
+                                           style="font-size: 1.5rem;"
+                                           @bind="YearsToRetirement" 
+                                           min="1" 
+                                           max="50" />
+                                    
+                                    @if (showToolTipYearsInfo)
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                            <strong>Years to Retirement:</strong> The number of years until you expect to retire. This helps us project your future costs.
+                                            <button type="button" class="btn-close btn-close-sm float-end" @onclick="() => showToolTipYearsInfo = false"></button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="small text-muted text-center mt-3">
+                                <i class="bi bi-info-circle me-1"></i>
+                                We'll use a default inflation rate of @InflationRate% (you can adjust this later)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-center mb-3">
+                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
+                            <i class="bi bi-lightning-fill me-2"></i>Start with Sample Data
+                        </button>
+                        <button class="btn btn-outline-primary btn-lg px-5" @onclick="StartFromScratch">
+                            <i class="bi bi-pencil me-2"></i>Start from Scratch
+                        </button>
+                    </div>
+
+                    <!-- Don't Show Again -->
+                    <div class="text-center pt-3 border-top">
+                        <div class="form-check d-inline-flex align-items-center">
+                            <input class="form-check-input me-2" type="checkbox" 
+                                   id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
+                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
+                                Don't show this welcome screen again
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- Ad container for long Adsterra banner in left column -->
-            <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
-                @((MarkupString)AdHtmlLeft)
-            </div>
         </div>
+    </div>
+}
 
-        <!-- Center column (8) - main planner content -->
-        <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">
+<!-- Removed left sidebar nav; content moved to main container -->
+
+<!-- Main content - hide on mobile, blur on desktop when modal is open -->
+<div class="@(showIntroModal ? "intro-modal-active" : "")">>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left column (2) - moved from previous left-sidebar nav -->
+            <div class="col-12 col-md-2">
+                @* <ul class="list-unstyled mb-0">
+                    <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
+                </ul> *@
+                <a href="/about-rewealthen" class="badge">About</a>
+                <div class="card survey-card survey-card-narrow mb-2">
+                    <div class="card-body text-center">
+                        <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
+                        <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
+                        <a href="/survey-future-cost-of-living" class="btn btn-primary btn-sm">
+                            Take Living Cost  Survey
+                        </a>
+                    </div>
+                </div>
+                <!-- Ad container for long Adsterra banner in left column -->
+                <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
+                    @((MarkupString)AdHtmlLeft)
+                </div>
+            </div>
+
+            <!-- Center column (8) - main planner content -->
+            <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">>
             <p class="text-muted mb-3">@(isSimpleMode ? "List your monthly expenses to see how they'll grow by retirement." : "Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.")</p>
 
             @* <b>Multi-city and City tiered plan coming soon</b> *@
@@ -1596,92 +1714,6 @@
                     }
                 </div>
 
-                @* Inline Welcome Card - Better UX than modal overlay *@
-                @if (showIntroModal)
-                {
-                   <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
-    <div class="modal d-block" style="z-index: 1050;">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content" style="border-top: 4px solid #FFD600;">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title">
-                        <i class="bi bi-star-fill text-warning me-2"></i>a2-Welcome to Cost of Living Planning!
-                    </h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseIntroModal"></button>
-                </div>
-                
-                <div class="modal-body" style="background-color: #fffef7;">
-                    <div class="text-center mb-4">
-                        <div style="font-size: 3rem; margin-bottom: 12px;">📊</div>
-                        <p class="text-muted mb-0">
-                            Let's create your personalized cost of living projection
-                        </p>
-                    </div>
-
-                    <!-- Single Key Assumption -->
-                    <div class="card bg-white mb-4 border-primary">
-                        <div class="card-body">
-                            <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
-
-                            <div class="row justify-content-center">
-                                <div class="col-md-6">
-                                    <label class="form-label d-flex align-items-center justify-content-center">
-                                        <span class="fw-bold">Years to Retirement</span>
-                                        <span class="bi bi-info-circle text-info ms-2"
-                                              style="font-size: 0.9rem; cursor: pointer;"
-                                              @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
-                                              title="Click for info"></span>
-                                    </label>
-                                    <input type="number" 
-                                           class="form-control form-control-lg text-center fw-bold" 
-                                           style="font-size: 1.5rem;"
-                                           @bind="YearsToRetirement" 
-                                           min="1" 
-                                           max="50" />
-                                    
-                                    @if (showToolTipYearsInfo)
-                                    {
-                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
-                                            <strong>Years to Retirement:</strong> The number of years until you expect to retire. This helps us project your future costs.
-                                            <button type="button" class="btn-close btn-close-sm float-end" @onclick="() => showToolTipYearsInfo = false"></button>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="small text-muted text-center mt-3">
-                                <i class="bi bi-info-circle me-1"></i>
-                                We'll use a default inflation rate of @InflationRate% (you can adjust this later)
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-3 justify-content-center mb-3">
-                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
-                            <i class="bi bi-lightning-fill me-2"></i>Start with Sample Data
-                        </button>
-                        <button class="btn btn-outline-primary btn-lg px-5" @onclick="StartFromScratch">
-                            <i class="bi bi-pencil me-2"></i>Start from Scratch
-                        </button>
-                    </div>
-
-                    <!-- Don't Show Again -->
-                    <div class="text-center pt-3 border-top">
-                        <div class="form-check d-inline-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox" 
-                                   id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
-                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
-                                Don't show this welcome screen again
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-                }
-
                 </div>
 
 
@@ -1804,6 +1836,7 @@
             </div>
         </div>
     </div>
+</div>
 
 @code {
     // Simple Mode Toggle
