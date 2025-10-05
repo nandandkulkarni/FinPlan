@@ -38,7 +38,6 @@
     private const string StorageKey = "ReverseMortgageModel";
 
     // New fields for accuracy
-    private int? SpouseAge { get; set; }
     private string ZipCode { get; set; } = "";
     
     // County Lending Limit (CLL) fields
@@ -230,7 +229,7 @@
     }
 
     private int YearsUntilApplication => Model.ApplicationYear - DateTime.Now.Year;
-    private int AgeAtApplication => (SpouseAge.HasValue ? Math.Min(Model.CurrentAge, SpouseAge.Value) : Model.CurrentAge) + YearsUntilApplication;
+    private int AgeAtApplication => (Model.SpouseAge.HasValue ? Math.Min(Model.CurrentAge, Model.SpouseAge.Value) : Model.CurrentAge) + YearsUntilApplication;
     
     private decimal ProjectedHomeValue 
     { 
@@ -407,7 +406,7 @@ else
             </div>
             <div class="mb-3">
                 <label class="form-label">Spouse/Partner age (optional)</label>
-                <input class="form-control" type="number" min="50" max="100" @bind="SpouseAge" />
+                <input class="form-control" type="number" min="50" max="100" @bind="Model.SpouseAge" />
             </div>
             <button class="btn btn-primary w-100 mt-2" @onclick="NextStepAsync">Next</button>
         }

@@ -18,7 +18,7 @@
 
 @namespace FinPlan.Web.Components.Pages
 
-<PageTitle>About - Rewealthen</PageTitle>
+<PageTitle>About - ReWealth-en</PageTitle>
 
 <style>
     :root {
@@ -234,12 +234,9 @@
     }
 
     @@media (max-width:1024px) {
-        .top-area .row
-
-    {
-        gap: 12px;
-    }
-
+        .top-area .row {
+            gap: 12px;
+        }
     }
 </style>
 
@@ -386,21 +383,21 @@
                                                 <a href="mailto:engineering@rewealthen.com">engineering@rewealthen.com</a>.
                                             </p>
 
-                                            <EditForm Model="contactModel" OnValidSubmit="Submit">
+                                            <EditForm Model="model.Contact" OnValidSubmit="Submit">
                                                 <div class="mb-2">
                                                     <label class="form-label">Name</label>
-                                                    <InputText class="form-control" @bind-Value="contactModel.Name" disabled="@isSubmitting" />
+                                                    <InputText class="form-control" @bind-Value="model.Contact.Name" disabled="@model.IsSubmitting" />
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="form-label">Email</label>
-                                                    <InputText class="form-control" @bind-Value="contactModel.Email" disabled="@isSubmitting" />
+                                                    <InputText class="form-control" @bind-Value="model.Contact.Email" disabled="@model.IsSubmitting" />
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="form-label">Message</label>
-                                                    <InputTextArea class="form-control" @bind-Value="contactModel.Message" disabled="@isSubmitting" />
+                                                    <InputTextArea class="form-control" @bind-Value="model.Contact.Message" disabled="@model.IsSubmitting" />
                                                 </div>
-                                                <button class="btn btn-primary" type="submit" disabled="@isSubmitting">
-                                                    @if (isSubmitting)
+                                                <button class="btn btn-primary" type="submit" disabled="@model.IsSubmitting">
+                                                    @if (model.IsSubmitting)
                                                     {
                                                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                                         <span>Sending...</span>
@@ -412,14 +409,14 @@
                                                 </button>
                                             </EditForm>
 
-                                            @if (submitted && !hasError)
+                                            @if (model.Submitted && !model.HasError)
                                             {
-                                                <div class="alert alert-success mt-2">Thanks � your feedback has been submitted successfully!</div>
+                                                <div class="alert alert-success mt-2">Thanks – your feedback has been submitted successfully!</div>
                                             }
 
-                                            @if (hasError)
+                                            @if (model.HasError)
                                             {
-                                                <div class="alert alert-danger mt-2">@errorMessage</div>
+                                                <div class="alert alert-danger mt-2">@model.ErrorMessage</div>
                                             }
                                         </div>
                                     </div>
@@ -435,33 +432,33 @@
                 <!-- Right column (2) -->
                 <div class="col-12 col-md-2">
                     <div class="panel">
-                     @if (IsLocalhost)
-        {
-            <div class="card">
-                <h4>Admin Tools</h4>
-                <p>Manage cost of living templates for cities around the world.</p>
-                <div class="mt-3">
-                    <a href="/admin/city-templates" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-gear-fill"></i> CTA
-                    </a>
-                </div>
-                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
-                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
-                </p>
-            </div>
-            <div class="card">
-                <h4>Admin Tools</h4>
-                <p>Manage cost of living templates for cities around the world.</p>
-                <div class="mt-3">
-                    <a href="/reverse-mortgage" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-gear-fill"></i> RM
-                    </a>
-                </div>
-                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
-                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
-                </p>
-            </div>
-        }
+                        @if (IsLocalhost)
+                        {
+                            <div class="card">
+                                <h4>Admin Tools</h4>
+                                <p>Manage cost of living templates for cities around the world.</p>
+                                <div class="mt-3">
+                                    <a href="/admin/city-templates" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-gear-fill"></i> CTA
+                                    </a>
+                                </div>
+                                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
+                                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
+                                </p>
+                            </div>
+                            <div class="card">
+                                <h4>Admin Tools</h4>
+                                <p>Manage cost of living templates for cities around the world.</p>
+                                <div class="mt-3">
+                                    <a href="/reverse-mortgage" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-gear-fill"></i> RM
+                                    </a>
+                                </div>
+                                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
+                                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
+                                </p>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -470,21 +467,15 @@
 </div>
 
 @code {
-    private ContactModel contactModel = new();
-    private bool submitted = false;
-    private bool isSubmitting = false;
-    private bool hasError = false;
-    private string errorMessage = string.Empty;
-    private string userGuid = string.Empty;
+    private AboutPageModel model = new();
     private bool hasInitialized = false;
 
     private bool IsLocalhost => Navigation.Uri.Contains("localhost") || Navigation.Uri.Contains("127.0.0.1");
 
-
     protected override async Task OnInitializedAsync()
     {
         // Use safe method that works during prerendering
-        userGuid = UserGuidService.GetTemporaryUserGuid();
+        model.UserGuid = UserGuidService.GetTemporaryUserGuid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -495,7 +486,7 @@
             try
             {
                 // Now we can safely use JavaScript interop
-                userGuid = await UserGuidService.GetOrCreateUserGuidWithJSAsync();
+                model.UserGuid = await UserGuidService.GetOrCreateUserGuidWithJSAsync();
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -509,11 +500,11 @@
 
     private async Task Submit()
     {
-        if (isSubmitting) return;
+        if (model.IsSubmitting) return;
 
-        isSubmitting = true;
-        hasError = false;
-        errorMessage = string.Empty;
+        model.IsSubmitting = true;
+        model.HasError = false;
+        model.ErrorMessage = string.Empty;
         StateHasChanged();
 
         try
@@ -523,10 +514,10 @@
 
             var request = new
             {
-                Name = contactModel.Name,
-                Email = contactModel.Email,
-                Message = contactModel.Message,
-                UserGuid = userGuid
+                Name = model.Contact.Name,
+                Email = model.Contact.Email,
+                Message = model.Contact.Message,
+                UserGuid = model.UserGuid
             };
 
             var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
@@ -537,25 +528,25 @@
 
             if (response.IsSuccessStatusCode)
             {
-                submitted = true;
+                model.Submitted = true;
                 // Reset the form
-                contactModel = new ContactModel();
+                model.Contact = new ContactModel();
             }
             else
             {
-                hasError = true;
-                errorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
+                model.HasError = true;
+                model.ErrorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error submitting contact form: {ex.Message}");
-            hasError = true;
-            errorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
+            model.HasError = true;
+            model.ErrorMessage = "Sorry, there was an error sending your message. Please try again or contact us directly.";
         }
         finally
         {
-            isSubmitting = false;
+            model.IsSubmitting = false;
             StateHasChanged();
         }
     }
@@ -567,6 +558,16 @@
 #else
         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
 #endif
+    }
+
+    private class AboutPageModel
+    {
+        public ContactModel Contact { get; set; } = new();
+        public bool Submitted { get; set; } = false;
+        public bool IsSubmitting { get; set; } = false;
+        public bool HasError { get; set; } = false;
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string UserGuid { get; set; } = string.Empty;
     }
 
     private class ContactModel

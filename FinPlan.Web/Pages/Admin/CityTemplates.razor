@@ -2,7 +2,8 @@
 @using FinPlan.Shared.Models.LivingCosts
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 
 <div class="container-fluid py-4">
@@ -18,7 +19,7 @@
         </div>
     </div>
 
-    @if (isLoading)
+    @if (model.IsLoading)
     {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
@@ -26,7 +27,7 @@
             </div>
         </div>
     }
-    else if (cities == null || !cities.Any())
+    else if (model.Cities == null || !model.Cities.Any())
     {
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> No city templates found. Click "Add New City" to create your first template.
@@ -48,7 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var city in cities)
+                    @foreach (var city in model.Cities)
                     {
                         <tr>
                             <td><strong>@city.CityName</strong></td>
@@ -82,26 +83,26 @@
     }
 
     <!-- Selected City Profiles Section -->
-    @if (selectedCityForProfiles != null)
+    @if (model.SelectedCityForProfiles != null)
     {
         <div class="card mt-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
-                    Demographic Profiles for @selectedCityForProfiles.CityName
-                    <button class="btn btn-sm btn-light float-end" @onclick="() => ShowCreateProfileModal(selectedCityForProfiles.CityId)">
+                    Demographic Profiles for @model.SelectedCityForProfiles.CityName
+                    <button class="btn btn-sm btn-light float-end" @onclick="() => ShowCreateProfileModal(model.SelectedCityForProfiles.CityId)">
                         <i class="bi bi-plus-circle"></i> Add Profile
                     </button>
                 </h5>
             </div>
             <div class="card-body">
-                @if (currentProfiles == null || !currentProfiles.Any())
+                @if (model.CurrentProfiles == null || !model.CurrentProfiles.Any())
                 {
                     <p class="text-muted">No profiles defined for this city yet.</p>
                 }
                 else
                 {
                     <div class="row g-3">
-                        @foreach (var profile in currentProfiles)
+                        @foreach (var profile in model.CurrentProfiles)
                         {
                             <div class="col-md-6">
                                 <div class="card border-secondary">
@@ -138,48 +139,48 @@
 </div>
 
 <!-- Create/Edit City Modal -->
-@if (showCityModal)
+@if (model.ShowCityModal)
 {
     <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@(editingCity?.CityId != null ? "Edit City" : "Create New City")</h5>
+                    <h5 class="modal-title">@(model.EditingCity?.CityId != null ? "Edit City" : "Create New City")</h5>
                     <button type="button" class="btn-close" @onclick="CloseCityModal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">City ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="editingCity!.CityId" 
-                               disabled="@(isEditMode)" placeholder="e.g., nyc-usa" />
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CityId" 
+                               disabled="@(model.IsEditMode)" placeholder="e.g., nyc-usa" />
                         <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">City Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="editingCity!.CityName" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CityName" 
                                placeholder="e.g., New York City" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Country <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="editingCity!.Country" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.Country" 
                                placeholder="e.g., United States" />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Currency <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" @bind="editingCity!.Currency" 
+                            <input type="text" class="form-control" @bind="model.EditingCity!.Currency" 
                                    placeholder="e.g., USD" maxlength="10" />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Cost of Living Index <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" @bind="editingCity!.CostOfLivingIndex" 
+                            <input type="number" class="form-control" @bind="model.EditingCity!.CostOfLivingIndex" 
                                    step="0.01" placeholder="e.g., 100.00" />
                             <small class="text-muted">100 = baseline</small>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Created By</label>
-                        <input type="text" class="form-control" @bind="editingCity!.CreatedBy" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CreatedBy" 
                                placeholder="Your name/email" />
                     </div>
                 </div>
@@ -195,39 +196,39 @@
 }
 
 <!-- Create/Edit Profile Modal -->
-@if (showProfileModal)
+@if (model.ShowProfileModal)
 {
     <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@(editingProfile?.ProfileId != null && isEditMode ? "Edit Profile" : "Create New Profile")</h5>
+                    <h5 class="modal-title">@(model.EditingProfile?.ProfileId != null && model.IsEditMode ? "Edit Profile" : "Create New Profile")</h5>
                     <button type="button" class="btn-close" @onclick="CloseProfileModal"></button>
                 </div>
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                     <div class="mb-3">
                         <label class="form-label">Profile ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="editingProfile!.ProfileId" 
-                               disabled="@(isEditMode)" placeholder="e.g., nyc-young-single" />
+                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileId" 
+                               disabled="@(model.IsEditMode)" placeholder="e.g., nyc-young-single" />
                         <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Profile Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="editingProfile!.ProfileName" 
+                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileName" 
                                placeholder="e.g., Young Professional - Single" />
                     </div>
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Min Age <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" @bind="editingProfile!.AgeMin" />
+                            <input type="number" class="form-control" @bind="model.EditingProfile!.AgeMin" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Max Age <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" @bind="editingProfile!.AgeMax" />
+                            <input type="number" class="form-control" @bind="model.EditingProfile!.AgeMax" />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Marital Status <span class="text-danger">*</span></label>
-                            <select class="form-select" @bind="editingProfile!.MaritalStatus">
+                            <select class="form-select" @bind="model.EditingProfile!.MaritalStatus">
                                 @foreach (MaritalStatus status in Enum.GetValues(typeof(MaritalStatus)))
                                 {
                                     <option value="@status">@status</option>
@@ -237,11 +238,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Children Count</label>
-                        <input type="number" class="form-control" @bind="editingProfile!.ChildrenCount" min="0" />
+                        <input type="number" class="form-control" @bind="model.EditingProfile!.ChildrenCount" min="0" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Children Ages (comma-separated)</label>
-                        <input type="text" class="form-control" @bind="childrenAgesInput" 
+                        <input type="text" class="form-control" @bind="model.ChildrenAgesInput" 
                                placeholder="e.g., 5, 8, 12" />
                         <small class="text-muted">Enter ages separated by commas</small>
                     </div>
@@ -251,7 +252,7 @@
                     <h6>Sample Expenses</h6>
                     <p class="text-muted small">Define typical monthly expenses for this demographic profile.</p>
                     
-                    @if (editingProfile?.SampleExpenses != null)
+                    @if (model.EditingProfile?.SampleExpenses != null)
                     {
                         <div class="table-responsive">
                             <table class="table table-sm">
@@ -264,7 +265,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var expense in editingProfile.SampleExpenses)
+                                    @foreach (var expense in model.EditingProfile.SampleExpenses)
                                     {
                                         <tr>
                                             <td>@expense.Category</td>
@@ -287,21 +288,21 @@
                         <i class="bi bi-plus-circle"></i> Add Expense
                     </button>
                     
-                    @if (showAddExpenseForm)
+                    @if (model.ShowAddExpenseForm)
                     {
                         <div class="card mt-3">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-2">
-                                        <input type="text" class="form-control" @bind="newExpense!.Category" 
+                                        <input type="text" class="form-control" @bind="model.NewExpense!.Category" 
                                                placeholder="Category" />
                                     </div>
                                     <div class="col-md-4 mb-2">
-                                        <input type="text" class="form-control" @bind="newExpense!.Subcategory" 
+                                        <input type="text" class="form-control" @bind="model.NewExpense!.Subcategory" 
                                                placeholder="Subcategory" />
                                     </div>
                                     <div class="col-md-4 mb-2">
-                                        <input type="number" class="form-control" @bind="newExpense!.CurrentValue" 
+                                        <input type="number" class="form-control" @bind="model.NewExpense!.CurrentValue" 
                                                step="0.01" placeholder="Monthly Amount" />
                                     </div>
                                 </div>
@@ -329,21 +330,43 @@
 }
 
 @code {
-    private List<CityTemplate>? cities;
-    private List<DemographicProfile>? currentProfiles;
-    private Dictionary<string, int> profileCounts = new();
-    private CityTemplate? selectedCityForProfiles;
-    
-    private bool isLoading = false;
-    private bool showCityModal = false;
-    private bool showProfileModal = false;
-    private bool isEditMode = false;
-    private bool showAddExpenseForm = false;
-    
-    private CityTemplate? editingCity;
-    private DemographicProfile? editingProfile;
-    private CostItem? newExpense;
-    private string childrenAgesInput = "";
+    private CityTemplatesModel model = new();
+
+    private class CityTemplatesModel
+    {
+        public List<CityTemplate>? Cities { get; set; }
+        public List<DemographicProfile>? CurrentProfiles { get; set; }
+        public Dictionary<string, int> ProfileCounts { get; set; } = new();
+        public CityTemplate? SelectedCityForProfiles { get; set; }
+        
+        public bool IsLoading { get; set; } = false;
+        public bool ShowCityModal { get; set; } = false;
+        public bool ShowProfileModal { get; set; } = false;
+        public bool IsEditMode { get; set; } = false;
+        public bool ShowAddExpenseForm { get; set; } = false;
+        
+        public CityTemplate? EditingCity { get; set; }
+        public DemographicProfile? EditingProfile { get; set; }
+        public CostItem? NewExpense { get; set; }
+        public string ChildrenAgesInput { get; set; } = "";
+    }
+
+    private HttpClient CreateHttpClient()
+    {
+        var client = HttpClientFactory.CreateClient();
+        var baseUrl = GetApiBaseUrl();
+        client.BaseAddress = new Uri(baseUrl);
+        return client;
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -352,15 +375,16 @@
 
     private async Task LoadCities()
     {
-        isLoading = true;
+        model.IsLoading = true;
         try
         {
-            cities = await Http.GetFromJsonAsync<List<CityTemplate>>("api/citytemplate");
+            using var client = CreateHttpClient();
+            model.Cities = await client.GetFromJsonAsync<List<CityTemplate>>("api/citytemplate");
             
             // Load profile counts for each city
-            if (cities != null)
+            if (model.Cities != null)
             {
-                foreach (var city in cities)
+                foreach (var city in model.Cities)
                 {
                     await LoadProfileCount(city.CityId);
                 }
@@ -372,7 +396,7 @@
         }
         finally
         {
-            isLoading = false;
+            model.IsLoading = false;
         }
     }
 
@@ -380,26 +404,28 @@
     {
         try
         {
-            var profiles = await Http.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
-            profileCounts[cityId] = profiles?.Count ?? 0;
+            using var client = CreateHttpClient();
+            var profiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
+            model.ProfileCounts[cityId] = profiles?.Count ?? 0;
         }
         catch
         {
-            profileCounts[cityId] = 0;
+            model.ProfileCounts[cityId] = 0;
         }
     }
 
     private int GetProfileCount(string cityId)
     {
-        return profileCounts.TryGetValue(cityId, out int count) ? count : 0;
+        return model.ProfileCounts.TryGetValue(cityId, out int count) ? count : 0;
     }
 
     private async Task LoadProfiles(string cityId)
     {
         try
         {
-            currentProfiles = await Http.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
-            selectedCityForProfiles = cities?.FirstOrDefault(c => c.CityId == cityId);
+            using var client = CreateHttpClient();
+            model.CurrentProfiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
+            model.SelectedCityForProfiles = model.Cities?.FirstOrDefault(c => c.CityId == cityId);
         }
         catch (Exception ex)
         {
@@ -415,7 +441,7 @@
     // City CRUD operations
     private void ShowCreateCityModal()
     {
-        editingCity = new CityTemplate
+        model.EditingCity = new CityTemplate
         {
             CityId = "",
             CityName = "",
@@ -424,13 +450,13 @@
             CostOfLivingIndex = 100,
             CreatedBy = ""
         };
-        isEditMode = false;
-        showCityModal = true;
+        model.IsEditMode = false;
+        model.ShowCityModal = true;
     }
 
     private void EditCity(CityTemplate city)
     {
-        editingCity = new CityTemplate
+        model.EditingCity = new CityTemplate
         {
             CityId = city.CityId,
             CityName = city.CityName,
@@ -441,30 +467,31 @@
             CreatedAt = city.CreatedAt,
             UpdatedAt = city.UpdatedAt
         };
-        isEditMode = true;
-        showCityModal = true;
+        model.IsEditMode = true;
+        model.ShowCityModal = true;
     }
 
     private void CloseCityModal()
     {
-        showCityModal = false;
-        editingCity = null;
+        model.ShowCityModal = false;
+        model.EditingCity = null;
     }
 
     private async Task SaveCity()
     {
-        if (editingCity == null) return;
+        if (model.EditingCity == null) return;
 
         try
         {
-            if (isEditMode)
+            using var client = CreateHttpClient();
+            if (model.IsEditMode)
             {
-                var response = await Http.PutAsJsonAsync($"api/citytemplate/{editingCity.CityId}", editingCity);
+                var response = await client.PutAsJsonAsync($"api/citytemplate/{model.EditingCity.CityId}", model.EditingCity);
                 response.EnsureSuccessStatusCode();
             }
             else
             {
-                var response = await Http.PostAsJsonAsync("api/citytemplate", editingCity);
+                var response = await client.PostAsJsonAsync("api/citytemplate", model.EditingCity);
                 response.EnsureSuccessStatusCode();
             }
 
@@ -486,14 +513,15 @@
 
         try
         {
-            var response = await Http.DeleteAsync($"api/citytemplate/{city.CityId}");
+            using var client = CreateHttpClient();
+            var response = await client.DeleteAsync($"api/citytemplate/{city.CityId}");
             response.EnsureSuccessStatusCode();
             await LoadCities();
             
-            if (selectedCityForProfiles?.CityId == city.CityId)
+            if (model.SelectedCityForProfiles?.CityId == city.CityId)
             {
-                selectedCityForProfiles = null;
-                currentProfiles = null;
+                model.SelectedCityForProfiles = null;
+                model.CurrentProfiles = null;
             }
         }
         catch (Exception ex)
@@ -505,7 +533,7 @@
     // Profile CRUD operations
     private void ShowCreateProfileModal(string cityId)
     {
-        editingProfile = new DemographicProfile
+        model.EditingProfile = new DemographicProfile
         {
             ProfileId = "",
             CityId = cityId,
@@ -516,14 +544,14 @@
             ChildrenCount = 0,
             SampleExpenses = new List<CostItem>()
         };
-        childrenAgesInput = "";
-        isEditMode = false;
-        showProfileModal = true;
+        model.ChildrenAgesInput = "";
+        model.IsEditMode = false;
+        model.ShowProfileModal = true;
     }
 
     private void EditProfile(DemographicProfile profile)
     {
-        editingProfile = new DemographicProfile
+        model.EditingProfile = new DemographicProfile
         {
             ProfileId = profile.ProfileId,
             CityId = profile.CityId,
@@ -537,29 +565,29 @@
             CreatedAt = profile.CreatedAt,
             UpdatedAt = profile.UpdatedAt
         };
-        childrenAgesInput = profile.ChildrenAges != null ? string.Join(", ", profile.ChildrenAges) : "";
-        isEditMode = true;
-        showProfileModal = true;
+        model.ChildrenAgesInput = profile.ChildrenAges != null ? string.Join(", ", profile.ChildrenAges) : "";
+        model.IsEditMode = true;
+        model.ShowProfileModal = true;
     }
 
     private void CloseProfileModal()
     {
-        showProfileModal = false;
-        editingProfile = null;
-        showAddExpenseForm = false;
-        newExpense = null;
+        model.ShowProfileModal = false;
+        model.EditingProfile = null;
+        model.ShowAddExpenseForm = false;
+        model.NewExpense = null;
     }
 
     private async Task SaveProfile()
     {
-        if (editingProfile == null) return;
+        if (model.EditingProfile == null) return;
 
         try
         {
             // Parse children ages from input
-            if (!string.IsNullOrWhiteSpace(childrenAgesInput))
+            if (!string.IsNullOrWhiteSpace(model.ChildrenAgesInput))
             {
-                editingProfile.ChildrenAges = childrenAgesInput
+                model.EditingProfile.ChildrenAges = model.ChildrenAgesInput
                     .Split(',')
                     .Select(s => s.Trim())
                     .Where(s => int.TryParse(s, out _))
@@ -567,18 +595,19 @@
                     .ToList();
             }
 
-            if (isEditMode)
+            using var client = CreateHttpClient();
+            if (model.IsEditMode)
             {
-                var response = await Http.PutAsJsonAsync($"api/citytemplate/profile/{editingProfile.ProfileId}", editingProfile);
+                var response = await client.PutAsJsonAsync($"api/citytemplate/profile/{model.EditingProfile.ProfileId}", model.EditingProfile);
                 response.EnsureSuccessStatusCode();
             }
             else
             {
-                var response = await Http.PostAsJsonAsync($"api/citytemplate/{editingProfile.CityId}/profiles", editingProfile);
+                var response = await client.PostAsJsonAsync($"api/citytemplate/{model.EditingProfile.CityId}/profiles", model.EditingProfile);
                 response.EnsureSuccessStatusCode();
             }
 
-            await LoadProfiles(editingProfile.CityId);
+            await LoadProfiles(model.EditingProfile.CityId);
             CloseProfileModal();
         }
         catch (Exception ex)
@@ -596,7 +625,8 @@
 
         try
         {
-            var response = await Http.DeleteAsync($"api/citytemplate/profile/{profile.ProfileId}");
+            using var client = CreateHttpClient();
+            var response = await client.DeleteAsync($"api/citytemplate/profile/{profile.ProfileId}");
             response.EnsureSuccessStatusCode();
             await LoadProfiles(profile.CityId);
         }
@@ -609,33 +639,33 @@
     // Expense management
     private void ShowAddExpenseForm()
     {
-        newExpense = new CostItem
+        model.NewExpense = new CostItem
         {
             Category = "",
             Subcategory = "",
             CurrentValue = 0
         };
-        showAddExpenseForm = true;
+        model.ShowAddExpenseForm = true;
     }
 
     private void AddExpense()
     {
-        if (newExpense != null && editingProfile?.SampleExpenses != null)
+        if (model.NewExpense != null && model.EditingProfile?.SampleExpenses != null)
         {
-            editingProfile.SampleExpenses.Add(newExpense);
-            showAddExpenseForm = false;
-            newExpense = null;
+            model.EditingProfile.SampleExpenses.Add(model.NewExpense);
+            model.ShowAddExpenseForm = false;
+            model.NewExpense = null;
         }
     }
 
     private void CancelAddExpense()
     {
-        showAddExpenseForm = false;
-        newExpense = null;
+        model.ShowAddExpenseForm = false;
+        model.NewExpense = null;
     }
 
     private void RemoveExpense(CostItem expense)
     {
-        editingProfile?.SampleExpenses?.Remove(expense);
+        model.EditingProfile?.SampleExpenses?.Remove(expense);
     }
 }

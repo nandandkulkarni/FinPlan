@@ -4,6 +4,7 @@ public class ReverseMortgageModel
 {
     public int ApplicationYear { get; set; } = System.DateTime.Now.Year;
     public int CurrentAge { get; set; } = 65;
+    public int? SpouseAge { get; set; } // Added to persist spouse age
     public decimal CurrentHomeValue { get; set; } = 400000;
     public decimal HomeAppreciationRate { get; set; } = 3.5m;
     public decimal CurrentMortgageBalance { get; set; } = 50000;
