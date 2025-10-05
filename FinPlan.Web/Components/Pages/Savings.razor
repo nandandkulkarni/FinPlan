@@ -193,6 +193,48 @@
         align-items: center;
         gap: 6px;
     }
+    
+        /* Mobile tab navigation improvements */
+        @@media (max-width: 767px) {
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                display: flex;
+                gap: 6px;
+                border-bottom: none;
+            }
+            .nav-tabs .nav-item {
+                min-width: 140px;
+                flex: 0 0 auto;
+            }
+            .nav-tabs .nav-link,
+            .tab-item-active {
+                font-size: 1rem;
+                padding: 12px 10px;
+                min-height: 44px;
+            }
+            
+            /* Section cards - stack vertically on mobile */
+            .section-card {
+                width: 100% !important;
+                margin-bottom: 12px;
+            }
+            
+            /* Buttons in section cards - full width and larger tap targets */
+            .section-card .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .section-card .btn-edit,
+            .section-card .btn-ghost {
+                width: 100%;
+                min-height: 44px;
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
 
     .col-taxable, th.col-taxable {
         background-color: rgba(31,111,235,0.06);

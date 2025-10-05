@@ -215,7 +215,7 @@
                     <div class="mb-3">
                         <label class="form-label">Profile Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileName" 
-                               placeholder="e.g., Young Professional - Single" />
+                               placeholder="e.g., New York City" />
                     </div>
                     <div class="row">
                         <div class="col-md-3 mb-3">
@@ -287,6 +287,13 @@
                     <button class="btn btn-sm btn-outline-primary" @onclick="ShowAddExpenseForm">
                         <i class="bi bi-plus-circle"></i> Add Expense
                     </button>
+                    
+                    @if (model.EditingProfile?.SampleExpenses?.Any() == true)
+                    {
+                        <button class="btn btn-sm btn-outline-info ms-2" @onclick="TestJsonSerialization">
+                            <i class="bi bi-code"></i> Test JSON
+                        </button>
+                    }
                     
                     @if (model.ShowAddExpenseForm)
                     {
@@ -541,9 +548,13 @@
             AgeMin = 25,
             AgeMax = 35,
             MaritalStatus = MaritalStatus.Single,
-            ChildrenCount = 0,
-            SampleExpenses = new List<CostItem>()
+            ChildrenCount = 0
         };
+        
+        // Initialize empty lists and ensure JSON serialization
+        model.EditingProfile.ChildrenAges = new List<int>();
+        model.EditingProfile.SampleExpenses = new List<CostItem>();
+        
         model.ChildrenAgesInput = "";
         model.IsEditMode = false;
         model.ShowProfileModal = true;
@@ -560,12 +571,22 @@
             AgeMax = profile.AgeMax,
             MaritalStatus = profile.MaritalStatus,
             ChildrenCount = profile.ChildrenCount,
-            ChildrenAges = profile.ChildrenAges?.ToList() ?? new List<int>(),
-            SampleExpenses = profile.SampleExpenses?.ToList() ?? new List<CostItem>(),
             CreatedAt = profile.CreatedAt,
-            UpdatedAt = profile.UpdatedAt
+            UpdatedAt = profile.UpdatedAt,
+            // Copy JSON fields to ensure proper serialization
+            ChildrenAgesJSON = profile.ChildrenAgesJSON,
+            SampleExpensesJSON = profile.SampleExpensesJSON
         };
-        model.ChildrenAgesInput = profile.ChildrenAges != null ? string.Join(", ", profile.ChildrenAges) : "";
+        
+        // Access the properties to trigger deserialization and create new lists
+        var childrenAges = model.EditingProfile.ChildrenAges;
+        var sampleExpenses = model.EditingProfile.SampleExpenses;
+        
+        // Ensure we have proper list instances
+        model.EditingProfile.ChildrenAges = new List<int>(childrenAges);
+        model.EditingProfile.SampleExpenses = new List<CostItem>(sampleExpenses);
+        
+        model.ChildrenAgesInput = childrenAges.Any() ? string.Join(", ", childrenAges) : "";
         model.IsEditMode = true;
         model.ShowProfileModal = true;
     }
@@ -594,17 +615,68 @@
                     .Select(int.Parse)
                     .ToList();
             }
+            else
+            {
+                model.EditingProfile.ChildrenAges = new List<int>();
+            }
+
+            // Ensure SampleExpenses is properly initialized
+            if (model.EditingProfile.SampleExpenses == null)
+            {
+                model.EditingProfile.SampleExpenses = new List<CostItem>();
+            }
+
+            // Debug: Log what we're about to save
+            Console.WriteLine($"Saving profile with {model.EditingProfile.SampleExpenses.Count} expenses");
+            foreach (var expense in model.EditingProfile.SampleExpenses)
+            {
+                Console.WriteLine($"Expense: {expense.Category} - {expense.Subcategory} - {expense.CurrentValue:C} - Frequency: {expense.Frequency} - AdjustOption: {expense.AdjustOption}");
+            }
+
+            // Force JSON serialization by accessing and re-assigning the properties
+            // This is crucial for the DemographicProfile's JSON serialization properties to work
+            var tempChildren = model.EditingProfile.ChildrenAges.ToList();
+            var tempExpenses = model.EditingProfile.SampleExpenses.ToList();
+            
+            model.EditingProfile.ChildrenAges = tempChildren;
+            model.EditingProfile.SampleExpenses = tempExpenses;
+
+            // Debug: Check if JSON was created
+            Console.WriteLine($"ChildrenAgesJSON: {model.EditingProfile.ChildrenAgesJSON ?? "NULL"}");
+            Console.WriteLine($"SampleExpensesJSON: {model.EditingProfile.SampleExpensesJSON ?? "NULL"}");
+            
+            // Additional check: verify JSON content
+            if (!string.IsNullOrEmpty(model.EditingProfile.SampleExpensesJSON))
+            {
+                try
+                {
+                    var testDeserialize = System.Text.Json.JsonSerializer.Deserialize<List<CostItem>>(model.EditingProfile.SampleExpensesJSON);
+                    Console.WriteLine($"JSON deserialization test successful: {testDeserialize?.Count} items");
+                }
+                catch (Exception jsonEx)
+                {
+                    Console.WriteLine($"JSON deserialization test failed: {jsonEx.Message}");
+                }
+            }
 
             using var client = CreateHttpClient();
             if (model.IsEditMode)
             {
                 var response = await client.PutAsJsonAsync($"api/citytemplate/profile/{model.EditingProfile.ProfileId}", model.EditingProfile);
-                response.EnsureSuccessStatusCode();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to update profile: {response.StatusCode} - {errorContent}");
+                }
             }
             else
             {
                 var response = await client.PostAsJsonAsync($"api/citytemplate/{model.EditingProfile.CityId}/profiles", model.EditingProfile);
-                response.EnsureSuccessStatusCode();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to create profile: {response.StatusCode} - {errorContent}");
+                }
             }
 
             await LoadProfiles(model.EditingProfile.CityId);
@@ -612,6 +684,7 @@
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error in SaveProfile: {ex}");
             await JSRuntime.InvokeVoidAsync("alert", $"Error saving profile: {ex.Message}");
         }
     }
@@ -643,7 +716,15 @@
         {
             Category = "",
             Subcategory = "",
-            CurrentValue = 0
+            CurrentValue = 0,
+            Frequency = Frequency.Monthly,
+            AdjustOption = RetirementAdjustOption.Same,
+            PerItemInflationPercent = null,
+            PerItemInflationSource = InflationSource.UseGlobal,
+            CustomPercentage = 100m,
+            ManualRetirementValue = null,
+            IncludeInRetirement = true,
+            RetirementExclusionReason = null
         };
         model.ShowAddExpenseForm = true;
     }
@@ -652,9 +733,44 @@
     {
         if (model.NewExpense != null && model.EditingProfile?.SampleExpenses != null)
         {
-            model.EditingProfile.SampleExpenses.Add(model.NewExpense);
+            Console.WriteLine($"Adding expense: {model.NewExpense.Category} - {model.NewExpense.Subcategory} - {model.NewExpense.CurrentValue:C}");
+            
+            // Create a properly initialized CostItem with all required properties
+            var expenseToAdd = new CostItem
+            {
+                Category = model.NewExpense.Category ?? "",
+                Subcategory = model.NewExpense.Subcategory ?? "",
+                CurrentValue = model.NewExpense.CurrentValue,
+                Frequency = Frequency.Monthly, // Default to monthly
+                AdjustOption = RetirementAdjustOption.Same, // Default adjustment option
+                PerItemInflationPercent = null,
+                PerItemInflationSource = InflationSource.UseGlobal,
+                CustomPercentage = 100m,
+                ManualRetirementValue = null,
+                IncludeInRetirement = true,
+                RetirementExclusionReason = null
+            };
+            
+            // Add to the existing list
+            model.EditingProfile.SampleExpenses.Add(expenseToAdd);
+            Console.WriteLine($"Total expenses after adding to list: {model.EditingProfile.SampleExpenses.Count}");
+            
+            // CRUCIAL: Trigger JSON serialization by reassigning the list to itself
+            // This forces the setter to be called, which updates the JSON property
+            var currentExpenses = model.EditingProfile.SampleExpenses.ToList();
+            model.EditingProfile.SampleExpenses = currentExpenses;
+            
+            Console.WriteLine($"JSON after reassignment: {model.EditingProfile.SampleExpensesJSON ?? "NULL"}");
+            Console.WriteLine($"Final count after JSON trigger: {model.EditingProfile.SampleExpenses.Count}");
+            
             model.ShowAddExpenseForm = false;
             model.NewExpense = null;
+            
+            StateHasChanged(); // Force UI update
+        }
+        else
+        {
+            Console.WriteLine($"Cannot add expense - NewExpense: {model.NewExpense != null}, SampleExpenses: {model.EditingProfile?.SampleExpenses != null}");
         }
     }
 
@@ -666,6 +782,84 @@
 
     private void RemoveExpense(CostItem expense)
     {
-        model.EditingProfile?.SampleExpenses?.Remove(expense);
+        if (model.EditingProfile?.SampleExpenses != null)
+        {
+            Console.WriteLine($"Removing expense: {expense.Category} - {expense.Subcategory}");
+            
+            // Remove from the list
+            var removed = model.EditingProfile.SampleExpenses.Remove(expense);
+            Console.WriteLine($"Remove operation result: {removed}");
+            Console.WriteLine($"Count after removal: {model.EditingProfile.SampleExpenses.Count}");
+            
+            if (removed)
+            {
+                // CRUCIAL: Trigger JSON serialization by reassigning the list
+                var currentExpenses = model.EditingProfile.SampleExpenses.ToList();
+                model.EditingProfile.SampleExpenses = currentExpenses;
+                
+                Console.WriteLine($"JSON after removal: {model.EditingProfile.SampleExpensesJSON ?? "NULL"}");
+                
+                StateHasChanged(); // Force UI update
+            }
+        }
+    }
+
+    private async Task TestJsonSerialization()
+    {
+        if (model.EditingProfile?.SampleExpenses == null) return;
+
+        try
+        {
+            Console.WriteLine("=== JSON Serialization Test ===");
+            Console.WriteLine($"Current expenses count: {model.EditingProfile.SampleExpenses.Count}");
+
+            // Show current expenses
+            for (int i = 0; i < model.EditingProfile.SampleExpenses.Count; i++)
+            {
+                var expense = model.EditingProfile.SampleExpenses[i];
+                Console.WriteLine($"  [{i}] {expense.Category} - {expense.Subcategory} - {expense.CurrentValue:C}");
+            }
+
+            // Test direct JSON serialization
+            var directJson = System.Text.Json.JsonSerializer.Serialize(model.EditingProfile.SampleExpenses);
+            Console.WriteLine($"Direct JSON serialization: {directJson}");
+
+            // Show current JSON property value
+            Console.WriteLine($"Current SampleExpensesJSON: {model.EditingProfile.SampleExpensesJSON ?? "NULL"}");
+
+            // Test property-based serialization by triggering the setter
+            var tempExpenses = model.EditingProfile.SampleExpenses.ToList();
+            model.EditingProfile.SampleExpenses = tempExpenses;
+
+            Console.WriteLine($"SampleExpensesJSON after reassignment: {model.EditingProfile.SampleExpensesJSON ?? "NULL"}");
+
+            // Test deserialization
+            if (!string.IsNullOrEmpty(model.EditingProfile.SampleExpensesJSON))
+            {
+                var deserializedExpenses = System.Text.Json.JsonSerializer.Deserialize<List<CostItem>>(model.EditingProfile.SampleExpensesJSON);
+                Console.WriteLine($"Deserialized expenses count: {deserializedExpenses?.Count ?? 0}");
+                
+                if (deserializedExpenses != null)
+                {
+                    for (int i = 0; i < deserializedExpenses.Count; i++)
+                    {
+                        var expense = deserializedExpenses[i];
+                        Console.WriteLine($"  Deserialized [{i}] {expense.Category} - {expense.Subcategory} - {expense.CurrentValue:C}");
+                    }
+                }
+            }
+
+            var message = $"JSON test completed!\n" +
+                         $"Expenses in list: {model.EditingProfile.SampleExpenses.Count}\n" +
+                         $"JSON property: {(string.IsNullOrEmpty(model.EditingProfile.SampleExpensesJSON) ? "NULL/Empty" : "Has Data")}\n" +
+                         $"Check browser console for detailed logs.";
+
+            await JSRuntime.InvokeVoidAsync("alert", message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"JSON serialization test error: {ex}");
+            await JSRuntime.InvokeVoidAsync("alert", $"JSON test failed: {ex.Message}");
+        }
     }
 }
