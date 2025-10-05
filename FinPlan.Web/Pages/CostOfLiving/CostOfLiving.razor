@@ -610,6 +610,154 @@
     .modal-dialog-scrollable .modal-body {
         max-height: calc(100vh - 200px);
     }
+
+    /* Touch Target Improvements - Minimum 44x44px for mobile */
+    @@media (max-width: 767px) {
+        /* Info icons - larger tap area */
+        .bi-info-circle {
+            padding: 12px;
+            margin: -12px;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Close buttons in alerts/tooltips */
+        .alert .btn-close,
+        .alert .bi-x-lg {
+            min-width: 44px;
+            min-height: 44px;
+            padding: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* All buttons minimum size */
+        .btn, button {
+            min-height: 44px;
+            padding: 10px 16px;
+        }
+
+        .btn-sm {
+            min-height: 44px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+        }
+
+        /* Trash/delete buttons */
+        .bi-trash-fill,
+        .bi-trash {
+            padding: 12px;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Edit/pencil buttons */
+        .bi-pencil-square,
+        .bi-pencil {
+            padding: 8px;
+        }
+
+        /* Category accordion header - make entire header tappable */
+        .card-header {
+            min-height: 60px;
+            padding: 12px 16px;
+        }
+
+        /* Form checkboxes and radio buttons */
+        .form-check-input {
+            min-width: 28px;
+            min-height: 28px;
+            margin-top: 0;
+        }
+
+        .form-check-label {
+            padding-left: 8px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Checkbox labels clickable area */
+        .form-check {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        /* Tab navigation */
+        .nav-link {
+            min-height: 48px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Badge/link touch targets */
+        .badge,
+        a.badge {
+            min-height: 36px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Mode toggle switch */
+        .form-switch .form-check-input {
+            min-width: 48px;
+            min-height: 28px;
+        }
+
+        /* Add category/item buttons */
+        .btn-success,
+        .btn-primary {
+            min-height: 48px;
+            font-size: 1rem;
+        }
+
+        /* Collapse/Expand all button */
+        .btn-outline-secondary {
+            min-height: 44px;
+        }
+    }
+
+    /* Touch-friendly improvements for all screens */
+    /* Add visual feedback for touch */
+    @@media (hover: none) and (pointer: coarse) {
+        /* These styles apply only to touch devices */
+        button:active,
+        .btn:active,
+        a:active {
+            transform: scale(0.98);
+            transition: transform 0.1s;
+        }
+
+        /* Remove hover effects that don't work on touch */
+        *:hover {
+            /* Disable problematic hover states */
+        }
+
+        /* Larger tap targets for icon buttons */
+        .bi {
+            cursor: pointer;
+        }
+
+        /* Prevent accidental double-tap zoom */
+        button,
+        a,
+        input,
+        select,
+        textarea {
+            touch-action: manipulation;
+        }
+    }
 </style>
 
 @* Replace the inline modal with the reusable component *@
