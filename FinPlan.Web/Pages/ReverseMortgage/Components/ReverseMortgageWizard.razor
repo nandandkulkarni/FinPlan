@@ -32,17 +32,128 @@
         IsPrimaryResidence = true,
         MonthlyPrincipalPaid = 0
     };
-    private int Step = 2;
-    private int MaxStep = 7; // Increased for new steps
+    private int Step = 1;
+    private int MaxStep = 8; // Increased for payment type selection step
     private bool ShowResults => Step > MaxStep;
     private const string StorageKey = "ReverseMortgageModel";
 
     // New fields for accuracy
     private int? SpouseAge { get; set; }
     private string ZipCode { get; set; } = "";
-    private decimal CountyLimit { get; set; } = 970800; // Example: 2024 FHA national limit
+    
+    // County Lending Limit (CLL) fields
+    private decimal CurrentCountyLimit { get; set; } = 970800; // 2024 FHA national limit
+    private decimal CountyLimitGrowthRate { get; set; } = 4.0m; // Default 4% annual growth
+    private decimal FutureCountyLimit { get; set; } = 970800; // Will be calculated
+    private bool IsAutoCalculateCLL { get; set; } = true; // Auto-calculate future limit by default
+    
     private decimal ExpectedInterestRate { get; set; } = 4.5m;
     private bool IsLoaded = false;
+
+    // Payment type selection
+    private string PaymentType { get; set; } = "lump-sum"; // "lump-sum", "monthly", "line-of-credit"
+    private int LifeExpectancy { get; set; } = 85; // Used for monthly payment calculations
+
+    // Step names for navigation
+    private readonly Dictionary<int, string> StepNames = new()
+    {
+        { 1, "Timeline" },
+        { 2, "County Limits" },
+        { 3, "Interest Rate" },
+        { 4, "Home Value" },
+        { 5, "Mortgage" },
+        { 6, "Property" },
+        { 7, "Extra Payments" },
+        { 8, "Payment Type" },
+        { 9, "Results" }
+    };
+
+    // Navigate directly to a step
+    private async Task GoToStepAsync(int targetStep)
+    {
+        try
+        {
+            Console.WriteLine($"GoToStepAsync called. Target step: {targetStep}, Current step: {Step}");
+            
+            if (targetStep >= 1 && targetStep <= MaxStep + 1)
+            {
+                // Handle results step (step 9)
+                if (targetStep == MaxStep + 1)
+                {
+                    Step = MaxStep + 1; // This will make ShowResults = true
+                }
+                else
+                {
+                    Step = targetStep;
+                }
+                
+                // Update future county limit when navigating to/from step 2
+                if (Step >= 2)
+                {
+                    UpdateFutureCountyLimit();
+                }
+                
+                // Save current state
+                await LocalStorage.SetItemAsync(StorageKey, Model);
+                
+                Console.WriteLine($"GoToStepAsync completed. New step: {Step}, ShowResults: {ShowResults}");
+                
+                // Force UI update
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine($"Invalid target step: {targetStep}. Must be between 1 and {MaxStep + 1}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GoToStepAsync: {ex.Message}");
+        }
+    }
+
+    // Check if step is accessible (completed or current)
+    private bool IsStepAccessible(int stepNumber)
+    {
+        // Allow access to current step and all previous steps
+        // For simplicity, allow access to all steps for better UX
+        return true;
+    }
+
+    // Get step status CSS class
+    private string GetStepClass(int stepNumber)
+    {
+        string cssClass;
+        
+        if (stepNumber == MaxStep + 1) // Results step
+        {
+            cssClass = ShowResults ? "step-current" : "step-pending";
+        }
+        else if (stepNumber == Step)
+        {
+            cssClass = "step-current";
+        }
+        else if (stepNumber < Step)
+        {
+            cssClass = "step-completed";
+        }
+        else
+        {
+            cssClass = "step-pending";
+        }
+        
+        Console.WriteLine($"GetStepClass: Step {stepNumber} = {cssClass} (Current: {Step}, ShowResults: {ShowResults})");
+        return cssClass;
+    }
+
+    // Calculate future county lending limit
+    private void UpdateFutureCountyLimit()
+    {
+        if (IsAutoCalculateCLL && YearsUntilApplication >= 0)
+        {
+            FutureCountyLimit = CurrentCountyLimit * (decimal)Math.Pow(1 + (double)CountyLimitGrowthRate / 100, YearsUntilApplication);
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -55,6 +166,10 @@
                 {
                     Model = stored;
                 }
+                
+                // Initialize future county limit
+                UpdateFutureCountyLimit();
+                
                 IsLoaded = true;
                 Console.WriteLine($"Component loaded. Step: {Step}, IsLoaded: {IsLoaded}");
                 StateHasChanged();
@@ -73,6 +188,13 @@
         try
         {
             Console.WriteLine($"NextStepAsync called. Current step: {Step}");
+            
+            // Update future county limit when moving from step 2
+            if (Step == 2)
+            {
+                UpdateFutureCountyLimit();
+            }
+            
             Step++;
             await LocalStorage.SetItemAsync(StorageKey, Model);
             Console.WriteLine($"NextStepAsync completed. New step: {Step}");
@@ -100,6 +222,13 @@
         }
     }
 
+    // Update county limit when application year or growth rate changes
+    private void OnApplicationYearOrGrowthRateChanged()
+    {
+        UpdateFutureCountyLimit();
+        StateHasChanged();
+    }
+
     private int YearsUntilApplication => Model.ApplicationYear - DateTime.Now.Year;
     private int AgeAtApplication => (SpouseAge.HasValue ? Math.Min(Model.CurrentAge, SpouseAge.Value) : Model.CurrentAge) + YearsUntilApplication;
     
@@ -109,7 +238,9 @@
         {
             try 
             {
-                return Math.Min(Model.CurrentHomeValue * (decimal)Math.Pow(1 + (double)Model.HomeAppreciationRate / 100, YearsUntilApplication), CountyLimit);
+                // Use the FutureCountyLimit (calculated or manually entered) instead of static CountyLimit
+                var applicableCLL = IsAutoCalculateCLL ? FutureCountyLimit : FutureCountyLimit;
+                return Math.Min(Model.CurrentHomeValue * (decimal)Math.Pow(1 + (double)Model.HomeAppreciationRate / 100, YearsUntilApplication), applicableCLL);
             }
             catch 
             {
@@ -170,6 +301,46 @@
 
     private decimal PrincipalLimit => ProjectedHomeValue * GetPLF(AgeAtApplication, ExpectedInterestRate);
     private decimal NetProceeds => PrincipalLimit - CashNeededForPayoff;
+    
+    // Monthly payment calculations
+    private decimal MonthlyTenurePayment
+    {
+        get
+        {
+            if (PaymentType != "monthly" || NetProceeds <= 0) return 0;
+            
+            try
+            {
+                var monthsRemaining = (LifeExpectancy - AgeAtApplication) * 12;
+                if (monthsRemaining <= 0) return 0;
+                
+                var monthlyRate = (double)ExpectedInterestRate / 100 / 12;
+                var numPayments = (double)monthsRemaining;
+                
+                // Calculate payment using present value annuity formula
+                // PV = PMT * [(1 - (1 + r)^-n) / r]
+                // Rearrange to solve for PMT: PMT = PV * r / (1 - (1 + r)^-n)
+                if (monthlyRate > 0)
+                {
+                    var denominator = 1 - Math.Pow(1 + monthlyRate, -numPayments);
+                    return (decimal)((double)NetProceeds * monthlyRate / denominator);
+                }
+                else
+                {
+                    // If no interest, simple division
+                    return NetProceeds / monthsRemaining;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+    }
+    
+    private decimal LineOfCreditAmount => NetProceeds; // Available as line of credit
+    
+    private decimal LineOfCreditGrowthRate => ExpectedInterestRate + 0.5m; // Typically 0.5% higher than loan rate
 }
 
 @if (!IsLoaded)
@@ -186,6 +357,35 @@
 else
 {
     <div class="wizard-container">
+        <!-- Top Navigation Bar -->
+        <div class="step-navigation mb-3">
+            <div class="row g-1">
+                @for (int i = 1; i <= MaxStep; i++)
+                {
+                    var stepNumber = i; // Capture for closure
+                    <div class="col">
+                        <button class="step-nav-btn @GetStepClass(stepNumber)" 
+                                @onclick="async () => await GoToStepAsync(stepNumber)"
+                                disabled="@(!IsStepAccessible(stepNumber))"
+                                title="@StepNames[stepNumber]">
+                            <div class="step-number">@stepNumber</div>
+                            <div class="step-name">@StepNames[stepNumber]</div>
+                        </button>
+                    </div>
+                }
+                <!-- Results step -->
+                <div class="col">
+                    <button class="step-nav-btn @GetStepClass(MaxStep + 1)" 
+                            @onclick="async () => await GoToStepAsync(MaxStep + 1)"
+                            title="Results">
+                        <div class="step-number">??</div>
+                        <div class="step-name">@StepNames[MaxStep + 1]</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
         <div class="progress mb-3" style="height: 8px;">
             <div class="progress-bar bg-warning" role="progressbar" style="width: @(Step * 100 / MaxStep)%"></div>
         </div>
@@ -194,7 +394,7 @@ else
         {
             <div class="mb-3">
                 <label class="form-label">What year do you plan to get a reverse mortgage?</label>
-                <select class="form-select" @bind="Model.ApplicationYear">
+                <select class="form-select" @bind="Model.ApplicationYear" @bind:after="OnApplicationYearOrGrowthRateChanged">
                     @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 20; y++)
                     {
                         <option value="@y">@y (@(y - DateTime.Now.Year) years from now)</option>
@@ -213,15 +413,65 @@ else
         }
         else if (Step == 2)
         {
+            <h6 class="mb-3 text-primary">County Lending Limits</h6>
+            
             <div class="mb-3">
-                <label class="form-label">ZIP code (for county lending limit)</label>
-                <input class="form-control" type="text" maxlength="10" @bind="ZipCode" />
+                <label class="form-label">ZIP code (optional)</label>
+                <input class="form-control" type="text" maxlength="10" @bind="ZipCode" placeholder="e.g., 90210" />
+                <small class="text-muted">Used for county-specific limits (if available)</small>
             </div>
+            
             <div class="mb-3">
-                <label class="form-label">County lending limit ($)</label>
-                <input class="form-control" type="number" min="100000" max="2000000" step="1000" @bind="CountyLimit" />
-                <small class="text-muted">Default: 2024 FHA national limit</small>
+                <label class="form-label">Current county lending limit (2024) ($)</label>
+                <input class="form-control" type="number" min="100000" max="3000000" step="1000" @bind="CurrentCountyLimit" @bind:after="OnApplicationYearOrGrowthRateChanged" />
+                <small class="text-muted">Default: $970,800 (2024 FHA national limit)</small>
             </div>
+            
+            <div class="mb-3">
+                <label class="form-label">County limit growth rate (% per year)</label>
+                <input class="form-control" type="number" min="0" max="10" step="0.1" @bind="CountyLimitGrowthRate" @bind:after="OnApplicationYearOrGrowthRateChanged" />
+                <small class="text-muted">Default: 4.0% (historical average for FHA limits)</small>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="autoCalcCLL" @bind="IsAutoCalculateCLL" @bind:after="OnApplicationYearOrGrowthRateChanged" />
+                    <label class="form-check-label" for="autoCalcCLL">
+                        Auto-calculate future limit (recommended)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">County lending limit in @Model.ApplicationYear ($)</label>
+                <input class="form-control @(IsAutoCalculateCLL ? "bg-light" : "")" 
+                       type="number" min="100000" max="5000000" step="1000" 
+                       @bind="FutureCountyLimit" 
+                       readonly="@IsAutoCalculateCLL" />
+                <small class="text-muted">
+                    @if (IsAutoCalculateCLL)
+                    {
+                        <span>Auto-calculated: $@CurrentCountyLimit.ToString("N0") growing at @CountyLimitGrowthRate% for @YearsUntilApplication years</span>
+                    }
+                    else
+                    {
+                        <span>Enter your expected limit for @Model.ApplicationYear</span>
+                    }
+                </small>
+            </div>
+            
+            @if (YearsUntilApplication > 0)
+            {
+                <div class="alert alert-info">
+                    <small>
+                        <strong>Projection:</strong> With @CountyLimitGrowthRate% annual growth, the limit will increase from 
+                        <strong>@CurrentCountyLimit.ToString("C0")</strong> today to 
+                        <strong>@FutureCountyLimit.ToString("C0")</strong> in @Model.ApplicationYear
+                        (+@((FutureCountyLimit - CurrentCountyLimit).ToString("C0")) over @YearsUntilApplication years).
+                    </small>
+                </div>
+            }
+            
             <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
             <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
         }
@@ -303,6 +553,45 @@ else
                 <small class="text-muted">Default: $0</small>
             </div>
             <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 8)
+        {
+            <div class="mb-3">
+                <label class="form-label">How would you like to receive payments?</label>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="paymentType" id="lumpSum" 
+                           checked="@(PaymentType == "lump-sum")" @onchange="@(() => PaymentType = "lump-sum")" />
+                    <label class="form-check-label" for="lumpSum">
+                        <strong>Lump Sum</strong> - Receive all proceeds upfront
+                    </label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="paymentType" id="monthly" 
+                           checked="@(PaymentType == "monthly")" @onchange="@(() => PaymentType = "monthly")" />
+                    <label class="form-check-label" for="monthly">
+                        <strong>Monthly Payments</strong> - Receive fixed monthly payments for life
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentType" id="lineOfCredit" 
+                           checked="@(PaymentType == "line-of-credit")" @onchange="@(() => PaymentType = "line-of-credit")" />
+                    <label class="form-check-label" for="lineOfCredit">
+                        <strong>Line of Credit</strong> - Access funds as needed (grows over time)
+                    </label>
+                </div>
+            </div>
+            
+            @if (PaymentType == "monthly")
+            {
+                <div class="mb-3">
+                    <label class="form-label">Expected life expectancy</label>
+                    <input class="form-control" type="number" min="70" max="100" @bind="LifeExpectancy" />
+                    <small class="text-muted">Used to calculate monthly payment amount. Average is 83-85.</small>
+                </div>
+            }
+            
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
             <button class="btn btn-success w-50" @onclick="NextStepAsync">Show Results</button>
         }
         else if (ShowResults)
@@ -310,22 +599,105 @@ else
             <div class="card bg-light mb-3">
                 <div class="card-body">
                     <h4 class="mb-2 text-success">Your Reverse Mortgage Estimate</h4>
-                    <ul class="list-unstyled mb-2">
-                        <li><b>Year of application:</b> @Model.ApplicationYear</li>
-                        <li><b>Age at application:</b> @AgeAtApplication</li>
-                        <li><b>Projected home value (capped by county limit):</b> @ProjectedHomeValue.ToString("C0", CultureInfo.CurrentCulture)</li>
-                        <li><b>Principal limit factor (PLF):</b> @GetPLF(AgeAtApplication, ExpectedInterestRate).ToString("P0", CultureInfo.CurrentCulture)</li>
-                        <li><b>Principal limit (est.):</b> @PrincipalLimit.ToString("C0", CultureInfo.CurrentCulture)</li>
-                        <li><b>Projected mortgage balance:</b> @ProjectedMortgageBalance.ToString("C0", CultureInfo.CurrentCulture)</li>
-                        <li><b>Cash needed to pay off mortgage:</b> @CashNeededForPayoff.ToString("C0", CultureInfo.CurrentCulture)</li>
-                        <li><b>Net proceeds:</b> <span class="text-primary">@NetProceeds.ToString("C0", CultureInfo.CurrentCulture)</span></li>
-                    </ul>
-                    <div class="alert alert-info mt-3">
-                        <b>Note:</b> Actual reverse mortgage amounts depend on lender, age, rates, county limits, and FHA rules. This is an estimate for planning purposes.
+                    
+                    <!-- Basic Information -->
+                    <div class="mb-3">
+                        <h6>Loan Details:</h6>
+                        <ul class="list-unstyled mb-2">
+                            <li><b>Year of application:</b> @Model.ApplicationYear</li>
+                            <li><b>Age at application:</b> @AgeAtApplication</li>
+                            <li><b>Projected home value:</b> @ProjectedHomeValue.ToString("C0", CultureInfo.CurrentCulture)</li>
+                            <li><b>County lending limit (@Model.ApplicationYear):</b> @FutureCountyLimit.ToString("C0", CultureInfo.CurrentCulture)</li>
+                            <li><b>Principal limit factor (PLF):</b> @GetPLF(AgeAtApplication, ExpectedInterestRate).ToString("P0", CultureInfo.CurrentCulture)</li>
+                            <li><b>Principal limit:</b> @PrincipalLimit.ToString("C0", CultureInfo.CurrentCulture)</li>
+                            <li><b>Cash needed to pay off existing mortgage:</b> @CashNeededForPayoff.ToString("C0", CultureInfo.CurrentCulture)</li>
+                            <li><b>Net proceeds available:</b> <span class="text-primary">@NetProceeds.ToString("C0", CultureInfo.CurrentCulture)</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Payment Options -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Payment Options</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <div class="@(PaymentType == "lump-sum" ? "border border-primary bg-primary bg-opacity-10" : "border") p-3 rounded">
+                                        <h6 class="text-primary">Lump Sum</h6>
+                                        <h4 class="mb-1">@NetProceeds.ToString("C0", CultureInfo.CurrentCulture)</h4>
+                                        <small class="text-muted">One-time payment</small>
+                                        @if (PaymentType == "lump-sum")
+                                        {
+                                            <div class="badge bg-primary mt-2">Selected</div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="@(PaymentType == "monthly" ? "border border-success bg-success bg-opacity-10" : "border") p-3 rounded">
+                                        <h6 class="text-success">Monthly Payments</h6>
+                                        <h4 class="mb-1">@MonthlyTenurePayment.ToString("C0", CultureInfo.CurrentCulture)</h4>
+                                        <small class="text-muted">Per month for life</small>
+                                        @if (PaymentType == "monthly")
+                                        {
+                                            <div class="badge bg-success mt-2">Selected</div>
+                                            <div class="mt-1"><small>Based on life expectancy of @LifeExpectancy years</small></div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="@(PaymentType == "line-of-credit" ? "border border-info bg-info bg-opacity-10" : "border") p-3 rounded">
+                                        <h6 class="text-info">Line of Credit</h6>
+                                        <h4 class="mb-1">@LineOfCreditAmount.ToString("C0", CultureInfo.CurrentCulture)</h4>
+                                        <small class="text-muted">Available credit</small>
+                                        @if (PaymentType == "line-of-credit")
+                                        {
+                                            <div class="badge bg-info mt-2">Selected</div>
+                                            <div class="mt-1"><small>Grows at @LineOfCreditGrowthRate.ToString("F1")%/year</small></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (PaymentType == "monthly")
+                    {
+                        <div class="alert alert-success">
+                            <h6><i class="bi bi-calendar-month"></i> Monthly Payment Details</h6>
+                            <p class="mb-1">You would receive <strong>@MonthlyTenurePayment.ToString("C0", CultureInfo.CurrentCulture)</strong> per month for as long as you live in the home.</p>
+                            <small class="text-muted">
+                                Based on @((LifeExpectancy - AgeAtApplication) * 12) months from age @AgeAtApplication to @LifeExpectancy.
+                                Payments continue even if you live longer than expected.
+                            </small>
+                        </div>
+                    }
+
+                    @if (PaymentType == "line-of-credit")
+                    {
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-credit-card"></i> Line of Credit Details</h6>
+                            <p class="mb-1">You can access up to <strong>@LineOfCreditAmount.ToString("C0", CultureInfo.CurrentCulture)</strong> as needed.</p>
+                            <p class="mb-1">Unused portion grows at <strong>@LineOfCreditGrowthRate.ToString("F1")%</strong> per year.</p>
+                            <small class="text-muted">
+                                For example, if you don't use any credit for 10 years, your available credit would grow to approximately 
+                                <strong>@(LineOfCreditAmount * (decimal)Math.Pow(1 + (double)LineOfCreditGrowthRate/100, 10)).ToString("C0")</strong>.
+                            </small>
+                        </div>
+                    }
+
+                    <div class="alert alert-warning mt-3">
+                        <h6><i class="bi bi-exclamation-triangle"></i> Important Notes:</h6>
+                        <ul class="mb-0">
+                            <li>Interest accrues on your loan balance over time</li>
+                            <li>You can combine payment options (e.g., some as lump sum, some as line of credit)</li>
+                            <li>You must continue paying property taxes, insurance, and maintenance</li>
+                            <li>Loan becomes due when you sell, move, or pass away</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-secondary w-100" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-secondary w-100" @onclick="PrevStepAsync">Back to Change Payment Type</button>
             <div class="mt-4">
                 <small class="text-muted">
                     <b>Reverse Mortgage Disclaimers:</b><br />
@@ -343,13 +715,85 @@ else
 
     <style>
     .wizard-container {
-        max-width: 480px;
+        max-width: 580px;
         margin: 0 auto;
         padding: 1rem;
     }
+
+    .step-navigation {
+        margin-bottom: 1rem;
+    }
+
+    .step-nav-btn {
+        width: 100%;
+        border: 2px solid #e9ecef;
+        background: #f8f9fa;
+        color: #6c757d;
+        padding: 0.5rem 0.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        font-size: 0.75rem;
+    }
+
+    .step-nav-btn:hover:not(:disabled) {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+    }
+
+    .step-nav-btn.step-current {
+        border-color: #0d6efd;
+        background: #0d6efd;
+        color: white;
+        font-weight: 600;
+    }
+
+    .step-nav-btn.step-completed {
+        border-color: #198754;
+        background: #d1e7dd;
+        color: #0a3622;
+    }
+
+    .step-nav-btn.step-pending {
+        border-color: #e9ecef;
+        background: #f8f9fa;
+        color: #adb5bd;
+    }
+
+    .step-nav-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .step-number {
+        font-weight: bold;
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+
+    .step-name {
+        font-size: 0.65rem;
+        line-height: 1;
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
     @@media (max-width: 600px) {
         .wizard-container {
             padding: 0.5rem;
+        }
+        
+        .step-nav-btn {
+            padding: 0.4rem 0.1rem;
+        }
+        
+        .step-number {
+            font-size: 0.8rem;
+        }
+        
+        .step-name {
+            font-size: 0.6rem;
         }
     }
     </style>
