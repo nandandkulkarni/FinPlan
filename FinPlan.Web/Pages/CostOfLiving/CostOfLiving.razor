@@ -455,6 +455,108 @@
         align-items: center;
         justify-content: center;
     }
+
+    /* Mobile Card Layout - replaces table on small screens */
+    @@media (max-width: 767px) {
+        /* Hide the table on mobile */
+        .mobile-hide-table {
+            display: none !important;
+        }
+
+        /* Show card layout on mobile */
+        .mobile-card-layout {
+            display: block !important;
+        }
+
+        /* Individual expense card styling */
+        .expense-card {
+            background: white;
+            border: 1px solid rgba(255, 214, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .expense-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .expense-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #222;
+            flex: 1;
+        }
+
+        .expense-card-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .expense-card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .expense-card-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .expense-card-field-full {
+            grid-column: 1 / -1;
+        }
+
+        .expense-card-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .expense-card-value {
+            font-size: 1rem;
+            color: #222;
+            font-weight: 500;
+        }
+
+        .expense-card-value-large {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0d6efd;
+        }
+
+        /* Action buttons in card */
+        .expense-card-btn {
+            min-width: 44px;
+            min-height: 44px;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+    }
+
+    /* Desktop: hide mobile card layout */
+    @@media (min-width: 768px) {
+        .mobile-card-layout {
+            display: none !important;
+        }
+    }
 </style>
 
 @* Replace the inline modal with the reusable component *@
@@ -1569,7 +1671,9 @@
                                             </span>
                                         </div>
                                     }
-                                    <table class="table table-sm mb-0">
+                                    
+                                    <!-- DESKTOP TABLE VIEW -->
+                                    <table class="table table-sm mb-0 mobile-hide-table">
                                         <thead>
                                             <tr>
                                                 <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
@@ -1707,6 +1811,104 @@
                                             }
                                         </tbody>
                                     </table>
+
+                                    <!-- MOBILE CARD VIEW -->
+                                    <div class="mobile-card-layout" style="display: none;">
+                                        @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
+                                        {
+                                            var idx = Items.IndexOf(item);
+                                            <div class="expense-card">
+                                                <!-- Card Header: Name + Actions -->
+                                                <div class="expense-card-header">
+                                                    <div class="expense-card-title">@item.Subcategory</div>
+                                                    <div class="expense-card-actions">
+                                                        <button class="btn btn-sm btn-outline-primary expense-card-btn"
+                                                                title="Edit"
+                                                                @onclick="() => OpenEditItemModal(idx)">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger expense-card-btn"
+                                                                title="Remove"
+                                                                @onclick="() => ConfirmRemoveItem(idx)"
+                                                                disabled="@isSaving">
+                                                            <i class="bi bi-trash-fill"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Card Body: Key Info in Grid -->
+                                                <div class="expense-card-body">
+                                                    <!-- Monthly Cost (most important) -->
+                                                    <div class="expense-card-field expense-card-field-full">
+                                                        <div class="expense-card-label">Monthly Cost</div>
+                                                        <div class="expense-card-value-large">@FormatCurrency(item.GetMonthlyEquivalent)</div>
+                                                    </div>
+
+                                                    <!-- Frequency & Amount side by side -->
+                                                    @if (!isSimpleMode)
+                                                    {
+                                                        <div class="expense-card-field">
+                                                            <div class="expense-card-label">Frequency</div>
+                                                            <div class="expense-card-value">@item.Frequency</div>
+                                                        </div>
+                                                        <div class="expense-card-field">
+                                                            <div class="expense-card-label">Amount</div>
+                                                            <div class="expense-card-value">@FormatCurrency(item.CurrentValue)</div>
+                                                        </div>
+                                                    }
+
+                                                    <!-- Retirement Status -->
+                                                    <div class="expense-card-field">
+                                                        <div class="expense-card-label">Retirement</div>
+                                                        <div class="expense-card-value">
+                                                            @if (item.IncludeInRetirement)
+                                                            {
+                                                                <span class="badge bg-success px-3 py-2">Included</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-secondary px-3 py-2">Excluded</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Future Cost -->
+                                                    <div class="expense-card-field">
+                                                        <div class="expense-card-label">Future Cost</div>
+                                                        <div class="expense-card-value expense-card-value-large">
+                                                            @FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Advanced details (collapsible) -->
+                                                    @if (!isSimpleMode && item.IncludeInRetirement)
+                                                    {
+                                                        <div class="expense-card-field expense-card-field-full">
+                                                            <div class="expense-card-label">Adjustment</div>
+                                                            <div class="expense-card-value small">
+                                                                @if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                                {
+                                                                    <span>Inflation (@(item.PerItemInflationSource == InflationSource.UseGlobal ? $"{InflationRate}%" : $"{item.PerItemInflationPercent}%"))</span>
+                                                                }
+                                                                else if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                                {
+                                                                    <span>Custom @item.CustomPercentage%</span>
+                                                                }
+                                                                else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                                                {
+                                                                    <span>Manual @FormatCurrency(item.ManualRetirementValue ?? 0)</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>No change</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
