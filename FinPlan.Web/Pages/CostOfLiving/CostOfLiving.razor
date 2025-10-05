@@ -884,6 +884,218 @@
             width: 100%;
         }
     }
+
+    /* Accordion Header Mobile Optimization */
+    @@media (max-width: 767px) {
+        /* Make accordion header more compact and stackable */
+        .card-header.d-flex.align-items-center {
+            flex-wrap: wrap;
+            padding: 12px 8px !important;
+            gap: 8px;
+            align-items: flex-start !important;
+        }
+
+        /* Category name and remove button - first row */
+        .card-header .btn-soft-danger {
+            order: 1;
+            padding: 4px 8px !important;
+            min-width: 36px;
+            flex-shrink: 0;
+        }
+
+        .card-header .me-2[style*="font-weight: bold"] {
+            order: 2;
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: calc(100% - 120px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 8px !important;
+            font-size: 1rem;
+        }
+
+        /* Category info icon - next to name */
+        .card-header > .bi-info-circle:first-of-type {
+            order: 3;
+            flex-shrink: 0;
+            font-size: 1rem !important;
+            padding: 8px;
+            margin: -8px;
+        }
+
+        /* Show totals on mobile - make them compact and wrap to new line */
+        .card-header .small.text-muted {
+            display: inline-block !important;
+            order: 4;
+            font-size: 0.75rem !important;
+            margin-left: 44px !important; /* Align with category name after button */
+            margin-right: 8px !important;
+            flex: 0 0 auto;
+        }
+
+        /* Stack totals if needed */
+        .card-header .small.text-muted:first-of-type {
+            margin-left: 44px !important;
+        }
+
+        .card-header .small.text-muted:last-of-type {
+            margin-left: 8px !important;
+        }
+
+        /* Compact total labels for mobile */
+        .card-header .small.text-muted {
+            white-space: nowrap;
+        }
+
+        /* Move action buttons to new row */
+        .card-header .ms-auto {
+            order: 5;
+            margin-left: 0 !important;
+            flex: 1 1 100%;
+            margin-top: 8px;
+            justify-content: space-between;
+        }
+
+        /* Make "Add Item" button more prominent on mobile */
+        .card-header .ms-auto .btn-success {
+            flex: 1;
+            max-width: calc(100% - 40px);
+        }
+
+        /* Info icons - ensure adequate touch target */
+        .card-header .bi-info-circle {
+            font-size: 1.1rem !important;
+            padding: 8px;
+            margin: -8px;
+        }
+
+        /* Collapse indicator - add visual cue */
+        .card-header::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 16px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid currentColor;
+            opacity: 0.5;
+            transition: transform 0.2s ease;
+        }
+
+        .card-header[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+
+        /* Increase tap target size for entire header */
+        .card-header {
+            min-height: 66px;
+            position: relative;
+        }
+
+        /* Ensure buttons stay clickable despite header onclick */
+        .card-header button,
+        .card-header .bi-info-circle {
+            position: relative;
+            z-index: 2;
+        }
+    }
+
+    /* Tablet - show some totals but keep compact */
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .card-header .small.text-muted {
+            font-size: 0.7rem !important;
+        }
+
+        .card-header .ms-auto .btn-success {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+    }
+
+    /* Tab Navigation Mobile Optimization */
+    @@media (max-width: 767px) {
+        /* Make tab container horizontally scrollable */
+        .nav-tabs {
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            scrollbar-width: thin; /* Firefox */
+            padding-bottom: 8px;
+            margin-bottom: 8px !important;
+        }
+
+        /* Webkit scrollbar styling */
+        .nav-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 2px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Prevent tabs from shrinking */
+        .nav-tabs .nav-item {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        /* Make tab buttons more touch-friendly */
+        .nav-tabs .nav-link {
+            min-height: 44px;
+            padding: 10px 16px !important;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Info icon next to tab */
+        .nav-item .bi-info-circle {
+            font-size: 1rem !important;
+            padding: 8px;
+            margin: -8px 0 -8px 4px;
+        }
+
+        /* Add visual hint that tabs are scrollable */
+        .nav-tabs::after {
+            content: '→';
+            position: sticky;
+            right: 0;
+            background: linear-gradient(to right, transparent, white 30%);
+            padding: 0 12px 0 24px;
+            pointer-events: none;
+            font-size: 1.2rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Hide scroll hint when at end */
+        .nav-tabs.scrolled-to-end::after {
+            content: '';
+        }
+    }
+
+    /* Small mobile - even more compact tabs */
+    @@media (max-width: 575px) {
+        .nav-tabs .nav-link {
+            padding: 8px 12px !important;
+            font-size: 0.85rem;
+        }
+    }
 </style>
 
 @* Replace the inline modal with the reusable component *@
