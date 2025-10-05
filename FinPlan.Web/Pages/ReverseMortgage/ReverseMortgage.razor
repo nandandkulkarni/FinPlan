@@ -1,0 +1,29 @@
+@page "/reverse-mortgage"
+@using FinPlan.Shared.Models.ReverseMortgage
+@using FinPlan.Web.Pages.ReverseMortgage.Components
+@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Services
+@using FinPlan.Web.Components.Shared
+@using FinPlan.Web.Services
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject DebugMessageService DebugService
+@inject UserGuidService UserGuidService
+@inject NavigationManager Navigation
+
+<div class="container-fluid px-2 py-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h2 class="mb-2 text-primary" style="font-size:2rem;">Reverse Mortgage Calculator</h2>
+                    <p class="text-muted mb-3">Estimate your potential payout from a reverse mortgage, now or in the future. All fields use industry-standard defaults and are mobile-friendly.</p>
+                    <ReverseMortgageWizard/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

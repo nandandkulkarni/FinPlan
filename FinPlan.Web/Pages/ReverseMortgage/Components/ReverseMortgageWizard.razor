@@ -1,0 +1,356 @@
+@page "/reverse-mortgage-wizard"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@using System.Globalization
+@using FinPlan.Shared.Models.ReverseMortgage
+@using Blazored.LocalStorage
+@using FinPlan.Web.Pages.ReverseMortgage.Components
+@using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Services
+@using FinPlan.Web.Components.Shared
+@using FinPlan.Web.Services
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+@inject IJSRuntime JSRuntime
+@inject ILocalStorageService LocalStorage
+
+@code {
+    private ReverseMortgageModel Model = new()
+    {
+        ApplicationYear = DateTime.Now.Year,
+        CurrentAge = 62,
+        CurrentHomeValue = 300000,
+        HomeAppreciationRate = 3,
+        CurrentMortgageBalance = 0,
+        MonthlyPayment = 0,
+        MortgageInterestRate = 4,
+        LoanTermYears = 30,
+        MortgageStartYear = DateTime.Now.Year - 5,
+        PropertyType = "SingleFamily",
+        IsPrimaryResidence = true,
+        MonthlyPrincipalPaid = 0
+    };
+    private int Step = 2;
+    private int MaxStep = 7; // Increased for new steps
+    private bool ShowResults => Step > MaxStep;
+    private const string StorageKey = "ReverseMortgageModel";
+
+    // New fields for accuracy
+    private int? SpouseAge { get; set; }
+    private string ZipCode { get; set; } = "";
+    private decimal CountyLimit { get; set; } = 970800; // Example: 2024 FHA national limit
+    private decimal ExpectedInterestRate { get; set; } = 4.5m;
+    private bool IsLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IsLoaded)
+        {
+            try
+            {
+                var stored = await LocalStorage.GetItemAsync<ReverseMortgageModel>(StorageKey);
+                if (stored != null)
+                {
+                    Model = stored;
+                }
+                IsLoaded = true;
+                Console.WriteLine($"Component loaded. Step: {Step}, IsLoaded: {IsLoaded}");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in OnAfterRenderAsync: {ex.Message}");
+                IsLoaded = true; // Still allow the component to render
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task NextStepAsync()
+    {
+        try
+        {
+            Console.WriteLine($"NextStepAsync called. Current step: {Step}");
+            Step++;
+            await LocalStorage.SetItemAsync(StorageKey, Model);
+            Console.WriteLine($"NextStepAsync completed. New step: {Step}");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in NextStepAsync: {ex.Message}");
+        }
+    }
+
+    private async Task PrevStepAsync()
+    {
+        try
+        {
+            Console.WriteLine($"PrevStepAsync called. Current step: {Step}");
+            Step--;
+            await LocalStorage.SetItemAsync(StorageKey, Model);
+            Console.WriteLine($"PrevStepAsync completed. New step: {Step}");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in PrevStepAsync: {ex.Message}");
+        }
+    }
+
+    private int YearsUntilApplication => Model.ApplicationYear - DateTime.Now.Year;
+    private int AgeAtApplication => (SpouseAge.HasValue ? Math.Min(Model.CurrentAge, SpouseAge.Value) : Model.CurrentAge) + YearsUntilApplication;
+    
+    private decimal ProjectedHomeValue 
+    { 
+        get 
+        {
+            try 
+            {
+                return Math.Min(Model.CurrentHomeValue * (decimal)Math.Pow(1 + (double)Model.HomeAppreciationRate / 100, YearsUntilApplication), CountyLimit);
+            }
+            catch 
+            {
+                return Model.CurrentHomeValue; // Fallback to current value
+            }
+        }
+    }
+    
+    private int MortgageMonthsElapsed => YearsUntilApplication * 12;
+    private int MortgageTotalMonths => Model.LoanTermYears * 12;
+    private int MortgageStartYear => Model.MortgageStartYear;
+    private int MortgageEndYear => Model.MortgageStartYear + Model.LoanTermYears;
+    private int MortgageMonthsRemaining => MortgageTotalMonths - MortgageMonthsElapsed;
+    
+    private decimal ProjectedMortgageBalance 
+    { 
+        get 
+        {
+            try 
+            {
+                if (MortgageMonthsRemaining <= 0 || Model.CurrentMortgageBalance <= 0) return 0;
+                if (Model.MonthlyPrincipalPaid <= 0) return Model.CurrentMortgageBalance;
+                
+                var ratio = (double)Model.MonthlyPrincipalPaid / (double)Model.CurrentMortgageBalance;
+                if (ratio >= 1) return 0; // Paid off
+                
+                return Model.CurrentMortgageBalance * (decimal)Math.Pow(1 - ratio, MortgageMonthsElapsed);
+            }
+            catch 
+            {
+                return Model.CurrentMortgageBalance; // Fallback
+            }
+        }
+    }
+    
+    private bool NeedsCashToPayoff => Model.ApplicationYear < MortgageEndYear;
+    private decimal CashNeededForPayoff => NeedsCashToPayoff ? ProjectedMortgageBalance : 0;
+
+    // Sample PLF lookup (real table should be more granular)
+    private decimal GetPLF(int age, decimal rate)
+    {
+        if (age < 62) return 0.0m;
+        if (rate <= 4.5m)
+        {
+            if (age < 65) return 0.35m;
+            if (age < 70) return 0.40m;
+            if (age < 75) return 0.45m;
+            return 0.50m;
+        }
+        else
+        {
+            if (age < 65) return 0.33m;
+            if (age < 70) return 0.38m;
+            if (age < 75) return 0.43m;
+            return 0.48m;
+        }
+    }
+
+    private decimal PrincipalLimit => ProjectedHomeValue * GetPLF(AgeAtApplication, ExpectedInterestRate);
+    private decimal NetProceeds => PrincipalLimit - CashNeededForPayoff;
+}
+
+@if (!IsLoaded)
+{
+    <div class="wizard-container">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">Loading reverse mortgage wizard...</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="wizard-container">
+        <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: @(Step * 100 / MaxStep)%"></div>
+        </div>
+
+        @if (Step == 1)
+        {
+            <div class="mb-3">
+                <label class="form-label">What year do you plan to get a reverse mortgage?</label>
+                <select class="form-select" @bind="Model.ApplicationYear">
+                    @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 20; y++)
+                    {
+                        <option value="@y">@y (@(y - DateTime.Now.Year) years from now)</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Your current age</label>
+                <input class="form-control" type="number" min="50" max="100" @bind="Model.CurrentAge" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Spouse/Partner age (optional)</label>
+                <input class="form-control" type="number" min="50" max="100" @bind="SpouseAge" />
+            </div>
+            <button class="btn btn-primary w-100 mt-2" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 2)
+        {
+            <div class="mb-3">
+                <label class="form-label">ZIP code (for county lending limit)</label>
+                <input class="form-control" type="text" maxlength="10" @bind="ZipCode" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">County lending limit ($)</label>
+                <input class="form-control" type="number" min="100000" max="2000000" step="1000" @bind="CountyLimit" />
+                <small class="text-muted">Default: 2024 FHA national limit</small>
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 3)
+        {
+            <div class="mb-3">
+                <label class="form-label">Expected interest rate (%)</label>
+                <input class="form-control" type="number" min="3" max="7" step="0.01" @bind="ExpectedInterestRate" />
+                <small class="text-muted">Typical range: 3.5% - 6.5%</small>
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 4)
+        {
+            <div class="mb-3">
+                <label class="form-label">Current home value ($)</label>
+                <input class="form-control" type="number" min="50000" max="5000000" step="1000" @bind="Model.CurrentHomeValue" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Home appreciation rate (% per year)</label>
+                <input class="form-control" type="number" min="0" max="10" step="0.1" @bind="Model.HomeAppreciationRate" />
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 5)
+        {
+            <div class="mb-3">
+                <label class="form-label">Current mortgage balance ($)</label>
+                <input class="form-control" type="number" min="0" max="2000000" step="1000" @bind="Model.CurrentMortgageBalance" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Monthly mortgage payment ($ principal & interest)</label>
+                <input class="form-control" type="number" min="0" max="10000" step="10" @bind="Model.MonthlyPayment" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mortgage interest rate (%)</label>
+                <input class="form-control" type="number" min="0" max="10" step="0.01" @bind="Model.MortgageInterestRate" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Original loan term (years)</label>
+                <select class="form-select" @bind="Model.LoanTermYears">
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mortgage start year</label>
+                <input class="form-control" type="number" min="1990" max="@DateTime.Now.Year" @bind="Model.MortgageStartYear" />
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 6)
+        {
+            <div class="mb-3">
+                <label class="form-label">Property type</label>
+                <select class="form-select" @bind="Model.PropertyType">
+                    <option value="SingleFamily">Single Family</option>
+                    <option value="Condo">Condo</option>
+                    <option value="Townhouse">Townhouse</option>
+                    <option value="ManufacturedHome">Manufactured Home</option>
+                </select>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="primaryResidenceCheck" @bind="Model.IsPrimaryResidence" />
+                <label class="form-check-label" for="primaryResidenceCheck">This is my primary residence</label>
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-primary w-50" @onclick="NextStepAsync">Next</button>
+        }
+        else if (Step == 7)
+        {
+            <div class="mb-3">
+                <label class="form-label">Do you make extra principal payments?</label>
+                <input class="form-control" type="number" min="0" max="10000" step="10" @bind="Model.MonthlyPrincipalPaid" />
+                <small class="text-muted">Default: $0</small>
+            </div>
+            <button class="btn btn-secondary w-50 me-2" @onclick="PrevStepAsync">Back</button>
+            <button class="btn btn-success w-50" @onclick="NextStepAsync">Show Results</button>
+        }
+        else if (ShowResults)
+        {
+            <div class="card bg-light mb-3">
+                <div class="card-body">
+                    <h4 class="mb-2 text-success">Your Reverse Mortgage Estimate</h4>
+                    <ul class="list-unstyled mb-2">
+                        <li><b>Year of application:</b> @Model.ApplicationYear</li>
+                        <li><b>Age at application:</b> @AgeAtApplication</li>
+                        <li><b>Projected home value (capped by county limit):</b> @ProjectedHomeValue.ToString("C0", CultureInfo.CurrentCulture)</li>
+                        <li><b>Principal limit factor (PLF):</b> @GetPLF(AgeAtApplication, ExpectedInterestRate).ToString("P0", CultureInfo.CurrentCulture)</li>
+                        <li><b>Principal limit (est.):</b> @PrincipalLimit.ToString("C0", CultureInfo.CurrentCulture)</li>
+                        <li><b>Projected mortgage balance:</b> @ProjectedMortgageBalance.ToString("C0", CultureInfo.CurrentCulture)</li>
+                        <li><b>Cash needed to pay off mortgage:</b> @CashNeededForPayoff.ToString("C0", CultureInfo.CurrentCulture)</li>
+                        <li><b>Net proceeds:</b> <span class="text-primary">@NetProceeds.ToString("C0", CultureInfo.CurrentCulture)</span></li>
+                    </ul>
+                    <div class="alert alert-info mt-3">
+                        <b>Note:</b> Actual reverse mortgage amounts depend on lender, age, rates, county limits, and FHA rules. This is an estimate for planning purposes.
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary w-100" @onclick="PrevStepAsync">Back</button>
+            <div class="mt-4">
+                <small class="text-muted">
+                    <b>Reverse Mortgage Disclaimers:</b><br />
+                    - Reverse mortgages are complex financial products and may not be suitable for everyone.<br />
+                    - You must continue to pay property taxes, homeowner's insurance, and maintain your home; failure to do so may result in foreclosure.<br />
+                    - Loan proceeds, fees, and costs will reduce your home equity and may affect your ability to leave your home to heirs.<br />
+                    - The principal limit is subject to FHA rules, county lending limits, and lender policies.<br />
+                    - Interest accrues on the outstanding balance and will be repaid when the home is sold, you move out, or pass away.<br />
+                    - Consult a HUD-approved reverse mortgage counselor and review all terms before proceeding.<br />
+                    - This calculator provides estimates only and does not constitute an offer or guarantee of loan eligibility or amount.
+                </small>
+            </div>
+        }
+    </div>
+
+    <style>
+    .wizard-container {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+    @@media (max-width: 600px) {
+        .wizard-container {
+            padding: 0.5rem;
+        }
+    }
+    </style>
+}

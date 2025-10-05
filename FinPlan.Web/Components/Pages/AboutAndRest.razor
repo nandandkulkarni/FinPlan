@@ -14,6 +14,8 @@
 @inject IConfiguration Configuration
 @inject FinPlan.Web.Services.DebugMessageService DebugService
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject NavigationManager Navigation
+
 @namespace FinPlan.Web.Components.Pages
 
 <PageTitle>About - Rewealthen</PageTitle>
@@ -318,7 +320,7 @@
                                                 With backgrounds spanning software development, data analysis, and personal finance, we've come together around a simple idea: to make financial planning clear, approachable, and empowering for everyone.
                                             </p>
                                             <p>
-                                                Our focus is on building tools that take the guesswork out of financial decisions—whether it's saving for retirement, managing day-to-day expenses, or planning for
+                                                Our focus is on building tools that take the guesswork out of financial decisionsï¿½whether it's saving for retirement, managing day-to-day expenses, or planning for
                                                 long-term goals.
                                             </p>
 
@@ -412,7 +414,7 @@
 
                                             @if (submitted && !hasError)
                                             {
-                                                <div class="alert alert-success mt-2">Thanks — your feedback has been submitted successfully!</div>
+                                                <div class="alert alert-success mt-2">Thanks ï¿½ your feedback has been submitted successfully!</div>
                                             }
 
                                             @if (hasError)
@@ -433,6 +435,33 @@
                 <!-- Right column (2) -->
                 <div class="col-12 col-md-2">
                     <div class="panel">
+                     @if (IsLocalhost)
+        {
+            <div class="card">
+                <h4>Admin Tools</h4>
+                <p>Manage cost of living templates for cities around the world.</p>
+                <div class="mt-3">
+                    <a href="/admin/city-templates" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-gear-fill"></i> CTA
+                    </a>
+                </div>
+                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
+                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
+                </p>
+            </div>
+            <div class="card">
+                <h4>Admin Tools</h4>
+                <p>Manage cost of living templates for cities around the world.</p>
+                <div class="mt-3">
+                    <a href="/reverse-mortgage" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-gear-fill"></i> RM
+                    </a>
+                </div>
+                <p style="color:var(--muted); margin-top: 10px; font-size: 0.875rem;">
+                    Create and manage demographic profiles with sample expenses for different cities and lifestyles.
+                </p>
+            </div>
+        }
                     </div>
                 </div>
             </div>
@@ -448,6 +477,9 @@
     private string errorMessage = string.Empty;
     private string userGuid = string.Empty;
     private bool hasInitialized = false;
+
+    private bool IsLocalhost => Navigation.Uri.Contains("localhost") || Navigation.Uri.Contains("127.0.0.1");
+
 
     protected override async Task OnInitializedAsync()
     {

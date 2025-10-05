@@ -4,6 +4,7 @@ using FinPlan.ApiService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinPlan.ApiService.Migrations
 {
     [DbContext(typeof(FinPlanDbContext))]
-    partial class FinPlanDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251005193355_AddCityTemplates")]
+    partial class AddCityTemplates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

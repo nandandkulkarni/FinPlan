@@ -1,0 +1,641 @@
+@page "/admin/city-templates"
+@using FinPlan.Shared.Models.LivingCosts
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>City Cost of Living Templates</h2>
+            <p class="text-muted">Manage city templates and demographic profiles</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="ShowCreateCityModal">
+                <i class="bi bi-plus-circle"></i> Add New City
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (cities == null || !cities.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No city templates found. Click "Add New City" to create your first template.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Currency</th>
+                        <th>COL Index</th>
+                        <th>Profiles</th>
+                        <th>Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var city in cities)
+                    {
+                        <tr>
+                            <td><strong>@city.CityName</strong></td>
+                            <td>@city.Country</td>
+                            <td>@city.Currency</td>
+                            <td>@city.CostOfLivingIndex.ToString("N2")</td>
+                            <td>
+                                <button class="btn btn-sm btn-link" @onclick="() => LoadProfiles(city.CityId)">
+                                    @GetProfileCount(city.CityId) profile(s)
+                                </button>
+                            </td>
+                            <td>@city.UpdatedAt.ToLocalTime().ToString("MM/dd/yyyy")</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" @onclick="() => EditCity(city)">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button class="btn btn-outline-success" @onclick="() => ManageProfiles(city)">
+                                        <i class="bi bi-people"></i> Profiles
+                                    </button>
+                                    <button class="btn btn-outline-danger" @onclick="() => DeleteCity(city)">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Selected City Profiles Section -->
+    @if (selectedCityForProfiles != null)
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    Demographic Profiles for @selectedCityForProfiles.CityName
+                    <button class="btn btn-sm btn-light float-end" @onclick="() => ShowCreateProfileModal(selectedCityForProfiles.CityId)">
+                        <i class="bi bi-plus-circle"></i> Add Profile
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (currentProfiles == null || !currentProfiles.Any())
+                {
+                    <p class="text-muted">No profiles defined for this city yet.</p>
+                }
+                else
+                {
+                    <div class="row g-3">
+                        @foreach (var profile in currentProfiles)
+                        {
+                            <div class="col-md-6">
+                                <div class="card border-secondary">
+                                    <div class="card-body">
+                                        <h6 class="card-title">@profile.ProfileName</h6>
+                                        <p class="card-text small mb-2">
+                                            <strong>Age:</strong> @profile.AgeMin - @profile.AgeMax<br />
+                                            <strong>Marital Status:</strong> @profile.MaritalStatus<br />
+                                            <strong>Children:</strong> @profile.ChildrenCount
+                                            @if (profile.ChildrenAges?.Any() == true)
+                                            {
+                                                <text>(ages: @string.Join(", ", profile.ChildrenAges))</text>
+                                            }
+                                            <br />
+                                            <strong>Expenses:</strong> @(profile.SampleExpenses?.Count ?? 0) items
+                                        </p>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" @onclick="() => EditProfile(profile)">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => DeleteProfile(profile)">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create/Edit City Modal -->
+@if (showCityModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingCity?.CityId != null ? "Edit City" : "Create New City")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseCityModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">City ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" @bind="editingCity!.CityId" 
+                               disabled="@(isEditMode)" placeholder="e.g., nyc-usa" />
+                        <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" @bind="editingCity!.CityName" 
+                               placeholder="e.g., New York City" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Country <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" @bind="editingCity!.Country" 
+                               placeholder="e.g., United States" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Currency <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="editingCity!.Currency" 
+                                   placeholder="e.g., USD" maxlength="10" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cost of Living Index <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" @bind="editingCity!.CostOfLivingIndex" 
+                                   step="0.01" placeholder="e.g., 100.00" />
+                            <small class="text-muted">100 = baseline</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Created By</label>
+                        <input type="text" class="form-control" @bind="editingCity!.CreatedBy" 
+                               placeholder="Your name/email" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseCityModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveCity">
+                        <i class="bi bi-save"></i> Save City
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create/Edit Profile Modal -->
+@if (showProfileModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingProfile?.ProfileId != null && isEditMode ? "Edit Profile" : "Create New Profile")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseProfileModal"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="mb-3">
+                        <label class="form-label">Profile ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" @bind="editingProfile!.ProfileId" 
+                               disabled="@(isEditMode)" placeholder="e.g., nyc-young-single" />
+                        <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Profile Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" @bind="editingProfile!.ProfileName" 
+                               placeholder="e.g., Young Professional - Single" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Min Age <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" @bind="editingProfile!.AgeMin" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Max Age <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" @bind="editingProfile!.AgeMax" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Marital Status <span class="text-danger">*</span></label>
+                            <select class="form-select" @bind="editingProfile!.MaritalStatus">
+                                @foreach (MaritalStatus status in Enum.GetValues(typeof(MaritalStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Children Count</label>
+                        <input type="number" class="form-control" @bind="editingProfile!.ChildrenCount" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Children Ages (comma-separated)</label>
+                        <input type="text" class="form-control" @bind="childrenAgesInput" 
+                               placeholder="e.g., 5, 8, 12" />
+                        <small class="text-muted">Enter ages separated by commas</small>
+                    </div>
+                    
+                    <hr />
+                    
+                    <h6>Sample Expenses</h6>
+                    <p class="text-muted small">Define typical monthly expenses for this demographic profile.</p>
+                    
+                    @if (editingProfile?.SampleExpenses != null)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Subcategory</th>
+                                        <th>Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in editingProfile.SampleExpenses)
+                                    {
+                                        <tr>
+                                            <td>@expense.Category</td>
+                                            <td>@expense.Subcategory</td>
+                                            <td>@expense.CurrentValue.ToString("C")</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        @onclick="() => RemoveExpense(expense)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    
+                    <button class="btn btn-sm btn-outline-primary" @onclick="ShowAddExpenseForm">
+                        <i class="bi bi-plus-circle"></i> Add Expense
+                    </button>
+                    
+                    @if (showAddExpenseForm)
+                    {
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <input type="text" class="form-control" @bind="newExpense!.Category" 
+                                               placeholder="Category" />
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <input type="text" class="form-control" @bind="newExpense!.Subcategory" 
+                                               placeholder="Subcategory" />
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <input type="number" class="form-control" @bind="newExpense!.CurrentValue" 
+                                               step="0.01" placeholder="Monthly Amount" />
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-success" @onclick="AddExpense">
+                                        <i class="bi bi-check"></i> Add
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="CancelAddExpense">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseProfileModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveProfile">
+                        <i class="bi bi-save"></i> Save Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<CityTemplate>? cities;
+    private List<DemographicProfile>? currentProfiles;
+    private Dictionary<string, int> profileCounts = new();
+    private CityTemplate? selectedCityForProfiles;
+    
+    private bool isLoading = false;
+    private bool showCityModal = false;
+    private bool showProfileModal = false;
+    private bool isEditMode = false;
+    private bool showAddExpenseForm = false;
+    
+    private CityTemplate? editingCity;
+    private DemographicProfile? editingProfile;
+    private CostItem? newExpense;
+    private string childrenAgesInput = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCities();
+    }
+
+    private async Task LoadCities()
+    {
+        isLoading = true;
+        try
+        {
+            cities = await Http.GetFromJsonAsync<List<CityTemplate>>("api/citytemplate");
+            
+            // Load profile counts for each city
+            if (cities != null)
+            {
+                foreach (var city in cities)
+                {
+                    await LoadProfileCount(city.CityId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error loading cities: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadProfileCount(string cityId)
+    {
+        try
+        {
+            var profiles = await Http.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
+            profileCounts[cityId] = profiles?.Count ?? 0;
+        }
+        catch
+        {
+            profileCounts[cityId] = 0;
+        }
+    }
+
+    private int GetProfileCount(string cityId)
+    {
+        return profileCounts.TryGetValue(cityId, out int count) ? count : 0;
+    }
+
+    private async Task LoadProfiles(string cityId)
+    {
+        try
+        {
+            currentProfiles = await Http.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
+            selectedCityForProfiles = cities?.FirstOrDefault(c => c.CityId == cityId);
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error loading profiles: {ex.Message}");
+        }
+    }
+
+    private async Task ManageProfiles(CityTemplate city)
+    {
+        await LoadProfiles(city.CityId);
+    }
+
+    // City CRUD operations
+    private void ShowCreateCityModal()
+    {
+        editingCity = new CityTemplate
+        {
+            CityId = "",
+            CityName = "",
+            Country = "",
+            Currency = "",
+            CostOfLivingIndex = 100,
+            CreatedBy = ""
+        };
+        isEditMode = false;
+        showCityModal = true;
+    }
+
+    private void EditCity(CityTemplate city)
+    {
+        editingCity = new CityTemplate
+        {
+            CityId = city.CityId,
+            CityName = city.CityName,
+            Country = city.Country,
+            Currency = city.Currency,
+            CostOfLivingIndex = city.CostOfLivingIndex,
+            CreatedBy = city.CreatedBy,
+            CreatedAt = city.CreatedAt,
+            UpdatedAt = city.UpdatedAt
+        };
+        isEditMode = true;
+        showCityModal = true;
+    }
+
+    private void CloseCityModal()
+    {
+        showCityModal = false;
+        editingCity = null;
+    }
+
+    private async Task SaveCity()
+    {
+        if (editingCity == null) return;
+
+        try
+        {
+            if (isEditMode)
+            {
+                var response = await Http.PutAsJsonAsync($"api/citytemplate/{editingCity.CityId}", editingCity);
+                response.EnsureSuccessStatusCode();
+            }
+            else
+            {
+                var response = await Http.PostAsJsonAsync("api/citytemplate", editingCity);
+                response.EnsureSuccessStatusCode();
+            }
+
+            await LoadCities();
+            CloseCityModal();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error saving city: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteCity(CityTemplate city)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete '{city.CityName}'? This will also delete all associated profiles.");
+        
+        if (!confirmed) return;
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/citytemplate/{city.CityId}");
+            response.EnsureSuccessStatusCode();
+            await LoadCities();
+            
+            if (selectedCityForProfiles?.CityId == city.CityId)
+            {
+                selectedCityForProfiles = null;
+                currentProfiles = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error deleting city: {ex.Message}");
+        }
+    }
+
+    // Profile CRUD operations
+    private void ShowCreateProfileModal(string cityId)
+    {
+        editingProfile = new DemographicProfile
+        {
+            ProfileId = "",
+            CityId = cityId,
+            ProfileName = "",
+            AgeMin = 25,
+            AgeMax = 35,
+            MaritalStatus = MaritalStatus.Single,
+            ChildrenCount = 0,
+            SampleExpenses = new List<CostItem>()
+        };
+        childrenAgesInput = "";
+        isEditMode = false;
+        showProfileModal = true;
+    }
+
+    private void EditProfile(DemographicProfile profile)
+    {
+        editingProfile = new DemographicProfile
+        {
+            ProfileId = profile.ProfileId,
+            CityId = profile.CityId,
+            ProfileName = profile.ProfileName,
+            AgeMin = profile.AgeMin,
+            AgeMax = profile.AgeMax,
+            MaritalStatus = profile.MaritalStatus,
+            ChildrenCount = profile.ChildrenCount,
+            ChildrenAges = profile.ChildrenAges?.ToList() ?? new List<int>(),
+            SampleExpenses = profile.SampleExpenses?.ToList() ?? new List<CostItem>(),
+            CreatedAt = profile.CreatedAt,
+            UpdatedAt = profile.UpdatedAt
+        };
+        childrenAgesInput = profile.ChildrenAges != null ? string.Join(", ", profile.ChildrenAges) : "";
+        isEditMode = true;
+        showProfileModal = true;
+    }
+
+    private void CloseProfileModal()
+    {
+        showProfileModal = false;
+        editingProfile = null;
+        showAddExpenseForm = false;
+        newExpense = null;
+    }
+
+    private async Task SaveProfile()
+    {
+        if (editingProfile == null) return;
+
+        try
+        {
+            // Parse children ages from input
+            if (!string.IsNullOrWhiteSpace(childrenAgesInput))
+            {
+                editingProfile.ChildrenAges = childrenAgesInput
+                    .Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => int.TryParse(s, out _))
+                    .Select(int.Parse)
+                    .ToList();
+            }
+
+            if (isEditMode)
+            {
+                var response = await Http.PutAsJsonAsync($"api/citytemplate/profile/{editingProfile.ProfileId}", editingProfile);
+                response.EnsureSuccessStatusCode();
+            }
+            else
+            {
+                var response = await Http.PostAsJsonAsync($"api/citytemplate/{editingProfile.CityId}/profiles", editingProfile);
+                response.EnsureSuccessStatusCode();
+            }
+
+            await LoadProfiles(editingProfile.CityId);
+            CloseProfileModal();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error saving profile: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteProfile(DemographicProfile profile)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete the profile '{profile.ProfileName}'?");
+        
+        if (!confirmed) return;
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/citytemplate/profile/{profile.ProfileId}");
+            response.EnsureSuccessStatusCode();
+            await LoadProfiles(profile.CityId);
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error deleting profile: {ex.Message}");
+        }
+    }
+
+    // Expense management
+    private void ShowAddExpenseForm()
+    {
+        newExpense = new CostItem
+        {
+            Category = "",
+            Subcategory = "",
+            CurrentValue = 0
+        };
+        showAddExpenseForm = true;
+    }
+
+    private void AddExpense()
+    {
+        if (newExpense != null && editingProfile?.SampleExpenses != null)
+        {
+            editingProfile.SampleExpenses.Add(newExpense);
+            showAddExpenseForm = false;
+            newExpense = null;
+        }
+    }
+
+    private void CancelAddExpense()
+    {
+        showAddExpenseForm = false;
+        newExpense = null;
+    }
+
+    private void RemoveExpense(CostItem expense)
+    {
+        editingProfile?.SampleExpenses?.Remove(expense);
+    }
+}

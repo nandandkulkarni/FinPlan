@@ -1,14 +1,11 @@
 using FinPlan.Web.Components;
+using FinPlan.Web.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using System.Globalization;
 using Polly;
 using Polly.Extensions.Http;
-using System.Net.Http;
+using System.Globalization;
 using System.Net;
-using FinPlan.Web.Services;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Builder;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +33,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddOutputCache();
+
+builder.Services.AddBlazoredLocalStorage();
 
 // Register the Excel Export Service
 //builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();

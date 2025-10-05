@@ -2814,6 +2814,65 @@
                 }
             </div>
 
+            <!-- City Template Selector -->
+            @if (availableCities != null && availableCities.Any())
+            {
+                <div class="mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        @if (selectedCity != null)
+                        {
+                            <div class="alert alert-success mb-0 py-2 px-3 d-flex align-items-center gap-3">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span><strong>@selectedCity.CityName</strong>, @selectedCity.Country</span>
+                                @if (matchedProfile != null)
+                                {
+                                    <span class="badge bg-primary">Profile: @matchedProfile.ProfileName</span>
+                                }
+                                <button class="btn btn-sm btn-outline-primary" @onclick="ToggleCitySelector">
+                                    Change City
+                                </button>
+                                @if (matchedProfile != null)
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="() => LoadExpensesFromProfile(matchedProfile)">
+                                        <i class="bi bi-download"></i> Load Sample Expenses
+                                    </button>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-primary" @onclick="ToggleCitySelector">
+                                <i class="bi bi-globe"></i> Select City Template
+                            </button>
+                        }
+                    </div>
+                    
+                    @if (showCitySelector)
+                    {
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <h6>Available Cities</h6>
+                                <div class="row g-2">
+                                    @foreach (var city in availableCities.OrderBy(c => c.Country).ThenBy(c => c.CityName))
+                                    {
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-secondary w-100 text-start" 
+                                                    @onclick="async () => { await SelectCity(city); showCitySelector = false; }">
+                                                <strong>@city.CityName</strong><br />
+                                                <small class="text-muted">@city.Country • @city.Currency</small>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                                <button class="btn btn-sm btn-secondary mt-2" @onclick="ToggleCitySelector">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
             <!-- Tab Navigation -->
             <ul class="nav nav-tabs mb-1" role="tablist">
                 @foreach (var t in Tabs)
@@ -3276,7 +3335,7 @@
                                         <tbody>
                                             @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
                                             {
-                                                var idx = Items.IndexOf(item);
+                                                var idx = Items?.IndexOf(item) ?? -1;
                                                 <tr>
                                                     <td style="width:40px; vertical-align:middle;">
                                                         <div class="d-flex flex-column gap-1">
@@ -3393,7 +3452,7 @@
                                     <div class="mobile-card-layout" style="display: none;">
                                         @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
                                         {
-                                            var idx = Items.IndexOf(item);
+                                            var idx = Items?.IndexOf(item) ?? -1;
                                             <div class="expense-card">
                                                 <!-- Card Header: Name + Actions -->
                                                 <div class="expense-card-header">
@@ -3545,7 +3604,7 @@
                                     <button type="button" class="btn-close" aria-label="Close" @onclick="CancelCreateTab"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Would you like to create <strong>@GetTabLabel(pendingGhostTab)</strong>?</p>
+                                    <p>Would you like to create <strong>@GetTabLabel(pendingGhostTab ?? string.Empty)</strong>?</p>
                                 </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-secondary" @onclick="CancelCreateTab">Cancel</button>
@@ -3675,7 +3734,7 @@
     private bool IsAddCategoryDisabled => false;//string.IsNullOrWhiteSpace(NewCategoryName?.Trim());
 
     private bool showCreateTabModal = false;
-    private string pendingGhostTab = null;
+    private string? pendingGhostTab = null;
 
     private void PromptCreateTab(string ghostTab)
     {
@@ -3853,6 +3912,14 @@
         CloseDetailsModal();
     }
     private List<CostItem> Items { get; set; } = new List<CostItem>(); // = StandardCostCategories.GetDefaults();
+
+    // City Template properties
+    private List<CityTemplate>? availableCities;
+    private CityTemplate? selectedCity;
+    private List<DemographicProfile>? cityProfiles;
+    private DemographicProfile? matchedProfile;
+    private bool showCitySelector = false;
+    private UserDemographics? userDemographics;
 
     private int YearsToRetirement { get; set; } = 20;
     // Backing field and property so changes trigger recalculation and autosave
@@ -4799,6 +4866,10 @@
                 calculatorType = MapTabToCalculatorType(activeTab);
 
                 await LoadFromApi();
+                
+                // Load city templates and user demographics
+                await LoadAvailableCities();
+                await LoadUserDemographics();
             }
             finally
             {
@@ -5046,7 +5117,7 @@
         showPlanningTypeModal = true;
     }
 
-    private async Task StartPlanning()
+    private Task StartPlanning()
     {
         showAssumptionsSetupModal = false;
 
@@ -5064,6 +5135,7 @@
         // Save the assumptions
         ScheduleAutosave();
         StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private async Task ShowIntroWithReset()
@@ -5328,6 +5400,191 @@
     // Plan‑A tab info tip
     private bool showTipPlanATab = false;
     private void TogglePlanATabInfo() => showTipPlanATab = !showTipPlanATab;
+
+    // ============================================
+    // City Template Methods
+    // ============================================
+    
+    private async Task LoadAvailableCities()
+    {
+        try
+        {
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var apiBaseUrl = GetApiBaseUrl();
+            availableCities = await client.GetFromJsonAsync<List<CityTemplate>>($"{apiBaseUrl}/api/citytemplate");
+            Log($"Loaded {availableCities?.Count ?? 0} city templates");
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error loading city templates: {ex.Message}");
+        }
+    }
+
+    private async Task LoadUserDemographics()
+    {
+        try
+        {
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var apiBaseUrl = GetApiBaseUrl();
+            
+            try
+            {
+                userDemographics = await client.GetFromJsonAsync<UserDemographics>($"{apiBaseUrl}/api/userdemographics/{userGuid}");
+                Log($"Loaded user demographics for {userGuid}");
+            }
+            catch (HttpRequestException)
+            {
+                // User demographics not found - this is expected for new users
+                Log($"No demographics found for user {userGuid}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error loading user demographics: {ex.Message}");
+        }
+    }
+
+    private async Task SelectCity(CityTemplate city)
+    {
+        try
+        {
+            selectedCity = city;
+            
+            // Load profiles for this city
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var apiBaseUrl = GetApiBaseUrl();
+            cityProfiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"{apiBaseUrl}/api/citytemplate/{city.CityId}/profiles");
+            
+            // Try to match a profile if we have user demographics
+            if (userDemographics != null && cityProfiles?.Any() == true)
+            {
+                await MatchBestProfile(city.CityId);
+            }
+            
+            Log($"Selected city: {city.CityName}, loaded {cityProfiles?.Count ?? 0} profiles");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error selecting city: {ex.Message}");
+        }
+    }
+
+    private async Task MatchBestProfile(string cityId)
+    {
+        try
+        {
+            if (userDemographics == null) return;
+            
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var apiBaseUrl = GetApiBaseUrl();
+            
+            var url = $"{apiBaseUrl}/api/citytemplate/match?" +
+                      $"cityId={Uri.EscapeDataString(cityId)}" +
+                      $"&age={userDemographics.Age}" +
+                      $"&maritalStatus={userDemographics.MaritalStatus}" +
+                      $"&childrenCount={userDemographics.ChildrenAges?.Count ?? 0}";
+            
+            matchedProfile = await client.GetFromJsonAsync<DemographicProfile>(url);
+            
+            if (matchedProfile != null)
+            {
+                Log($"Matched profile: {matchedProfile.ProfileName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error matching profile: {ex.Message}");
+        }
+    }
+
+    private async Task LoadExpensesFromProfile(DemographicProfile profile)
+    {
+        try
+        {
+            if (profile.SampleExpenses != null && profile.SampleExpenses.Any())
+            {
+                // Ask for confirmation before replacing expenses
+                var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
+                    $"Load sample expenses from '{profile.ProfileName}'? This will replace your current expenses.");
+                
+                if (!confirmed) return;
+                
+                // Clear existing items
+                Items.Clear();
+                
+                // Add expenses from profile
+                foreach (var expense in profile.SampleExpenses)
+                {
+                    Items.Add(new CostItem
+                    {
+                        Category = expense.Category,
+                        Subcategory = expense.Subcategory,
+                        CurrentValue = expense.CurrentValue,
+                        IncludeInRetirement = expense.IncludeInRetirement,
+                        RetirementExclusionReason = expense.RetirementExclusionReason
+                    });
+                }
+                
+                RecalculateAll(save: true);
+                StateHasChanged();
+                
+                Log($"Loaded {profile.SampleExpenses.Count} expenses from profile: {profile.ProfileName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error loading expenses from profile: {ex.Message}");
+        }
+    }
+
+    private async Task SaveUserDemographics(int age, MaritalStatus maritalStatus, List<int> childrenAges)
+    {
+        try
+        {
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var apiBaseUrl = GetApiBaseUrl();
+            
+            var demographics = new UserDemographics
+            {
+                UserGuid = userGuid,
+                Age = age,
+                MaritalStatus = maritalStatus,
+                ChildrenAges = childrenAges,
+                PreferredCurrency = selectedCity?.Currency ?? "USD",
+                SelectedCityId = selectedCity?.CityId ?? string.Empty,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            
+            HttpResponseMessage response;
+            if (userDemographics == null)
+            {
+                // Create new
+                response = await client.PostAsJsonAsync($"{apiBaseUrl}/api/userdemographics", demographics);
+            }
+            else
+            {
+                // Update existing
+                response = await client.PutAsJsonAsync($"{apiBaseUrl}/api/userdemographics/{userGuid}", demographics);
+            }
+            
+            response.EnsureSuccessStatusCode();
+            userDemographics = demographics;
+            
+            Log("User demographics saved successfully");
+        }
+        catch (Exception ex)
+        {
+            LogError($"Error saving user demographics: {ex.Message}");
+        }
+    }
+
+    private void ToggleCitySelector()
+    {
+        showCitySelector = !showCitySelector;
+        StateHasChanged();
+    }
 
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
