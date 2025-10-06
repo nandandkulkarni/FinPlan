@@ -4208,89 +4208,102 @@
         return sb.ToString();
     }
 
-    private async Task AddNewTab()
+   private async Task AddNewTab()
+{
+    Log("AddNewTab start");
+    if (isAddingTab) return; // guard re-entrancy
+    isAddingTab = true;
+    try
     {
-        Log("AddNewTab start");
-        if (isAddingTab) return; // guard re-entrancy
-        isAddingTab = true;
-        try
+        int totalTabs = Tabs.Count();
+        int candidateIndex = totalTabs + 1;
+        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+        var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
+
+        string headerName;
+        do
         {
-            // determine header based on total tabs + 1 converted to letters
-            // use Tabs (which includes built-in and existing dynamic tabs)
-            int totalTabs = Tabs.Count();
-            int candidateIndex = totalTabs + 1; // add 1 to the count
+            var letters = NumberToLetters(candidateIndex);
+            headerName = selectedCity != null
+                ? $"Plan-{letters}-{selectedCity.CityName}"
+                : $"Plan-{letters}-City-{letters}";
+            candidateIndex++;
+        } while (existingNames.Contains(headerName));
 
-            // ensure TabHeaders has default Plan-A if not present
-            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+        var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}";
 
-            var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
-
-            string headerName;
-            do
+        // Use city template if selected and matchedProfile exists
+        List<CostItem> initialItems;
+        if (selectedCity != null && matchedProfile != null && matchedProfile.SampleExpenses != null && matchedProfile.SampleExpenses.Any())
+        {
+            initialItems = matchedProfile.SampleExpenses.Select(e => new CostItem
             {
-                var letters = NumberToLetters(candidateIndex);
-                headerName = $"Plan-{letters}-City-{letters}";
-                candidateIndex++;
-            } while (existingNames.Contains(headerName));
-
-            var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}"; // keep id as before
-
-            // prepare initial data using standard defaults and the new header
-            var initialData = new CostOfLivingData
-            {
-                Header = headerName,
-                Items = StandardCostCategories.GetDefaults(),
-                YearsToRetirement = YearsToRetirement,
-                InflationRate = InflationRate,
-                CollapsedCategories = collapsed.ToList()
-            };
-
-            var dto = new PersistCostOfLivingRequest
-            {
-                UserGuid = userGuid,
-                CalculatorType = $"CostOfLiving-{newTab}",
-                Data = initialData
-            };
-
-            var apiBaseUrl = GetApiBaseUrl();
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var json = System.Text.Json.JsonSerializer.Serialize(dto);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
-            var resp = await client.PostAsync(saveUrl, content);
-            Log($"AddNewTab: save returned {(int)resp.StatusCode}");
-            if (resp.IsSuccessStatusCode)
-            {
-                // reload canonical tabs and headers
-                await LoadTabsAsync();
-
-                // ensure local map
-                TabHeaders[newTab] = headerName;
-
-                // add to dynamicTabs if not present
-                if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
-
-                // select new tab
-                await OnTabClick(newTab);
-                StateHasChanged();
-                Log($"AddNewTab success: {newTab} / {headerName}");
-            }
-            else
-            {
-                await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
-                LogError($"AddNewTab failed status: {resp.StatusCode}");
-            }
+                Category = e.Category,
+                Subcategory = e.Subcategory,
+                CurrentValue = e.CurrentValue,
+                Frequency = e.Frequency,
+                AdjustOption = e.AdjustOption,
+                PerItemInflationPercent = e.PerItemInflationPercent,
+                PerItemInflationSource = e.PerItemInflationSource,
+                CustomPercentage = e.CustomPercentage,
+                ManualRetirementValue = e.ManualRetirementValue,
+                IncludeInRetirement = e.IncludeInRetirement,
+                RetirementExclusionReason = e.RetirementExclusionReason
+            }).ToList();
         }
-        catch (Exception ex)
+        else
         {
-            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
-            LogError($"AddNewTab exception: {ex.Message}");
+            initialItems = StandardCostCategories.GetDefaults();
         }
-        finally
+
+        var initialData = new CostOfLivingData
         {
-            isAddingTab = false;
+            Header = headerName,
+            Items = initialItems,
+            YearsToRetirement = YearsToRetirement,
+            InflationRate = InflationRate,
+            CollapsedCategories = collapsed.ToList()
+        };
+
+        var dto = new PersistCostOfLivingRequest
+        {
+            UserGuid = userGuid,
+            CalculatorType = $"CostOfLiving-{newTab}",
+            Data = initialData
+        };
+
+        var apiBaseUrl = GetApiBaseUrl();
+        var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+        var json = System.Text.Json.JsonSerializer.Serialize(dto);
+        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+        var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+        var resp = await client.PostAsync(saveUrl, content);
+        Log($"AddNewTab: save returned {(int)resp.StatusCode}");
+        if (resp.IsSuccessStatusCode)
+        {
+            await LoadTabsAsync();
+            TabHeaders[newTab] = headerName;
+            if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
+            await OnTabClick(newTab);
+            StateHasChanged();
+            Log($"AddNewTab success: {newTab} / {headerName}");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
+            LogError($"AddNewTab failed status: {resp.StatusCode}");
         }
     }
+    catch (Exception ex)
+    {
+        await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
+        LogError($"AddNewTab exception: {ex.Message}");
+    }
+    finally
+    {
+        isAddingTab = false;
+    }
+}
 
     private async Task ConfirmDeleteTab(string tab)
     {
