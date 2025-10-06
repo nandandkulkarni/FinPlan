@@ -35,6 +35,58 @@
                           OnClose="@(() => showSampleDataModal = false)"
                           OnSampleDataSelected="HandleSampleDataSelected" />
 
+<!-- Intro Modal - Moved outside blurred wrapper -->
+@if (showIntroModal)
+{
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+    <div class="modal d-block" style="z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+            <div class="modal-content" style="border-top: 4px solid #FFD600;">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">
+                        <i class="bi bi-graph-up-arrow text-warning me-2"></i>Welcome to Retirement Planning!
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseIntroModal"></button>
+                </div>
+                
+                <div class="modal-body" style="background-color: #fffef7;">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">🎯</div>
+                        <p class="text-muted mb-0">
+                            Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
+                            Social Security, and withdrawal strategy in just a few quick steps.
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-center mb-3 flex-wrap">
+                        <button class="btn btn-primary btn-lg px-4" @onclick="() => { OpenWizard(1); CloseIntroModal(); }">
+                            <i class="bi bi-play-circle me-2"></i>Start Planning
+                        </button>
+                        <button class="btn btn-outline-primary btn-lg px-4"
+                                @onclick="() => { showSampleDataModal = true; CloseIntroModal(); }">
+                            <i class="bi bi-clipboard-data me-2"></i>Try Sample Data
+                        </button>
+                    </div>
+
+                    <!-- Don't Show Again -->
+                    <div class="text-center pt-3 border-top">
+                        <div class="form-check d-inline-flex align-items-center">
+                            <input class="form-check-input me-2" type="checkbox" 
+                                   id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
+                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
+                                Don't show this welcome screen again
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Main content - hide on mobile, blur on desktop when modal is open -->
+<div class="@(showIntroModal ? "intro-modal-active" : "")">
 <style>
     .col-milestones {
         width: 150px; /* Adjusted to match the header size */
@@ -1460,70 +1512,6 @@
                                 </div>
                             </div>
                         </div>
-                        @if (showIntroModal)
-                        {
-                            <!-- Overlay with Start Planning Button -->
-                            <div class="start-planning-overlay">
-                                <div class="empty-state">
-                                    <!-- X Close Button -->
-                                    <div class="d-flex justify-content-end">
-                                        <button type="button"
-                                                class="btn btn-outline-secondary"
-                                                aria-label="Close"
-                                                @onclick="CloseIntroModal">
-                                            &#10005;
-                                        </button>
-                                    </div>
-                                    <div style="font-size: 3rem; color: #6c757d; margin-bottom: 16px;">🎯</div>
-                                    <h4 style="color: #495057; margin-bottom: 16px;">Welcome to Retirement Planning!</h4>
-                                    <p style="color: #6c757d; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                                        Let's create your personalized retirement income plan. We'll walk you through setting up your ages, account balances,
-                                        Social Security, and withdrawal strategy in just a few quick steps.
-                                    </p>
-                                    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;" @onclick="() => OpenWizard(1)">
-                                        <i class="bi bi-play-circle" style="margin-right: 8px;"></i>
-                                        Start Planning
-                                    </button>
-                                    <div style="margin-top: 16px; font-size: 0.9rem; color: #6c757d;">
-                                        Takes about 2-3 minutes to complete
-                                    </div>
-                                    @*         <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
-                                        <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSampleDataModal = true">
-                                            <i class="bi bi-clipboard-data" style="margin-right: 6px;"></i>
-                                            Want to try with sample data? Click here
-                                        </button>
-                                    </div> *@
-
-                                    <button class="btn btn-primary"
-                                            style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
-                                            @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
-                                        <i class="bi bi-clipboard-data me-2"></i>
-                                        Try Sample Data
-                                    </button>
-
-                                    @* <button class="btn btn-outline-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => showSetupChecklist = true">
-                                        <i class="bi bi-list-check" style="margin-right: 6px;"></i>
-                                        What data's missing
-                                    </button> *@
-                                    <!-- Don't Show Again Checkbox -->
-                                    <div style="margin-top: 24px; padding-top: 18px; border-top: 2px solid #FFD600; background: linear-gradient(90deg,#fffbe6,#fffde7); border-radius: 8px; box-shadow: 0 2px 12px rgba(255,214,0,0.08);">
-                                        <div class="form-check d-flex align-items-center justify-content-center gap-2">
-
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   id="dontShowIntroAgainCheck"
-                                                   @onchange="OnDontShowIntroChanged"
-                                                   style="width: 1.3em; height: 1.3em; border: 2px solid #C79A00; box-shadow: 0 0 0 0.15rem rgba(255,214,0,0.25);" />
-                                            <label class="form-check-label"
-                                                   for="dontShowIntroAgainCheck"
-                                                   style="font-size: 1.15rem; font-weight: 700; color: #C79A00; letter-spacing: 0.02em; padding: 8px 18px; border-radius: 6px; background: rgba(255,214,0,0.12); margin-bottom: 0; box-shadow: 0 1px 4px rgba(255,214,0,0.10); display: inline-block;">
-                                                Don't show this welcome screen again
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
                     </div>
 
                 </div>
@@ -1817,6 +1805,9 @@
         }
     });
 </script>
+</div>
+<!-- Close intro-modal-active wrapper -->
+
 @code {
     // Simple Mode Toggle
     private bool isSimpleMode = false; // Start in beginner mode by default
