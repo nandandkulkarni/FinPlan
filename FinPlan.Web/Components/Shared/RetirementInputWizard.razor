@@ -66,6 +66,171 @@
         color: #111;
         /* Other properties remain the same */
     }
+
+    /* ===========================
+       MOBILE OPTIMIZATIONS
+       Only affects screens less than 768px
+       =========================== */
+    @@media (max-width: 767px) {
+        /* 1. Modal Dialog - Full screen on mobile */
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+        }
+
+        .modal-content {
+            height: 100vh !important;
+            border-radius: 0 !important;
+        }
+
+        /* 2. Modal Body - Better scrolling on mobile */
+        .modal-body {
+            max-height: none !important;
+            min-height: auto !important;
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding: 1rem !important;
+        }
+
+        /* 3. Wizard Header - More compact on mobile */
+        .wizard-header-row {
+            gap: 8px !important;
+        }
+
+        .step-badge {
+            min-width: 36px !important;
+            height: 36px !important;
+            font-size: 0.875rem !important;
+        }
+
+        .modal-title {
+            font-size: 1.1rem !important;
+        }
+
+        .wizard-step-text {
+            font-size: 0.75rem !important;
+        }
+
+        /* 4. Account Cards - Stack properly on mobile */
+        .row > [class*="col-"] {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+
+        .account-card {
+            margin-bottom: 1rem !important;
+        }
+
+        .account-card .card-body {
+            padding: 1rem !important;
+        }
+
+        .account-card .card-title {
+            font-size: 1rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* 5. Form Inputs - Larger tap targets on mobile */
+        .form-control,
+        .currency-input {
+            min-height: 44px !important;
+            font-size: 1rem !important;
+        }
+
+        .form-label {
+            font-size: 0.95rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* 6. Info Tooltips - Better positioning on mobile */
+        .info-tooltip {
+            position: fixed !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            max-width: 90vw !important;
+            z-index: 1060 !important;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3) !important;
+        }
+
+        .info-icon {
+            font-size: 1.25rem !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* 7. Modal Footer Buttons - Stack vertically on mobile */
+        .modal-footer {
+            flex-direction: column-reverse !important;
+            gap: 0.5rem !important;
+            padding: 1rem !important;
+        }
+
+        .modal-footer .btn {
+            width: 100% !important;
+            min-height: 44px !important;
+            margin: 0 !important;
+        }
+
+        /* 8. Spending Category Options - Better touch targets */
+        .form-check {
+            min-height: 44px !important;
+            padding: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .form-check-input[type="radio"],
+        .form-check-input[type="checkbox"] {
+            min-width: 20px !important;
+            min-height: 20px !important;
+        }
+
+        /* 9. Alert boxes - More compact on mobile */
+        .alert {
+            padding: 0.75rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .alert ul {
+            padding-left: 1.25rem !important;
+        }
+
+        .alert li {
+            margin-bottom: 0.25rem !important;
+            font-size: 0.8rem !important;
+        }
+
+        /* 10. Account Header - Better spacing on mobile */
+        .account-header {
+            margin-bottom: 0.75rem !important;
+        }
+
+        .account-header i {
+            font-size: 1.25rem !important;
+        }
+
+        /* 11. Small notes and text - Optimized for mobile */
+        .small-note,
+        .text-muted.small,
+        small {
+            font-size: 0.75rem !important;
+        }
+
+        /* 12. Input groups with units - Better layout on mobile */
+        .d-flex.align-items-center .form-control {
+            flex: 1 !important;
+        }
+
+        .d-flex.align-items-center .text-muted {
+            font-size: 0.875rem !important;
+            white-space: nowrap !important;
+        }
+    }
 </style>
 
 @if (Visible)
