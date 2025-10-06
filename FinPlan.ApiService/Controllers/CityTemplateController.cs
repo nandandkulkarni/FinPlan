@@ -79,6 +79,12 @@ public class CityTemplateController : ControllerBase
                 .ThenBy(p => p.MaritalStatus)
                 .ToListAsync();
 
+            // Deserialize JSON fields for each profile
+            foreach (var profile in profiles)
+            {
+                profile.DeserializeFromDatabase();
+            }
+
             return Ok(profiles);
         }
         catch (Exception ex)

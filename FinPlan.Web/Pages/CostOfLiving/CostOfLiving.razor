@@ -2873,6 +2873,47 @@
                 </div>
             }
 
+            @if (cityProfiles != null && cityProfiles.Any())
+{
+    <div class="card mt-3">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">Select a Profile for @selectedCity.CityName</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-2">
+                @foreach (var profile in cityProfiles)
+                {
+                    <div class="col-md-6">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <strong>@profile.ProfileName</strong>
+                                <div class="small text-muted">
+                                    Age: @profile.AgeMin - @profile.AgeMax<br />
+                                    Marital Status: @profile.MaritalStatus<br />
+                                    Children: @profile.ChildrenCount
+                                </div>
+                                <button class="btn btn-sm btn-outline-success mt-2"
+                                        @onclick="() => OnProfileSelected(profile)">
+                                    Select Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // Called when user selects a profile
+    private void OnProfileSelected(DemographicProfile profile)
+    {
+        matchedProfile = profile;
+        matchedProfile.DeserializeFromDatabase(); // Ensure expenses are loaded
+        StateHasChanged();
+    }
+}
             <!-- Tab Navigation -->
             <ul class="nav nav-tabs mb-1" role="tablist">
                 @foreach (var t in Tabs)
@@ -2954,50 +2995,6 @@
                     </button>
                 </div>
 
-                <!-- Beginner-Friendly Onboarding (Simple Mode Only) - 4x Bigger -->
-                @* @if (isSimpleMode && (!Items?.Any() ?? true))
-                {
-                    <div class="alert alert-primary border-0 mb-6" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); padding: 4rem 3rem; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-lightbulb-fill text-primary me-5" style="font-size: 4rem; margin-top: 8px;"></i>
-                            <div class="w-100">
-                                <div class="d-flex align-items-center gap-4 mb-5">
-                                    <h2 class="text-primary mb-0 display-6">Plan Your Future Living Costs</h2>
-                                    <span class="badge bg-primary px-4 py-2 fs-6">Beginner Mode</span>
-                                </div>
-                                <p class="mb-6 text-dark fs-4 lh-base">Let's figure out how much you'll spend in retirement. We'll start with your current expenses and project them forward.</p>
-                                <div class="row g-5 mb-6">
-                                    <div class="col-md-6">
-                                        <div class="card border-primary border-opacity-25 h-100 shadow-sm">
-                                            <div class="card-body text-center py-6">
-                                                <i class="bi bi-1-circle-fill text-primary mb-4" style="font-size: 4rem;"></i>
-                                                <h4 class="mb-4 text-primary">Add Your Expenses</h4>
-                                                <p class="mb-0 text-muted fs-5">List what you spend money on monthly</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card border-primary border-opacity-25 h-100 shadow-sm">
-                                            <div class="card-body text-center py-6">
-                                                <i class="bi bi-2-circle-fill text-primary mb-4" style="font-size: 4rem;"></i>
-                                                <h4 class="mb-4 text-primary">See Future Costs</h4>
-                                                <p class="mb-0 text-muted fs-5">We'll project your retirement expenses</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-4 justify-content-center">
-                                    <button class="btn btn-primary btn-lg px-5 py-4 fs-5 fw-bold" @onclick="StartWithCommonExpenses">
-                                        <i class="bi bi-lightning-fill me-3"></i>Start with Common Expenses
-                                    </button>
-                                    <button class="btn btn-outline-primary btn-lg px-5 py-4 fs-5 fw-bold" @onclick="StartFromScratch">
-                                        <i class="bi bi-pencil me-3"></i>Start from Scratch
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                } *@
                 <!-- Planner Controls Strip -->
 
                 <div class="section-card">
