@@ -1,11 +1,3 @@
--- ============================================
--- City Template Seed Data
--- Run this script after creating the tables
--- ============================================
-
-USE [YourDatabaseName];  -- Replace with your actual database name
-GO
-
 -- Insert City Templates
 INSERT INTO [finplan].[CityTemplates] 
     ([CityId], [CityName], [Country], [Currency], [CostOfLivingIndex], [CreatedAt], [UpdatedAt], [CreatedBy])
@@ -290,23 +282,4 @@ VALUES
         GETUTCDATE(),
         GETUTCDATE()
     );
-GO
-
--- Verify data was inserted
-SELECT 'Cities Inserted' AS Status, COUNT(*) AS Count FROM [finplan].[CityTemplates];
-SELECT 'Profiles Inserted' AS Status, COUNT(*) AS Count FROM [finplan].[DemographicProfiles];
-GO
-
--- View all cities with profile counts
-SELECT 
-    c.CityId,
-    c.CityName,
-    c.Country,
-    c.Currency,
-    c.CostOfLivingIndex,
-    COUNT(p.ProfileId) AS ProfileCount
-FROM [finplan].[CityTemplates] c
-LEFT JOIN [finplan].[DemographicProfiles] p ON c.CityId = p.CityId
-GROUP BY c.CityId, c.CityName, c.Country, c.Currency, c.CostOfLivingIndex
-ORDER BY c.Country, c.CityName;
 GO

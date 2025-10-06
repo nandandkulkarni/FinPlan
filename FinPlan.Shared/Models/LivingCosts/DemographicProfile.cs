@@ -17,31 +17,45 @@ namespace FinPlan.Shared.Models.LivingCosts
         public MaritalStatus MaritalStatus { get; set; }
         public int ChildrenCount { get; set; }
         
-        // JSON storage for children ages
+        // JSON storage for children ages (database only)
         public string? ChildrenAgesJSON { get; set; }
         
+        // Working property - not mapped to database
         [NotMapped]
-        public List<int> ChildrenAges
-        {
-            get => string.IsNullOrEmpty(ChildrenAgesJSON) 
-                ? new List<int>() 
-                : JsonSerializer.Deserialize<List<int>>(ChildrenAgesJSON) ?? new List<int>();
-            set => ChildrenAgesJSON = JsonSerializer.Serialize(value);
-        }
+        public List<int> ChildrenAges { get; set; } = new List<int>();
         
-        // JSON storage for sample expenses
+        // JSON storage for sample expenses (database only)
         public string? SampleExpensesJSON { get; set; }
         
+        // Working property - not mapped to database
         [NotMapped]
-        public List<CostItem> SampleExpenses
-        {
-            get => string.IsNullOrEmpty(SampleExpensesJSON) 
-                ? new List<CostItem>() 
-                : JsonSerializer.Deserialize<List<CostItem>>(SampleExpensesJSON) ?? new List<CostItem>();
-            set => SampleExpensesJSON = JsonSerializer.Serialize(value);
-        }
+        public List<CostItem> SampleExpenses { get; set; } = new List<CostItem>();
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Method to serialize lists to JSON before saving to database
+        public void SerializeForDatabase()
+        {
+            ChildrenAgesJSON = ChildrenAges?.Count > 0 
+                ? JsonSerializer.Serialize(ChildrenAges) 
+                : null;
+                
+            SampleExpensesJSON = SampleExpenses?.Count > 0 
+                ? JsonSerializer.Serialize(SampleExpenses) 
+                : null;
+        }
+
+        // Method to deserialize JSON to lists after loading from database
+        public void DeserializeFromDatabase()
+        {
+            ChildrenAges = string.IsNullOrEmpty(ChildrenAgesJSON) 
+                ? new List<int>() 
+                : JsonSerializer.Deserialize<List<int>>(ChildrenAgesJSON) ?? new List<int>();
+                
+            SampleExpenses = string.IsNullOrEmpty(SampleExpensesJSON) 
+                ? new List<CostItem>() 
+                : JsonSerializer.Deserialize<List<CostItem>>(SampleExpensesJSON) ?? new List<CostItem>();
+        }
     }
 }
