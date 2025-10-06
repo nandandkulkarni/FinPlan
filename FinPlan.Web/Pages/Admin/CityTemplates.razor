@@ -268,15 +268,50 @@
                                     @foreach (var expense in model.EditingProfile.SampleExpenses)
                                     {
                                         <tr>
-                                            <td>@expense.Category</td>
-                                            <td>@expense.Subcategory</td>
-                                            <td>@expense.CurrentValue.ToString("C")</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger" 
-                                                        @onclick="() => RemoveExpense(expense)">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
+                                            @if (model.EditingExpense != null && model.OriginalExpense == expense)
+                                            {
+                                                <!-- Edit mode for this expense -->
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           @bind="model.EditingExpense.Category" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           @bind="model.EditingExpense.Subcategory" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control form-control-sm" 
+                                                           @bind="model.EditingExpense.CurrentValue" 
+                                                           step="0.01" />
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success me-1" 
+                                                            @onclick="SaveExpenseEdit">
+                                                        <i class="bi bi-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-secondary" 
+                                                            @onclick="CancelExpenseEdit">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <!-- Display mode -->
+                                                <td>@expense.Category</td>
+                                                <td>@expense.Subcategory</td>
+                                                <td>@expense.CurrentValue.ToString("C")</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1" 
+                                                            @onclick="() => StartEditExpense(expense)">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            @onclick="() => RemoveExpense(expense)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                 </tbody>
@@ -355,6 +390,8 @@
         public CityTemplate? EditingCity { get; set; }
         public DemographicProfile? EditingProfile { get; set; }
         public CostItem? NewExpense { get; set; }
+        public CostItem? EditingExpense { get; set; } // For inline editing
+        public CostItem? OriginalExpense { get; set; } // Reference to original item being edited
         public string ChildrenAgesInput { get; set; } = "";
     }
 
@@ -601,6 +638,8 @@
         model.EditingProfile = null;
         model.ShowAddExpenseForm = false;
         model.NewExpense = null;
+        model.EditingExpense = null; // Clear expense editing state
+        model.OriginalExpense = null;
     }
 
     private async Task SaveProfile()
@@ -818,5 +857,59 @@
             Console.WriteLine($"JSON serialization test error: {ex}");
             await JSRuntime.InvokeVoidAsync("alert", $"JSON test failed: {ex.Message}");
         }
+    }
+
+    // Expense editing methods
+    private void StartEditExpense(CostItem expense)
+    {
+        // Create a copy for editing
+        model.EditingExpense = new CostItem
+        {
+            Category = expense.Category,
+            Subcategory = expense.Subcategory,
+            CurrentValue = expense.CurrentValue,
+            Frequency = expense.Frequency,
+            AdjustOption = expense.AdjustOption,
+            PerItemInflationPercent = expense.PerItemInflationPercent,
+            PerItemInflationSource = expense.PerItemInflationSource,
+            CustomPercentage = expense.CustomPercentage,
+            ManualRetirementValue = expense.ManualRetirementValue,
+            IncludeInRetirement = expense.IncludeInRetirement,
+            RetirementExclusionReason = expense.RetirementExclusionReason
+        };
+        
+        // Store reference to original for updating
+        model.OriginalExpense = expense;
+        
+        Console.WriteLine($"Started editing expense: {expense.Category} - {expense.Subcategory}");
+        StateHasChanged();
+    }
+
+    private void SaveExpenseEdit()
+    {
+        if (model.EditingExpense != null && model.OriginalExpense != null)
+        {
+            Console.WriteLine($"Saving edited expense: {model.EditingExpense.Category} - {model.EditingExpense.Subcategory}");
+            
+            // Update the original expense with edited values
+            model.OriginalExpense.Category = model.EditingExpense.Category ?? "";
+            model.OriginalExpense.Subcategory = model.EditingExpense.Subcategory ?? "";
+            model.OriginalExpense.CurrentValue = model.EditingExpense.CurrentValue;
+            
+            // Clear editing state
+            model.EditingExpense = null;
+            model.OriginalExpense = null;
+            
+            Console.WriteLine("Expense edit saved successfully");
+            StateHasChanged();
+        }
+    }
+
+    private void CancelExpenseEdit()
+    {
+        Console.WriteLine("Cancelled expense edit");
+        model.EditingExpense = null;
+        model.OriginalExpense = null;
+        StateHasChanged();
     }
 }
