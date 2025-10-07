@@ -1,0 +1,125 @@
+# ReWealthen Introduction Video Script
+
+**Duration:** ~3 minutes  
+**Purpose:** Comprehensive introduction to the financial projection system
+
+---
+
+## 🎬 Script
+
+### [0:00-0:20] Opening & Welcome
+
+"Welcome to ReWealthen - your comprehensive financial projection system designed to help you plan for a secure retirement. Whether you're just starting your wealth-building journey or fine-tuning your retirement strategy, ReWealthen provides the tools you need to visualize your financial future with clarity and confidence."
+
+---
+
+### [0:20-0:50] The Three-Step System Overview
+
+"ReWealthen uses a simple three-step planning process:
+
+**Step 1** - The Future Cost of Living Planner helps you estimate your expenses in retirement, accounting for inflation over time.
+
+**Step 2** - The Savings & Wealth Building Planner shows how your current savings and investments will grow until retirement.
+
+**Step 3** - The Retirement Income Planner projects whether your savings can sustain you throughout retirement, considering Social Security, pensions, and other income sources."
+
+---
+
+### [0:50-1:30] Step 1: Future Cost of Living
+
+"Let's start with Step 1: Future Cost of Living. This planner helps you understand what your current expenses might look like in the future. You'll enter your monthly expenses across categories like housing, food, transportation, healthcare, and entertainment. The system automatically applies inflation rates to project these costs into the future - showing you what you'll actually need to maintain your lifestyle in retirement. You can set different inflation rates for each category, because healthcare typically increases faster than groceries, for example."
+
+---
+
+### [1:30-2:10] Step 2: Savings & Wealth Building
+
+"Next, the Savings & Wealth Building Planner takes your current financial situation and projects it forward. Enter your existing savings accounts - 401(k)s, IRAs, brokerage accounts, savings accounts - along with your current contributions. The system shows you a year-by-year projection of how your wealth will grow based on different return rates. You'll see exactly how much you could accumulate by retirement age. This planner also lets you model different scenarios: What if you increase your contributions by 5%? What if the market returns are lower than expected?"
+
+---
+
+### [2:10-2:40] Step 3: Retirement Income
+
+"Finally, the Retirement Income Planner brings it all together. This is where you see if your accumulated savings from Step 2 can cover your projected expenses from Step 1 throughout your retirement years. The system accounts for Social Security benefits, pension income, and safe withdrawal rates from your savings. You'll see year-by-year whether you're on track or if adjustments are needed. The key insight? If the numbers don't work, you can go back to Step 1 and adjust your projected retirement lifestyle, or return to Step 2 and increase your savings rate."
+
+---
+
+### [2:40-3:00] Closing & Call to Action
+
+"ReWealthen is designed to be iterative - you'll likely go through the three steps multiple times, adjusting and optimizing until you find a plan that works for you. Each page includes a quick feedback survey on the right side - please take a moment to share your thoughts so we can continue improving the system. Ready to take control of your financial future? Let's get started with Step 1: Future Cost of Living. Welcome to ReWealthen!"
+
+---
+
+## 📊 Script Analysis
+
+### Timing Breakdown
+- **Opening:** 20 seconds
+- **System Overview:** 30 seconds
+- **Step 1 Details:** 40 seconds
+- **Step 2 Details:** 40 seconds
+- **Step 3 Details:** 30 seconds
+- **Closing:** 20 seconds
+- **Total:** ~3 minutes
+
+### Key Features Highlighted
+✅ Three-step sequential planning process  
+✅ Inflation-adjusted expense projections  
+✅ Multiple account type support  
+✅ Year-by-year visualization  
+✅ Scenario modeling capabilities  
+✅ Iterative refinement approach  
+✅ Social Security & pension integration  
+✅ Feedback mechanism  
+
+### Tone & Style
+- **Welcoming** - Inclusive language ("your financial future")
+- **Educational** - Clear explanations of how each step works
+- **Empowering** - "Take control" messaging
+- **Conversational** - Natural flow and pacing
+- **Action-oriented** - Clear next steps
+
+---
+
+## 🎯 Comparison to Current Audio
+
+### Enhanced Elements
+- ✅ Clearer explanation of *what* each planner does
+- ✅ Emphasis on the *iterative* nature (go back and adjust)
+- ✅ Specific examples (inflation rates vary by category, withdrawal rates, etc.)
+- ✅ Stronger opening and closing with brand name "ReWealthen"
+- ✅ More motivational/empowering tone
+- ✅ Better narrative flow connecting the three steps
+
+### Maintained Elements
+- ✅ Three-step structure
+- ✅ Sequential usage recommendation
+- ✅ Feedback survey mention
+- ✅ Approximately 3-minute duration
+
+---
+
+## 🎥 Production Notes
+
+### Visual Suggestions
+1. **Opening** - Show ReWealthen logo with 💰 icon
+2. **Step Overview** - Animate the three numbered steps appearing
+3. **Step 1** - Show expense category cards and inflation projections
+4. **Step 2** - Display account cards and growth charts
+5. **Step 3** - Show year-by-year retirement projection table
+6. **Closing** - Highlight the iterative cycle diagram (1→2→3→adjust→repeat)
+
+### Voice-Over Guidance
+- **Pace:** Moderate, allowing time for visuals to reinforce concepts
+- **Tone:** Professional yet approachable
+- **Emphasis:** Stress key phrases like "year-by-year," "iterative," "take control"
+- **Pauses:** Brief pauses after each step introduction
+
+---
+
+## 📝 Alternative Shorter Version (90 seconds)
+
+If a shorter version is needed, focus on:
+1. Opening (15s): Welcome + three-step overview
+2. System Flow (45s): Brief explanation of each step
+3. Closing (30s): Iterative nature + call to action
+
+This condensed version maintains the core message while reducing runtime by 50%.

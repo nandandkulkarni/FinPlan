@@ -13,11 +13,11 @@
 @inject NavigationManager Navigation
 <style>
     /* ----------------------------
-                                                                                                                               Tweakable values
-                                                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                               ---------------------------- */
+                                                                                                                                   Tweakable values
+                                                                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                                   ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -114,7 +114,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                    margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                                        margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -123,10 +123,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                    margin-bottom: 0 !important;
-                                                    padding-bottom: 0;
-                                                    position: relative;
-                                                    z-index: 200; /* Higher than overlay */
+                                                        margin-bottom: 0 !important;
+                                                        padding-bottom: 0;
+                                                        position: relative;
+                                                        z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -233,8 +233,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                                   Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -1939,9 +1939,9 @@
     @@media (prefers-color-scheme: dark) {
         /* Placeholder for future dark mode */
         /* .card {
-                background: #1e1e1e;
-                color: #ffffff;
-            } */
+                    background: #1e1e1e;
+                    color: #ffffff;
+                } */
     }
 
     /* Landscape Orientation Adjustments */
@@ -2634,7 +2634,6 @@
 <!-- Removed left sidebar nav; content moved to main container -->
 <!-- Main content - hide on mobile, blur on desktop when modal is open -->
 <div class="@(showIntroModal ? "intro-modal-active" : "")">
-    >
     <div class="container-fluid">
         <div class="row">
             <!-- Left column (2) - moved from previous left-sidebar nav -->
@@ -2660,7 +2659,6 @@
 
             <!-- Center column (8) - main planner content -->
             <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">
-                >
                 <p class="text-muted mb-3">@(isSimpleMode ? "List your monthly expenses to see how they'll grow by retirement." : "Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.")</p>
 
                 @* <b>Multi-city and City tiered plan coming soon</b> *@
@@ -2780,11 +2778,16 @@
                                                             </div>
 
                                                             <div class="mt-auto d-flex gap-2">
-                                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleProfileSelector()">
+                                                                @* <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleProfileSelector()">
                                                                     Cancel
                                                                 </button>
+
                                                                 <button class="btn btn-sm btn-success" @onclick="async () => await OnProfileSelected(profile)">
                                                                     Select Profile
+                                                                </button> *@
+
+                                                                <button class="btn btn-sm btn-primary" @onclick="async () => await CreateTabFromProfile(profile)">
+                                                                    <span class="bi bi-plus-lg me-1"></span> Create Plan
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -3590,10 +3593,10 @@
     }
 
     private void ToggleProfileSelector()
-{
-    showProfileSelector = !showProfileSelector;
-    StateHasChanged();
-}
+    {
+        showProfileSelector = !showProfileSelector;
+        StateHasChanged();
+    }
 
 
 
@@ -5519,6 +5522,33 @@
     {
         showCitySelector = !showCitySelector;
         StateHasChanged();
+    }
+
+    // create a new tab using the selected profile (keeps existing AddNewTab behavior)
+    private async Task CreateTabFromProfile(DemographicProfile profile)
+    {
+        if (profile == null) return;
+
+        try
+        {
+            // Set as matched so AddNewTab will use the profile's sample expenses
+            matchedProfile = profile;
+
+            try { matchedProfile.DeserializeFromDatabase(); } catch { }
+
+            // Close pickers/modals
+            showProfileSelector = false;
+            showCitySelector = false;
+
+            // Create a new plan/tab using the existing AddNewTab implementation
+            await AddNewTab();
+
+            selectedCity = null;
+        }
+        catch (Exception ex)
+        {
+            LogError($"CreateTabFromProfile exception: {ex.Message}");
+        }
     }
 
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
