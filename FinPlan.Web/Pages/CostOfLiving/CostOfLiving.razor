@@ -13,11 +13,11 @@
 @inject NavigationManager Navigation
 <style>
     /* ----------------------------
-                                                                                                                           Tweakable values
-                                                                                                                           - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                           - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                           Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                           ---------------------------- */
+                                                                                                                               Tweakable values
+                                                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                               ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -114,7 +114,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                                    margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -123,10 +123,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                margin-bottom: 0 !important;
-                                                padding-bottom: 0;
-                                                position: relative;
-                                                z-index: 200; /* Higher than overlay */
+                                                    margin-bottom: 0 !important;
+                                                    padding-bottom: 0;
+                                                    position: relative;
+                                                    z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -176,13 +176,13 @@
         background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
     }
 
-    .totals-box:hover {
-        transform: none;
-    }
+        .totals-box:hover {
+            transform: none;
+        }
 
-    .totals-box:active {
-        transform: none;
-    }
+        .totals-box:active {
+            transform: none;
+        }
 
     .totals-label {
         font-size: 0.85rem;
@@ -206,9 +206,9 @@
         transition: opacity 0.2s;
     }
 
-    .totals-label .bi-info-circle:hover {
-        opacity: 1;
-    }
+        .totals-label .bi-info-circle:hover {
+            opacity: 1;
+        }
 
     .btn-edit {
         background: #1F6FEB; /* professional blue */
@@ -233,8 +233,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                           Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                           Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                               Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -511,12 +511,10 @@
         .mobile-hide-table {
             display: none !important;
         }
-
         /* Show card layout on mobile */
         .mobile-card-layout {
             display: block !important;
         }
-
         /* Individual expense card styling */
         .expense-card {
             background: white;
@@ -585,7 +583,6 @@
             font-weight: 700;
             color: #0d6efd;
         }
-
         /* Action buttons in card */
         .expense-card-btn {
             min-width: 44px;
@@ -627,21 +624,18 @@
         .modal-fullscreen-sm-down .modal-footer {
             flex-shrink: 0;
         }
-
         /* Ensure form inputs are visible above keyboard */
         .modal-fullscreen-sm-down input:focus,
         .modal-fullscreen-sm-down select:focus,
         .modal-fullscreen-sm-down textarea:focus {
             scroll-margin-top: 100px;
         }
-
         /* Larger touch targets for modal buttons */
         .modal-footer .btn {
             min-height: 48px;
             padding: 12px 24px;
             font-size: 1rem;
         }
-
         /* Increase form input sizes on mobile */
         .modal-body .form-control,
         .modal-body .form-select {
@@ -672,7 +666,6 @@
             align-items: center;
             justify-content: center;
         }
-
         /* Close buttons in alerts/tooltips */
         .alert .btn-close,
         .alert .bi-x-lg {
@@ -683,7 +676,6 @@
             align-items: center;
             justify-content: center;
         }
-
         /* All buttons minimum size */
         .btn, button {
             min-height: 44px;
@@ -695,7 +687,6 @@
             padding: 10px 14px;
             font-size: 0.95rem;
         }
-
         /* Trash/delete buttons */
         .bi-trash-fill,
         .bi-trash {
@@ -706,19 +697,16 @@
             align-items: center;
             justify-content: center;
         }
-
         /* Edit/pencil buttons */
         .bi-pencil-square,
         .bi-pencil {
             padding: 8px;
         }
-
         /* Category accordion header - make entire header tappable */
         .card-header {
             min-height: 60px;
             padding: 12px 16px;
         }
-
         /* Form checkboxes and radio buttons */
         .form-check-input {
             min-width: 28px;
@@ -732,7 +720,6 @@
             display: inline-flex;
             align-items: center;
         }
-
         /* Checkbox labels clickable area */
         .form-check {
             min-height: 44px;
@@ -740,7 +727,6 @@
             align-items: center;
             padding: 8px 0;
         }
-
         /* Tab navigation */
         .nav-link {
             min-height: 48px;
@@ -748,7 +734,6 @@
             display: flex;
             align-items: center;
         }
-
         /* Badge/link touch targets */
         .badge,
         a.badge {
@@ -757,20 +742,17 @@
             display: inline-flex;
             align-items: center;
         }
-
         /* Mode toggle switch */
         .form-switch .form-check-input {
             min-width: 48px;
             min-height: 28px;
         }
-
         /* Add category/item buttons */
         .btn-success,
         .btn-primary {
             min-height: 48px;
             font-size: 1rem;
         }
-
         /* Collapse/Expand all button */
         .btn-outline-secondary {
             min-height: 44px;
@@ -787,17 +769,14 @@
             transform: scale(0.98);
             transition: transform 0.1s;
         }
-
         /* Remove hover effects that don't work on touch */
         *:hover {
             /* Disable problematic hover states */
         }
-
         /* Larger tap targets for icon buttons */
         .bi {
             cursor: pointer;
         }
-
         /* Prevent accidental double-tap zoom */
         button,
         a,
@@ -818,31 +797,28 @@
             left: auto !important;
             margin-bottom: 12px;
         }
+            /* Mode toggle - full width on mobile */
+            .tab-panel-box > .position-absolute:first-child {
+                width: 100%;
+            }
 
-        /* Mode toggle - full width on mobile */
-        .tab-panel-box > .position-absolute:first-child {
-            width: 100%;
-        }
+                .tab-panel-box > .position-absolute:first-child > div {
+                    width: 100%;
+                    justify-content: space-between;
+                }
+            /* Action buttons - full width stack */
+            .tab-panel-box > .position-absolute:nth-child(2) {
+                width: 100%;
+            }
 
-        .tab-panel-box > .position-absolute:first-child > div {
-            width: 100%;
-            justify-content: space-between;
-        }
+                .tab-panel-box > .position-absolute:nth-child(2).d-flex {
+                    flex-direction: column;
+                    gap: 8px !important;
+                }
 
-        /* Action buttons - full width stack */
-        .tab-panel-box > .position-absolute:nth-child(2) {
-            width: 100%;
-        }
-
-        .tab-panel-box > .position-absolute:nth-child(2).d-flex {
-            flex-direction: column;
-            gap: 8px !important;
-        }
-
-        .tab-panel-box > .position-absolute:nth-child(2) button {
-            width: 100%;
-        }
-
+                .tab-panel-box > .position-absolute:nth-child(2) button {
+                    width: 100%;
+                }
         /* Totals strip - stack vertically */
         .totals-strip {
             flex-direction: column !important;
@@ -853,7 +829,6 @@
             width: 100% !important;
             min-width: auto !important;
         }
-
         /* Make totals boxes clearly non-interactive */
         .totals-box {
             cursor: default !important;
@@ -861,30 +836,27 @@
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12) !important;
         }
 
-        .totals-box:hover {
-            transform: none !important;
-        }
+            .totals-box:hover {
+                transform: none !important;
+            }
 
-        .totals-box:active {
-            transform: none !important;
-        }
-
+            .totals-box:active {
+                transform: none !important;
+            }
         /* Category header - wrap content */
         .card-header {
             flex-wrap: wrap;
         }
 
-        .card-header .small {
-            display: block !important;
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        /* Hide some less critical info on mobile */
-        .card-header .text-muted.d-none.d-md-inline {
-            display: none !important;
-        }
-
+            .card-header .small {
+                display: block !important;
+                width: 100%;
+                margin-top: 8px;
+            }
+            /* Hide some less critical info on mobile */
+            .card-header .text-muted.d-none.d-md-inline {
+                display: none !important;
+            }
         /* Assumptions section - stack vertically */
         .section-card .d-flex.flex-wrap {
             flex-direction: column;
@@ -895,22 +867,20 @@
             margin-right: 0 !important;
             margin-bottom: 8px;
         }
-
         /* Add category button center */
         .d-flex.justify-content-center.mb-3 {
             flex-direction: column;
         }
-
         /* Collapse all button - full width */
         .d-flex.align-items-center.mb-2 {
             flex-direction: column;
             align-items: stretch !important;
         }
 
-        .d-flex.align-items-center.mb-2 button {
-            width: 100%;
-            margin-bottom: 8px;
-        }
+            .d-flex.align-items-center.mb-2 button {
+                width: 100%;
+                margin-bottom: 8px;
+            }
     }
 
     /* Tablet adjustments */
@@ -926,18 +896,15 @@
         .tab-panel-box {
             padding: 16px 12px !important;
         }
-
         /* Reduce top panel offset on mobile */
         .tab-panel-box {
             top: 0 !important;
         }
-
         /* Add some breathing room */
         .section-card,
         .card {
             margin-bottom: 16px;
         }
-
         /* Survey card on left - hide or stack */
         .col-md-2 {
             margin-bottom: 20px;
@@ -958,7 +925,6 @@
             gap: 8px;
             align-items: flex-start !important;
         }
-
         /* Category name and remove button - first row */
         .card-header .btn-soft-danger {
             order: 1;
@@ -978,7 +944,6 @@
             margin-right: 8px !important;
             font-size: 1rem;
         }
-
         /* Category info icon - next to name */
         .card-header > .bi-info-circle:first-of-type {
             order: 3;
@@ -987,7 +952,6 @@
             padding: 8px;
             margin: -8px;
         }
-
         /* Show totals on mobile - make them compact and wrap to new line */
         .card-header .small.text-muted {
             display: inline-block !important;
@@ -997,21 +961,18 @@
             margin-right: 8px !important;
             flex: 0 0 auto;
         }
+            /* Stack totals if needed */
+            .card-header .small.text-muted:first-of-type {
+                margin-left: 44px !important;
+            }
 
-        /* Stack totals if needed */
-        .card-header .small.text-muted:first-of-type {
-            margin-left: 44px !important;
-        }
-
-        .card-header .small.text-muted:last-of-type {
-            margin-left: 8px !important;
-        }
-
+            .card-header .small.text-muted:last-of-type {
+                margin-left: 8px !important;
+            }
         /* Compact total labels for mobile */
         .card-header .small.text-muted {
             white-space: nowrap;
         }
-
         /* Move action buttons to new row */
         .card-header .ms-auto {
             order: 5;
@@ -1020,20 +981,17 @@
             margin-top: 8px;
             justify-content: space-between;
         }
-
-        /* Make "Add Item" button more prominent on mobile */
-        .card-header .ms-auto .btn-success {
-            flex: 1;
-            max-width: calc(100% - 40px);
-        }
-
+            /* Make "Add Item" button more prominent on mobile */
+            .card-header .ms-auto .btn-success {
+                flex: 1;
+                max-width: calc(100% - 40px);
+            }
         /* Info icons - ensure adequate touch target */
         .card-header .bi-info-circle {
             font-size: 1.1rem !important;
             padding: 8px;
             margin: -8px;
         }
-
         /* Collapse indicator - add visual cue */
         .card-header::after {
             content: '';
@@ -1052,19 +1010,17 @@
         .card-header[aria-expanded="true"]::after {
             transform: rotate(180deg);
         }
-
         /* Increase tap target size for entire header */
         .card-header {
             min-height: 66px;
             position: relative;
         }
-
-        /* Ensure buttons stay clickable despite header onclick */
-        .card-header button,
-        .card-header .bi-info-circle {
-            position: relative;
-            z-index: 2;
-        }
+            /* Ensure buttons stay clickable despite header onclick */
+            .card-header button,
+            .card-header .bi-info-circle {
+                position: relative;
+                z-index: 2;
+            }
     }
 
     /* Tablet - show some totals but keep compact */
@@ -1091,48 +1047,43 @@
             padding-bottom: 8px;
             margin-bottom: 8px !important;
         }
+            /* Webkit scrollbar styling */
+            .nav-tabs::-webkit-scrollbar {
+                height: 4px;
+            }
 
-        /* Webkit scrollbar styling */
-        .nav-tabs::-webkit-scrollbar {
-            height: 4px;
-        }
+            .nav-tabs::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 2px;
+            }
 
-        .nav-tabs::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 2px;
-        }
+            .nav-tabs::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 2px;
+            }
 
-        .nav-tabs::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 2px;
-        }
-
-        .nav-tabs::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        /* Prevent tabs from shrinking */
-        .nav-tabs .nav-item {
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
-        /* Make tab buttons more touch-friendly */
-        .nav-tabs .nav-link {
-            min-height: 44px;
-            padding: 10px 16px !important;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-        }
-
+                .nav-tabs::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+            /* Prevent tabs from shrinking */
+            .nav-tabs .nav-item {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+            /* Make tab buttons more touch-friendly */
+            .nav-tabs .nav-link {
+                min-height: 44px;
+                padding: 10px 16px !important;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+            }
         /* Info icon next to tab */
         .nav-item .bi-info-circle {
             font-size: 1rem !important;
             padding: 8px;
             margin: -8px 0 -8px 4px;
         }
-
         /* Add visual hint that tabs are scrollable */
         .nav-tabs::after {
             content: '→';
@@ -1146,7 +1097,6 @@
             display: flex;
             align-items: center;
         }
-
         /* Hide scroll hint when at end */
         .nav-tabs.scrolled-to-end::after {
             content: '';
@@ -1167,7 +1117,6 @@
         body {
             font-size: 16px; /* Prevents iOS auto-zoom on input focus */
         }
-
         /* Headings - proportionally scaled */
         h1 {
             font-size: 1.75rem !important;
@@ -1193,7 +1142,6 @@
             font-size: 1rem !important;
             line-height: 1.4;
         }
-
         /* Buttons - readable text */
         .btn {
             font-size: 0.9rem !important;
@@ -1207,7 +1155,6 @@
         .btn-lg {
             font-size: 1rem !important;
         }
-
         /* Form labels and inputs */
         label {
             font-size: 0.95rem !important;
@@ -1218,25 +1165,21 @@
             font-size: 16px !important; /* Prevents iOS zoom */
             line-height: 1.5;
         }
-
         /* Small text - but not too small */
         .small, small {
             font-size: 0.85rem !important;
             line-height: 1.4;
         }
-
         /* Alert messages */
         .alert {
             font-size: 0.9rem !important;
             line-height: 1.5;
         }
-
         /* Card text */
         .card-body {
             font-size: 0.95rem;
             line-height: 1.5;
         }
-
         /* Expense card - readable amounts */
         .expense-card .expense-label {
             font-size: 0.9rem !important;
@@ -1251,7 +1194,6 @@
             font-size: 1.1rem !important;
             font-weight: bold;
         }
-
         /* Table text in modals */
         .modal-body table {
             font-size: 0.85rem;
@@ -1261,7 +1203,6 @@
             font-size: 0.8rem;
             line-height: 1.3;
         }
-
         /* Totals strip - prominent numbers */
         .totals-box strong,
         .totals-box .fw-bold {
@@ -1271,42 +1212,36 @@
         .totals-box .small {
             font-size: 0.8rem !important;
         }
-
         /* Category header text */
         .card-header {
             font-size: 0.95rem;
             line-height: 1.4;
         }
 
-        .card-header .small {
-            font-size: 0.75rem !important;
-        }
-
+            .card-header .small {
+                font-size: 0.75rem !important;
+            }
         /* Assumptions section */
         .section-card {
             font-size: 0.9rem;
         }
 
-        .section-card .small {
-            font-size: 0.8rem !important;
-        }
-
+            .section-card .small {
+                font-size: 0.8rem !important;
+            }
         /* Info tooltips and help text */
         .text-muted {
             font-size: 0.85rem !important;
         }
-
         /* Badge and pills */
         .badge {
             font-size: 0.8rem !important;
             padding: 0.35em 0.65em;
         }
-
         /* Reduce line spacing for compact layouts */
         p {
             margin-bottom: 0.75rem;
         }
-
         /* List spacing */
         ul, ol {
             margin-bottom: 0.75rem;
@@ -1343,18 +1278,15 @@
         .card {
             margin-bottom: 1rem;
         }
-
         /* Input spacing for better touch */
         .form-group,
         .mb-3 {
             margin-bottom: 1rem !important;
         }
-
         /* Button spacing */
         .btn {
             margin-bottom: 0.5rem;
         }
-
         /* Adequate padding in containers */
         .card-body {
             padding: 1rem !important;
@@ -1372,13 +1304,11 @@
         .modal-body .form-group {
             margin-bottom: 1.5rem !important;
         }
-
-        /* Last form element needs extra bottom padding */
-        .modal-body form > *:last-child,
-        .modal-body .form-group:last-of-type {
-            margin-bottom: 2rem !important;
-        }
-
+            /* Last form element needs extra bottom padding */
+            .modal-body form > *:last-child,
+            .modal-body .form-group:last-of-type {
+                margin-bottom: 2rem !important;
+            }
         /* Input fields - adequate height and spacing */
         .form-control,
         .form-select {
@@ -1386,18 +1316,15 @@
             padding: 0.5rem 0.75rem;
             margin-bottom: 0.75rem;
         }
-
         /* Labels above inputs need space */
         label {
             display: block;
             margin-bottom: 0.5rem;
         }
-
         /* Form groups need vertical space */
         .row > [class*="col-"] {
             margin-bottom: 1rem;
         }
-
         /* Modal footer buttons - ensure visibility above keyboard */
         .modal-footer {
             padding: 1rem !important;
@@ -1408,46 +1335,39 @@
             border-top: 1px solid #dee2e6;
             z-index: 10;
         }
-
-        /* Full-width footer buttons on mobile */
-        .modal-footer .btn {
-            flex: 1;
-            min-width: 100px;
-        }
-
+            /* Full-width footer buttons on mobile */
+            .modal-footer .btn {
+                flex: 1;
+                min-width: 100px;
+            }
         /* Stack footer buttons if too many */
         .modal-footer {
             flex-wrap: wrap;
         }
-
         /* Add extra padding at bottom of modal body */
         .modal-body {
             padding-bottom: 2rem !important;
         }
-
         /* Scrollable modal body with proper height */
         .modal-dialog-scrollable .modal-body {
             max-height: calc(100vh - 200px); /* Leave room for header/footer */
             overflow-y: auto;
         }
-
         /* Input groups - ensure components align properly */
         .input-group {
             margin-bottom: 1rem;
         }
 
-        .input-group > .form-control,
-        .input-group > .form-select {
-            margin-bottom: 0;
-        }
-
+            .input-group > .form-control,
+            .input-group > .form-select {
+                margin-bottom: 0;
+            }
         /* Inline form elements need spacing */
         .form-inline .form-control,
         .form-inline .form-select {
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
         }
-
         /* Checkboxes and radios - better touch targets */
         .form-check {
             min-height: 44px;
@@ -1467,7 +1387,6 @@
             margin-bottom: 0;
             padding-left: 0.25rem;
         }
-
         /* Help text below inputs */
         .form-text,
         .invalid-feedback,
@@ -1476,31 +1395,27 @@
             margin-top: 0.25rem;
             margin-bottom: 0.5rem;
         }
-
         /* Ensure textarea has adequate height */
         textarea.form-control {
             min-height: 88px; /* At least 2 lines visible */
         }
-
         /* Number inputs - larger tap targets for +/- */
         input[type="number"] {
             -webkit-appearance: none;
             -moz-appearance: textfield;
         }
 
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
         /* Date/time inputs */
         input[type="date"],
         input[type="time"],
         input[type="datetime-local"] {
             min-height: 44px;
         }
-
         /* Validation states - visible indicators */
         .was-validated .form-control:invalid,
         .form-control.is-invalid {
@@ -1524,7 +1439,6 @@
         .card-body .form-group {
             margin-bottom: 1.25rem;
         }
-
         /* Assumptions form specifically */
         .section-card form .form-control,
         .section-card form .form-select {
@@ -1542,7 +1456,6 @@
             background: white;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
         }
-
         /* Add safe area for iOS notch/home indicator */
         .modal-footer {
             padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
@@ -1564,7 +1477,6 @@
             display: inline-block;
             vertical-align: middle;
         }
-
         /* Expense item names in cards */
         .expense-card .expense-label {
             max-width: 100%;
@@ -1573,7 +1485,6 @@
             text-overflow: ellipsis;
             display: block;
         }
-
         /* Item names in mobile card layout */
         .mobile-card-layout .expense-name,
         .mobile-card-layout strong {
@@ -1583,7 +1494,6 @@
             text-overflow: ellipsis;
             display: block;
         }
-
         /* Tab labels - truncate if very long */
         .nav-tabs .nav-link {
             max-width: 200px;
@@ -1591,7 +1501,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         /* Assumptions section labels */
         .section-card .form-label,
         .section-card label {
@@ -1600,7 +1509,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         /* Modal titles */
         .modal-title {
             max-width: calc(100% - 40px); /* Leave room for close button */
@@ -1608,7 +1516,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         /* Table cell content in modals */
         .modal-body td,
         .modal-body th {
@@ -1617,13 +1524,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        /* Allow wrapping for certain columns if needed */
-        .modal-body td:first-child,
-        .modal-body th:first-child {
-            max-width: 120px;
-        }
-
+            /* Allow wrapping for certain columns if needed */
+            .modal-body td:first-child,
+            .modal-body th:first-child {
+                max-width: 120px;
+            }
         /* Totals strip labels */
         .totals-box .small {
             white-space: nowrap;
@@ -1631,7 +1536,6 @@
             text-overflow: ellipsis;
             max-width: 100%;
         }
-
         /* Button text - truncate if too long */
         .btn {
             max-width: 100%;
@@ -1639,20 +1543,17 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         /* Alert messages - allow wrapping but control long words */
         .alert {
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
         }
-
         /* Form control values */
         .form-control,
         .form-select {
             text-overflow: ellipsis;
         }
-
         /* Breadcrumbs if present */
         .breadcrumb-item {
             max-width: 150px;
@@ -1660,7 +1561,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         /* Badge content */
         .badge {
             max-width: 100%;
@@ -1669,19 +1569,16 @@
             text-overflow: ellipsis;
             display: inline-block;
         }
-
         /* List items */
         li {
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-
         /* Links */
         a {
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-
         /* Code blocks or pre-formatted text */
         code, pre {
             max-width: 100%;
@@ -1689,7 +1586,6 @@
             word-wrap: break-word;
             white-space: pre-wrap;
         }
-
         /* Prevent URLs from breaking layout */
         .form-text,
         .small,
@@ -1711,14 +1607,12 @@
             text-overflow: ellipsis;
             max-height: 3em; /* 2 lines at 1.5 line-height */
         }
-
         /* Info tooltips - allow 3 lines */
         .tooltip-inner {
             max-width: 280px;
             white-space: normal;
             text-align: left;
         }
-
         /* Popover content */
         .popover-body {
             max-width: 280px;
@@ -1756,7 +1650,7 @@
     }
 
     /* Additional Mobile Refinements - Polish & UX Enhancements */
-    
+
     /* Touch Feedback & Visual Response */
     @@media (max-width: 767px) {
         /* Add active state feedback for touch */
@@ -1766,29 +1660,24 @@
             transform: scale(0.98);
             transition: transform 0.1s ease;
         }
-
         /* Highlight tapped items */
         .list-group-item:active,
         .dropdown-item:active {
             background-color: rgba(0, 123, 255, 0.1);
         }
-
         /* Card interaction feedback */
         .card:active {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
-
         /* Link tap highlight */
         a:active {
             opacity: 0.7;
         }
-
         /* Remove default tap highlight color */
         * {
             -webkit-tap-highlight-color: rgba(0, 123, 255, 0.1);
             -webkit-touch-callout: none;
         }
-
         /* Button ripple effect simulation */
         .btn-primary:active,
         .btn-success:active,
@@ -1807,7 +1696,6 @@
             right: 0 !important;
             border-radius: 0.25rem;
         }
-
         /* Larger dropdown items for touch */
         .dropdown-item {
             padding: 0.75rem 1rem;
@@ -1816,13 +1704,11 @@
             display: flex;
             align-items: center;
         }
-
         /* Dropdown dividers more visible */
         .dropdown-divider {
             margin: 0.5rem 0;
             border-top-width: 2px;
         }
-
         /* Dropdown header styling */
         .dropdown-header {
             padding: 0.5rem 1rem;
@@ -1830,7 +1716,6 @@
             font-weight: 600;
             color: #6c757d;
         }
-
         /* Scrollable dropdown if too many items */
         .dropdown-menu {
             max-height: 70vh;
@@ -1851,7 +1736,6 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 1rem;
         }
-
         /* Sticky tab navigation */
         .nav-tabs {
             position: sticky;
@@ -1861,12 +1745,10 @@
             padding-top: 0.5rem;
             margin-top: -0.5rem;
         }
-
         /* Ensure sticky elements don't overlap */
         .sticky-top {
             z-index: 98;
         }
-
         /* Add subtle separator under sticky elements */
         .totals-strip::after,
         .nav-tabs::after {
@@ -1888,13 +1770,13 @@
         .alert {
             transition: all 0.2s ease-in-out;
         }
-
         /* Fade in animations */
         @@keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1905,7 +1787,6 @@
         .expense-card {
             animation: fadeIn 0.3s ease-out;
         }
-
         /* Loading spinner size */
         .spinner-border,
         .spinner-grow {
@@ -1918,14 +1799,12 @@
             width: 1rem;
             height: 1rem;
         }
-
         /* Disabled state clarity */
         .btn:disabled,
         .btn.disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         /* Progress bars */
         .progress {
             height: 1.5rem;
@@ -1940,7 +1819,6 @@
             outline: 3px solid #0d6efd;
             outline-offset: 2px;
         }
-
         /* Skip to content link */
         .skip-to-content {
             position: absolute;
@@ -1952,10 +1830,9 @@
             z-index: 9999;
         }
 
-        .skip-to-content:focus {
-            top: 0;
-        }
-
+            .skip-to-content:focus {
+                top: 0;
+            }
         /* Screen reader only text */
         .sr-only,
         .visually-hidden {
@@ -1969,7 +1846,6 @@
             white-space: nowrap;
             border: 0;
         }
-
         /* High contrast mode support */
         @@media (prefers-contrast: high) {
             .btn {
@@ -1980,7 +1856,6 @@
                 border-width: 2px;
             }
         }
-
         /* Reduced motion support */
         @@media (prefers-reduced-motion: reduce) {
             *,
@@ -2003,14 +1878,12 @@
             transform: translateZ(0);
             will-change: transform;
         }
-
         /* Optimize repaints */
         .card-header,
         .modal-header,
         .modal-footer {
             contain: layout style;
         }
-
         /* Lazy load images if present */
         img {
             loading: lazy;
@@ -2024,13 +1897,11 @@
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
-
         /* Top safe area */
         .top-strip,
         .navbar {
             padding-top: max(0.5rem, env(safe-area-inset-top));
         }
-
         /* Bottom safe area for footers */
         footer,
         .bottom-nav {
@@ -2047,19 +1918,16 @@
         .modal {
             display: none !important;
         }
-
         /* Expand all accordions */
         .collapse {
             display: block !important;
         }
-
         /* Remove backgrounds */
         .card,
         .card-body {
             background: white !important;
             border: 1px solid #dee2e6 !important;
         }
-
         /* Better page breaks */
         .card,
         .expense-card {
@@ -2071,9 +1939,9 @@
     @@media (prefers-color-scheme: dark) {
         /* Placeholder for future dark mode */
         /* .card {
-            background: #1e1e1e;
-            color: #ffffff;
-        } */
+                background: #1e1e1e;
+                color: #ffffff;
+            } */
     }
 
     /* Landscape Orientation Adjustments */
@@ -2087,13 +1955,11 @@
         .mb-3 {
             margin-bottom: 0.5rem !important;
         }
-
         /* Compact headers in landscape */
         .card-header {
             padding: 8px 6px !important;
             min-height: 48px;
         }
-
         /* Smaller modals in landscape */
         .modal-dialog {
             max-height: 90vh;
@@ -2692,7 +2558,7 @@
                     </h5>
                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseIntroModal"></button>
                 </div>
-                
+
                 <div class="modal-body" style="background-color: #fffef7;">
                     <div class="text-center mb-4">
                         <div style="font-size: 3rem; margin-bottom: 12px;">📊</div>
@@ -2715,13 +2581,13 @@
                                               @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
                                               title="Click for info"></span>
                                     </label>
-                                    <input type="number" 
-                                           class="form-control form-control-lg text-center fw-bold" 
+                                    <input type="number"
+                                           class="form-control form-control-lg text-center fw-bold"
                                            style="font-size: 1.5rem;"
-                                           @bind="YearsToRetirement" 
-                                           min="1" 
+                                           @bind="YearsToRetirement"
+                                           min="1"
                                            max="50" />
-                                    
+
                                     @if (showToolTipYearsInfo)
                                     {
                                         <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
@@ -2752,7 +2618,7 @@
                     <!-- Don't Show Again -->
                     <div class="text-center pt-3 border-top">
                         <div class="form-check d-inline-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox" 
+                            <input class="form-check-input me-2" type="checkbox"
                                    id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
                             <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
                                 Don't show this welcome screen again
@@ -2766,9 +2632,9 @@
 }
 
 <!-- Removed left sidebar nav; content moved to main container -->
-
 <!-- Main content - hide on mobile, blur on desktop when modal is open -->
-<div class="@(showIntroModal ? "intro-modal-active" : "")">>
+<div class="@(showIntroModal ? "intro-modal-active" : "")">
+    >
     <div class="container-fluid">
         <div class="row">
             <!-- Left column (2) - moved from previous left-sidebar nav -->
@@ -2793,170 +2659,217 @@
             </div>
 
             <!-- Center column (8) - main planner content -->
-            <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">>
-            <p class="text-muted mb-3">@(isSimpleMode ? "List your monthly expenses to see how they'll grow by retirement." : "Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.")</p>
+            <div class="col-12 col-md-8 @(isSimpleMode ? "simple-mode" : "")">
+                >
+                <p class="text-muted mb-3">@(isSimpleMode ? "List your monthly expenses to see how they'll grow by retirement." : "Enter your current breakdown of costs. Expand a category to view or edit its details. Future costs update automatically.")</p>
 
-            @* <b>Multi-city and City tiered plan coming soon</b> *@
-            <!-- Save status indicator -->
-            <div class="d-flex align-items-center mb-2">
-                @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
-                {
-                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></div>
-                    <span class="small text-muted">Saving…</span>
-                }
-                else if (!string.IsNullOrEmpty(lastSaveMessage))
-                {
-                    <span class="small text-success">@lastSaveMessage</span>
-                }
-                else if (!string.IsNullOrEmpty(saveErrorMessage))
-                {
-                    <span class="small text-danger">Save error: @saveErrorMessage</span>
-                }
-            </div>
-
-            <!-- City Template Selector -->
-            @if (availableCities != null && availableCities.Any())
-            {
-                <div class="mb-3">
-                    <div class="d-flex align-items-center gap-3">
-                        @if (selectedCity != null)
-                        {
-                            <div class="alert alert-success mb-0 py-2 px-3 d-flex align-items-center gap-3">
-                                <i class="bi bi-geo-alt-fill"></i>
-                                <span><strong>@selectedCity.CityName</strong>, @selectedCity.Country</span>
-                                @if (matchedProfile != null)
-                                {
-                                    <span class="badge bg-primary">Profile: @matchedProfile.ProfileName</span>
-                                }
-                                <button class="btn btn-sm btn-outline-primary" @onclick="ToggleCitySelector">
-                                    Change City
-                                </button>
-                                @if (matchedProfile != null)
-                                {
-                                    <button class="btn btn-sm btn-success" @onclick="() => LoadExpensesFromProfile(matchedProfile)">
-                                        <i class="bi bi-download"></i> Load Sample Expenses
-                                    </button>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <button class="btn btn-outline-primary" @onclick="ToggleCitySelector">
-                                <i class="bi bi-globe"></i> Select City Template
-                            </button>
-                        }
-                    </div>
-                    
-                    @if (showCitySelector)
+                @* <b>Multi-city and City tiered plan coming soon</b> *@
+                <!-- Save status indicator -->
+                <div class="d-flex align-items-center mb-2">
+                    @if (isSaving || (autosaveTimer != null && autosaveTimer.Enabled))
                     {
-                        <div class="card mt-2">
-                            <div class="card-body">
-                                <h6>Available Cities</h6>
-                                <div class="row g-2">
-                                    @foreach (var city in availableCities.OrderBy(c => c.Country).ThenBy(c => c.CityName))
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></div>
+                        <span class="small text-muted">Saving…</span>
+                    }
+                    else if (!string.IsNullOrEmpty(lastSaveMessage))
+                    {
+                        <span class="small text-success">@lastSaveMessage</span>
+                    }
+                    else if (!string.IsNullOrEmpty(saveErrorMessage))
+                    {
+                        <span class="small text-danger">Save error: @saveErrorMessage</span>
+                    }
+                </div>
+
+                <!-- City Template Selector -->
+                @if (availableCities != null && availableCities.Any())
+                {
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            @if (selectedCity != null)
+                            {
+                                <div class="alert alert-success mb-0 py-2 px-3 d-flex align-items-center gap-3">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <span><strong>@selectedCity.CityName</strong>, @selectedCity.Country</span>
+                                    @if (matchedProfile != null)
                                     {
-                                        <div class="col-md-4">
-                                            <button class="btn btn-outline-secondary w-100 text-start" 
-                                                    @onclick="async () => { await SelectCity(city); showCitySelector = false; }">
-                                                <strong>@city.CityName</strong><br />
-                                                <small class="text-muted">@city.Country • @city.Currency</small>
-                                            </button>
-                                        </div>
+                                        <span class="badge bg-primary">Profile: @matchedProfile.ProfileName</span>
+                                    }
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="ToggleCitySelector">
+                                        Change City
+                                    </button>
+                                    @if (matchedProfile != null)
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => LoadExpensesFromProfile(matchedProfile)">
+                                            <i class="bi bi-download"></i> Load Sample Expenses
+                                        </button>
                                     }
                                 </div>
-                                <button class="btn btn-sm btn-secondary mt-2" @onclick="ToggleCitySelector">
-                                    Close
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-primary" @onclick="ToggleCitySelector">
+                                    <i class="bi bi-globe"></i> Select City Template
                                 </button>
+                            }
+                        </div>
+
+                        @if (showCitySelector)
+                        {
+                            <div class="modal-backdrop fade show" style="z-index:1040"></div>
+                            <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+                                <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Available Cities</h5>
+                                            <button type="button" class="btn-close" aria-label="Close" @onclick="ToggleCitySelector"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row g-2">
+                                                @foreach (var city in availableCities.OrderBy(c => c.Country).ThenBy(c => c.CityName))
+                                                {
+                                                    <div class="col-md-4 mb-2">
+                                                        <button class="btn btn-outline-secondary w-100 text-start"
+                                                                @onclick="async () => { await SelectCity(city); showCitySelector = false; }">
+                                                            <strong>@city.CityName</strong><br />
+                                                            <small class="text-muted">@city.Country • @city.Currency</small>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary btn-sm" @onclick="ToggleCitySelector">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @* --- Replace existing inline profile list with this modal-based UI --- *@
+                @if (cityProfiles != null && cityProfiles.Any())
+                {
+                    @* Show profiles as a modal so it pops out above the page *@
+                    @if (showProfileSelector)
+                    {
+                        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+                        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+                            <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Profiles for @selectedCity?.CityName</h5>
+                                        <button type="button" class="btn-close" aria-label="Close" @onclick="ToggleProfileSelector"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="row g-2">
+                                            @foreach (var profile in cityProfiles)
+                                            {
+                                                <div class="col-md-6 mb-2">
+                                                    <div class="card h-100">
+                                                        <div class="card-body d-flex flex-column">
+                                                            <div class="mb-2">
+                                                                <strong>@profile.ProfileName</strong>
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                Age: @profile.AgeMin - @profile.AgeMax<br />
+                                                                Marital Status: @profile.MaritalStatus<br />
+                                                                Children: @profile.ChildrenCount
+                                                            </div>
+
+                                                            <div class="mt-auto d-flex gap-2">
+                                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleProfileSelector()">
+                                                                    Cancel
+                                                                </button>
+                                                                <button class="btn btn-sm btn-success" @onclick="async () => await OnProfileSelected(profile)">
+                                                                    Select Profile
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary btn-sm" @onclick="ToggleProfileSelector">Close</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
-                </div>
-            }
+                }
 
-            @if (cityProfiles != null && cityProfiles.Any())
-{
-    <div class="card mt-3">
-        <div class="card-header bg-primary text-white">
-            <h6 class="mb-0">Select a Profile for @selectedCity.CityName</h6>
-        </div>
-        <div class="card-body">
-            <div class="row g-2">
-                @foreach (var profile in cityProfiles)
+                @code {
+                    // Called when user selects a profile
+                    // update OnProfileSelected to close the modal, deserialize profile and continue
+                    private async Task OnProfileSelected(DemographicProfile profile)
+                    {
+                        try
+                        {
+                            // Close the modal immediately
+                            showProfileSelector = false;
+                            StateHasChanged();
+
+                            matchedProfile = profile;
+                            // ensure sample expenses and children ages are deserialized into working properties
+                            matchedProfile.DeserializeFromDatabase();
+
+                            Log($"Profile selected: {matchedProfile.ProfileName}");
+
+                            // proceed with existing flow (create a new plan/tab from selected city/profile)
+                            await AddNewTab();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogError($"Error selecting profile: {ex.Message}");
+                        }
+                    }
+                }
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs mb-1" role="tablist">
+                    @foreach (var t in Tabs)
+                    {
+                        <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
+                            <button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
+                                    role="tab"
+                                    aria-selected="@(activeTab == t ? "true" : "false")"
+                                    tabindex="0"
+                                    @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)"
+                                    @onclick="() => OnTabClick(t)">
+                                @GetTabLabel(t)
+                            </button>
+
+                            @if (string.Equals(t, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="bi bi-info-circle text-info ms-1"
+                                      style="cursor:pointer; font-size:1rem;"
+                                      title="About plans, cities and currencies"
+                                      @onclick:stopPropagation="true"
+                                      @onclick="TogglePlanATabInfo"></span>
+                            }
+                        </li>
+                    }
+                </ul>
+
+                @if (showTipPlanATab)
                 {
-                    <div class="col-md-6">
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <strong>@profile.ProfileName</strong>
-                                <div class="small text-muted">
-                                    Age: @profile.AgeMin - @profile.AgeMax<br />
-                                    Marital Status: @profile.MaritalStatus<br />
-                                    Children: @profile.ChildrenCount
-                                </div>
-                                <button class="btn btn-sm btn-outline-success mt-2"
-                                        @onclick="() => OnProfileSelected(profile)">
-                                    Select Profile
-                                </button>
-                            </div>
-                        </div>
+                    <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width: 860px;">
+                        Next release will allow multiple plans with different cities and currencies. You’ll be able to create and compare plans, each with its own assumptions and locale settings.
+                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipPlanATab = false">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
                     </div>
                 }
-            </div>
-        </div>
-    </div>
-}
 
-@code {
-    // Called when user selects a profile
-    private async Task OnProfileSelected(DemographicProfile profile)
-    {
-        matchedProfile = profile;
-        matchedProfile.DeserializeFromDatabase(); // Ensure expenses are loaded
-        StateHasChanged();
-                        await AddNewTab(); // Create a new tab with selected city/profile
-
-    }
-}
-            <!-- Tab Navigation -->
-            <ul class="nav nav-tabs mb-1" role="tablist">
-                @foreach (var t in Tabs)
-                {
-                    <li class="nav-item d-flex align-items-center me-1 @(activeTab == t ? "tab-item-active" : "")" role="presentation">
-<button class="nav-link @(activeTab == t ? "tab-active-custom" : "")"
-        role="tab"
-        aria-selected="@(activeTab == t ? "true" : "false")"
-        tabindex="0"
-        @onkeydown="(KeyboardEventArgs e) => HandleTabKey(e, t)"
-        @onclick="() => OnTabClick(t)">
-    @GetTabLabel(t)
-</button>
-
-                        @if (string.Equals(t, "Plan-A-City-A", StringComparison.OrdinalIgnoreCase))
-                        {
-                            <span class="bi bi-info-circle text-info ms-1"
-                                  style="cursor:pointer; font-size:1rem;"
-                                  title="About plans, cities and currencies"
-                                  @onclick:stopPropagation="true"
-                                  @onclick="TogglePlanATabInfo"></span>
-                        }
-                    </li>
-                }
-            </ul>
-
-            @if (showTipPlanATab)
-            {
-                <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width: 860px;">
-                    Next release will allow multiple plans with different cities and currencies. You’ll be able to create and compare plans, each with its own assumptions and locale settings.
-                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipPlanATab = false">
-                        <span class="bi bi-x-lg"></span>
-                    </span>
-                </div>
-            }
-
-            <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
-            <div class="tab-panel-box position-relative">
-                <!-- Mode Toggle positioned to the left of Show Intro button -->
-                <div class="position-absolute" style="top: 10px; right: 280px; z-index: 1;">
-                    <div style="
+                <!-- Insert this opening tag immediately after the closing </ul> of the tab list (the ul.nav.nav-tabs ... ) -->
+                <div class="tab-panel-box position-relative">
+                    <!-- Mode Toggle positioned to the left of Show Intro button -->
+                    <div class="position-absolute" style="top: 10px; right: 280px; z-index: 1;">
+                        <div style="
                         background: linear-gradient(90deg,#fffbe6,#fffde7);
                         border: 2px solid #FFD600;
                         border-radius: 14px;
@@ -2965,581 +2878,581 @@
                         display: inline-flex;
                         align-items: center;
                         gap: 12px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <span style="font-size: 1rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
-                            <span class="fw-bold small @(isSimpleMode ? "text-success" : "text-primary")">
-                                @(isSimpleMode ? "Beginner" : "Advanced")
-                            </span>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="compactModeToggle"
-                                   checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
-                            <label class="form-check-label small fw-bold ms-1" for="compactModeToggle" style="cursor: pointer;">
-                                @(isSimpleMode ? "Advanced" : "Simple")
-                            </label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="font-size: 1rem;">@(isSimpleMode ? "🎯" : "⚙️")</span>
+                                <span class="fw-bold small @(isSimpleMode ? "text-success" : "text-primary")">
+                                    @(isSimpleMode ? "Beginner" : "Advanced")
+                                </span>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="compactModeToggle"
+                                       checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
+                                <label class="form-check-label small fw-bold ms-1" for="compactModeToggle" style="cursor: pointer;">
+                                    @(isSimpleMode ? "Advanced" : "Simple")
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Buttons in top-right corner -->
-                <div class="position-absolute d-flex gap-2" style="top: 10px; right: 10px; z-index: 1;">
-                    <button class="btn btn-sm btn-warning"
-                            @onclick="ShowIntroWithReset">
-                        <i class="bi bi-info-circle me-1"></i> Show Intro
-                    </button>
+                    <!-- Buttons in top-right corner -->
+                    <div class="position-absolute d-flex gap-2" style="top: 10px; right: 10px; z-index: 1;">
+                        <button class="btn btn-sm btn-warning"
+                                @onclick="ShowIntroWithReset">
+                            <i class="bi bi-info-circle me-1"></i> Show Intro
+                        </button>
 
-                    <button class="btn btn-sm btn-outline-danger"
-                            @onclick="ClearDataAsync"
-                            title="Clear all saved plan data">
-                        <i class="bi bi-trash me-1"></i>
-                        Clear Plan Data
-                    </button>
-                </div>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="ClearDataAsync"
+                                title="Clear all saved plan data">
+                            <i class="bi bi-trash me-1"></i>
+                            Clear Plan Data
+                        </button>
+                    </div>
 
-                <!-- Planner Controls Strip -->
+                    <!-- Planner Controls Strip -->
 
-                <div class="section-card">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                            <div>Assumptions:</div>
-                        </div>
-
-                        <div class="small-note" style="margin-top:8px;">
-                            <div class="d-flex flex-wrap align-items-center">
-                                <!-- Years to Retirement -->
-                                <div class="me-4">
-                                    <span class="bi bi-info-circle text-info"
-                                          style="font-size: 1.1rem; cursor: pointer;"
-                                          @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
-                                          tabindex="0"
-                                          title="Click for more info"></span>
-                                    <span style="font-weight: 600; color: #495057;">Years to retire:</span>
-                                    <b>@YearsToRetirement</b>
-                                </div>
-
-                                <!-- Inflation Rate -->
-                                <div class="me-4">
-                                    <span class="bi bi-info-circle text-info"
-                                          style="font-size: 1.1rem; cursor: pointer;"
-                                          @onclick="() => showToolTipInflationInfo = !showToolTipInflationInfo"
-                                          tabindex="0"
-                                          title="Click for more info"></span>
-                                    <span style="font-weight: 600; color: #495057;">Annual Inflation rate:</span>
-                                    <b>@InflationRate%</b>
-                                </div>
-
-                                <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
+                    <div class="section-card">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                <div>Assumptions:</div>
                             </div>
 
-                            <!-- Tooltips -->
-                            @if (showToolTipYearsInfo)
-                            {
-                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
-                                    <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
-                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
-                                        <span class="bi bi-x-lg"></span>
-                                    </span>
+                            <div class="small-note" style="margin-top:8px;">
+                                <div class="d-flex flex-wrap align-items-center">
+                                    <!-- Years to Retirement -->
+                                    <div class="me-4">
+                                        <span class="bi bi-info-circle text-info"
+                                              style="font-size: 1.1rem; cursor: pointer;"
+                                              @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-weight: 600; color: #495057;">Years to retire:</span>
+                                        <b>@YearsToRetirement</b>
+                                    </div>
+
+                                    <!-- Inflation Rate -->
+                                    <div class="me-4">
+                                        <span class="bi bi-info-circle text-info"
+                                              style="font-size: 1.1rem; cursor: pointer;"
+                                              @onclick="() => showToolTipInflationInfo = !showToolTipInflationInfo"
+                                              tabindex="0"
+                                              title="Click for more info"></span>
+                                        <span style="font-weight: 600; color: #495057;">Annual Inflation rate:</span>
+                                        <b>@InflationRate%</b>
+                                    </div>
+
+                                    <button class="btn-edit" @onclick="() => OpenWizard(1)">Edit</button>
                                 </div>
-                            }
 
-                            @if (showToolTipInflationInfo)
-                            {
-                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
-                                    <strong>Annual Inflation Rate:</strong> The yearly percentage increase in prices of goods and services. This rate is used to project how your costs will grow over time before retirement.
-                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationInfo = false" title="Close">
-                                        <span class="bi bi-x-lg"></span>
-                                    </span>
-                                </div>
-                            }
+                                <!-- Tooltips -->
+                                @if (showToolTipYearsInfo)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
+                                        <strong>Years to Retirement:</strong> The number of years until you expect to retire. This is used to project your future costs.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsInfo = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+
+                                @if (showToolTipInflationInfo)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small" style="max-width: 320px;">
+                                        <strong>Annual Inflation Rate:</strong> The yearly percentage increase in prices of goods and services. This rate is used to project how your costs will grow over time before retirement.
+                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationInfo = false" title="Close">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-                <br />
+                    <br />
 
-                <br />
-
+                    <br />
 
 
-                <!-- Totals Strip: Current and Retirement side by side -->
-                <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
-                    <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-2">
-                        <div class="totals-box bg-primary bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
-                            <span class="totals-label d-flex align-items-center">
-                                Current Total
-                                <span class="bi bi-info-circle text-warning ms-2"
-                                      style="cursor: pointer; font-size: .95rem;"
-                                      title="What is this?"
-                                      @onclick="() => showTipCurrentTotal = !showTipCurrentTotal"></span>
-                            </span>
-                            <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
+
+                    <!-- Totals Strip: Current and Retirement side by side -->
+                    <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
+                        <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-2">
+                            <div class="totals-box bg-primary bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
+                                <span class="totals-label d-flex align-items-center">
+                                    Current Total
+                                    <span class="bi bi-info-circle text-warning ms-2"
+                                          style="cursor: pointer; font-size: .95rem;"
+                                          title="What is this?"
+                                          @onclick="() => showTipCurrentTotal = !showTipCurrentTotal"></span>
+                                </span>
+                                <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
+                            </div>
+                            <div class="totals-box bg-success bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
+                                <span class="totals-label d-flex align-items-center">
+                                    Retirement Total
+                                    <span class="bi bi-info-circle text-warning ms-2"
+                                          style="cursor: pointer; font-size: .95rem;"
+                                          title="What is this?"
+                                          @onclick="() => showTipRetirementTotal = !showTipRetirementTotal"></span>
+                                </span>
+                                <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
+                            </div>
                         </div>
-                        <div class="totals-box bg-success bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
-                            <span class="totals-label d-flex align-items-center">
-                                Retirement Total
-                                <span class="bi bi-info-circle text-warning ms-2"
-                                      style="cursor: pointer; font-size: .95rem;"
-                                      title="What is this?"
-                                      @onclick="() => showTipRetirementTotal = !showTipRetirementTotal"></span>
-                            </span>
-                            <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
-                        </div>
+
+                        @if (showTipCurrentTotal)
+                        {
+                            <div class="alert alert-info py-2 px-3 mb-2 small text-center" style="max-width:640px; margin:0 auto;">
+                                Current Total is the sum of all items converted to monthly values across categories.
+                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCurrentTotal = false">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                        @if (showTipRetirementTotal)
+                        {
+                            <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                                Retirement Total is the projected monthly amount at retirement using each item’s adjustment and inflation.
+                                Years to retirement: <b>@YearsToRetirement</b>, Global inflation: <b>@InflationRate%</b>.
+                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipRetirementTotal = false">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
                     </div>
-
-                    @if (showTipCurrentTotal)
-                    {
-                        <div class="alert alert-info py-2 px-3 mb-2 small text-center" style="max-width:640px; margin:0 auto;">
-                            Current Total is the sum of all items converted to monthly values across categories.
-                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCurrentTotal = false">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                            <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
+                                    type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
+                                <span class="bi bi-plus-lg me-1"></span> Add Category
+                            </button>
+                            <span class="bi bi-info-circle text-info"
+                                  style="cursor: pointer; font-size: 1rem;"
+                                  title="What is this?"
+                                  @onclick="() => showTipAddCategory = !showTipAddCategory"></span>
                         </div>
-                    }
-                    @if (showTipRetirementTotal)
-                    {
-                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
-                            Retirement Total is the projected monthly amount at retirement using each item’s adjustment and inflation.
-                            Years to retirement: <b>@YearsToRetirement</b>, Global inflation: <b>@InflationRate%</b>.
-                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipRetirementTotal = false">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
-                        </div>
-                    }
-                </div>
-                <div class="d-flex justify-content-center mb-3">
-                    <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-                        <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
-                                type="button" @onclick:stopPropagation="true" @onclick="OpenAddCategoryModal" disabled="@isSaving">
-                            <span class="bi bi-plus-lg me-1"></span> Add Category
-                        </button>
-                        <span class="bi bi-info-circle text-info"
-                              style="cursor: pointer; font-size: 1rem;"
-                              title="What is this?"
-                              @onclick="() => showTipAddCategory = !showTipAddCategory"></span>
+                        @if (showTipAddCategory)
+                        {
+                            <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                                Add a new category to group related items (e.g., Housing, Food). You can add items inside it afterwards.
+                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAddCategory = false">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
                     </div>
-                    @if (showTipAddCategory)
-                    {
-                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
-                            Add a new category to group related items (e.g., Housing, Food). You can add items inside it afterwards.
-                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAddCategory = false">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
-                        </div>
-                    }
-                </div>
-                <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
                     <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                                title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
-                                @onclick="ToggleCollapseAllCategories">
-                            <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                            <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
-                        </button>
-                        <span class="bi bi-info-circle text-info ms-2"
-                              style="cursor: pointer; font-size: 1rem;"
-                              title="What is this?"
-                              @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                        <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                                    title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
+                                    @onclick="ToggleCollapseAllCategories">
+                                <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                                <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+                            </button>
+                            <span class="bi bi-info-circle text-info ms-2"
+                                  style="cursor: pointer; font-size: 1rem;"
+                                  title="What is this?"
+                                  @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                        </div>
+                        @if (showTipCollapseAll)
+                        {
+                            <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
+                                @(AnyCategoryExpanded()
+                                                            ? "Collapse all categories to condense the view."
+                                                            : "Expand all categories to view every item at once.")
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                                                }
                     </div>
-                    @if (showTipCollapseAll)
+
+
+                    <style>
+                        .totals-strip {
+                            width: 100%;
+                            max-width: 600px;
+                            margin-left: auto;
+                            margin-right: auto;
+                        }
+
+                        .totals-box {
+                            min-width: 180px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                            border: 1.5px solid #e3e3e3;
+                            transition: box-shadow 0.2s;
+                        }
+
+                        .totals-label {
+                            font-size: 1rem;
+                            font-weight: 500;
+                            opacity: 0.92;
+                            letter-spacing: 0.01em;
+                        }
+
+                        .totals-value {
+                            font-size: 1.08rem;
+                            font-weight: 700;
+                            letter-spacing: 0.01em;
+                            margin-top: 2px;
+                        }
+                    </style>
+
+
+                    <!-- Add Category Modal (root level for correct binding) -->
+                    @if (showAddCategoryModal)
                     {
-                        <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
-                            @(AnyCategoryExpanded()
-                                                    ? "Collapse all categories to condense the view."
-                                                    : "Expand all categories to view every item at once.")
-                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
-                            <span class="bi bi-x-lg"></span>
-                        </span>
-                    </div>
-                                        }
-                </div>
-
-
-                <style>
-                    .totals-strip {
-                        width: 100%;
-                        max-width: 600px;
-                        margin-left: auto;
-                        margin-right: auto;
-                    }
-
-                    .totals-box {
-                        min-width: 180px;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-                        border: 1.5px solid #e3e3e3;
-                        transition: box-shadow 0.2s;
-                    }
-
-                    .totals-label {
-                        font-size: 1rem;
-                        font-weight: 500;
-                        opacity: 0.92;
-                        letter-spacing: 0.01em;
-                    }
-
-                    .totals-value {
-                        font-size: 1.08rem;
-                        font-weight: 700;
-                        letter-spacing: 0.01em;
-                        margin-top: 2px;
-                    }
-                </style>
-
-
-                <!-- Add Category Modal (root level for correct binding) -->
-                @if (showAddCategoryModal)
-                {
-                    <div class="modal-backdrop fade show" style="z-index:1040"></div>
-                    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
-                        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
-                            <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
-                                <div class="modal-header bg-light">
-                                    <h5 class="modal-title d-flex align-items-center">
-                                        <span class="bi bi-folder-plus me-2 text-primary"></span>
-                                        Add New Category
-                                    </h5>
-                                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
-                                </div>
-                                <div class="modal-body py-4" style="background-color: #f8faff;">
-                                    <p class="text-muted small mb-3">
-                                        Categories help organize your expenses. Enter a descriptive name for your category.
-                                    </p>
-                                    <div class="form-floating">
-                                        <input type="text"
-                                               class="form-control form-control-lg"
-                                               id="newCategoryName"
-                                               @bind="NewCategoryName"
-                                               @bind:event="oninput"
-                                               @onkeydown="HandleAddCategoryKeyModal"
-                                               autofocus />
-                                        <label for="newCategoryName">Category Name</label>
+                        <div class="modal-backdrop fade show" style="z-index:1040"></div>
+                        <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+                            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
+                                <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title d-flex align-items-center">
+                                            <span class="bi bi-folder-plus me-2 text-primary"></span>
+                                            Add New Category
+                                        </h5>
+                                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAddCategoryModal"></button>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <small class="text-muted">@(string.IsNullOrWhiteSpace(NewCategoryName) ? "Example: Housing, Food, Transportation" : $"Adding: {NewCategoryName}")</small>
-                                        <small class="@(IsAddCategoryDisabled ? "text-danger" : "text-success")">
-                                            @(IsAddCategoryDisabled ? "" : "Ready to add")
-                                        </small>
+                                    <div class="modal-body py-4" style="background-color: #f8faff;">
+                                        <p class="text-muted small mb-3">
+                                            Categories help organize your expenses. Enter a descriptive name for your category.
+                                        </p>
+                                        <div class="form-floating">
+                                            <input type="text"
+                                                   class="form-control form-control-lg"
+                                                   id="newCategoryName"
+                                                   @bind="NewCategoryName"
+                                                   @bind:event="oninput"
+                                                   @onkeydown="HandleAddCategoryKeyModal"
+                                                   autofocus />
+                                            <label for="newCategoryName">Category Name</label>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <small class="text-muted">@(string.IsNullOrWhiteSpace(NewCategoryName) ? "Example: Housing, Food, Transportation" : $"Adding: {NewCategoryName}")</small>
+                                            <small class="@(IsAddCategoryDisabled ? "text-danger" : "text-success")">
+                                                @(IsAddCategoryDisabled ? "" : "Ready to add")
+                                            </small>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="modal-footer border-top-0 pt-0" style="background-color: #f8faff;">
-                                    <button class="btn btn-outline-secondary px-4" @onclick="CloseAddCategoryModal">
-                                        Cancel
-                                    </button>
-                                    <button class="btn btn-primary px-4 d-flex align-items-center gap-2"
-                                            @onclick="AddCategoryModal"
-                                            disabled="@(isSaving || IsAddCategoryDisabled)">
-                                        @if (isSaving)
-                                        {
-                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="bi bi-plus-lg"></span>
-                                        }
-                                        Add Category
-                                    </button>
+                                    <div class="modal-footer border-top-0 pt-0" style="background-color: #f8faff;">
+                                        <button class="btn btn-outline-secondary px-4" @onclick="CloseAddCategoryModal">
+                                            Cancel
+                                        </button>
+                                        <button class="btn btn-primary px-4 d-flex align-items-center gap-2"
+                                                @onclick="AddCategoryModal"
+                                                disabled="@(isSaving || IsAddCategoryDisabled)">
+                                            @if (isSaving)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            }
+                                            else
+                                            {
+                                                <span class="bi bi-plus-lg"></span>
+                                            }
+                                            Add Category
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
-
-                <div class="accordion" id="costCategoryAccordion">
-                    @{
-                        // Compute groups safely even if Items is null
-                        var groups = (Items ?? new List<CostItem>()).GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
-                        int catIdx = 0;
                     }
-                    @foreach (var group in groups)
-                    {
-                        var groupKey = group.Key ?? string.Empty;
-                        var groupCurrentTotal = group.Sum(i => i.GetMonthlyEquivalent);
-                        var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
-                        var expanded = !IsCollapsed(groupKey);
-                        var collapseId = $"catCollapse_{catIdx}";
-                        <div class="card mb-2">
-                            <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)" title="@(expanded ? "Click to collapse" : "Click to expand")">
-                                <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
-                                    <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
-                                </button>
-                                <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
-                                <span class="bi bi-info-circle text-info me-2 @(isSimpleMode ? "" : "")"
-                                      style="cursor: pointer; font-size: .95rem;"
-                                      title="What is this?"
-                                      @onclick:stopPropagation="true"
-                                      @onclick="() => ToggleCatInfo(groupKey)"></span>
-                                <span class="small text-muted d-none d-md-inline" title="@(isSimpleMode ? "Current monthly total" : "Current total")">
-                                    @(isSimpleMode ? "Monthly" : "Current"): @FormatCurrency(groupCurrentTotal)
-                                </span>
-                                <span class="small text-muted ms-2 d-none d-md-inline" title="@(isSimpleMode ? "Future monthly total" : "Retirement total")">
-                                    @(isSimpleMode ? "Future" : "Retirement"): @FormatCurrency(groupRetirementTotal)
-                                </span>
 
-                                <div class="ms-auto d-flex gap-2 align-items-center">
-                                    <button class="btn btn-success btn-sm" title="@(isSimpleMode ? "Add expense" : "Add item")" @onclick:stopPropagation="true" @onclick="() => OpenAddItemModal(groupKey)">
-                                        <span class="bi bi-plus"></span> @(isSimpleMode ? "Add Expense" : "Add Item")
+                    <div class="accordion" id="costCategoryAccordion">
+                        @{
+                            // Compute groups safely even if Items is null
+                            var groups = (Items ?? new List<CostItem>()).GroupBy(i => i.Category ?? string.Empty).OrderBy(g => g.Key ?? string.Empty);
+                            int catIdx = 0;
+                        }
+                        @foreach (var group in groups)
+                        {
+                            var groupKey = group.Key ?? string.Empty;
+                            var groupCurrentTotal = group.Sum(i => i.GetMonthlyEquivalent);
+                            var groupRetirementTotal = group.Sum(i => i.GetRetirementValue(YearsToRetirement, InflationRate));
+                            var expanded = !IsCollapsed(groupKey);
+                            var collapseId = $"catCollapse_{catIdx}";
+                            <div class="card mb-2">
+                                <div class="card-header d-flex align-items-center" style="cursor:pointer;" @onclick="() => ToggleCollapse(groupKey)" title="@(expanded ? "Click to collapse" : "Click to expand")">
+                                    <button class="btn btn-sm btn-soft-danger me-2" title="Remove category" aria-label="Remove category" @onclick:stopPropagation="true" @onclick="() => ConfirmRemoveCategory(groupKey)" disabled="@isSaving">
+                                        <span class="bi bi-trash-fill icon-muted" aria-hidden="true"></span>
                                     </button>
-                                    <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
+                                    <span class="me-2" style="font-weight: bold !important;">@groupKey</span>
+                                    <span class="bi bi-info-circle text-info me-2 @(isSimpleMode ? "" : "")"
                                           style="cursor: pointer; font-size: .95rem;"
                                           title="What is this?"
                                           @onclick:stopPropagation="true"
-                                          @onclick="() => ToggleAddItemInfo(groupKey)"></span>
+                                          @onclick="() => ToggleCatInfo(groupKey)"></span>
+                                    <span class="small text-muted d-none d-md-inline" title="@(isSimpleMode ? "Current monthly total" : "Current total")">
+                                        @(isSimpleMode ? "Monthly" : "Current"): @FormatCurrency(groupCurrentTotal)
+                                    </span>
+                                    <span class="small text-muted ms-2 d-none d-md-inline" title="@(isSimpleMode ? "Future monthly total" : "Retirement total")">
+                                        @(isSimpleMode ? "Future" : "Retirement"): @FormatCurrency(groupRetirementTotal)
+                                    </span>
+
+                                    <div class="ms-auto d-flex gap-2 align-items-center">
+                                        <button class="btn btn-success btn-sm" title="@(isSimpleMode ? "Add expense" : "Add item")" @onclick:stopPropagation="true" @onclick="() => OpenAddItemModal(groupKey)">
+                                            <span class="bi bi-plus"></span> @(isSimpleMode ? "Add Expense" : "Add Item")
+                                        </button>
+                                        <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
+                                              style="cursor: pointer; font-size: .95rem;"
+                                              title="What is this?"
+                                              @onclick:stopPropagation="true"
+                                              @onclick="() => ToggleAddItemInfo(groupKey)"></span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
-                                <div class="card-body p-2 grid-yellow-bg rounded-4">
-                                    @if (IsCatInfoOpen(groupKey))
-                                    {
-                                        <div class="alert alert-info py-2 px-3 mb-2 small">
-                                            This category groups related items. Click the header to expand/collapse.
-                                            Use the trash icon to remove the category.
-                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleCatInfo(groupKey)">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
-                                    }
-                                    @if (IsAddItemInfoOpen(groupKey))
-                                    {
-                                        <div class="alert alert-info py-2 px-3 mb-2 small">
-                                            Add a new item under this category. You can set name, frequency, amount, and retirement adjustment.
-                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleAddItemInfo(groupKey)">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
-                                        </div>
-                                    }
-                                    
-                                    <!-- DESKTOP TABLE VIEW -->
-                                    <table class="table table-sm mb-0 mobile-hide-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
-                                                <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">
-                                                    @(isSimpleMode ? "Expense" : "Item")
-                                                </th>
-                                                <th class="fw-bold text-center align-middle complex-column" style="width:120px; font-weight: bold !important;">@(isSimpleMode ? "How Often" : "Frequency")<br /><span class="small">@(isSimpleMode ? "" : "(Units)")</span></th>
-                                                <th class="fw-bold text-end align-middle complex-column" style="width:140px; font-weight: bold !important;">@(isSimpleMode ? "Amount" : "Per Unit")<br /><span class="small">($)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">
-                                                    @(isSimpleMode ? "Monthly Cost" : "Per Month")<br /><span class="small">($)</span>
-                                                </th>
-                                                <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">
-                                                    @(isSimpleMode ? "Retirement?" : "Include In")<br /><span class="small">@(isSimpleMode ? "" : "Retirement")</span>
-                                                </th>
-                                                <th class="fw-bold text-center align-middle complex-column" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
-                                                <th class="fw-bold text-center align-middle complex-column" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
-                                                <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">
-                                                    @(isSimpleMode ? "Future Cost" : "Retirement")<br /><span class="small">@(isSimpleMode ? "($)" : "Value")</span>
-                                                </th>
-                                            </tr>
-                                        </thead>
+                                <div class="collapse @(expanded ? "show" : "")" id="@collapseId">
+                                    <div class="card-body p-2 grid-yellow-bg rounded-4">
+                                        @if (IsCatInfoOpen(groupKey))
+                                        {
+                                            <div class="alert alert-info py-2 px-3 mb-2 small">
+                                                This category groups related items. Click the header to expand/collapse.
+                                                Use the trash icon to remove the category.
+                                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleCatInfo(groupKey)">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        @if (IsAddItemInfoOpen(groupKey))
+                                        {
+                                            <div class="alert alert-info py-2 px-3 mb-2 small">
+                                                Add a new item under this category. You can set name, frequency, amount, and retirement adjustment.
+                                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleAddItemInfo(groupKey)">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
 
-                                        <tbody>
-                                            @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
-                                            {
-                                                var idx = Items?.IndexOf(item) ?? -1;
+                                        <!-- DESKTOP TABLE VIEW -->
+                                        <table class="table table-sm mb-0 mobile-hide-table">
+                                            <thead>
                                                 <tr>
-                                                    <td style="width:40px; vertical-align:middle;">
-                                                        <div class="d-flex flex-column gap-1">
-                                                            <button style="background: none; border: none; padding: 2px 4px; color: rgba(220, 53, 69, 0.8); font-size: 0.8rem;" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
-                                                                <span class="bi bi-trash-fill" aria-hidden="true"></span>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-left align-middle">@item.Subcategory</td>
-                                                    <td class="text-center align-middle complex-column" style="width:120px;">@item.Frequency</td>
-
-                                                    <td class="text-end align-middle complex-column" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
-                                                    <td class="text-end align-middle" style="width:140px;">
-                                                        <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
-                                                    </td>
-                                                    <td class="text-center align-middle" style="width:60px;">
-                                                        @if (item.IncludeInRetirement)
-                                                        {
-                                                            @if (isSimpleMode)
-                                                            {
-                                                                <span class="badge bg-success">Yes</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            @if (isSimpleMode)
-                                                            {
-                                                                <span class="badge bg-secondary">No</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
-                                                            }
-                                                        }
-                                                    </td>
-                                                    <td class="text-center align-middle complex-column" style="width:320px;">
-                                                        @if (item.IncludeInRetirement)
-                                                        {
-                                                            @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
-                                                            {
-                                                                <span>@item.CustomPercentage%</span>
-                                                            }
-                                                            else if (item.AdjustOption == RetirementAdjustOption.Manual)
-                                                            {
-                                                                <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
-                                                            }
-                                                            else if (item.AdjustOption == RetirementAdjustOption.Same)
-                                                            {
-                                                                <span>No change</span>
-                                                            }
-                                                            else if (item.AdjustOption == RetirementAdjustOption.Inflation)
-                                                            {
-                                                                <span>Inflation</span>
-                                                            }
-                                                        }
-                                                    </td>
-                                                    <td class="text-center align-middle complex-column" style="width:160px;">
-                                                        @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
-                                                        {
-                                                            @if (@item.PerItemInflationSource == InflationSource.UseGlobal)
-                                                            {
-                                                                <span>@InflationRate%</span>
-
-                                                            }
-                                                            else if (item.PerItemInflationSource == InflationSource.Custom)
-                                                            {
-                                                                <span>@item.PerItemInflationPercent%</span>
-                                                            }
-                                                        }
-                                                    </td>
-
-                                                    <td class="text-end align-middle" style="width:180px;">
-                                                        <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
-                                                    </td>
-                                                    <td style="width:120px; vertical-align:middle;">
-                                                        <div class="d-flex align-items-center gap-2 justify-content-end">
-                                                            <button class="btn btn-sm btn-outline-primary px-2 py-1"
-                                                                    style="font-size:0.92rem; white-space:nowrap;"
-                                                                    title="@(isSimpleMode ? "Edit this expense" : "View or edit this item")"
-                                                                    @onclick="() => OpenEditItemModal(idx)">
-                                                                <i class="bi bi-pencil-square me-1"></i>
-                                                                <span class="d-none d-md-inline">@(isSimpleMode ? "Edit" : "View/Edit")</span>
-                                                            </button>
-                                                            <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
-                                                                  style="cursor: pointer; font-size: .95rem;"
-                                                                  title="What is this?"
-                                                                  @onclick="() => ToggleViewEditInfo(idx)"></span>
-                                                        </div>
-                                                    </td>
+                                                    <th class="fw-bold text-left align-middle" style="width:40px; font-weight: bold !important;">&nbsp;</th>
+                                                    <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">
+                                                        @(isSimpleMode ? "Expense" : "Item")
+                                                    </th>
+                                                    <th class="fw-bold text-center align-middle complex-column" style="width:120px; font-weight: bold !important;">@(isSimpleMode ? "How Often" : "Frequency")<br /><span class="small">@(isSimpleMode ? "" : "(Units)")</span></th>
+                                                    <th class="fw-bold text-end align-middle complex-column" style="width:140px; font-weight: bold !important;">@(isSimpleMode ? "Amount" : "Per Unit")<br /><span class="small">($)</span></th>
+                                                    <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">
+                                                        @(isSimpleMode ? "Monthly Cost" : "Per Month")<br /><span class="small">($)</span>
+                                                    </th>
+                                                    <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">
+                                                        @(isSimpleMode ? "Retirement?" : "Include In")<br /><span class="small">@(isSimpleMode ? "" : "Retirement")</span>
+                                                    </th>
+                                                    <th class="fw-bold text-center align-middle complex-column" style="width:320px; font-weight: bold !important;">Retirement<br /><span class="small">Adjustment</span></th>
+                                                    <th class="fw-bold text-center align-middle complex-column" style="width:160px; font-weight: bold !important;">Inflation<br /><span class="small">Rate (%)</span></th>
+                                                    <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">
+                                                        @(isSimpleMode ? "Future Cost" : "Retirement")<br /><span class="small">@(isSimpleMode ? "($)" : "Value")</span>
+                                                    </th>
                                                 </tr>
-                                                @if (IsViewEditInfoOpen(idx))
+                                            </thead>
+
+                                            <tbody>
+                                                @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
                                                 {
+                                                    var idx = Items?.IndexOf(item) ?? -1;
                                                     <tr>
-                                                        <td colspan="10" class="p-0">
-                                                            <div class="alert alert-info py-2 px-3 mb-2 small m-0">
-                                                                View/Edit opens the item modal to update name, frequency, amount, and retirement adjustments
-                                                                (Same, Custom %, Manual, Inflation). Changes auto‑save.
-                                                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleViewEditInfo(idx)">
-                                                                    <span class="bi bi-x-lg"></span>
-                                                                </span>
+                                                        <td style="width:40px; vertical-align:middle;">
+                                                            <div class="d-flex flex-column gap-1">
+                                                                <button style="background: none; border: none; padding: 2px 4px; color: rgba(220, 53, 69, 0.8); font-size: 0.8rem;" title="Remove item" aria-label="Remove item" @onclick="() => ConfirmRemoveItem(idx)" disabled="@isSaving">
+                                                                    <span class="bi bi-trash-fill" aria-hidden="true"></span>
+                                                                </button>
                                                             </div>
                                                         </td>
-                                                    </tr>
-                                                }
-                                            }
-                                        </tbody>
-                                    </table>
+                                                        <td class="text-left align-middle">@item.Subcategory</td>
+                                                        <td class="text-center align-middle complex-column" style="width:120px;">@item.Frequency</td>
 
-                                    <!-- MOBILE CARD VIEW -->
-                                    <div class="mobile-card-layout" style="display: none;">
-                                        @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
-                                        {
-                                            var idx = Items?.IndexOf(item) ?? -1;
-                                            <div class="expense-card">
-                                                <!-- Card Header: Name + Actions -->
-                                                <div class="expense-card-header">
-                                                    <div class="expense-card-title">@item.Subcategory</div>
-                                                    <div class="expense-card-actions">
-                                                        <button class="btn btn-sm btn-outline-primary expense-card-btn"
-                                                                title="Edit"
-                                                                @onclick="() => OpenEditItemModal(idx)">
-                                                            <i class="bi bi-pencil-square"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-outline-danger expense-card-btn"
-                                                                title="Remove"
-                                                                @onclick="() => ConfirmRemoveItem(idx)"
-                                                                disabled="@isSaving">
-                                                            <i class="bi bi-trash-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Card Body: Key Info in Grid -->
-                                                <div class="expense-card-body">
-                                                    <!-- Now: Monthly Cost -->
-                                                    <div class="expense-card-field expense-card-field-full">
-                                                        <div class="expense-card-label">Now</div>
-                                                        <div class="expense-card-value-large" style="color: #0d6efd; font-weight: 600;">
-                                                            @FormatCurrency(item.GetMonthlyEquivalent)/mo
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Retirement: Smart Display -->
-                                                    <div class="expense-card-field expense-card-field-full">
-                                                        <div class="expense-card-label">Retirement</div>
-                                                        <div class="expense-card-value-large" style="color: #198754; font-weight: 600;">
+                                                        <td class="text-end align-middle complex-column" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                                                        <td class="text-end align-middle" style="width:140px;">
+                                                            <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
+                                                        </td>
+                                                        <td class="text-center align-middle" style="width:60px;">
                                                             @if (item.IncludeInRetirement)
                                                             {
-                                                                var retValue = item.GetRetirementValue(YearsToRetirement, InflationRate);
-                                                                var adjustment = "";
-                                                                
-                                                                if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                                @if (isSimpleMode)
                                                                 {
-                                                                    adjustment = $" (+inflation)";
+                                                                    <span class="badge bg-success">Yes</span>
                                                                 }
-                                                                else if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                                else
                                                                 {
-                                                                    adjustment = $" ({item.CustomPercentage}%)";
+                                                                    <i class="bi bi-check-lg text-success" title="Included in retirement"></i>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                @if (isSimpleMode)
+                                                                {
+                                                                    <span class="badge bg-secondary">No</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="bi bi-x-lg text-danger" title="Not included in retirement"></i>
+                                                                }
+                                                            }
+                                                        </td>
+                                                        <td class="text-center align-middle complex-column" style="width:320px;">
+                                                            @if (item.IncludeInRetirement)
+                                                            {
+                                                                @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                                {
+                                                                    <span>@item.CustomPercentage%</span>
                                                                 }
                                                                 else if (item.AdjustOption == RetirementAdjustOption.Manual)
                                                                 {
-                                                                    adjustment = " (manual)";
+                                                                    <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
                                                                 }
-                                                                
-                                                                <span>@FormatCurrency(retValue)/mo@adjustment</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                var reason = item.RetirementExclusionReason switch
+                                                                else if (item.AdjustOption == RetirementAdjustOption.Same)
                                                                 {
-                                                                    ExclusionReason.NotNeeded => "Not needed",
-                                                                    ExclusionReason.PaidOff => "Paid off",
-                                                                    ExclusionReason.Other => "Not included",
-                                                                    _ => "Not included"
-                                                                };
-                                                                <span style="color: #6c757d; font-style: italic;">@reason</span>
+                                                                    <span>No change</span>
+                                                                }
+                                                                else if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                                {
+                                                                    <span>Inflation</span>
+                                                                }
                                                             }
+                                                        </td>
+                                                        <td class="text-center align-middle complex-column" style="width:160px;">
+                                                            @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                            {
+                                                                @if (@item.PerItemInflationSource == InflationSource.UseGlobal)
+                                                                {
+                                                                    <span>@InflationRate%</span>
+
+                                                                }
+                                                                else if (item.PerItemInflationSource == InflationSource.Custom)
+                                                                {
+                                                                    <span>@item.PerItemInflationPercent%</span>
+                                                                }
+                                                            }
+                                                        </td>
+
+                                                        <td class="text-end align-middle" style="width:180px;">
+                                                            <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, InflationRate))</span>
+                                                        </td>
+                                                        <td style="width:120px; vertical-align:middle;">
+                                                            <div class="d-flex align-items-center gap-2 justify-content-end">
+                                                                <button class="btn btn-sm btn-outline-primary px-2 py-1"
+                                                                        style="font-size:0.92rem; white-space:nowrap;"
+                                                                        title="@(isSimpleMode ? "Edit this expense" : "View or edit this item")"
+                                                                        @onclick="() => OpenEditItemModal(idx)">
+                                                                    <i class="bi bi-pencil-square me-1"></i>
+                                                                    <span class="d-none d-md-inline">@(isSimpleMode ? "Edit" : "View/Edit")</span>
+                                                                </button>
+                                                                <span class="bi bi-info-circle text-info @(isSimpleMode ? "" : "")"
+                                                                      style="cursor: pointer; font-size: .95rem;"
+                                                                      title="What is this?"
+                                                                      @onclick="() => ToggleViewEditInfo(idx)"></span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @if (IsViewEditInfoOpen(idx))
+                                                    {
+                                                        <tr>
+                                                            <td colspan="10" class="p-0">
+                                                                <div class="alert alert-info py-2 px-3 mb-2 small m-0">
+                                                                    View/Edit opens the item modal to update name, frequency, amount, and retirement adjustments
+                                                                    (Same, Custom %, Manual, Inflation). Changes auto‑save.
+                                                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => ToggleViewEditInfo(idx)">
+                                                                        <span class="bi bi-x-lg"></span>
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                        <!-- MOBILE CARD VIEW -->
+                                        <div class="mobile-card-layout" style="display: none;">
+                                            @foreach (var item in group.OrderBy(i => i.Subcategory ?? string.Empty))
+                                            {
+                                                var idx = Items?.IndexOf(item) ?? -1;
+                                                <div class="expense-card">
+                                                    <!-- Card Header: Name + Actions -->
+                                                    <div class="expense-card-header">
+                                                        <div class="expense-card-title">@item.Subcategory</div>
+                                                        <div class="expense-card-actions">
+                                                            <button class="btn btn-sm btn-outline-primary expense-card-btn"
+                                                                    title="Edit"
+                                                                    @onclick="() => OpenEditItemModal(idx)">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger expense-card-btn"
+                                                                    title="Remove"
+                                                                    @onclick="() => ConfirmRemoveItem(idx)"
+                                                                    disabled="@isSaving">
+                                                                <i class="bi bi-trash-fill"></i>
+                                                            </button>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Frequency & Amount side by side (Advanced mode only) -->
-                                                    @if (!isSimpleMode)
-                                                    {
-                                                        <div class="expense-card-field">
-                                                            <div class="expense-card-label">Frequency</div>
-                                                            <div class="expense-card-value">@item.Frequency</div>
+                                                    <!-- Card Body: Key Info in Grid -->
+                                                    <div class="expense-card-body">
+                                                        <!-- Now: Monthly Cost -->
+                                                        <div class="expense-card-field expense-card-field-full">
+                                                            <div class="expense-card-label">Now</div>
+                                                            <div class="expense-card-value-large" style="color: #0d6efd; font-weight: 600;">
+                                                                @FormatCurrency(item.GetMonthlyEquivalent)/mo
+                                                            </div>
                                                         </div>
-                                                        <div class="expense-card-field">
-                                                            <div class="expense-card-label">Amount</div>
-                                                            <div class="expense-card-value">@FormatCurrency(item.CurrentValue)</div>
+
+                                                        <!-- Retirement: Smart Display -->
+                                                        <div class="expense-card-field expense-card-field-full">
+                                                            <div class="expense-card-label">Retirement</div>
+                                                            <div class="expense-card-value-large" style="color: #198754; font-weight: 600;">
+                                                                @if (item.IncludeInRetirement)
+                                                                {
+                                                                    var retValue = item.GetRetirementValue(YearsToRetirement, InflationRate);
+                                                                    var adjustment = "";
+
+                                                                    if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                                                    {
+                                                                        adjustment = $" (+inflation)";
+                                                                    }
+                                                                    else if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                                                    {
+                                                                        adjustment = $" ({item.CustomPercentage}%)";
+                                                                    }
+                                                                    else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                                                    {
+                                                                        adjustment = " (manual)";
+                                                                    }
+
+                                                                    <span>@FormatCurrency(retValue)/mo@adjustment</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    var reason = item.RetirementExclusionReason switch
+                                                                    {
+                                                                        ExclusionReason.NotNeeded => "Not needed",
+                                                                        ExclusionReason.PaidOff => "Paid off",
+                                                                        ExclusionReason.Other => "Not included",
+                                                                        _ => "Not included"
+                                                                    };
+                                                                    <span style="color: #6c757d; font-style: italic;">@reason</span>
+                                                                }
+                                                            </div>
                                                         </div>
-                                                    }
+
+                                                        <!-- Frequency & Amount side by side (Advanced mode only) -->
+                                                        @if (!isSimpleMode)
+                                                        {
+                                                            <div class="expense-card-field">
+                                                                <div class="expense-card-label">Frequency</div>
+                                                                <div class="expense-card-value">@item.Frequency</div>
+                                                            </div>
+                                                            <div class="expense-card-field">
+                                                                <div class="expense-card-label">Amount</div>
+                                                                <div class="expense-card-value">@FormatCurrency(item.CurrentValue)</div>
+                                                            </div>
+                                                        }
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        }
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        catIdx++;
-                    }
-                </div>
+                            catIdx++;
+                        }
+                    </div>
 
                 </div>
 
@@ -3668,6 +3581,7 @@
 @code {
     // Simple Mode Toggle
     private bool isSimpleMode = true; // Start in beginner mode by default
+    private bool showProfileSelector = false;
 
     private void ToggleSimpleMode()
     {
@@ -3675,8 +3589,14 @@
         StateHasChanged();
     }
 
-    // Add this method to your @code section
-    // Add this method to your @code section
+    private void ToggleProfileSelector()
+{
+    showProfileSelector = !showProfileSelector;
+    StateHasChanged();
+}
+
+
+
     private async Task ClearDataAsync()
     {
         try
@@ -4206,102 +4126,102 @@
         return sb.ToString();
     }
 
-   private async Task AddNewTab()
-{
-    Log("AddNewTab start");
-    if (isAddingTab) return; // guard re-entrancy
-    isAddingTab = true;
-    try
+    private async Task AddNewTab()
     {
-        int totalTabs = Tabs.Count();
-        int candidateIndex = totalTabs + 1;
-        if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
-        var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
-
-        string headerName;
-        do
+        Log("AddNewTab start");
+        if (isAddingTab) return; // guard re-entrancy
+        isAddingTab = true;
+        try
         {
-            var letters = NumberToLetters(candidateIndex);
-            headerName = selectedCity != null
-                ? $"Plan-{letters}-{selectedCity.CityName}"
-                : $"Plan-{letters}-City-{letters}";
-            candidateIndex++;
-        } while (existingNames.Contains(headerName));
+            int totalTabs = Tabs.Count();
+            int candidateIndex = totalTabs + 1;
+            if (!TabHeaders.ContainsKey("Plan-A-City-A")) TabHeaders["Plan-A-City-A"] = "Plan-A-City-A";
+            var existingNames = new HashSet<string>(TabHeaders.Values, StringComparer.OrdinalIgnoreCase);
 
-        var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}";
-
-        // Use city template if selected and matchedProfile exists
-        List<CostItem> initialItems;
-        if (selectedCity != null && matchedProfile != null && matchedProfile.SampleExpenses != null && matchedProfile.SampleExpenses.Any())
-        {
-            initialItems = matchedProfile.SampleExpenses.Select(e => new CostItem
+            string headerName;
+            do
             {
-                Category = e.Category,
-                Subcategory = e.Subcategory,
-                CurrentValue = e.CurrentValue,
-                Frequency = e.Frequency,
-                AdjustOption = e.AdjustOption,
-                PerItemInflationPercent = e.PerItemInflationPercent,
-                PerItemInflationSource = e.PerItemInflationSource,
-                CustomPercentage = e.CustomPercentage,
-                ManualRetirementValue = e.ManualRetirementValue,
-                IncludeInRetirement = e.IncludeInRetirement,
-                RetirementExclusionReason = e.RetirementExclusionReason
-            }).ToList();
-        }
-        else
-        {
-            initialItems = StandardCostCategories.GetDefaults();
-        }
+                var letters = NumberToLetters(candidateIndex);
+                headerName = selectedCity != null
+                    ? $"Plan-{letters}-{selectedCity.CityName}"
+                    : $"Plan-{letters}-City-{letters}";
+                candidateIndex++;
+            } while (existingNames.Contains(headerName));
 
-        var initialData = new CostOfLivingData
-        {
-            Header = headerName,
-            Items = initialItems,
-            YearsToRetirement = YearsToRetirement,
-            InflationRate = InflationRate,
-            CollapsedCategories = collapsed.ToList()
-        };
+            var newTab = $"tab-{DateTime.Now:yyMMddHHmmss}";
 
-        var dto = new PersistCostOfLivingRequest
-        {
-            UserGuid = userGuid,
-            CalculatorType = $"CostOfLiving-{newTab}",
-            Data = initialData
-        };
+            // Use city template if selected and matchedProfile exists
+            List<CostItem> initialItems;
+            if (selectedCity != null && matchedProfile != null && matchedProfile.SampleExpenses != null && matchedProfile.SampleExpenses.Any())
+            {
+                initialItems = matchedProfile.SampleExpenses.Select(e => new CostItem
+                {
+                    Category = e.Category,
+                    Subcategory = e.Subcategory,
+                    CurrentValue = e.CurrentValue,
+                    Frequency = e.Frequency,
+                    AdjustOption = e.AdjustOption,
+                    PerItemInflationPercent = e.PerItemInflationPercent,
+                    PerItemInflationSource = e.PerItemInflationSource,
+                    CustomPercentage = e.CustomPercentage,
+                    ManualRetirementValue = e.ManualRetirementValue,
+                    IncludeInRetirement = e.IncludeInRetirement,
+                    RetirementExclusionReason = e.RetirementExclusionReason
+                }).ToList();
+            }
+            else
+            {
+                initialItems = StandardCostCategories.GetDefaults();
+            }
 
-        var apiBaseUrl = GetApiBaseUrl();
-        var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-        var json = System.Text.Json.JsonSerializer.Serialize(dto);
-        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-        var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
-        var resp = await client.PostAsync(saveUrl, content);
-        Log($"AddNewTab: save returned {(int)resp.StatusCode}");
-        if (resp.IsSuccessStatusCode)
-        {
-            await LoadTabsAsync();
-            TabHeaders[newTab] = headerName;
-            if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
-            await OnTabClick(newTab);
-            StateHasChanged();
-            Log($"AddNewTab success: {newTab} / {headerName}");
+            var initialData = new CostOfLivingData
+            {
+                Header = headerName,
+                Items = initialItems,
+                YearsToRetirement = YearsToRetirement,
+                InflationRate = InflationRate,
+                CollapsedCategories = collapsed.ToList()
+            };
+
+            var dto = new PersistCostOfLivingRequest
+            {
+                UserGuid = userGuid,
+                CalculatorType = $"CostOfLiving-{newTab}",
+                Data = initialData
+            };
+
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var saveUrl = $"{apiBaseUrl}/api/CostOfLiving/save";
+            var resp = await client.PostAsync(saveUrl, content);
+            Log($"AddNewTab: save returned {(int)resp.StatusCode}");
+            if (resp.IsSuccessStatusCode)
+            {
+                await LoadTabsAsync();
+                TabHeaders[newTab] = headerName;
+                if (!dynamicTabs.Contains(newTab)) dynamicTabs.Add(newTab);
+                await OnTabClick(newTab);
+                StateHasChanged();
+                Log($"AddNewTab success: {newTab} / {headerName}");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
+                LogError($"AddNewTab failed status: {resp.StatusCode}");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("console.error", $"Create tab failed: {resp.StatusCode}");
-            LogError($"AddNewTab failed status: {resp.StatusCode}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
+            LogError($"AddNewTab exception: {ex.Message}");
+        }
+        finally
+        {
+            isAddingTab = false;
         }
     }
-    catch (Exception ex)
-    {
-        await JSRuntime.InvokeVoidAsync("console.error", $"Error creating tab: {ex.Message}");
-        LogError($"AddNewTab exception: {ex.Message}");
-    }
-    finally
-    {
-        isAddingTab = false;
-    }
-}
 
     private async Task ConfirmDeleteTab(string tab)
     {
@@ -4877,7 +4797,7 @@
                 calculatorType = MapTabToCalculatorType(activeTab);
 
                 await LoadFromApi();
-                
+
                 // Load city templates and user demographics
                 await LoadAvailableCities();
                 await LoadUserDemographics();
@@ -5415,7 +5335,7 @@
     // ============================================
     // City Template Methods
     // ============================================
-    
+
     private async Task LoadAvailableCities()
     {
         try
@@ -5437,7 +5357,7 @@
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var apiBaseUrl = GetApiBaseUrl();
-            
+
             try
             {
                 userDemographics = await client.GetFromJsonAsync<UserDemographics>($"{apiBaseUrl}/api/userdemographics/{userGuid}");
@@ -5455,23 +5375,27 @@
         }
     }
 
+    // update SelectCity to open the profile modal after loading profiles
     private async Task SelectCity(CityTemplate city)
     {
         try
         {
             selectedCity = city;
-            
+
             // Load profiles for this city
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var apiBaseUrl = GetApiBaseUrl();
             cityProfiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"{apiBaseUrl}/api/citytemplate/{city.CityId}/profiles");
-            
+
             // Try to match a profile if we have user demographics
             if (userDemographics != null && cityProfiles?.Any() == true)
             {
                 await MatchBestProfile(city.CityId);
             }
-            
+
+            // Show the profile selector modal (only if profiles exist)
+            showProfileSelector = cityProfiles != null && cityProfiles.Any();
+
             Log($"Selected city: {city.CityName}, loaded {cityProfiles?.Count ?? 0} profiles");
             StateHasChanged();
         }
@@ -5486,18 +5410,18 @@
         try
         {
             if (userDemographics == null) return;
-            
+
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var apiBaseUrl = GetApiBaseUrl();
-            
+
             var url = $"{apiBaseUrl}/api/citytemplate/match?" +
                       $"cityId={Uri.EscapeDataString(cityId)}" +
                       $"&age={userDemographics.Age}" +
                       $"&maritalStatus={userDemographics.MaritalStatus}" +
                       $"&childrenCount={userDemographics.ChildrenAges?.Count ?? 0}";
-            
+
             matchedProfile = await client.GetFromJsonAsync<DemographicProfile>(url);
-            
+
             if (matchedProfile != null)
             {
                 Log($"Matched profile: {matchedProfile.ProfileName}");
@@ -5518,12 +5442,12 @@
                 // Ask for confirmation before replacing expenses
                 var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
                     $"Load sample expenses from '{profile.ProfileName}'? This will replace your current expenses.");
-                
+
                 if (!confirmed) return;
-                
+
                 // Clear existing items
                 Items.Clear();
-                
+
                 // Add expenses from profile
                 foreach (var expense in profile.SampleExpenses)
                 {
@@ -5536,10 +5460,10 @@
                         RetirementExclusionReason = expense.RetirementExclusionReason
                     });
                 }
-                
+
                 RecalculateAll(save: true);
                 StateHasChanged();
-                
+
                 Log($"Loaded {profile.SampleExpenses.Count} expenses from profile: {profile.ProfileName}");
             }
         }
@@ -5555,7 +5479,7 @@
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var apiBaseUrl = GetApiBaseUrl();
-            
+
             var demographics = new UserDemographics
             {
                 UserGuid = userGuid,
@@ -5567,7 +5491,7 @@
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            
+
             HttpResponseMessage response;
             if (userDemographics == null)
             {
@@ -5579,10 +5503,10 @@
                 // Update existing
                 response = await client.PutAsJsonAsync($"{apiBaseUrl}/api/userdemographics/{userGuid}", demographics);
             }
-            
+
             response.EnsureSuccessStatusCode();
             userDemographics = demographics;
-            
+
             Log("User demographics saved successfully");
         }
         catch (Exception ex)
