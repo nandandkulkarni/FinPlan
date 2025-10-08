@@ -23,13 +23,6 @@
                        OnSave="Save"
                        InitialStep="@_wizardOpenStep" />
 
-<!-- Setup Checklist Modal -->
-<SetupChecklistModal Model="@Model"
-                     Visible="@showSetupChecklist"
-                     OnClose="@(() => showSetupChecklist = false)"
-                     OnCompleteSection="CompleteSection"
-                     OnContinueSetup="ContinueSetup" />
-
 <!-- Sample Data Modal -->
 <SetupRetirementSampeData Visible="@showSampleDataModal"
                           OnClose="@(() => showSampleDataModal = false)"
