@@ -13,11 +13,11 @@
 @inject NavigationManager Navigation
 <style>
     /* ----------------------------
-                                                                                                                                   Tweakable values
-                                                                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                                   ---------------------------- */
+                                                                                                                                       Tweakable values
+                                                                                                                                       - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                                       - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                                       Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                                       ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -114,7 +114,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                        margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                                            margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -123,10 +123,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                        margin-bottom: 0 !important;
-                                                        padding-bottom: 0;
-                                                        position: relative;
-                                                        z-index: 200; /* Higher than overlay */
+                                                            margin-bottom: 0 !important;
+                                                            padding-bottom: 0;
+                                                            position: relative;
+                                                            z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -233,8 +233,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                                   Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                                       Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                                       Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -1939,9 +1939,9 @@
     @@media (prefers-color-scheme: dark) {
         /* Placeholder for future dark mode */
         /* .card {
-                    background: #1e1e1e;
-                    color: #ffffff;
-                } */
+                        background: #1e1e1e;
+                        color: #ffffff;
+                    } */
     }
 
     /* Landscape Orientation Adjustments */
@@ -2643,16 +2643,20 @@
                 @* <ul class="list-unstyled mb-0">
                     <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
                 </ul> *@
-                <a href="/about-rewealthen" class="badge">About</a>
-                <div class="card survey-card survey-card-narrow mb-2">
-                    <div class="card-body text-center">
-                        <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
-                        <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
-                        <a href="/survey-future-cost-of-living" class="btn btn-primary btn-sm">
-                            Take Living Cost  Survey
-                        </a>
+@*                 <a href="/about-rewealthen" class="badge">About</a>
+ *@
+                @if (showSurvey)
+                {
+                    <div class="card survey-card survey-card-narrow mb-2">
+                        <div class="card-body text-center">
+                            <i class="bi bi-chat-dots" style="font-size:2rem; color:#1F6FEB;"></i>
+                            <div class="fw-bold mt-2 mb-1">Share Your Feedback</div>
+                            <a href="/survey-future-cost-of-living" class="btn btn-primary btn-sm">
+                                Take Living Cost  Survey
+                            </a>
+                        </div>
                     </div>
-                </div>
+                }   
                 <!-- Ad container for long Adsterra banner in left column -->
                 <div id="adsterra-left-long" class="fp-adsterra-container mt-3 text-center">
                     @((MarkupString)AdHtmlLeft)
@@ -4770,6 +4774,9 @@
                 {
                     showIntroModal = false;
                 }
+
+                // New: update survey visibility (mobile: only after ~5 loads; desktop: always)
+                await UpdateSurveyVisibilityAsync();
             }
             catch (Exception ex)
             {
@@ -5524,6 +5531,47 @@
     {
         showCitySelector = !showCitySelector;
         StateHasChanged();
+    }
+
+    private bool showSurvey = false;
+
+
+    private async Task UpdateSurveyVisibilityAsync()
+    {
+        try
+        {
+            // Detect mobile via matchMedia (<= 767px)
+            var isMobile = await JSRuntime.InvokeAsync<bool>("eval", "window.matchMedia && window.matchMedia('(max-width: 767px)').matches");
+
+            if (!isMobile)
+            {
+                // Desktop -> always show
+                showSurvey = true;
+                return;
+            }
+
+            // Mobile -> show only after ~5 page loads (per device/localStorage)
+            string key = "finplan-cost-of-living-mobile-loads";
+
+            var raw = await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
+            int count = 0;
+            if (!string.IsNullOrEmpty(raw) && int.TryParse(raw, out var parsed)) count = parsed;
+
+            count++;
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, count.ToString());
+
+            showSurvey = count >= 5;
+        }
+        catch (Exception ex)
+        {
+            //DebugService.AddMessage($"Survey visibility check failed: {ex.Message}");
+            // fallback: hide on error to avoid surprising mobile UX
+            showSurvey = false;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
     }
 
     // create a new tab using the selected profile (keeps existing AddNewTab behavior)

@@ -1,13 +1,14 @@
+using FinPlan.Shared.Models;
+using FinPlan.Shared.Models.Spending;
+using FinPlan.Web.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FinPlan.Shared.Models;
-using FinPlan.Shared.Models.Spending;
-using FinPlan.Web.Services;
 
 namespace FinPlan.Web.Components.Pages
 {
@@ -52,12 +53,55 @@ namespace FinPlan.Web.Components.Pages
                 }
                 catch { }
                 await HandleIntroModal();
+
+                // New: update survey visibility (mobile: only after ~5 loads; desktop: always)
+                await UpdateSurveyVisibilityAsync();
+
+
                 await Load();
 
                 StateHasChanged();
             }
 
             await base.OnAfterRenderAsync(firstRender);
+        }
+
+        private async Task UpdateSurveyVisibilityAsync()
+        {
+            try
+            {
+                // Detect mobile via matchMedia (<= 767px)
+                var isMobile = await JSRuntime.InvokeAsync<bool>("eval", "window.matchMedia && window.matchMedia('(max-width: 767px)').matches");
+
+                if (!isMobile)
+                {
+                    // Desktop -> always show
+                    showSurvey = true;
+                    return;
+                }
+
+                // Mobile -> show only after ~5 page loads (per device/localStorage)
+                string key = "finplan-retire-mobile-loads";
+
+                var raw = await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
+                int count = 0;
+                if (!string.IsNullOrEmpty(raw) && int.TryParse(raw, out var parsed)) count = parsed;
+
+                count++;
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, count.ToString());
+
+                showSurvey = count >= 5;
+            }
+            catch (Exception ex)
+            {
+                DebugService.AddMessage($"Survey visibility check failed: {ex.Message}");
+                // fallback: hide on error to avoid surprising mobile UX
+                showSurvey = false;
+            }
+            finally
+            {
+                StateHasChanged();
+            }
         }
 
         protected override Task OnInitializedAsync()

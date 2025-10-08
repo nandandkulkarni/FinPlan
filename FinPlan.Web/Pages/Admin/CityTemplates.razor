@@ -151,36 +151,36 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">City ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="model.EditingCity!.CityId" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CityId"
                                disabled="@(model.IsEditMode)" placeholder="e.g., nyc-usa" />
                         <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">City Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="model.EditingCity!.CityName" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CityName"
                                placeholder="e.g., New York City" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Country <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="model.EditingCity!.Country" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.Country"
                                placeholder="e.g., United States" />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Currency <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" @bind="model.EditingCity!.Currency" 
+                            <input type="text" class="form-control" @bind="model.EditingCity!.Currency"
                                    placeholder="e.g., USD" maxlength="10" />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Cost of Living Index <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" @bind="model.EditingCity!.CostOfLivingIndex" 
+                            <input type="number" class="form-control" @bind="model.EditingCity!.CostOfLivingIndex"
                                    step="0.01" placeholder="e.g., 100.00" />
                             <small class="text-muted">100 = baseline</small>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Created By</label>
-                        <input type="text" class="form-control" @bind="model.EditingCity!.CreatedBy" 
+                        <input type="text" class="form-control" @bind="model.EditingCity!.CreatedBy"
                                placeholder="Your name/email" />
                     </div>
                 </div>
@@ -208,13 +208,13 @@
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                     <div class="mb-3">
                         <label class="form-label">Profile ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileId" 
+                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileId"
                                disabled="@(model.IsEditMode)" placeholder="e.g., nyc-young-single" />
                         <small class="text-muted">Unique identifier (lowercase, hyphens)</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Profile Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileName" 
+                        <input type="text" class="form-control" @bind="model.EditingProfile!.ProfileName"
                                placeholder="e.g., New York City" />
                     </div>
                     <div class="row">
@@ -242,18 +242,23 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Children Ages (comma-separated)</label>
-                        <input type="text" class="form-control" @bind="model.ChildrenAgesInput" 
+                        <input type="text" class="form-control" @bind="model.ChildrenAgesInput"
                                placeholder="e.g., 5, 8, 12" />
                         <small class="text-muted">Enter ages separated by commas</small>
                     </div>
-                    
+
                     <hr />
-                    
+
                     <h6>Sample Expenses</h6>
                     <p class="text-muted small">Define typical monthly expenses for this demographic profile.</p>
-                    
+
                     @if (model.EditingProfile?.SampleExpenses != null)
                     {
+                        <div class="d-flex justify-content-end align-items-left mt-2">
+                            <div class="fw-bold">Total (monthly):</div>
+                            <div class="ms-3 h5 mb-0">@GetExpensesMonthlyTotal(model.EditingProfile).ToString("C")</div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
@@ -265,31 +270,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var expense in model.EditingProfile.SampleExpenses)
+                                    @foreach (var expense in model.EditingProfile.SampleExpenses.OrderBy(e => (e.Category ?? string.Empty).ToLowerInvariant())
+                                                                .ThenBy(e => (e.Subcategory ?? string.Empty).ToLowerInvariant())
+                                                                .ToList())
                                     {
                                         <tr>
                                             @if (model.EditingExpense != null && model.OriginalExpense == expense)
                                             {
                                                 <!-- Edit mode for this expense -->
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm" 
+                                                    <input type="text" class="form-control form-control-sm"
                                                            @bind="model.EditingExpense.Category" />
                                                 </td>
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm" 
+                                                    <input type="text" class="form-control form-control-sm"
                                                            @bind="model.EditingExpense.Subcategory" />
                                                 </td>
                                                 <td>
-                                                    <input type="number" class="form-control form-control-sm" 
-                                                           @bind="model.EditingExpense.CurrentValue" 
+                                                    <input type="number" class="form-control form-control-sm"
+                                                           @bind="model.EditingExpense.CurrentValue"
                                                            step="0.01" />
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-success me-1" 
+                                                    <button class="btn btn-sm btn-success me-1"
                                                             @onclick="SaveExpenseEdit">
                                                         <i class="bi bi-check"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-secondary" 
+                                                    <button class="btn btn-sm btn-secondary"
                                                             @onclick="CancelExpenseEdit">
                                                         <i class="bi bi-x"></i>
                                                     </button>
@@ -302,11 +309,11 @@
                                                 <td>@expense.Subcategory</td>
                                                 <td>@expense.CurrentValue.ToString("C")</td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-outline-primary me-1" 
+                                                    <button class="btn btn-sm btn-outline-primary me-1"
                                                             @onclick="() => StartEditExpense(expense)">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                    <button class="btn btn-sm btn-outline-danger"
                                                             @onclick="() => RemoveExpense(expense)">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
@@ -318,33 +325,33 @@
                             </table>
                         </div>
                     }
-                    
+
                     <button class="btn btn-sm btn-outline-primary" @onclick="ShowAddExpenseForm">
                         <i class="bi bi-plus-circle"></i> Add Expense
                     </button>
-                    
+
                     @if (model.EditingProfile?.SampleExpenses?.Any() == true)
                     {
                         <button class="btn btn-sm btn-outline-info ms-2" @onclick="TestJsonSerialization">
                             <i class="bi bi-code"></i> Test JSON
                         </button>
                     }
-                    
+
                     @if (model.ShowAddExpenseForm)
                     {
                         <div class="card mt-3">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-2">
-                                        <input type="text" class="form-control" @bind="model.NewExpense!.Category" 
+                                        <input type="text" class="form-control" @bind="model.NewExpense!.Category"
                                                placeholder="Category" />
                                     </div>
                                     <div class="col-md-4 mb-2">
-                                        <input type="text" class="form-control" @bind="model.NewExpense!.Subcategory" 
+                                        <input type="text" class="form-control" @bind="model.NewExpense!.Subcategory"
                                                placeholder="Subcategory" />
                                     </div>
                                     <div class="col-md-4 mb-2">
-                                        <input type="number" class="form-control" @bind="model.NewExpense!.CurrentValue" 
+                                        <input type="number" class="form-control" @bind="model.NewExpense!.CurrentValue"
                                                step="0.01" placeholder="Monthly Amount" />
                                     </div>
                                 </div>
@@ -380,19 +387,46 @@
         public List<DemographicProfile>? CurrentProfiles { get; set; }
         public Dictionary<string, int> ProfileCounts { get; set; } = new();
         public CityTemplate? SelectedCityForProfiles { get; set; }
-        
+
         public bool IsLoading { get; set; } = false;
         public bool ShowCityModal { get; set; } = false;
         public bool ShowProfileModal { get; set; } = false;
         public bool IsEditMode { get; set; } = false;
         public bool ShowAddExpenseForm { get; set; } = false;
-        
+
         public CityTemplate? EditingCity { get; set; }
         public DemographicProfile? EditingProfile { get; set; }
         public CostItem? NewExpense { get; set; }
         public CostItem? EditingExpense { get; set; } // For inline editing
         public CostItem? OriginalExpense { get; set; } // Reference to original item being edited
         public string ChildrenAgesInput { get; set; } = "";
+    }
+
+    private decimal ConvertToMonthlyAmount(CostItem item)
+    {
+        if (item == null) return 0m;
+        var amount = item.CurrentValue;
+        decimal perMonth = item.Frequency switch
+        {
+            Frequency.Monthly => amount,
+            Frequency.Yearly => amount / 12m,
+            Frequency.Quarterly => amount / 3m,
+            Frequency.BiWeekly => amount * 26m / 12m,
+            Frequency.Weekly => amount * 52m / 12m,
+            _ => amount
+        };
+        return Math.Round(perMonth, 2);
+    }
+
+    private decimal GetExpensesMonthlyTotal(DemographicProfile? profile)
+    {
+        if (profile?.SampleExpenses == null || !profile.SampleExpenses.Any()) return 0m;
+        decimal total = 0m;
+        foreach (var e in profile.SampleExpenses)
+        {
+            total += ConvertToMonthlyAmount(e);
+        }
+        return Math.Round(total, 2);
     }
 
     private HttpClient CreateHttpClient()
@@ -424,7 +458,7 @@
         {
             using var client = CreateHttpClient();
             model.Cities = await client.GetFromJsonAsync<List<CityTemplate>>("api/citytemplate");
-            
+
             // Load profile counts for each city
             if (model.Cities != null)
             {
@@ -470,7 +504,7 @@
             using var client = CreateHttpClient();
             model.CurrentProfiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"api/citytemplate/{cityId}/profiles");
             model.SelectedCityForProfiles = model.Cities?.FirstOrDefault(c => c.CityId == cityId);
-            
+
             // Deserialize JSON data to working lists for each loaded profile
             if (model.CurrentProfiles != null)
             {
@@ -559,9 +593,9 @@
 
     private async Task DeleteCity(CityTemplate city)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
             $"Are you sure you want to delete '{city.CityName}'? This will also delete all associated profiles.");
-        
+
         if (!confirmed) return;
 
         try
@@ -570,7 +604,7 @@
             var response = await client.DeleteAsync($"api/citytemplate/{city.CityId}");
             response.EnsureSuccessStatusCode();
             await LoadCities();
-            
+
             if (model.SelectedCityForProfiles?.CityId == city.CityId)
             {
                 model.SelectedCityForProfiles = null;
@@ -598,7 +632,7 @@
             ChildrenAges = new List<int>(),
             SampleExpenses = new List<CostItem>()
         };
-        
+
         model.ChildrenAgesInput = "";
         model.IsEditMode = false;
         model.ShowProfileModal = true;
@@ -621,12 +655,12 @@
             ChildrenAgesJSON = profile.ChildrenAgesJSON,
             SampleExpensesJSON = profile.SampleExpensesJSON
         };
-        
+
         // Deserialize JSON to working lists
         model.EditingProfile.DeserializeFromDatabase();
-        
-        model.ChildrenAgesInput = model.EditingProfile.ChildrenAges.Any() 
-            ? string.Join(", ", model.EditingProfile.ChildrenAges) 
+
+        model.ChildrenAgesInput = model.EditingProfile.ChildrenAges.Any()
+            ? string.Join(", ", model.EditingProfile.ChildrenAges)
             : "";
         model.IsEditMode = true;
         model.ShowProfileModal = true;
@@ -698,7 +732,8 @@
             }
 
             await LoadProfiles(model.EditingProfile.CityId);
-            CloseProfileModal();
+            
+            //CloseProfileModal();
         }
         catch (Exception ex)
         {
@@ -709,9 +744,9 @@
 
     private async Task DeleteProfile(DemographicProfile profile)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
             $"Are you sure you want to delete the profile '{profile.ProfileName}'?");
-        
+
         if (!confirmed) return;
 
         try
@@ -752,7 +787,7 @@
         if (model.NewExpense != null && model.EditingProfile?.SampleExpenses != null)
         {
             Console.WriteLine($"Adding expense: {model.NewExpense.Category} - {model.NewExpense.Subcategory} - {model.NewExpense.CurrentValue:C}");
-            
+
             // Create a properly initialized CostItem
             var expenseToAdd = new CostItem
             {
@@ -768,14 +803,14 @@
                 IncludeInRetirement = true,
                 RetirementExclusionReason = null
             };
-            
+
             // Simply add to the list - no JSON serialization needed during edit
             model.EditingProfile.SampleExpenses.Add(expenseToAdd);
             Console.WriteLine($"Total expenses after adding: {model.EditingProfile.SampleExpenses.Count}");
-            
+
             model.ShowAddExpenseForm = false;
             model.NewExpense = null;
-            
+
             StateHasChanged(); // Force UI update
         }
         else
@@ -795,12 +830,12 @@
         if (model.EditingProfile?.SampleExpenses != null)
         {
             Console.WriteLine($"Removing expense: {expense.Category} - {expense.Subcategory}");
-            
+
             // Simply remove from the list - no JSON serialization needed during edit
             var removed = model.EditingProfile.SampleExpenses.Remove(expense);
             Console.WriteLine($"Remove operation result: {removed}");
             Console.WriteLine($"Count after removal: {model.EditingProfile.SampleExpenses.Count}");
-            
+
             if (removed)
             {
                 StateHasChanged(); // Force UI update
@@ -831,12 +866,12 @@
             // Test deserialization
             if (!string.IsNullOrEmpty(model.EditingProfile.SampleExpensesJSON))
             {
-                var testProfile = new DemographicProfile 
-                { 
-                    SampleExpensesJSON = model.EditingProfile.SampleExpensesJSON 
+                var testProfile = new DemographicProfile
+                {
+                    SampleExpensesJSON = model.EditingProfile.SampleExpensesJSON
                 };
                 testProfile.DeserializeFromDatabase();
-                
+
                 Console.WriteLine($"Deserialized expenses count: {testProfile.SampleExpenses.Count}");
                 for (int i = 0; i < testProfile.SampleExpenses.Count; i++)
                 {
@@ -877,10 +912,10 @@
             IncludeInRetirement = expense.IncludeInRetirement,
             RetirementExclusionReason = expense.RetirementExclusionReason
         };
-        
+
         // Store reference to original for updating
         model.OriginalExpense = expense;
-        
+
         Console.WriteLine($"Started editing expense: {expense.Category} - {expense.Subcategory}");
         StateHasChanged();
     }
@@ -890,16 +925,16 @@
         if (model.EditingExpense != null && model.OriginalExpense != null)
         {
             Console.WriteLine($"Saving edited expense: {model.EditingExpense.Category} - {model.EditingExpense.Subcategory}");
-            
+
             // Update the original expense with edited values
             model.OriginalExpense.Category = model.EditingExpense.Category ?? "";
             model.OriginalExpense.Subcategory = model.EditingExpense.Subcategory ?? "";
             model.OriginalExpense.CurrentValue = model.EditingExpense.CurrentValue;
-            
+
             // Clear editing state
             model.EditingExpense = null;
             model.OriginalExpense = null;
-            
+
             Console.WriteLine("Expense edit saved successfully");
             StateHasChanged();
         }
