@@ -1,4 +1,4 @@
-@page "/"
+﻿@page "/"
 @page "/home"
 
 @using Microsoft.JSInterop
@@ -26,9 +26,9 @@
 
 <!-- Video Guide Section: compressed by default, can be maximized -->
 <div class="text-center my-4">
-    <h3 class="mb-3" style="color:#1F6FEB; font-weight:700;">
+    <h4 class="mb-3" style="color:#1F6FEB; font-weight:700;">
         Quick Start Guide
-    </h3>
+    </h4>
     <div class="@(isMaximized ? "video-maximized" : "video-compressed")">
         <div class="video-container position-relative">
             <video controls preload="metadata" class="@(isMaximized ? "w-100" : "")" style="@(isMaximized ? "max-width: 100%;" : "max-width: 400px; width: 100%;")" poster="/images/video-poster.png">
@@ -224,22 +224,40 @@
                 <div class="col-12">
                     <div class="card feature-card">
                         <div class="card-header bg-white border-bottom-0">
-                            <h5 class="mb-0" style="color:#1F6FEB; font-weight:700;">Why Use ReWealth-en?</h5>
+                            <h5 class="mb-0 text-center" style="color:#1F6FEB; font-weight:700;">Why ReWealth-en Stands Out</h5>
                         </div>
                         <div class="card-body">
+                            <div class="row text-center mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <div class="display-4 mb-2">💯</div>
+                                    <h6 class="fw-bold mb-2" style="color:#1F6FEB;">100% Free Forever</h6>
+                                    <p class="text-muted small mb-0">No hidden costs, premium tiers, or subscription fees. All features available to everyone.</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="display-4 mb-2">🔒</div>
+                                    <h6 class="fw-bold mb-2" style="color:#1F6FEB;">Privacy First</h6>
+                                    <p class="text-muted small mb-0">Your financial data stays in your browser. No tracking, no selling your information.</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="display-4 mb-2">⚡</div>
+                                    <h6 class="fw-bold mb-2" style="color:#1F6FEB;">No Signup Required</h6>
+                                    <p class="text-muted small mb-0">Start planning immediately. Create an account only when you want to save your progress.</p>
+                                </div>
+                            </div>
+                            <hr class="my-4">
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-unstyled mb-0">
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Easy to Use:</strong> Simple interface for complex calculations</li>
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Accurate Results:</strong> Precise compound interest calculations</li>
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Flexible Options:</strong> Multiple compounding frequencies</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Tax-Optimized Planning:</strong> Compare Traditional, Roth, and Taxable accounts</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Inflation-Adjusted:</strong> See real purchasing power over time</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Comprehensive Scenarios:</strong> Model early retirement, career changes, major expenses</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
                                     <ul class="list-unstyled mb-0">
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Visual Breakdown:</strong> Year-by-year progress tracking</li>
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Real-time Updates:</strong> Instant calculation results</li>
-                                        <li><i class="bi bi-check-circle text-success"></i> <strong>Save & Resume:</strong> Work at your own pace</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Year-by-Year Breakdown:</strong> Track every dollar from now to age 100+</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Export Your Data:</strong> Download projections to share with financial advisors</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Open Source:</strong> Transparent calculations you can verify and trust</li>
                                     </ul>
                                 </div>
                             </div>
