@@ -986,70 +986,9 @@
                                 }
                             </div>
                         }
-                        <!-- Beginner Help Section (Simple Mode Only) -->
-                        @if (isSimpleMode) //isSimpleMode && (Model == null || Model.IsModelEmpty()))
-                        {
-                            <div class="alert alert-primary border-0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); margin-bottom: 20px;">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-lightbulb-fill text-primary me-3" style="font-size: 1.5rem; margin-top: 2px;"></i>
-                                    <div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <h6 class="text-primary mb-0">New to Retirement Planning?</h6>
-                                            <span class="badge bg-primary px-2 py-1 small">Beginner Mode</span>
-                                        </div>
-                                        <p class="mb-2 text-dark">This tool helps you see if your savings will last through retirement. Here's what you'll need:</p>
-                                        <ul class="mb-3 text-dark">
-                                            <li><strong>Your retirement age</strong> - When you plan to stop working</li>
-                                            <li><strong>Your savings</strong> - How much you have in retirement accounts</li>
-                                            <li><strong>Your expenses</strong> - How much you'll spend each year in retirement</li>
-                                            <li><strong>Social Security</strong> - Your estimated monthly benefit (optional)</li>
-                                        </ul>
-                                        <div class="d-flex gap-2">
-                                            <button class="btn btn-primary btn-sm" @onclick="() => OpenWizard(1)">
-                                                <i class="bi bi-play-fill me-1"></i>Start Planning
-                                            </button>
-                                            @* <button class="btn btn-outline-primary btn-sm" @onclick="() => showSampleDataModal = true">
-                                            <i class="bi bi-eye me-1"></i>See Example
-                                        </button> *@
+                      
 
-                                            <button class="btn btn-outline-primary"
-                                                    style="padding: 12px 24px; font-size: 1.1rem; font-weight: 600;"
-                                                    @onclick="() => { showSampleDataModal = true; showIntroModal = false; }">
-                                                <i class="bi bi-clipboard-data me-2"></i>
-                                                Try Sample Data
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Setup Progress Indicator -->
-                        @if (isSimpleMode)
-                        {
-                            <div class="card border-0 mb-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                                <div class="card-body py-3">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-list-check text-primary me-2" style="font-size: 1.2rem;"></i>
-                                            <div>
-                                                <h6 class="mb-1 text-primary">Setup Progress</h6>
-                                                <small class="text-muted">@GetSetupProgressText()</small>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="progress me-3" style="width: 120px; height: 6px;">
-                                                <div class="progress-bar bg-primary" role="progressbar"
-                                                     style="width: @(GetSetupProgressPercentage())%"
-                                                     aria-valuenow="@GetSetupProgressPercentage()"
-                                                     aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <span class="badge bg-primary">@GetSetupProgressPercentage()%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
+                       
 
                         <!-- Complete State - Normal View -->
                         <div class="panel section-panel">
@@ -1057,17 +996,10 @@
                             <div class="mode-toggle-header @(isSimpleMode ? "simple-mode" : "")">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h4 class="mb-1">@(isSimpleMode ? "Your Retirement Plan Details" : "Plan Input Data")</h4>
-                                        <p class="text-muted mb-0 small">@(isSimpleMode ? "Simple planning for your retirement future" : "Advanced retirement modeling with detailed projections")</p>
+                                        <h4 class="mb-1">Plan Input Data</h4>
+                                        <p class="text-muted mb-0 small">Advanced retirement modeling with detailed projections</p>
                                     </div>
-                                    <div class="border-start ps-4 d-flex align-items-center gap-3">
-                                        @* <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" id="prominentModeToggle"
-                                               checked="@(!isSimpleMode)" @onchange="ToggleSimpleMode">
-                                        <label class="form-check-label fw-bold ms-2" for="prominentModeToggle" style="cursor: pointer;">
-                                            @(isSimpleMode ? "Enable Advanced Features" : "Simplify Interface")
-                                        </label>
-                                    </div> *@
+                                    <div class="border-start ps-4 d-flex  flex-column flex-md-row align-items-start gap-2">
                                         <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                             <i class="bi bi-gear me-2"></i>
                                             Update Plan
@@ -1098,10 +1030,11 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
-                                                You: @Model.RetirementAgeYou
+                                        <div class="small-note" style="margin-top:8px;">
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
+                                                    You: @Model.RetirementAgeYou
+                                                </span>
                                                 @if (showToolTipYourRetirementAge)
                                                 {
                                                     <div class="info-tooltip">
@@ -1111,7 +1044,6 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
                                             @if (Model.RetirementAgeYou <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1120,10 +1052,12 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
-                                                Partner: @Model.RetirementAgePartner
+                                        <div class="small-note" style="margin-top:8px;">
+                                            
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
+                                                    Partner: @Model.RetirementAgePartner
+                                                </span>
                                                 @if (showToolTipPartnerRetirementAge)
                                                 {
                                                     <div class="info-tooltip">
@@ -1133,7 +1067,7 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
+                                            
                                             @if (Model.RetirementAgePartner <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1142,10 +1076,11 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                                                Life exp (You): @DisplayLifeExpectancyYou
+                                        <div class="small-note" style="margin-top:8px;">
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                                                    Life exp (You): @DisplayLifeExpectancyYou
+                                                </span>
                                                 @if (showToolTipYourLifeExpectancy)
                                                 {
                                                     <div class="info-tooltip">
@@ -1155,7 +1090,6 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
                                             @if (DisplayLifeExpectancyYou <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1164,10 +1098,11 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                                                Life exp (Partner): @DisplayLifeExpectancyPartner
+                                        <div class="small-note" style="margin-top:8px;">
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                                                    Life exp (Partner): @DisplayLifeExpectancyPartner
+                                                </span>
                                                 @if (showToolTipPartnerLifeExpectancy)
                                                 {
                                                     <div class="info-tooltip">
@@ -1177,7 +1112,6 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
                                             @if (DisplayLifeExpectancyPartner <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1489,10 +1423,14 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" tabindex="0" title="Click for more info"></span>
-                                                One retired: @Model.AnnualWithdrawalOne.ToString("C0")
+                                        <div class="small-note" style="margin-top:8px;">
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" 
+                                                        @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" 
+                                                        tabindex="0" 
+                                                        title="Click for more info"></span>
+                                                    One retired: @Model.AnnualWithdrawalOne.ToString("C0")
+                                                </span>
                                                 @if (showToolTipWithdrawalOne)
                                                 {
                                                     <div class="info-tooltip">
@@ -1502,7 +1440,6 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
                                             @if (Model.AnnualWithdrawalOne <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1511,10 +1448,12 @@
                                             }
                                         </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
-                                                Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
+                                        <div class="small-note" style="margin-top:8px;">
+
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
+                                                    Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
+                                                </span>
                                                 @if (showToolTipWithdrawalBoth)
                                                 {
                                                     <div class="info-tooltip">
@@ -1524,7 +1463,6 @@
                                                         </span>
                                                     </div>
                                                 }
-                                            </div>
                                             @if (Model.AnnualWithdrawalBoth <= 0)
                                             {
                                                 <span class="missing-badge">
