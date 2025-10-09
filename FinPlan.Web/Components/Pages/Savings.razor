@@ -1006,12 +1006,12 @@
                             @if (results != null && !calculatorModel.IsModelEmpty())
                             {
                                 <div class="summary-cards-row">
-                                    <div class="summary-card savings-card savings-card-yellow">
+                                    <div class="summary-card savings-card savings-card-teal">
                                         <span class="bi bi-piggy-bank"></span>
                                         <div class="card-label">Final Savings</div>
                                         <div class="card-value">@results.FinalAmount.ToString("C0")</div>
                                     </div>
-                                    <div class="summary-card savings-card savings-card-teal">
+                                    <div class="summary-card savings-card savings-card-yellow">
                                         <span class="bi bi-arrow-up-circle"></span>
                                         <div class="card-label">Total Contributions</div>
                                         <div class="card-value">@results.TotalContributions.ToString("C0")</div>

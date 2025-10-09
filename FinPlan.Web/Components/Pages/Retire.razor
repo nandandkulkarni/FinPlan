@@ -949,6 +949,20 @@
                                 else
                                 {
                                     <!-- Advanced macro cards (original) -->
+                                         <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
+                                         style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                        <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                        <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
+                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
+                                    </div>
+
+                                                <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
+                                         style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                        <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                        <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
+                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
+                                    </div>
+
                                     <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
                                          style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
                                         <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
@@ -956,20 +970,8 @@
                                         <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetProjectionRangeText()</div>
                                     </div>
 
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
-                                         style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
-                                    </div>
-
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
-                                         style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
-                                    </div>
-
+                        
+                               
                                     <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
                                          style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
                                         <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
