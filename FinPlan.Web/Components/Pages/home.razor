@@ -101,6 +101,21 @@
         flex-shrink: 0;
     }
 
+    .step-badge-clickable {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .step-badge-clickable:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(31,111,235,0.3);
+            background: #0d5bd0;
+        }
+
+        .step-badge-clickable:active {
+            transform: scale(0.95);
+        }
+
     .step-header {
         display: inline-flex;
         align-items: center;
@@ -185,7 +200,9 @@
                         <div class="card-body text-center">
                             <i class="bi bi-currency-dollar feature-icon text-warning"></i>
                             <div class="step-header mb-2">
-                                <span class="step-badge" aria-hidden="true">1</span>
+                                <NavLink href="/future-cost-of-living" class="text-decoration-none">
+                                    <span class="step-badge step-badge-clickable" aria-label="Go to Future Cost of Living">1</span>
+                                </NavLink>
                                 <h5 class="card-title summary-money mb-0">Future Cost of Living</h5>
                             </div>
                             <p class="card-text">Capture and project your cost of living now vs. retirement.</p>
@@ -198,7 +215,9 @@
                         <div class="card-body text-center">
                             <i class="bi bi-graph-up feature-icon text-primary"></i>
                             <div class="step-header mb-2">
-                                <span class="step-badge" aria-hidden="true">2</span>
+                                <NavLink href="/savings-wealth-building" class="text-decoration-none">
+                                    <span class="step-badge step-badge-clickable" aria-label="Go to Savings & Wealth Building">2</span>
+                                </NavLink>
                                 <h5 class="card-title summary-money mb-0">Savings & Wealth Building</h5>
                             </div>
                             <p class="card-text">Calculate how your savings will grow with compound interest and regular contributions.</p>
@@ -211,7 +230,9 @@
                         <div class="card-body text-center">
                             <i class="bi bi-graph-down feature-icon text-success"></i>
                             <div class="step-header mb-2">
-                                <span class="step-badge" aria-hidden="true">3</span>
+                                <NavLink href="/retirement-income-planner" class="text-decoration-none">
+                                    <span class="step-badge step-badge-clickable" aria-label="Go to Retirement Income">3</span>
+                                </NavLink>
                                 <h5 class="card-title summary-money mb-0">Retirement Income</h5>
                             </div>
                             <p class="card-text">Plan for financial independence and early retirement with our advanced retirement calculator.</p>
