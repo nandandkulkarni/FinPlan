@@ -992,25 +992,43 @@
 
                         <!-- Complete State - Normal View -->
                         <div class="panel section-panel">
-                            <!-- Prominent Mode Toggle Header - Same as Cost of Living -->
-                            <div class="mode-toggle-header @(isSimpleMode ? "simple-mode" : "")">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h4 class="mb-1">Plan Input Data</h4>
-                                        <p class="text-muted mb-0 small">Advanced retirement modeling with detailed projections</p>
-                                    </div>
-                                    <div class="border-start ps-4 d-flex  flex-column flex-md-row align-items-start gap-2">
-                                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                            <i class="bi bi-gear me-2"></i>
-                                            Update Plan
-                                        </button>
-                                        <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data">
-                                            <i class="bi bi-trash me-1"></i>
-                                            Clear Plan Data
-                                        </button>
-                                    </div>
+
+                               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
+                                <div style="flex: 1;"></div>
+                                <h5>
+                                    Retirement Planner - Inputs
+                                </h5>
+                                <div style="display: flex; gap: 16px; flex: 1; justify-content: flex-end; align-items: center;">
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                                        <i class="bi bi-gear me-2"></i>
+                                        Update Plan
+                                    </button>
+                                    <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data for current calculator">
+                                        <i class="bi bi-trash me-1"></i>
+                                        Clear Plan Data
+                                    </button>
                                 </div>
                             </div>
+
+                      @*       <!-- Prominent Mode Toggle Header - Same as Cost of Living -->
+                         <div class="mode-toggle-header @(isSimpleMode ? "simple-mode" : "")">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+        <div>
+            <h4 class="mb-1">Plan Input Data</h4>
+            <p class="text-muted mb-0 small">Advanced retirement modeling with detailed projections</p>
+        </div>
+        <div class="border-start ps-0 ps-md-4 d-flex flex-column flex-md-row align-items-stretch gap-2 w-100 w-md-auto">
+            <button class="btn btn-primary w-100 w-md-auto" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
+                <i class="bi bi-gear me-2"></i>
+                Update Plan
+            </button>
+            <button class="btn btn-outline-danger w-100 w-md-auto" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data">
+                <i class="bi bi-trash me-1"></i>
+                Clear Plan Data
+            </button>
+        </div>
+    </div>
+</div> *@
 
                             <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                                 <!-- Section 1: Retirement ages & life expectancy -->

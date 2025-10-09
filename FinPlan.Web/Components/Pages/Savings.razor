@@ -1080,33 +1080,10 @@
                             <!-- Enhanced header with large mode toggle - Same as Cost of Living -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
                                 <div style="flex: 1;"></div>
-                                @* <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">
-                                @(showAdvancedSetup ? "Advanced Savings Planning" : "Simple Savings Plan")
-                            </h5> *@
                                 <h5>
                                     Savings & Wealth Building - Inputs
                                 </h5>
                                 <div style="display: flex; gap: 16px; flex: 1; justify-content: flex-end; align-items: center;">
-                                    <!-- Large Mode Toggle - Same as Cost of Living -->
-                                    @*  <div class="d-flex align-items-center gap-3">
-                                    <div class="text-end">
-                                        <div class="d-flex align-items-center gap-2 mb-1">
-                                            <span style="font-size: 1.1rem;">@(showAdvancedSetup ? "⚙️" : "🎯")</span>
-                                            <span class="fw-bold @(showAdvancedSetup ? "text-primary" : "text-success")">
-                                                @(showAdvancedSetup ? "Advanced Mode" : "Simple Mode")
-                                            </span>
-                                        </div>
-                                        <small class="text-muted">
-                                            @(showAdvancedSetup ? "All features & controls" : "Basic & easy to use")
-                                        </small>
-                                    </div>
-                                    <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
-                                        <label class="form-check-label fw-bold ms-2" for="advancedSetupToggle" style="cursor: pointer;">
-                                            @(showAdvancedSetup ? "Simplify Interface" : "Enable Advanced Features")
-                                        </label>
-                                    </div>
-                                </div> *@
                                     <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
                                         <i class="bi bi-gear me-2"></i>
                                         Update Plan
