@@ -970,7 +970,7 @@
                         @* <ul class="list-unstyled mb-0">
                         <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
                     </ul> *@
-                        @if (showSurvey)
+                       @*  @if (showSurvey)
                         {
                             <div class="card survey-card survey-card-narrow mb-2">
                                 <div class="card-body text-center">
@@ -981,7 +981,7 @@
                                     </a>
                                 </div>
                             </div>
-                        }
+                        } *@
                         <!-- Ad container for long Adsterra banner in left column -->
 
                     </div>
@@ -1065,84 +1065,82 @@
                                 <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")"
                                      style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid #FFD600;">
                                     <div>
-                                        <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
-                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                <span class="step-badge">1</span>
-                                                <div>Milestones & ages</div>
-                                            </div>
-                                            @if (!IsMilestonesSectionComplete())
-                                            {
-                                                <span style="font-size:0.75rem; color:#dc3545;">
-                                                    <i class="bi bi-exclamation-circle"></i> Incomplete
-                                                </span>
-                                            }
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">1</span>
+                                            <div>Milestones & Ages</div>
                                         </div>
+                                        @if (!IsMilestonesSectionComplete())
+                                        {
+                                            <span style="font-size:0.75rem; color:#dc3545;">
+                                                <i class="bi bi-exclamation-circle"></i> Incomplete
+                                            </span>
+                                        }
+                                    </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
-                                                Current Age: @calculatorModel.CurrentAge
-                                                @if (showToolTipCurrentAge)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            @if (calculatorModel.CurrentAge <= 0)
-                                            {
-                                                <span class="missing-badge">
-                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
+                                            Current Age: @calculatorModel.CurrentAge
+                                        </span>
+                                        @if (showToolTipCurrentAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
                                                 </span>
-                                            }
-                                        </div>
+                                            </div>
+                                        }
+                                        @if (calculatorModel.CurrentAge <= 0)
+                                        {
+                                            <span class="missing-badge">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                            </span>
+                                        }
+                                    </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
-                                                Planned Retirement Age: @calculatorModel.RetirementAge
-                                                @if (showToolTipRetirementAge)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            @if (calculatorModel.RetirementAge <= 0)
-                                            {
-                                                <span class="missing-badge">
-                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
+                                            Planned Retirement Age: @calculatorModel.RetirementAge
+                                        </span>
+                                        @if (showToolTipRetirementAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
                                                 </span>
-                                            }
-                                        </div>
+                                            </div>
+                                        }
+                                        @if (calculatorModel.RetirementAge <= 0)
+                                        {
+                                            <span class="missing-badge">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                                            </span>
+                                        }
+                                    </div>
 
-                                        <div class="small-note" style="margin-top:8px; display: flex; align-items: center; justify-content: space-between;">
-                                            <div>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
-                                                Years until Retirement: @calculatorModel.Years
-                                                @if (showToolTipYearsUntilRetirement)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            @if (calculatorModel.Years <= 0)
-                                            {
-                                                <span class="missing-badge">
-                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Calculated
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
+                                            Years until Retirement: @calculatorModel.Years
+                                        </span>
+                                        @if (showToolTipYearsUntilRetirement)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
                                                 </span>
-                                            }
-                                        </div>
+                                            </div>
+                                        }
+                                        @if (calculatorModel.Years <= 0)
+                                        {
+                                            <span class="missing-badge">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Calculated
+                                            </span>
+                                        }
                                     </div>
                                     <div class="actions">
                                         <button class="btn-edit" @onclick="() => OpenWizard(1)">Update</button>
@@ -1165,20 +1163,20 @@
                                             }
                                         </div>
 
-                                        <!-- Simple explanation for general public -->
+                               @*          <!-- Simple explanation for general public -->
                                         <div class="alert alert-info mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #e8f4f8; border-left: 3px solid #1F6FEB;">
                                             <strong>Quick Guide:</strong>
                                             <strong>Taxable</strong> = Regular savings/investment accounts.
                                             <strong>Traditional</strong> = 401k, Traditional IRA (tax-deferred).
                                             <strong>Roth</strong> = Roth IRA, Roth 401k (tax-free growth).
-                                        </div>
+                                        </div> *@
 
-                                        @if (!showAdvancedSetup)
+                                      @*   @if (!showAdvancedSetup)
                                         {
                                             <div class="alert alert-success mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #f0f9f0; border-left: 3px solid #28a745;">
                                                 <strong>💡 Beginner Tip:</strong> Start with just one account type you have money in. You can always add others later!
                                             </div>
-                                        }
+                                        } *@
 
                                         @if (!IsStartingBalancesSectionComplete())
                                         {
@@ -1265,8 +1263,10 @@
                                         }
 
                                         <div class="small-note" style="margin-top:8px;">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
-                                            Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
+                                                Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")
+                                            </span>
                                             @if (showToolTipTaxableContribution)
                                             {
                                                 <div class="info-tooltip">
@@ -1278,8 +1278,10 @@
                                             }
                                         </div>
                                         <div class="small-note" style="margin-top:8px;">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
-                                            Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
+                                                Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")
+                                            </span>
                                             @if (showToolTipTraditionalContribution)
                                             {
                                                 <div class="info-tooltip">
@@ -1291,8 +1293,10 @@
                                             }
                                         </div>
                                         <div class="small-note" style="margin-top:8px;">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
-                                            Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
+                                                Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")
+                                            </span>
                                             @if (showToolTipRothContribution)
                                             {
                                                 <div class="info-tooltip">
@@ -1319,8 +1323,10 @@
                                                 <div>Estimated Growth Rate</div>
                                             </div>
                                             <div class="small-note">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
-                                                Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                                    Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
+                                                </span>
                                                 <!-- Enhance the growth rate tooltip with context -->
                                                 @if (showToolTipTaxableGrowth)
                                                 {
@@ -1339,8 +1345,10 @@
                                                 }
                                             </div>
                                             <div class="small-note">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
-                                                Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                                    Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)
+                                                </span>
                                                 @if (showToolTipTraditionalGrowth)
                                                 {
                                                     <div class="info-tooltip">
@@ -1352,8 +1360,10 @@
                                                 }
                                             </div>
                                             <div class="small-note">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
-                                                Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                                    Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)
+                                                </span>
                                                 @if (showToolTipRothGrowth)
                                                 {
                                                     <div class="info-tooltip">
@@ -1381,8 +1391,10 @@
                                                 <div>Tax Treatment</div>
                                             </div>
                                             <div class="small-note" style="margin-top:8px;">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
-                                                Taxable Income Type: @calculatorModel.TaxableIncomeType
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
+                                                    Taxable Income Type: @calculatorModel.TaxableIncomeType
+                                                </span>
                                                 @if (showToolTipIncomeType)
                                                 {
                                                     <div class="info-tooltip">
@@ -1394,8 +1406,10 @@
                                                 }
                                             </div>
                                             <div class="small-note" style="margin-top:8px;">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
-                                                Tax Bracket: @calculatorModel.TaxBracket
+                                                <span class="d-flex align-items-center">
+                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
+                                                    Tax Bracket: @calculatorModel.TaxBracket
+                                                </span>
                                                 @if (showToolTipTaxBracket)
                                                 {
                                                     <div class="info-tooltip">
