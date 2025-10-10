@@ -891,10 +891,6 @@
                 <div class="row g-3">
                     <!-- Left mini column (2) -->
                     <div class="col-12 col-md-2">
-                        @* <ul class="list-unstyled mb-0">
-                        <li><a class="text-decoration-none d-block py-1" href="/"><i class="bi bi-house"></i> Home</a></li>
-                    </ul> *@
-
                         @if (showSurvey)
                         {
                             <div class="card survey-card survey-card-narrow mb-2">
@@ -1722,6 +1718,8 @@
                                     </div>
                                 </div>
                             }
+
+                            <RetirementSummaryGrid Model="@Model" YearRows="@YearRows" />
 
                             <RetirementProjection Model="@Model" IsSimpleMode="@isSimpleMode" />
 

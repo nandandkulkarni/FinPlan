@@ -1,0 +1,140 @@
+﻿@using FinPlan.Shared.Models.Spending
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
+
+<style>
+    .rs-row { border: 1px solid #e9ecef; border-radius: 12px; padding: 12px; }
+    /* Use min-width instead of flex-basis to avoid tall blocks when stacked */
+    .rs-chip { flex: 1 1 0%; min-width: 160px; border-radius: 8px; padding: 8px 10px; text-align: center; background: transparent; }
+    .rs-chip h6 { margin: 0 0 2px 0; font-size: 0.82rem; font-weight: 700; color: #556; }
+    .rs-val { margin: 0; font-weight: 700; font-size: 1.02rem; color: #111; }
+
+    /* Compact duo values inside one chip */
+    .rs-duo { display: grid; grid-template-columns: auto auto; column-gap: 10px; row-gap: 2px; align-items: baseline; justify-content: center; }
+    .rs-duo small { color: #6b7280; font-weight: 600; font-size: 0.75rem; }
+    .rs-duo .v { font-weight: 700; }
+
+    /* Row tints (uniform color across each row) */
+    .rs-tint-1 { background: #F8FAFC; }
+    .rs-tint-2 { background: #FFF7E6; }
+    .rs-tint-3 { background: #ECFDF5; }
+    .rs-tint-4 { background: #EEF2FF; }
+
+    .rs-end-positive { color: #0f766e; }
+    .rs-end-negative { color: #b91c1c; }
+
+    /* Mobile: each row acts as a single card, items stacked */
+    @@media (max-width: 767.98px) {
+        .rs-row { padding: 10px; gap: 2px !important; }
+        /* Remove min-width and flex sizing to prevent tall spacers */
+        .rs-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
+        .rs-val { font-size: 1rem; }
+        .rs-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
+    }
+</style>
+
+@* Five-year summary component *@
+@if (YearRows != null && YearRows.Count > 0)
+{
+    var summaries = BuildFiveYearSummaries();
+    if (summaries.Count > 0)
+    {
+        <div class="panel mb-2" style="padding:12px;">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2 gap-1">
+                <h6 class="mb-0">Five-Year Summary</h6>
+                <small class="text-muted">Quick overview before the detailed grid</small>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                @{ var idx = 0; }
+                @foreach (var s in summaries)
+                {
+                    var tint = GetRowTintClass(idx++);
+                    <div class="rs-row @tint d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-2">
+                        <div class="rs-chip">
+                            <h6>Years</h6>
+                            <div class="rs-val">@s.StartYear – @s.EndYear</div>
+                        </div>
+                        <div class="rs-chip" title="Needed vs. Withdrawn for cost of living (excl. taxes)" aria-label="Needed versus Withdrawn for cost of living (excluding taxes)">
+                            <h6>Need vs W/d</h6>
+                            <div class="rs-duo">
+                                <small>Need</small><div class="v">@s.TotalNeeded.ToString("C0")</div>
+                                <small>W/d</small><div class="v">@s.WithdrawnForCOL.ToString("C0")</div>
+                            </div>
+                        </div>
+                        <div class="rs-chip">
+                            <h6>End Portfolio</h6>
+                            <div class="rs-val @(s.DepletesWithinRange ? "rs-end-negative" : "rs-end-positive")">@s.EndingPortfolio.ToString("C0")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public CalendarSpendingModel Model { get; set; } = default!;
+    [Parameter] public IReadOnlyList<CalendarYearRow> YearRows { get; set; } = Array.Empty<CalendarYearRow>();
+
+    private async Task ScrollToGridRange(int startYear)
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('grid-top')?.scrollIntoView({behavior:'smooth'})");
+    }
+
+    private sealed record FiveYearSummary(
+        int StartYear,
+        int EndYear,
+        decimal TotalNeeded,
+        decimal WithdrawnForCOL,
+        decimal IncomePlusGrowth,
+        decimal EndingPortfolio,
+        bool DepletesWithinRange);
+
+    private List<FiveYearSummary> BuildFiveYearSummaries()
+    {
+        var rows = YearRows?.OrderBy(r => r.Year).ToList() ?? [];
+        var result = new List<FiveYearSummary>();
+        if (rows.Count == 0) return result;
+
+        int blockSize = 5;
+        for (int i = 0; i < rows.Count; i += blockSize)
+        {
+            var block = rows.Skip(i).Take(blockSize).ToList();
+            if (block.Count == 0) continue;
+
+            var start = block.First();
+            var end = block.Last();
+
+            decimal Sum(Func<CalendarYearRow, decimal> sel) => block.Sum(sel);
+
+            var totalNeeded = Sum(r => r.AmountNeededForCostOfLiving);
+            var withdrawnForCOL = Sum(r => r.TotalWithdrawForCostOfLivingExcludingTaxes);
+
+            // Income (SS + Reverse Mortgage + OtherTaxableIncome) + Growth
+            var totalIncomeSources = Sum(r => r.SSYou + r.SSPartner + r.OtherTaxableIncome + r.ReverseMortgage);
+            var totalGrowth = Sum(r => r.GrowthBeforeTaxes);
+            var incomePlusGrowth = totalIncomeSources + totalGrowth;
+
+            var endingPortfolio = end.EndingTaxable + end.EndingTraditional + end.EndingRoth;
+
+            bool depletes = block.Any(r => (r.EndingTaxable + r.EndingTraditional + r.EndingRoth) <= 0m);
+
+            result.Add(new FiveYearSummary(
+                StartYear: start.Year,
+                EndYear: end.Year,
+                TotalNeeded: totalNeeded,
+                WithdrawnForCOL: withdrawnForCOL,
+                IncomePlusGrowth: incomePlusGrowth,
+                EndingPortfolio: endingPortfolio,
+                DepletesWithinRange: depletes
+            ));
+        }
+
+        return result;
+    }
+
+    private static string GetRowTintClass(int index)
+        => (index % 4) switch { 0 => "rs-tint-1", 1 => "rs-tint-2", 2 => "rs-tint-3", _ => "rs-tint-4" };
+}
