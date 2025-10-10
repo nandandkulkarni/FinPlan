@@ -1,0 +1,124 @@
+@using FinPlan.Shared.Models.Savings
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
+
+<style>
+    .ssg-row { border: 1px solid #e9ecef; border-radius: 12px; padding: 12px; }
+    .ssg-chip { flex: 1 1 0%; min-width: 160px; border-radius: 8px; padding: 8px 10px; text-align: center; background: transparent; }
+    .ssg-chip h6 { margin: 0 0 2px 0; font-size: 0.82rem; font-weight: 700; color: #556; }
+    .ssg-val { margin: 0; font-weight: 700; font-size: 1.02rem; color: #111; }
+
+    .ssg-duo { display: grid; grid-template-columns: auto auto; column-gap: 10px; row-gap: 2px; align-items: baseline; justify-content: center; }
+    .ssg-duo small { color: #6b7280; font-weight: 600; font-size: 0.75rem; }
+    .ssg-duo .v { font-weight: 700; }
+
+    .ssg-tint-1 { background: #F8FAFC; }
+    .ssg-tint-2 { background: #FFF7E6; }
+    .ssg-tint-3 { background: #ECFDF5; }
+    .ssg-tint-4 { background: #EEF2FF; }
+
+    .ssg-positive { color: #0f766e; }
+    .ssg-negative { color: #b91c1c; }
+
+    @@media (max-width: 767.98px) {
+        .ssg-row { padding: 10px; gap: 2px !important; }
+        .ssg-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
+        .ssg-val { font-size: 1rem; }
+        .ssg-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
+    }
+</style>
+
+@if (Rows != null && Rows.Count > 0)
+{
+    var summaries = BuildFiveYearSummaries();
+    if (summaries.Count > 0)
+    {
+        <div class="panel mb-2" style="padding:12px;">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2 gap-1">
+                <h6 class="mb-0">Five-Year Savings Summary</h6>
+                <small class="text-muted">Quick overview before the detailed grid</small>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                @{ var idx = 0; }
+                @foreach (var s in summaries)
+                {
+                    var tint = GetRowTintClass(idx++);
+                    <div class="ssg-row @tint d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-2">
+                        <div class="ssg-chip">
+                            <h6>Years</h6>
+                            <div class="ssg-val">@s.StartYear – @s.EndYear</div>
+                        </div>
+                        <div class="ssg-chip" title="Contributions and Growth in this period" aria-label="Contributions and Growth in this period">
+                            <h6>Contr vs Grow</h6>
+                            <div class="ssg-duo">
+                                <small>Contr</small><div class="v">@s.TotalContributions.ToString("C0")</div>
+                                <small>Grow</small><div class="v">@s.TotalGrowth.ToString("C0")</div>
+                            </div>
+                        </div>
+                        <div class="ssg-chip">
+                            <h6>Taxes Paid</h6>
+                            <div class="ssg-val">@s.TotalTaxes.ToString("C0")</div>
+                        </div>
+                        <div class="ssg-chip">
+                            <h6>End Balance</h6>
+                            <div class="ssg-val @(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public SavingsCalculatorModel Model { get; set; } = default!;
+    [Parameter] public IReadOnlyList<YearlyBreakdown> Rows { get; set; } = Array.Empty<YearlyBreakdown>();
+
+    private sealed record FiveYearSummary(
+        int StartYear,
+        int EndYear,
+        decimal TotalContributions,
+        decimal TotalGrowth,
+        decimal TotalTaxes,
+        decimal EndingBalance);
+
+    private List<FiveYearSummary> BuildFiveYearSummaries()
+    {
+        var rows = Rows?.OrderBy(r => r.Year).ToList() ?? [];
+        var result = new List<FiveYearSummary>();
+        if (rows.Count == 0) return result;
+
+        int blockSize = 5;
+        for (int i = 0; i < rows.Count; i += blockSize)
+        {
+            var block = rows.Skip(i).Take(blockSize).ToList();
+            if (block.Count == 0) continue;
+
+            var start = block.First();
+            var end = block.Last();
+
+            decimal Sum(Func<YearlyBreakdown, decimal> sel) => block.Sum(sel);
+
+            var totalContr = Sum(r => r.TotalContributions);
+            var totalGrowth = Sum(r => r.TotalGrowth);
+            var totalTaxes = Sum(r => r.TaxesPaid); // taxes only on taxable
+            var endBalance = end.TotalEOYBalance;
+
+            result.Add(new FiveYearSummary(
+                StartYear: start.Year,
+                EndYear: end.Year,
+                TotalContributions: totalContr,
+                TotalGrowth: totalGrowth,
+                TotalTaxes: totalTaxes,
+                EndingBalance: endBalance
+            ));
+        }
+
+        return result;
+    }
+
+    private static string GetRowTintClass(int index)
+        => (index % 4) switch { 0 => "ssg-tint-1", 1 => "ssg-tint-2", 2 => "ssg-tint-3", _ => "ssg-tint-4" };
+}

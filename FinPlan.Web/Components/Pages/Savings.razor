@@ -1043,40 +1043,7 @@
                                     </div>
                                 }
                             }
-                            <!-- Centered heading with Edit Plan button -->
-                            @* <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
-                            <div style="flex: 1;"></div>
-                            <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
-                            <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
-                                <div class="form-check form-switch" style="margin-right: 12px;">
-                                    <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
-                                    <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
-                                </div>
-                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                    <i class="bi bi-gear" style="margin-right: 6px;"></i>
-                                    Update Plan
-                                </button>
-                                <!-- Centered heading with Edit Plan button -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative;">
-                                    <div style="flex: 1;"></div>
-                                    <h5 style="position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;">Plan Input Data</h5>
-                                    <div style="display: flex; gap: 8px; flex: 1; justify-content: flex-end; align-items: center;">
-                                        <div class="form-check form-switch" style="margin-right: 12px;">
-                                            <input class="form-check-input" type="checkbox" id="advancedSetupToggle" @onchange="ToggleAdvancedSetup" checked="@showAdvancedSetup">
-                                            <label class="form-check-label" for="advancedSetupToggle" style="font-size: 0.9rem;">Advanced Setup</label>
-                                        </div>
-                                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                                            <i class="bi bi-gear" style="margin-right: 6px;"></i>
-                                            Update Plan
-                                        </button>
-                                        <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data for current calculator">
-                                            <i class="bi bi-trash me-1"></i>
-                                            Clear Plan Data
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> *@
+                        
                             <!-- Enhanced header with large mode toggle - Same as Cost of Living -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
                                 <div style="flex: 1;"></div>
@@ -1509,6 +1476,8 @@
             }
             else if (HasProjection)
             {
+
+                <SavingsSummaryGrid Model="@calculatorModel" Rows="@yearlyBreakdown" />
 
                 <div class="grid">
                     <table class="table table-sm table-bordered" aria-label="Yearly projection">
