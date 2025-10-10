@@ -1150,169 +1150,69 @@
                                 <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")"
                                      style="background-color: rgba(31, 111, 235, 0.03); border-left: 3px solid #1F6FEB;">
                                     <div>
-                                        <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
-                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                <span class="step-badge">2</span>
-                                                <div>Starting Balances</div>
-                                            </div>
-                                            @if (!IsStartingBalancesSectionComplete())
-                                            {
-                                                <span style="font-size:0.75rem; color:#dc3545;">
-                                                    <i class="bi bi-exclamation-circle"></i> At least one required
-                                                </span>
-                                            }
+                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                                            <span class="step-badge">2</span>
+                                            <div>Starting Balances</div>
                                         </div>
-
-                               @*          <!-- Simple explanation for general public -->
-                                        <div class="alert alert-info mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #e8f4f8; border-left: 3px solid #1F6FEB;">
-                                            <strong>Quick Guide:</strong>
-                                            <strong>Taxable</strong> = Regular savings/investment accounts.
-                                            <strong>Traditional</strong> = 401k, Traditional IRA (tax-deferred).
-                                            <strong>Roth</strong> = Roth IRA, Roth 401k (tax-free growth).
-                                        </div> *@
-
-                                      @*   @if (!showAdvancedSetup)
-                                        {
-                                            <div class="alert alert-success mt-2 mb-2 py-2" style="font-size: 0.85rem; background-color: #f0f9f0; border-left: 3px solid #28a745;">
-                                                <strong>💡 Beginner Tip:</strong> Start with just one account type you have money in. You can always add others later!
-                                            </div>
-                                        } *@
-
                                         @if (!IsStartingBalancesSectionComplete())
                                         {
-                                            <div class="alert alert-light mt-2 mb-2 py-2" style="font-size: 0.85rem; border-left: 3px solid #dc3545;">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Enter the current balance for at least one account type you have.
-                                            </div>
+                                            <span style="font-size:0.75rem; color:#dc3545;">
+                                                <i class="bi bi-exclamation-circle"></i> At least one required
+                                            </span>
                                         }
+                                    </div>
 
-                                        <div class="small-note" style="margin-top:8px;">
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
                                             <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
                                             Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)
-                                            <!-- Fix the taxable account tooltip to be more beginner-friendly -->
-                                            @if (showToolTipTaxableBalance)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Taxable Accounts:</strong> Regular investment and savings accounts that don't have special tax benefits. Examples include:
-                                                    <br>• Bank savings accounts
-                                                    <br>• Brokerage accounts (stocks, bonds, mutual funds)
-                                                    <br>• Certificates of deposit (CDs)
-                                                    <br>• Money market accounts
-                                                    <br><br><strong>Tax Impact:</strong> You pay taxes each year on interest, dividends, and capital gains, but you can access your money anytime without penalties.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
-                                            Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)
-                                            @if (showToolTipTraditionalBalance)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
-                                            Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)
-                                            @if (showToolTipRothBalance)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(2)">Update</button>
-                                    </div>
-                                </div>
-
-
-                                <div class="section-card @(!IsMonthlyContributionsSectionComplete() ? "incomplete-section" : "")"
-                                     style="background-color: rgba(56, 178, 172, 0.03); border-left: 3px solid #38B2AC;">
-                                    <div>
-                                        <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
-                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                <span class="step-badge">3</span>
-                                                <div>Monthly Contributions</div>
-                                            </div>
-                                            @if (!IsMonthlyContributionsSectionComplete())
-                                            {
-                                                <span style="font-size:0.75rem; color:#dc3545;">
-                                                    <i class="bi bi-exclamation-circle"></i> At least one required
-                                                </span>
-                                            }
-                                        </div>
-
-                                        @if (!IsMonthlyContributionsSectionComplete())
+                                        </span>
+                                        @if (showToolTipTaxableBalance)
                                         {
-                                            <div class="alert alert-light mt-2 mb-2 py-2" style="font-size: 0.85rem; border-left: 3px solid #dc3545;">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Enter at least one monthly contribution amount to grow your savings.
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Accounts:</strong> Regular investment and savings accounts that don't have special tax benefits. Examples include:
+                                                <br>• Bank savings accounts
+                                                <br>• Brokerage accounts (stocks, bonds, mutual funds)
+                                                <br>• Certificates of deposit (CDs)
+                                                <br>• Money market accounts
+                                                <br><br><strong>Tax Impact:</strong> You pay taxes each year on interest, dividends, and capital gains, but you can access your money anytime without penalties.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
                                             </div>
                                         }
-
-                                        <div class="small-note" style="margin-top:8px;">
-                                            <span class="d-flex align-items-center">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
-                                                Taxable: @calculatorModel.MonthlyTaxableContribution.ToString("C0")
-                                            </span>
-                                            @if (showToolTipTaxableContribution)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Monthly Taxable Contribution:</strong> How much you plan to add each month to your regular, non-retirement investment accounts. These contributions are made with after-tax dollars and offer more flexibility for early withdrawals without penalties.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableContribution = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">
-                                            <span class="d-flex align-items-center">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
-                                                Traditional: @calculatorModel.MonthlyTraditionalContribution.ToString("C0")
-                                            </span>
-                                            @if (showToolTipTraditionalContribution)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Monthly Traditional Contribution:</strong> Your monthly contributions to tax-deferred retirement accounts. For 2023, the annual contribution limit for 401(k)s is $22,500 ($1,875/month) plus catch-up contributions of $7,500 for those 50+.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalContribution = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="small-note" style="margin-top:8px;">
-                                            <span class="d-flex align-items-center">
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
-                                                Roth: @calculatorModel.MonthlyRothContribution.ToString("C0")
-                                            </span>
-                                            @if (showToolTipRothContribution)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Monthly Roth Contribution:</strong> Your monthly contributions to Roth accounts. For 2023, Roth IRA contributions share the same limit as Traditional IRAs: $6,500 ($541/month) plus $1,000 catch-up for those 50+. Income limits apply for eligibility.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothContribution = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-                                        </div>
                                     </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(3)">Update</button>
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                                            Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)
+                                        </span>
+                                        @if (showToolTipTraditionalBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="small-note" style="margin-top:8px;">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                                            Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)
+                                        </span>
+                                        @if (showToolTipRothBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
-
                                 @if (showAdvancedSetup)
                                 {
                                     <div class="section-card"
