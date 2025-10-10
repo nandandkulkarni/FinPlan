@@ -98,41 +98,74 @@
         var result = new List<FiveYearSummary>();
         if (rows.Count == 0) return result;
 
-        int blockSize = 5;
-        for (int i = 0; i < rows.Count; i += blockSize)
-        {
-            var block = rows.Skip(i).Take(blockSize).ToList();
-            if (block.Count == 0) continue;
+        // Base year is the first calendar year in the projection
+        int baseYear = rows.First().Year;
 
-            var start = block.First();
-            var end = block.Last();
+        // First block length: if baseYear is a multiple of 5 -> 1 year; otherwise up to the year before the next multiple of 5
+        int firstBlockLen;
+        if (baseYear % 5 == 0)
+        {
+            firstBlockLen = 1; // e.g., 2025 -> 2025–2025
+        }
+        else
+        {
+            int nextBoundary = RoundUpToMultipleOf5(baseYear); // e.g., 2023 -> 2025
+            firstBlockLen = Math.Max(1, nextBoundary - baseYear); // e.g., 2023 -> 2 years (2023–2024)
+        }
+
+        int currentStart = baseYear;
+        bool isFirst = true;
+        while (true)
+        {
+            int desiredLen = isFirst ? firstBlockLen : 5;
+            int startY = currentStart;
+            int endY = currentStart + desiredLen - 1;
+
+            // Get rows within [startY, endY]
+            var block = rows.Where(r => r.Year >= startY && r.Year <= endY).ToList();
+            if (block.Count == 0)
+                break;
 
             decimal Sum(Func<CalendarYearRow, decimal> sel) => block.Sum(sel);
 
             var totalNeeded = Sum(r => r.AmountNeededForCostOfLiving);
             var withdrawnForCOL = Sum(r => r.TotalWithdrawForCostOfLivingExcludingTaxes);
 
-            // Income (SS + Reverse Mortgage + OtherTaxableIncome) + Growth
             var totalIncomeSources = Sum(r => r.SSYou + r.SSPartner + r.OtherTaxableIncome + r.ReverseMortgage);
             var totalGrowth = Sum(r => r.GrowthBeforeTaxes);
             var incomePlusGrowth = totalIncomeSources + totalGrowth;
 
-            var endingPortfolio = end.EndingTaxable + end.EndingTraditional + end.EndingRoth;
+            var last = block.Last();
+            var endingPortfolio = last.EndingTaxable + last.EndingTraditional + last.EndingRoth;
 
             bool depletes = block.Any(r => (r.EndingTaxable + r.EndingTraditional + r.EndingRoth) <= 0m);
 
             result.Add(new FiveYearSummary(
-                StartYear: start.Year,
-                EndYear: end.Year,
+                StartYear: startY,
+                EndYear: block.Last().Year, // clamp to available data if fewer rows than desired
                 TotalNeeded: totalNeeded,
                 WithdrawnForCOL: withdrawnForCOL,
                 IncomePlusGrowth: incomePlusGrowth,
                 EndingPortfolio: endingPortfolio,
                 DepletesWithinRange: depletes
             ));
+
+            // Advance start to next year after the block we just processed
+            currentStart = endY + 1;
+            isFirst = false;
+
+            // Stop if there are no more rows beyond currentStart
+            if (!rows.Any(r => r.Year >= currentStart))
+                break;
         }
 
         return result;
+    }
+
+    private static int RoundUpToMultipleOf5(int year)
+    {
+        int remainder = year % 5;
+        return remainder == 0 ? year : year + (5 - remainder);
     }
 
     private static string GetRowTintClass(int index)

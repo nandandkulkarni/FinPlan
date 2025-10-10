@@ -1440,13 +1440,13 @@
         <div class="grid-panel panel mt-3">
             <div class="grid-header">
                 <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
-                <div style="display: flex; gap: 12px; align-items: center;">
+@*                 <div style="display: flex; gap: 12px; align-items: center;">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="simpleViewToggle" @onchange="ToggleSimpleView" checked="@showSimpleView">
                         <label class="form-check-label" for="simpleViewToggle" style="font-size: 0.9rem;">Simple View</label>
                     </div>
                     <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipMethodology = !showToolTipMethodology" tabindex="0" title="Click for calculation methodology"></span>
-                </div>
+                </div> *@
                 @if (showToolTipMethodology)
                 {
                     <div class="info-tooltip" style="max-width: 400px;">
@@ -1477,7 +1477,7 @@
             else if (HasProjection)
             {
 
-                <SavingsSummaryGrid Model="@calculatorModel" Rows="@yearlyBreakdown" />
+                <SavingsSummaryGrid Model = "@calculatorModel" Rows = "@yearlyBreakdown" StartCalendarYear = "@DateTime.Now.Year" />
 
                 <div class="grid">
                     <table class="table table-sm table-bordered" aria-label="Yearly projection">

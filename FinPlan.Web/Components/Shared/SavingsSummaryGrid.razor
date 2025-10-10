@@ -75,6 +75,8 @@
 @code {
     [Parameter] public SavingsCalculatorModel Model { get; set; } = default!;
     [Parameter] public IReadOnlyList<YearlyBreakdown> Rows { get; set; } = Array.Empty<YearlyBreakdown>();
+    // Calendar year that corresponds to Rows[0] (default: current year)
+    [Parameter] public int StartCalendarYear { get; set; } = @DateTime.Now.Year;
 
     private sealed record FiveYearSummary(
         int StartYear,
@@ -90,33 +92,60 @@
         var result = new List<FiveYearSummary>();
         if (rows.Count == 0) return result;
 
-        int blockSize = 5;
-        for (int i = 0; i < rows.Count; i += blockSize)
-        {
-            var block = rows.Skip(i).Take(blockSize).ToList();
-            if (block.Count == 0) continue;
+        int baseYear = StartCalendarYear;
 
-            var start = block.First();
-            var end = block.Last();
+        // First block: if baseYear is a multiple of 5 -> 1 year; else up to next multiple of 5
+        int firstBlockLen;
+        if (baseYear % 5 == 0)
+        {
+            firstBlockLen = 1; // e.g., 2025 -> 2025-2025
+        }
+        else
+        {
+            int nextBoundary = RoundUpToMultipleOf5(baseYear); // e.g., 2023 -> 2025
+            firstBlockLen = Math.Max(1, nextBoundary - baseYear); // e.g., 2023 -> 2 years (2023-2024)
+        }
+
+        int idx = 0;
+        int currentYear = baseYear;
+        bool isFirst = true;
+        while (idx < rows.Count)
+        {
+            int desiredLen = isFirst ? firstBlockLen : 5;
+            int take = Math.Min(desiredLen, rows.Count - idx);
+            var block = rows.Skip(idx).Take(take).ToList();
 
             decimal Sum(Func<YearlyBreakdown, decimal> sel) => block.Sum(sel);
 
             var totalContr = Sum(r => r.TotalContributions);
             var totalGrowth = Sum(r => r.TotalGrowth);
-            var totalTaxes = Sum(r => r.TaxesPaid); // taxes only on taxable
-            var endBalance = end.TotalEOYBalance;
+            var totalTaxes = Sum(r => r.TaxesPaid);
+            var endBalance = block.Last().TotalEOYBalance;
+
+            int startY = currentYear;
+            int endY = currentYear + take - 1;
 
             result.Add(new FiveYearSummary(
-                StartYear: start.Year,
-                EndYear: end.Year,
+                StartYear: startY,
+                EndYear: endY,
                 TotalContributions: totalContr,
                 TotalGrowth: totalGrowth,
                 TotalTaxes: totalTaxes,
                 EndingBalance: endBalance
             ));
+
+            idx += take;
+            currentYear += take;
+            isFirst = false;
         }
 
         return result;
+    }
+
+    private static int RoundUpToMultipleOf5(int year)
+    {
+        int remainder = year % 5;
+        return remainder == 0 ? year : year + (5 - remainder);
     }
 
     private static string GetRowTintClass(int index)

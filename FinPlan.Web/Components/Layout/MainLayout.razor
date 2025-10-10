@@ -528,16 +528,16 @@
 
 <div class="top-strip">
     <div class="container menu-container">
+        <!-- Mobile hamburger menu button -->
+        <button class="mobile-menu-toggle" @onclick="ToggleMobileMenu" aria-label="Open navigation menu">
+            <span class="bi bi-list"></span>
+        </button>
+
         <!-- Logo/Branding -->
         <NavLink class="site-logo" href="/home">
             <span class="logo-icon">💰</span>
             <span>ReWealthen</span>
         </NavLink>
-
-        <!-- Mobile hamburger menu button -->
-        <button class="mobile-menu-toggle" @onclick="ToggleMobileMenu" aria-label="Open navigation menu">
-            <span class="bi bi-list"></span>
-        </button>
 
         <!-- Desktop menu links -->
         <div class="menu-links">
