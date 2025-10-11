@@ -24,8 +24,9 @@
     .ssg-negative { color: #b91c1c; }
 
     /* Desktop/Mobile containers to keep views isolated */
-    .ssg-desktop { display: block; }
-    .ssg-mobile { display: none; }
+    /* Use !important to override Bootstrap display utilities (e.g., .d-flex) */
+    .ssg-desktop { display: block !important; }
+    .ssg-mobile { display: none !important; }
 
     /* Table styles for desktop view */
     .ssg-table { width: 100%; border-collapse: collapse; }
@@ -57,8 +58,8 @@
          .ssg-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
 
          /* Show mobile view, hide desktop view */
-         .ssg-desktop { display: none; }
-         .ssg-mobile { display: block; }
+         .ssg-desktop { display: none !important; }
+         .ssg-mobile { display: block !important; }
      }
  </style>
 
@@ -103,7 +104,7 @@
             </div>
 
             <!-- Mobile view (separate markup, easy to change independently) -->
-            <div class="d-flex flex-column gap-2 ssg-mobile">
+            <div class="flex-column gap-2 ssg-mobile">
                 @{ var mIdx = 0; }
                 @foreach (var s in summaries)
                 {
