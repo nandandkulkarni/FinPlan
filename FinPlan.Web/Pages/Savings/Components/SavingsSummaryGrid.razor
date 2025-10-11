@@ -36,8 +36,10 @@
 
     /* Mobile specific card styles */
     .ssg-mobile-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .ssg-mobile-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    /* center the year range in mobile header */
+    .ssg-mobile-top { display:flex; justify-content:center; align-items:center; gap:8px; }
     .ssg-mobile-years { font-weight:700; color:#334; font-size:0.95rem; }
+    .ssg-mobile-years { text-align:center; width:100%; }
     .ssg-mobile-balance { font-weight:800; font-size:1.05rem; }
     .ssg-mobile-row { display:flex; justify-content:space-between; gap:12px; }
     .ssg-mobile-label { color:#6b7280; font-size:0.78rem; font-weight:600; }
@@ -49,16 +51,16 @@
     .ssg-chevron.rotated { transform: rotate(180deg); }
 
     @@media (max-width: 767.98px) {
-        .ssg-row { padding: 10px; gap: 2px !important; }
-        .ssg-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
-        .ssg-val { font-size: 1rem; }
-        .ssg-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
+         .ssg-row { padding: 10px; gap: 2px !important; }
+         .ssg-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
+         .ssg-val { font-size: 1rem; }
+         .ssg-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
 
-        /* Show mobile view, hide desktop view */
-        .ssg-desktop { display: none; }
-        .ssg-mobile { display: block; }
-    }
-</style>
+         /* Show mobile view, hide desktop view */
+         .ssg-desktop { display: none; }
+         .ssg-mobile { display: block; }
+     }
+ </style>
 
 @if (Rows != null && Rows.Count > 0)
 {
@@ -107,57 +109,34 @@
                 {
                     var tint = GetRowTintClass(mIdx);
                     <div class="ssg-mobile-card @tint" style="--idx:@mIdx;">
+                        <!-- Row 1: only year range -->
                         <div class="ssg-mobile-top">
                             <div class="ssg-mobile-years">@s.StartYear – @s.EndYear</div>
-                            <div class="ssg-mobile-balance @(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</div>
                         </div>
+
+                        <!-- Row 2: labeled End Balance -->
                         <div class="ssg-mobile-row">
                             <div>
-                                <div class="ssg-mobile-label">Contr</div>
-                                <div class="ssg-mobile-val">@s.TotalContributions.ToString("C0")</div>
+                                <div class="ssg-mobile-label">End Balance</div>
+                                <div class="ssg-mobile-val @(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</div>
                             </div>
                             <div>
-                                <div class="ssg-mobile-label">Grow</div>
+                                <div class="ssg-mobile-label">Growth</div>
                                 <div class="ssg-mobile-val">@s.TotalGrowth.ToString("C0")</div>
                             </div>
                         </div>
+
+                        <!-- Row 3: Contributions and Growth -->
                         <div class="ssg-mobile-row">
+                            <div>
+                                <div class="ssg-mobile-label">Contributions</div>
+                                <div class="ssg-mobile-val">@s.TotalContributions.ToString("C0")</div>
+                            </div>
                             <div>
                                 <div class="ssg-mobile-label">Taxes Paid</div>
                                 <div class="ssg-mobile-val">@s.TotalTaxes.ToString("C0")</div>
                             </div>
-                            <div class="ssg-mobile-actions">
-                                <button class="ssg-toggle-btn" @onclick="() => ToggleDetails(mIdx)" aria-expanded="@(IsExpanded(mIdx) ? "true" : "false")" aria-controls="details-@mIdx">
-                                    Details <span class="ssg-chevron @(IsExpanded(mIdx) ? "rotated" : "")">▾</span>
-                                </button>
-                            </div>
                         </div>
-
-                        @if (IsExpanded(mIdx))
-                        {
-                            <div id="details-@mIdx" class="mt-2" style="border-top:1px dashed rgba(0,0,0,0.04); padding-top:8px;">
-                                <div class="ssg-mobile-row">
-                                    <div>
-                                        <div class="ssg-mobile-label">Breakdown</div>
-                                        <div class="ssg-mobile-val">Contrib: @s.TotalContributions.ToString("C0")</div>
-                                    </div>
-                                    <div>
-                                        <div class="ssg-mobile-label">Growth</div>
-                                        <div class="ssg-mobile-val">@s.TotalGrowth.ToString("C0")</div>
-                                    </div>
-                                </div>
-                                <div class="ssg-mobile-row mt-2">
-                                    <div>
-                                        <div class="ssg-mobile-label">Taxes</div>
-                                        <div class="ssg-mobile-val">@s.TotalTaxes.ToString("C0")</div>
-                                    </div>
-                                    <div>
-                                        <div class="ssg-mobile-label">End Balance</div>
-                                        <div class="ssg-mobile-val">@s.EndingBalance.ToString("C0")</div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
                         @{ mIdx++; }
                     </div>
                 }
@@ -171,15 +150,6 @@
     [Parameter] public IReadOnlyList<YearlyBreakdown> Rows { get; set; } = Array.Empty<YearlyBreakdown>();
     // Calendar year that corresponds to Rows[0] (default: current year)
     [Parameter] public int StartCalendarYear { get; set; } = @DateTime.Now.Year;
-
-    // Track expanded items for mobile view (by index)
-    private HashSet<int> _expanded = new();
-    private void ToggleDetails(int idx)
-    {
-        if (_expanded.Contains(idx)) _expanded.Remove(idx);
-        else _expanded.Add(idx);
-    }
-    private bool IsExpanded(int idx) => _expanded.Contains(idx);
 
     private sealed record FiveYearSummary(
         int StartYear,
