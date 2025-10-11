@@ -1,6 +1,7 @@
-@using FinPlan.Shared.Models.Savings
+﻿@using FinPlan.Shared.Models.Savings
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
 
 @inject IJSRuntime JSRuntime
 
@@ -22,11 +23,40 @@
     .ssg-positive { color: #0f766e; }
     .ssg-negative { color: #b91c1c; }
 
+    /* Desktop/Mobile containers to keep views isolated */
+    .ssg-desktop { display: block; }
+    .ssg-mobile { display: none; }
+
+    /* Table styles for desktop view */
+    .ssg-table { width: 100%; border-collapse: collapse; }
+    .ssg-table th, .ssg-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+    .ssg-table thead th { font-weight: 700; color: #556; font-size: 0.9rem; }
+    .ssg-table tbody tr { transition: background 0.15s ease; }
+    .ssg-table tbody tr:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+
+    /* Mobile specific card styles */
+    .ssg-mobile-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .ssg-mobile-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .ssg-mobile-years { font-weight:700; color:#334; font-size:0.95rem; }
+    .ssg-mobile-balance { font-weight:800; font-size:1.05rem; }
+    .ssg-mobile-row { display:flex; justify-content:space-between; gap:12px; }
+    .ssg-mobile-label { color:#6b7280; font-size:0.78rem; font-weight:600; }
+    .ssg-mobile-val { font-weight:700; }
+    .ssg-mobile-actions { display:flex; justify-content:flex-end; }
+    .ssg-toggle-btn { background:transparent; border:0; color:#0b5; font-weight:700; padding:6px 8px; border-radius:6px; cursor:pointer; }
+    .ssg-toggle-btn:focus { outline:2px solid rgba(0,123,255,0.25); }
+    .ssg-chevron { transition: transform 0.2s ease; display:inline-block; }
+    .ssg-chevron.rotated { transform: rotate(180deg); }
+
     @@media (max-width: 767.98px) {
         .ssg-row { padding: 10px; gap: 2px !important; }
         .ssg-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
         .ssg-val { font-size: 1rem; }
         .ssg-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
+
+        /* Show mobile view, hide desktop view */
+        .ssg-desktop { display: none; }
+        .ssg-mobile { display: block; }
     }
 </style>
 
@@ -41,31 +71,94 @@
                 <small class="text-muted">Quick overview before the detailed grid</small>
             </div>
 
-            <div class="d-flex flex-column gap-2">
+            <!-- Desktop view (semantic table, isolated) -->
+            <div class="ssg-desktop">
                 @{ var idx = 0; }
+                <table class="ssg-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Years</th>
+                            <th scope="col">Contributions</th>
+                            <th scope="col">Growth</th>
+                            <th scope="col">Taxes Paid</th>
+                            <th scope="col" style="text-align:right">End Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in summaries)
+                        {
+                            var tint = GetRowTintClass(idx++);
+                            <tr class="@tint">
+                                <td>@s.StartYear – @s.EndYear</td>
+                                <td>@s.TotalContributions.ToString("C0")</td>
+                                <td>@s.TotalGrowth.ToString("C0")</td>
+                                <td>@s.TotalTaxes.ToString("C0")</td>
+                                <td style="text-align:right" class="@(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile view (separate markup, easy to change independently) -->
+            <div class="d-flex flex-column gap-2 ssg-mobile">
+                @{ var mIdx = 0; }
                 @foreach (var s in summaries)
                 {
-                    var tint = GetRowTintClass(idx++);
-                    <div class="ssg-row @tint d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-2">
-                        <div class="ssg-chip">
-                            <h6>Years</h6>
-                            <div class="ssg-val">@s.StartYear � @s.EndYear</div>
+                    var tint = GetRowTintClass(mIdx);
+                    <div class="ssg-mobile-card @tint" style="--idx:@mIdx;">
+                        <div class="ssg-mobile-top">
+                            <div class="ssg-mobile-years">@s.StartYear – @s.EndYear</div>
+                            <div class="ssg-mobile-balance @(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</div>
                         </div>
-                        <div class="ssg-chip" title="Contributions and Growth in this period" aria-label="Contributions and Growth in this period">
-                            <h6>Contr vs Grow</h6>
-                            <div class="ssg-duo">
-                                <small>Contr</small><div class="v">@s.TotalContributions.ToString("C0")</div>
-                                <small>Grow</small><div class="v">@s.TotalGrowth.ToString("C0")</div>
+                        <div class="ssg-mobile-row">
+                            <div>
+                                <div class="ssg-mobile-label">Contr</div>
+                                <div class="ssg-mobile-val">@s.TotalContributions.ToString("C0")</div>
+                            </div>
+                            <div>
+                                <div class="ssg-mobile-label">Grow</div>
+                                <div class="ssg-mobile-val">@s.TotalGrowth.ToString("C0")</div>
                             </div>
                         </div>
-                        <div class="ssg-chip">
-                            <h6>Taxes Paid</h6>
-                            <div class="ssg-val">@s.TotalTaxes.ToString("C0")</div>
+                        <div class="ssg-mobile-row">
+                            <div>
+                                <div class="ssg-mobile-label">Taxes Paid</div>
+                                <div class="ssg-mobile-val">@s.TotalTaxes.ToString("C0")</div>
+                            </div>
+                            <div class="ssg-mobile-actions">
+                                <button class="ssg-toggle-btn" @onclick="() => ToggleDetails(mIdx)" aria-expanded="@(IsExpanded(mIdx) ? "true" : "false")" aria-controls="details-@mIdx">
+                                    Details <span class="ssg-chevron @(IsExpanded(mIdx) ? "rotated" : "")">▾</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="ssg-chip">
-                            <h6>End Balance</h6>
-                            <div class="ssg-val @(s.EndingBalance >= 0 ? "ssg-positive" : "ssg-negative")">@s.EndingBalance.ToString("C0")</div>
-                        </div>
+
+                        @if (IsExpanded(mIdx))
+                        {
+                            <div id="details-@mIdx" class="mt-2" style="border-top:1px dashed rgba(0,0,0,0.04); padding-top:8px;">
+                                <div class="ssg-mobile-row">
+                                    <div>
+                                        <div class="ssg-mobile-label">Breakdown</div>
+                                        <div class="ssg-mobile-val">Contrib: @s.TotalContributions.ToString("C0")</div>
+                                    </div>
+                                    <div>
+                                        <div class="ssg-mobile-label">Growth</div>
+                                        <div class="ssg-mobile-val">@s.TotalGrowth.ToString("C0")</div>
+                                    </div>
+                                </div>
+                                <div class="ssg-mobile-row mt-2">
+                                    <div>
+                                        <div class="ssg-mobile-label">Taxes</div>
+                                        <div class="ssg-mobile-val">@s.TotalTaxes.ToString("C0")</div>
+                                    </div>
+                                    <div>
+                                        <div class="ssg-mobile-label">End Balance</div>
+                                        <div class="ssg-mobile-val">@s.EndingBalance.ToString("C0")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @{ mIdx++; }
                     </div>
                 }
             </div>
@@ -79,6 +172,15 @@
     // Calendar year that corresponds to Rows[0] (default: current year)
     [Parameter] public int StartCalendarYear { get; set; } = @DateTime.Now.Year;
 
+    // Track expanded items for mobile view (by index)
+    private HashSet<int> _expanded = new();
+    private void ToggleDetails(int idx)
+    {
+        if (_expanded.Contains(idx)) _expanded.Remove(idx);
+        else _expanded.Add(idx);
+    }
+    private bool IsExpanded(int idx) => _expanded.Contains(idx);
+
     private sealed record FiveYearSummary(
         int StartYear,
         int EndYear,
@@ -89,7 +191,7 @@
 
     private List<FiveYearSummary> BuildFiveYearSummaries()
     {
-        var rows = Rows?.OrderBy(r => r.Year).ToList() ?? [];
+        var rows = Rows?.OrderBy(r => r.Year).ToList() ?? new List<YearlyBreakdown>();
         var result = new List<FiveYearSummary>();
         if (rows.Count == 0) return result;
 
