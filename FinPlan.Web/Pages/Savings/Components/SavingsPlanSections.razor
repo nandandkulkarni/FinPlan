@@ -1,0 +1,633 @@
+﻿@using FinPlan.Shared.Models.Savings
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Logging
+@inject ILogger<SavingsPlanSections> Logger
+
+<style>
+    .plan-sections-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .section-card {
+        border: 1px solid rgba(16,24,36,0.12);
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        min-height: 92px;
+        background: #fff;
+    }
+
+        .section-card .actions {
+            margin-top: auto;
+            display: flex;
+            justify-content: flex-start;
+            gap: 8px;
+            padding-top: 16px;
+        }
+
+    .incomplete-section {
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+    }
+
+    .step-badge {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--brand-yellow, #FFD600);
+        color: #111;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        margin-right: 8px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+
+    .small-note {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    .missing-badge {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-edit {
+        background: #1F6FEB;
+        color: #ffffff;
+        border: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .info-icon {
+        font-size: 0.9rem;
+        cursor: pointer;
+        opacity: 0.65;
+        transition: opacity 0.15s ease-in-out;
+        margin-right: 4px;
+    }
+
+        .info-icon:hover {
+            opacity: 1;
+        }
+
+    .info-tooltip {
+        position: absolute;
+        background: #e6f2ff !important;
+        color: #111 !important;
+        border: 1px solid #b6d4fe;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08);
+        padding: 16px 20px;
+        z-index: 9999;
+        max-width: 320px;
+        min-width: 220px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        animation: tooltipFadeIn 0.2s ease-out;
+    }
+
+    @@keyframes tooltipFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    .info-tooltip strong {
+        color: #000 !important;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .info-tooltip .float-end {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        cursor: pointer;
+        color: #111 !important;
+        font-size: 1.25rem !important;
+        font-weight: 700;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        line-height: 1;
+    }
+
+        .info-tooltip .float-end:hover {
+            color: #0056b3 !important;
+            background-color: #d0e7ff !important;
+        }
+
+    .info-tooltip::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #e6f2ff !important;
+        filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.05));
+    }
+
+    /* Mobile responsive */
+    @@media (max-width: 767px) {
+        .plan-sections-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0 !important;
+        }
+
+        .section-card {
+            width: 100% !important;
+            border-radius: 0 !important;
+            border-bottom: 1px solid #dee2e6 !important;
+            margin-bottom: 0 !important;
+        }
+
+            .section-card:first-child {
+                border-radius: 8px 8px 0 0 !important;
+            }
+
+            .section-card:last-child {
+                border-radius: 0 0 8px 8px !important;
+                border-bottom: none !important;
+            }
+
+            .section-card .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .section-card .btn-edit {
+                width: 100%;
+                min-height: 44px;
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+        .info-tooltip {
+            position: fixed;
+            left: 10px !important;
+            right: 10px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            max-width: calc(100vw - 20px);
+            min-width: auto;
+            width: calc(100vw - 20px);
+            font-size: 0.9rem;
+            padding: 20px;
+            z-index: 10000;
+        }
+
+            .info-tooltip::before {
+                display: none;
+            }
+
+            .info-tooltip .float-end {
+                font-size: 1.5rem !important;
+                width: 32px;
+                height: 32px;
+                top: 10px;
+                right: 10px;
+            }
+
+        .info-icon {
+            font-size: 1.1rem;
+            padding: 4px;
+            min-width: 28px;
+            min-height: 28px;
+        }
+    }
+</style>
+
+<div class="plan-sections-grid">
+    <!-- Section 1: Milestones & Ages -->
+    <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")"
+         style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid #FFD600;">
+        <div>
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                <span class="step-badge">1</span>
+                <div>Milestones & Ages</div>
+            </div>
+            @if (!IsMilestonesSectionComplete())
+            {
+                <span style="font-size:0.75rem; color:#dc3545;">
+                    <i class="bi bi-exclamation-circle"></i> Incomplete
+                </span>
+            }
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipCurrentAge) + ":toggle", () => { showToolTipCurrentAge = !showToolTipCurrentAge; }))" tabindex="0" title="Click for more info"></span>
+                Current Age: @Model.CurrentAge
+                @if (showToolTipCurrentAge)
+                {
+                    <div class="info-tooltip">
+                        <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipCurrentAge) + ":close", () => { showToolTipCurrentAge = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+            @if (Model.CurrentAge <= 0)
+            {
+                <span class="missing-badge">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                </span>
+            }
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRetirementAge) + ":toggle", () => { showToolTipRetirementAge = !showToolTipRetirementAge; }))" tabindex="0" title="Click for more info"></span>
+                Planned Retirement Age: @Model.RetirementAge
+                @if (showToolTipRetirementAge)
+                {
+                    <div class="info-tooltip">
+                        <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRetirementAge) + ":close", () => { showToolTipRetirementAge = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+            @if (Model.RetirementAge <= 0)
+            {
+                <span class="missing-badge">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                </span>
+            }
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipYearsUntilRetirement) + ":toggle", () => { showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement; }))" tabindex="0" title="Click for more info"></span>
+                Years until Retirement: @Model.Years
+                @if (showToolTipYearsUntilRetirement)
+                {
+                    <div class="info-tooltip">
+                        <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipYearsUntilRetirement) + ":close", () => { showToolTipYearsUntilRetirement = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+            @if (Model.Years <= 0)
+            {
+                <span class="missing-badge">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Calculated
+                </span>
+            }
+        </div>
+        <div class="actions">
+            <button class="btn-edit" @onclick="() => OpenWizardStep(1)">Update</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Starting Balances -->
+    <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")"
+         style="background-color: rgba(31, 111, 235, 0.03); border-left: 3px solid #1F6FEB;">
+        <div>
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                <span class="step-badge">2</span>
+                <div>Starting Balances</div>
+            </div>
+            @if (!IsStartingBalancesSectionComplete())
+            {
+                <span style="font-size:0.75rem; color:#dc3545;">
+                    <i class="bi bi-exclamation-circle"></i> At least one required
+                </span>
+            }
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableBalance) + ":toggle", () => { showToolTipTaxableBalance = !showToolTipTaxableBalance; }))" tabindex="0" title="Click for more info"></span>
+                Taxable: @FormatMoney(Model.InitialTaxableAmount)
+                @if (showToolTipTaxableBalance)
+                {
+                    <div class="info-tooltip">
+                        <strong>Taxable Accounts:</strong> Regular investment and savings accounts that don't have special tax benefits. Examples include:
+                        <br>• Bank savings accounts
+                        <br>• Brokerage accounts (stocks, bonds, mutual funds)
+                        <br>• Certificates of deposit (CDs)
+                        <br>• Money market accounts
+                        <br><br><strong>Tax Impact:</strong> You pay taxes each year on interest, dividends, and capital gains, but you can access your money anytime without penalties.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableBalance) + ":close", () => { showToolTipTaxableBalance = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalBalance) + ":toggle", () => { showToolTipTraditionalBalance = !showToolTipTraditionalBalance; }))" tabindex="0" title="Click for more info"></span>
+                Traditional: @FormatMoney(Model.InitialTraditionalAmount)
+                @if (showToolTipTraditionalBalance)
+                {
+                    <div class="info-tooltip">
+                        <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalBalance) + ":close", () => { showToolTipTraditionalBalance = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothBalance) + ":toggle", () => { showToolTipRothBalance = !showToolTipRothBalance; }))" tabindex="0" title="Click for more info"></span>
+                Roth: @FormatMoney(Model.InitialRothAmount)
+                @if (showToolTipRothBalance)
+                {
+                    <div class="info-tooltip">
+                        <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothBalance) + ":close", () => { showToolTipRothBalance = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+        <div class="actions">
+            <button class="btn-edit" @onclick="() => OpenWizardStep(2)">Update</button>
+        </div>
+    </div>
+
+    <!-- Section 3: Monthly Contributions (Always visible in simplified view) -->
+    <div class="section-card"
+         style="background-color: rgba(56, 178, 172, 0.03); border-left: 3px solid #38B2AC;">
+        <div>
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                <span class="step-badge">3</span>
+                <div>Monthly Contributions</div>
+            </div>
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableContribution) + ":toggle", () => { showToolTipTaxableContribution = !showToolTipTaxableContribution; }))" tabindex="0" title="Click for more info"></span>
+                Taxable: @FormatMoney(Model.MonthlyTaxableContribution)
+                @if (showToolTipTaxableContribution)
+                {
+                    <div class="info-tooltip">
+                        <strong>Monthly Taxable Contribution:</strong> How much you plan to save each month in regular taxable accounts. This is money you can access anytime but will be taxed on earnings.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableContribution) + ":close", () => { showToolTipTaxableContribution = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalContribution) + ":toggle", () => { showToolTipTraditionalContribution = !showToolTipTraditionalContribution; }))" tabindex="0" title="Click for more info"></span>
+                Traditional: @FormatMoney(Model.MonthlyTraditionalContribution)
+                @if (showToolTipTraditionalContribution)
+                {
+                    <div class="info-tooltip">
+                        <strong>Monthly Traditional Contribution:</strong> How much you plan to contribute each month to tax-deferred accounts like 401(k) or Traditional IRA. These contributions may reduce your current taxable income.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalContribution) + ":close", () => { showToolTipTraditionalContribution = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+
+        <div class="small-note" style="margin-top:8px;">
+            <span class="d-flex align-items-center" style="position: relative;">
+                <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothContribution) + ":toggle", () => { showToolTipRothContribution = !showToolTipRothContribution; }))" tabindex="0" title="Click for more info"></span>
+                Roth: @FormatMoney(Model.MonthlyRothContribution)
+                @if (showToolTipRothContribution)
+                {
+                    <div class="info-tooltip">
+                        <strong>Monthly Roth Contribution:</strong> How much you plan to contribute each month to Roth accounts. These are after-tax contributions, but all future withdrawals (including growth) will be tax-free in retirement.
+                        <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothContribution) + ":close", () => { showToolTipRothContribution = false; }))" title="Close">
+                            <span class="bi bi-x-lg"></span>
+                        </span>
+                    </div>
+                }
+            </span>
+        </div>
+        <div class="actions">
+            <button class="btn-edit" @onclick="() => OpenWizardStep(3)">Update</button>
+        </div>
+    </div>
+
+    @if (ShowAdvancedSections)
+    {
+        <!-- Section 4: Estimated Growth Rate -->
+        <div class="section-card"
+             style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid #6D5DFC;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">4</span>
+                    <div>Estimated Growth Rate</div>
+                </div>
+                <div class="small-note">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableGrowth) + ":toggle", () => { showToolTipTaxableGrowth = !showToolTipTaxableGrowth; }))" tabindex="0" title="Click for more info"></span>
+                        Taxable: @string.Format("{0:F1}%", Model.AnnualGrowthRateTaxable)
+                        @if (showToolTipTaxableGrowth)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This is usually lower than retirement accounts because:
+                                <br>• You pay taxes on dividends and capital gains each year
+                                <br>• This "tax drag" reduces your effective returns
+                                <br>• Historical average: 6-7% before taxes, 4-5% after taxes
+                                <br><br><strong>Reality Check:</strong> Markets don't grow steadily - some years are up 20%, others down 10%. This calculator uses averages for planning purposes.
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxableGrowth) + ":close", () => { showToolTipTaxableGrowth = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="small-note">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalGrowth) + ":toggle", () => { showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth; }))" tabindex="0" title="Click for more info"></span>
+                        Traditional: @string.Format("{0:F1}%", Model.AnnualGrowthRateTraditional)
+                        @if (showToolTipTraditionalGrowth)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTraditionalGrowth) + ":close", () => { showToolTipTraditionalGrowth = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="small-note">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothGrowth) + ":toggle", () => { showToolTipRothGrowth = !showToolTipRothGrowth; }))" tabindex="0" title="Click for more info"></span>
+                        Roth: @string.Format("{0:F1}%", Model.AnnualGrowthRateRoth)
+                        @if (showToolTipRothGrowth)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRothGrowth) + ":close", () => { showToolTipRothGrowth = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizardStep(4)">Update</button>
+            </div>
+        </div>
+
+        <!-- Section 5: Tax Treatment -->
+        <div class="section-card"
+             style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid #4FD1C5;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">5</span>
+                    <div>Tax Treatment</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipIncomeType) + ":toggle", () => { showToolTipIncomeType = !showToolTipIncomeType; }))" tabindex="0" title="Click for more info"></span>
+                        Taxable Income Type: @Model.TaxableIncomeType
+                        @if (showToolTipIncomeType)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipIncomeType) + ":close", () => { showToolTipIncomeType = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxBracket) + ":toggle", () => { showToolTipTaxBracket = !showToolTipTaxBracket; }))" tabindex="0" title="Click for more info"></span>
+                        Tax Bracket: @Model.TaxBracket
+                        @if (showToolTipTaxBracket)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
+                                <br><br><strong>Simplified Assumptions:</strong><br>
+                                • State taxes not included in calculations<br>
+                                • Tax rates assumed constant over time<br>
+                                • No consideration of changing tax laws<br>
+                                • Standard deduction and other tax benefits not modeled
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxBracket) + ":close", () => { showToolTipTaxBracket = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-edit" @onclick="() => OpenWizardStep(5)">Update</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public SavingsCalculatorModel Model { get; set; } = new();
+    [Parameter] public bool ShowAdvancedSections { get; set; } = true;
+    [Parameter] public EventCallback<int> OnOpenWizard { get; set; }
+
+    // Tooltip visibility flags
+    private bool showToolTipCurrentAge = false;
+    private bool showToolTipRetirementAge = false;
+    private bool showToolTipYearsUntilRetirement = false;
+    private bool showToolTipTaxableBalance = false;
+    private bool showToolTipTraditionalBalance = false;
+    private bool showToolTipRothBalance = false;
+    private bool showToolTipTaxableContribution = false;
+    private bool showToolTipTraditionalContribution = false;
+    private bool showToolTipRothContribution = false;
+    private bool showToolTipTaxableGrowth = false;
+    private bool showToolTipTraditionalGrowth = false;
+    private bool showToolTipRothGrowth = false;
+    private bool showToolTipIncomeType = false;
+    private bool showToolTipTaxBracket = false;
+
+    private void RunTooltipHandler(string handlerName, Action action)
+    {
+        Logger?.LogInformation("SavingsPlanSections handler start: {Handler}", handlerName);
+        try
+        {
+            action();
+            Logger?.LogInformation("SavingsPlanSections handler complete: {Handler}", handlerName);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "SavingsPlanSections handler error: {Handler}", handlerName);
+            throw;
+        }
+    }
+
+    private async Task OpenWizardStep(int step)
+    {
+        await OnOpenWizard.InvokeAsync(step);
+    }
+
+    private bool IsMilestonesSectionComplete()
+    {
+        return Model.CurrentAge > 0 && Model.RetirementAge > 0;
+    }
+
+    private bool IsStartingBalancesSectionComplete()
+    {
+        return Model.InitialTaxableAmount > 0 ||
+               Model.InitialTraditionalAmount > 0 ||
+               Model.InitialRothAmount > 0;
+    }
+
+    private string FormatMoney(decimal? value) => value.HasValue ? value.Value.ToString("C0") : "-";
+}

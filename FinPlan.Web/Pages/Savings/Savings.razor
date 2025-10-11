@@ -1,9 +1,16 @@
-﻿@page "/savings-wealth-building"
+﻿@namespace FinPlan.Web.Components.Pages
+
+@page "/savings-wealth-building"
+
 @using FinPlan.Shared.Models.Savings
 @using FinPlan.Shared.Services
 @using FinPlan.Web.Components.Shared
 @using FinPlan.Web.Services
-@namespace FinPlan.Web.Components.Pages
+@using Microsoft.JSInterop
+@using FinPlan.Web.Pages.Savings.Components
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
 
 @inject IJSRuntime JSRuntime
 @inject IHttpClientFactory HttpClientFactory
@@ -1061,279 +1068,17 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-                                <div class="section-card @(IsMilestonesSectionComplete() ? "" : "incomplete-section")"
-                                     style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid #FFD600;">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">1</span>
-                                            <div>Milestones & Ages</div>
-                                        </div>
-                                        @if (!IsMilestonesSectionComplete())
-                                        {
-                                            <span style="font-size:0.75rem; color:#dc3545;">
-                                                <i class="bi bi-exclamation-circle"></i> Incomplete
-                                            </span>
-                                        }
-                                    </div>
 
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
-                                            Current Age: @calculatorModel.CurrentAge
-                                        </span>
-                                        @if (showToolTipCurrentAge)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Your Current Age:</strong> Your age today. This is the starting point for calculating how many years you have to save before retirement.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                        @if (calculatorModel.CurrentAge <= 0)
-                                        {
-                                            <span class="missing-badge">
-                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
-                                            </span>
-                                        }
-                                    </div>
+                            <SavingsPlanSections Model="@calculatorModel"
+                                                 ShowAdvancedSections="@showAdvancedSetup"
+                                                 OnOpenWizard="@HandleOpenWizard" />
 
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
-                                            Planned Retirement Age: @calculatorModel.RetirementAge
-                                        </span>
-                                        @if (showToolTipRetirementAge)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                        @if (calculatorModel.RetirementAge <= 0)
-                                        {
-                                            <span class="missing-badge">
-                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
-                                            </span>
-                                        }
-                                    </div>
+                     @*        <SavingsPlanSections Model="@calculatorModel" 
+                     ShowAdvancedSections="@showAdvancedSetup"
+                     OnOpenWizard="OpenWizard" /> *@
 
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
-                                            Years until Retirement: @calculatorModel.Years
-                                        </span>
-                                        @if (showToolTipYearsUntilRetirement)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                        @if (calculatorModel.Years <= 0)
-                                        {
-                                            <span class="missing-badge">
-                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Calculated
-                                            </span>
-                                        }
-                                    </div>
-                                    <div class="actions">
-                                        <button class="btn-edit" @onclick="() => OpenWizard(1)">Update</button>
-                                    </div>
-                                </div>
-
-                                <div class="section-card @(!IsStartingBalancesSectionComplete() ? "incomplete-section" : "")"
-                                     style="background-color: rgba(31, 111, 235, 0.03); border-left: 3px solid #1F6FEB;">
-                                    <div>
-                                        <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                            <span class="step-badge">2</span>
-                                            <div>Starting Balances</div>
-                                        </div>
-                                        @if (!IsStartingBalancesSectionComplete())
-                                        {
-                                            <span style="font-size:0.75rem; color:#dc3545;">
-                                                <i class="bi bi-exclamation-circle"></i> At least one required
-                                            </span>
-                                        }
-                                    </div>
-
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
-                                            Taxable: @FormatMoneySafe(calculatorModel.InitialTaxableAmount)
-                                        </span>
-                                        @if (showToolTipTaxableBalance)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Taxable Accounts:</strong> Regular investment and savings accounts that don't have special tax benefits. Examples include:
-                                                <br>• Bank savings accounts
-                                                <br>• Brokerage accounts (stocks, bonds, mutual funds)
-                                                <br>• Certificates of deposit (CDs)
-                                                <br>• Money market accounts
-                                                <br><br><strong>Tax Impact:</strong> You pay taxes each year on interest, dividends, and capital gains, but you can access your money anytime without penalties.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
-                                            Traditional: @FormatMoneySafe(calculatorModel.InitialTraditionalAmount)
-                                        </span>
-                                        @if (showToolTipTraditionalBalance)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="small-note" style="margin-top:8px;">
-                                        <span class="d-flex align-items-center">
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
-                                            Roth: @FormatMoneySafe(calculatorModel.InitialRothAmount)
-                                        </span>
-                                        @if (showToolTipRothBalance)
-                                        {
-                                            <div class="info-tooltip">
-                                                <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
-                                                    <span class="bi bi-x-lg"></span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                                @if (showAdvancedSetup)
-                                {
-                                    <div class="section-card"
-                                         style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid #6D5DFC;">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">4</span>
-                                                <div>Estimated Growth Rate</div>
-                                            </div>
-                                            <div class="small-note">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
-                                                    Taxable: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTaxable)
-                                                </span>
-                                                <!-- Enhance the growth rate tooltip with context -->
-                                                @if (showToolTipTaxableGrowth)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This is usually lower than retirement accounts because:
-                                                        <br>• You pay taxes on dividends and capital gains each year
-                                                        <br>• This "tax drag" reduces your effective returns
-                                                        <br>• Historical average: 6-7% before taxes, 4-5% after taxes
-
-                                                        <br><br><strong>Reality Check:</strong> Markets don't grow steadily - some years are up 20%, others down 10%. This calculator uses averages for planning purposes.
-
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="small-note">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
-                                                    Traditional: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateTraditional)
-                                                </span>
-                                                @if (showToolTipTraditionalGrowth)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="small-note">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
-                                                    Roth: @string.Format("{0:F1}%", calculatorModel.AnnualGrowthRateRoth)
-                                                </span>
-                                                @if (showToolTipRothGrowth)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(4)">Update</button>
-                                        </div>
-                                    </div>
-                                }
-
-                                @if (showAdvancedSetup)
-                                {
-                                    <div class="section-card"
-                                         style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid #4FD1C5;">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                                                <span class="step-badge">5</span>
-                                                <div>Tax Treatment</div>
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
-                                                    Taxable Income Type: @calculatorModel.TaxableIncomeType
-                                                </span>
-                                                @if (showToolTipIncomeType)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. Different income types are taxed differently: dividends and long-term capital gains often receive preferential tax rates, while interest is typically taxed as ordinary income.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
-                                                    Tax Bracket: @calculatorModel.TaxBracket
-                                                </span>
-                                                @if (showToolTipTaxBracket)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
-
-                                                        <br><br><strong>Simplified Assumptions:</strong><br>
-                                                        • State taxes not included in calculations<br>
-                                                        • Tax rates assumed constant over time<br>
-                                                        • No consideration of changing tax laws<br>
-                                                        • Standard deduction and other tax benefits not modeled
-
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="actions">
-                                            <button class="btn-edit" @onclick="() => OpenWizard(5)">Update</button>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
+                          @*   <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+                            </div> *@
                         </div>
                     </div>
 
@@ -2156,7 +1901,10 @@
         showAdvancedSetup = e.Value?.ToString()?.ToLower() == "true";
         StateHasChanged();
     }
-
+    private void HandleOpenWizard(int step)
+    {
+        OpenWizard(step);
+    }
     private (string title, string message, bool isGood) GetSavingsProgressMessage()
     {
         if (results == null || calculatorModel == null) return ("", "", true);
