@@ -1,0 +1,583 @@
+@using FinPlan.Shared.Models.Spending
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+@namespace FinPlan.Web.Pages.Retire.Components
+
+<div class="panel section-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
+        <div style="flex: 1;"></div>
+        <h5>
+            Retirement Planner - Inputs
+        </h5>
+        <div style="display: flex; gap: 16px; flex: 1; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => RequestOpenWizard(1)">
+                <i class="bi bi-gear me-2"></i>
+                Update Plan
+            </button>
+            <button class="btn btn-outline-danger" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => RequestOpenWizard(-1)" title="Clear saved plan data for current calculator">
+                <i class="bi bi-trash me-1"></i>
+                Clear Plan Data
+            </button>
+        </div>
+    </div>
+
+    <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+        <!-- Section 1: Retirement ages & life expectancy -->
+        <div class="section-card @(IsRetirementAgesSectionComplete() ? "" : "incomplete-section")"
+             style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid var(--brand-yellow);">
+            <div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="step-badge">1</span>
+                        <div>@(IsSimpleMode ? "When You'll Retire" : "Retirement ages & life expectancy")</div>
+                    </div>
+                    @if (!IsRetirementAgesSectionComplete())
+                    {
+                        <span style="font-size:0.75rem; color:#dc3545;">
+                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Needed" : "Required fields missing")
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
+                        You: @Model.RetirementAgeYou
+                    </span>
+                    @if (showToolTipYourRetirementAge)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourRetirementAge = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.RetirementAgeYou <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
+                        Partner: @Model.RetirementAgePartner
+                    </span>
+                    @if (showToolTipPartnerRetirementAge)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerRetirementAge = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.RetirementAgePartner <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                        Life exp (You): @DisplayLifeExpectancyYou
+                    </span>
+                    @if (showToolTipYourLifeExpectancy)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Life Expectancy:</strong> The age you expect to live to.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourLifeExpectancy = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (DisplayLifeExpectancyYou <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                        Life exp (Partner): @DisplayLifeExpectancyPartner
+                    </span>
+                    @if (showToolTipPartnerLifeExpectancy)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerLifeExpectancy = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (DisplayLifeExpectancyPartner <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(1)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 2: Starting Balances & Returns -->
+        <div class="section-card @(IsStartingBalancesSectionComplete() ? "" : "incomplete-section")"
+             style="background-color: rgba(37, 99, 235, 0.03); border-left: 3px solid var(--financial-blue);">
+            <div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="step-badge">2</span>
+                        <div>@(IsSimpleMode ? "Your Savings & Growth" : "Starting Balances & Returns")</div>
+                    </div>
+                    @if (!IsStartingBalancesSectionComplete())
+                    {
+                        <span style="font-size:0.75rem; color:#dc3545;">
+                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Need at least one account" : "At least one account required")
+                        </span>
+                    }
+                </div>
+
+                @if (!IsStartingBalancesSectionComplete())
+                {
+                    <div class="alert alert-light mt-2 mb-2 py-2" style="font-size: 0.85rem; border-left: 3px solid #dc3545;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Please enter the starting balance for at least one account type.
+                    </div>
+                }
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
+                        Taxable: @Model.TaxableBalance.ToString("C0")
+                    </span>
+                    @if (showToolTipTaxableBalance)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Taxable Accounts:</strong> Non-retirement investment accounts that are subject to annual taxes on dividends, interest, and capital gains.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                        Traditional: @Model.TraditionalBalance.ToString("C0")
+                    </span>
+                    @if (showToolTipTraditionalBalance)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s and Traditional IRAs.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                        Roth: @Model.RothBalance.ToString("C0")
+                    </span>
+                    @if (showToolTipRothBalance)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Roth Accounts:</strong> Tax-free growth retirement accounts like Roth IRAs and Roth 401(k)s.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px; padding-top:6px; border-top:1px solid #e9ecef;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInvestmentReturn = !showToolTipInvestmentReturn" tabindex="0" title="Click for more info"></span>
+                        Expected Return: @Model.InvestmentReturn.ToString("F1")%
+                    </span>
+                    @if (showToolTipInvestmentReturn)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Expected Return:</strong> The average annual growth rate you expect from your investments before inflation.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInvestmentReturn = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipInflationRate = !showToolTipInflationRate" tabindex="0" title="Click for more info"></span>
+                        Expected Inflation: @Model.InflationRate.ToString("F1")%
+                    </span>
+                    @if (showToolTipInflationRate)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Expected Inflation:</strong> The annual rate at which the purchasing power of money decreases.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipInflationRate = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(2)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 3: Social Security -->
+        <div class="section-card" style="background-color: rgba(5, 150, 105, 0.03); border-left: 3px solid var(--financial-green);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">3</span>
+                    <div>Social Security</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityYou = !showToolTipSocialSecurityYou" tabindex="0" title="Click for more info"></span>
+                        Expected SS/mo (You): @Model.SocialSecurityMonthlyYou.ToString("C0")
+                    </span>
+                    @if (showToolTipSocialSecurityYou)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Social Security Benefit:</strong> Your expected monthly Social Security payment.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityYou = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSocialSecurityPartner = !showToolTipSocialSecurityPartner" tabindex="0" title="Click for more info"></span>
+                        Expected SS/mo (Partner): @Model.SocialSecurityMonthlyPartner.ToString("C0")
+                    </span>
+                    @if (showToolTipSocialSecurityPartner)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's Social Security Benefit:</strong> Your partner's expected monthly Social Security payment.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSocialSecurityPartner = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgeYou = !showToolTipSSStartAgeYou" tabindex="0" title="Click for more info"></span>
+                        SS Start Age (You): @Model.SSStartAgeYou
+                    </span>
+                    @if (showToolTipSSStartAgeYou)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your SS Start Age:</strong> The age you plan to claim Social Security.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgeYou = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSSStartAgePartner = !showToolTipSSStartAgePartner" tabindex="0" title="Click for more info"></span>
+                        SS Start Age (Partner): @Model.SSStartAgePartner
+                    </span>
+                    @if (showToolTipSSStartAgePartner)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's SS Start Age:</strong> The age your partner plans to claim Social Security.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSSStartAgePartner = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(3)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 4: Reverse mortgage income -->
+        <div class="section-card" style="background-color: rgba(217, 119, 6, 0.03); border-left: 3px solid var(--financial-amber);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">4</span>
+                    <div>Reverse mortgage income</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageStartYear = !showToolTipReverseMortgageStartYear" tabindex="0" title="Click for more info"></span>
+                        Start year: @Model.ReverseMortgageStartYear
+                    </span>
+                    @if (showToolTipReverseMortgageStartYear)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Reverse Mortgage Start Year:</strong> The calendar year when you plan to begin receiving payments from a reverse mortgage.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageStartYear = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipReverseMortgageMonthly = !showToolTipReverseMortgageMonthly" tabindex="0" title="Click for more info"></span>
+                        Monthly: @Model.ReverseMortgageMonthly.ToString("C0")
+                    </span>
+                    @if (showToolTipReverseMortgageMonthly)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Monthly Reverse Mortgage Payment:</strong> The estimated monthly income you expect to receive from your reverse mortgage.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipReverseMortgageMonthly = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(4)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 5: Withdrawal Strategy -->
+        <div class="section-card @(IsWithdrawalStrategySectionComplete() ? "" : "incomplete-section")" style="background-color: rgba(109, 93, 252, 0.03); border-left: 3px solid var(--accent);">
+            <div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="step-badge">5</span>
+                        <div>Withdrawal Strategy</div>
+                    </div>
+                    @if (!IsWithdrawalStrategySectionComplete())
+                    {
+                        <span style="font-size:0.75rem; color:#dc3545;">
+                            <i class="bi bi-exclamation-circle"></i> Required fields missing
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" tabindex="0" title="Click for more info"></span>
+                        One retired: @Model.AnnualWithdrawalOne.ToString("C0")
+                    </span>
+                    @if (showToolTipWithdrawalOne)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.AnnualWithdrawalOne <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
+                        Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
+                    </span>
+                    @if (showToolTipWithdrawalBoth)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.AnnualWithdrawalBoth <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(5)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 6: Current Ages & Simulation -->
+        <div class="section-card" style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid var(--info);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <span class="step-badge">6</span>
+                    <div>Current Ages & Simulation</div>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
+                        You: @Model.CurrentAgeYou
+                    </span>
+                    @if (showToolTipCurrentAgeYou)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Current Age:</strong> Your age today.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
+                        Partner: @Model.CurrentAgePartner
+                    </span>
+                    @if (showToolTipCurrentAgePartner)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's Current Age:</strong> Your partner's age today.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear" tabindex="0" title="Click for more info"></span>
+                        Projection start year: @Model.SimulationStartYear
+                    </span>
+                    @if (showToolTipSimulationStartYear)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Projection Start Year:</strong> The calendar year when the retirement planning analysis begins.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(5)">
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CalendarSpendingModel Model { get; set; } = new CalendarSpendingModel();
+
+    [Parameter]
+    public List<CalendarYearRow> YearRows { get; set; } = new();
+
+    [Parameter]
+    public bool IsSimpleMode { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnOpenWizard { get; set; }
+
+    // Local tooltip flags
+    private bool showToolTipYourRetirementAge = false;
+    private bool showToolTipPartnerRetirementAge = false;
+    private bool showToolTipYourLifeExpectancy = false;
+    private bool showToolTipPartnerLifeExpectancy = false;
+    private bool showToolTipTaxableBalance = false;
+    private bool showToolTipTraditionalBalance = false;
+    private bool showToolTipRothBalance = false;
+    private bool showToolTipInvestmentReturn = false;
+    private bool showToolTipInflationRate = false;
+    private bool showToolTipSocialSecurityYou = false;
+    private bool showToolTipSocialSecurityPartner = false;
+    private bool showToolTipSSStartAgeYou = false;
+    private bool showToolTipSSStartAgePartner = false;
+    private bool showToolTipReverseMortgageStartYear = false;
+    private bool showToolTipReverseMortgageMonthly = false;
+    private bool showToolTipWithdrawalOne = false;
+    private bool showToolTipWithdrawalBoth = false;
+    private bool showToolTipCurrentAgeYou = false;
+    private bool showToolTipCurrentAgePartner = false;
+    private bool showToolTipSimulationStartYear = false;
+
+    private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
+    private int DisplayLifeExpectancyPartner => ComputeLifeExpectancyAge(Model?.LifeExpectancyPartner ?? 0, Model?.CurrentAgePartner ?? 0);
+
+    private int ComputeLifeExpectancyAge(int lifeValue, int currentAge)
+    {
+        if (lifeValue <= 0) return 0;
+        if (lifeValue > 1900)
+        {
+            if (currentAge > 0)
+                return currentAge + (lifeValue - DateTime.Now.Year);
+            return Math.Max(0, lifeValue - DateTime.Now.Year);
+        }
+        return lifeValue;
+    }
+
+    private void RequestOpenWizard(int step)
+    {
+        // -1 indicates Clear action; parent can interpret
+        if (OnOpenWizard.HasDelegate)
+        {
+            OnOpenWizard.InvokeAsync(step);
+        }
+    }
+
+    private bool IsRetirementAgesSectionComplete()
+    {
+        return Model != null && Model.RetirementAgeYou > 0 && (Model.CurrentAgeYou > 0 || Model.LifeExpectancyYou > 0);
+    }
+
+    private bool IsStartingBalancesSectionComplete()
+    {
+        return Model != null && (Model.TaxableBalance > 0 || Model.TraditionalBalance > 0 || Model.RothBalance > 0);
+    }
+
+    private bool IsWithdrawalStrategySectionComplete()
+    {
+        return Model != null && (Model.AnnualWithdrawalOne > 0 || Model.AnnualWithdrawalBoth > 0);
+    }
+}
