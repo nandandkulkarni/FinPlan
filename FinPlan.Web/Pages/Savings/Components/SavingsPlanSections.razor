@@ -5,6 +5,60 @@
 @inject ILogger<SavingsPlanSections> Logger
 
 <style>
+    :root {
+        --fp-accent: #1F6FEB;
+        --fp-accent-contrast: #ffffff;
+    }
+
+    .btn-outline-accent {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--fp-accent);
+        background: transparent;
+        border: 2px solid var(--fp-accent);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 120ms ease, box-shadow 120ms ease, transform 60ms ease;
+        text-decoration: none;
+    }
+
+    .btn-outline-accent:hover {
+        background: rgba(31,111,235,0.06);
+        box-shadow: 0 8px 20px rgba(31,111,235,0.08);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-accent:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px rgba(31,111,235,0.06);
+    }
+
+    .btn-outline-accent:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(31,111,235,0.12);
+    }
+
+    .btn-outline-accent--solid {
+        background: var(--fp-accent);
+        color: var(--fp-accent-contrast);
+        border-color: var(--fp-accent);
+    }
+
+    .btn-outline-accent--ghost {
+        background: transparent;
+        color: var(--fp-accent);
+        border-color: rgba(31,111,235,0.12);
+    }
+
+    .btn-outline-accent--sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
     .plan-sections-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -201,6 +255,13 @@
                 min-height: 44px;
                 padding: 12px;
                 font-size: 1rem;
+            }
+
+            .btn-outline-accent {
+                width: 100% !important;
+                min-height: 44px !important;
+                padding: 12px !important;
+                font-size: 1rem !important;
             }
 
         .info-tooltip {
