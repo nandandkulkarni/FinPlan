@@ -5468,8 +5468,14 @@
                         Category = expense.Category,
                         Subcategory = expense.Subcategory,
                         CurrentValue = expense.CurrentValue,
-                        IncludeInRetirement = expense.IncludeInRetirement,
-                        RetirementExclusionReason = expense.RetirementExclusionReason
+                        Frequency = expense.Frequency,
+                        AdjustOption = RetirementAdjustOption.Inflation,
+                        PerItemInflationSource = InflationSource.UseGlobal,
+                        //PerItemInflationPercent = expense.PerItemInflationPercent,
+                        //CustomPercentage = expense.CustomPercentage,
+                        //ManualRetirementValue = expense.ManualRetirementValue,
+                        IncludeInRetirement = true,
+                        //RetirementExclusionReason = expense.RetirementExclusionReason
                     });
                 }
 
@@ -5585,6 +5591,13 @@
             matchedProfile = profile;
 
             try { matchedProfile.DeserializeFromDatabase(); } catch { }
+
+            foreach(var item in matchedProfile.SampleExpenses)
+            {
+                item.PerItemInflationSource = InflationSource.UseGlobal;
+                item.AdjustOption = RetirementAdjustOption.Inflation;
+                item.IncludeInRetirement = true;
+            }
 
             // Close pickers/modals
             showProfileSelector = false;
