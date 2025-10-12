@@ -2188,96 +2188,18 @@
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
 
-<!-- Intro Modal - Moved outside blurred wrapper -->
-@if (showIntroModal)
-{
-    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
-    <div class="modal d-block" style="z-index: 1050;">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
-            <div class="modal-content" style="border-top: 4px solid #FFD600;">
-                <div class="d-block d-md-none"><br><br /></div>
+<CostOfLivingIntroModal
+    Visible="@showIntroModal"
+    YearsToRetirement="@YearsToRetirement"
+    YearsToRetirementChanged="@(val => YearsToRetirement = val)"
+    InflationRate="@InflationRate"
+    OnClose="@( () => CloseIntroModal() )"
+    OnStartWithDefaults="@( () => StartWithDefaults() )"
+    OnStartFromScratch="@( () => StartFromScratch() )"
+    OnDontShowIntroChanged="@OnDontShowIntroChanged" />
 
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title">
-                        <i class="bi bi-star-fill text-warning me-2"></i>Welcome to Cost of Living Planning!
-                    </h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseIntroModal"></button>
-                </div>
 
-                <div class="modal-body" style="background-color: #fffef7;">
-                    <div class="text-center mb-4">
-                        <div style="font-size: 3rem; margin-bottom: 12px;">📊</div>
-                        <p class="text-muted mb-0">
-                            Let's create your personalized cost of living projection
-                        </p>
-                    </div>
 
-                    <!-- Single Key Assumption -->
-                    <div class="card bg-white mb-4 border-primary">
-                        <div class="card-body">
-                            <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
-
-                            <div class="row justify-content-center">
-                                <div class="col-md-6">
-                                    <label class="form-label d-flex align-items-center justify-content-center">
-                                        <span class="fw-bold">Years to Retirement</span>
-                                        <span class="bi bi-info-circle text-info ms-2"
-                                              style="font-size: 0.9rem; cursor: pointer;"
-                                              @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
-                                              title="Click for info"></span>
-                                    </label>
-                                    <input type="number"
-                                           class="form-control form-control-lg text-center fw-bold"
-                                           style="font-size: 1.5rem;"
-                                           @bind="YearsToRetirement"
-                                           min="1"
-                                           max="50" />
-
-                                    @if (showToolTipYearsInfo)
-                                    {
-                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
-                                            <strong>Years to Retirement:</strong> The number of years until you expect to retire. This helps us project your future costs.
-                                            <button type="button" class="btn-close btn-close-sm float-end" @onclick="() => showToolTipYearsInfo = false"></button>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="small text-muted text-center mt-3">
-                                <i class="bi bi-info-circle me-1"></i>
-                                We'll use a default inflation rate of @InflationRate% (you can adjust this later)
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-3 justify-content-center mb-3">
-                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
-                            <i class="bi bi-lightning-fill me-2"></i>Start with Sample Data
-                        </button>
-                        <button class="btn btn-outline-primary btn-lg px-5" @onclick="StartFromScratch">
-                            <i class="bi bi-pencil me-2"></i>Start from Scratch
-                        </button>
-                    </div>
-
-                    <!-- Don't Show Again -->
-                    <div class="text-center pt-3 border-top">
-                        <div class="form-check d-inline-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
-                                   id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
-                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
-                                Don't show this welcome screen again
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-<!-- Removed left sidebar nav; content moved to main container -->
-<!-- Main content - hide on mobile, blur on desktop when modal is open -->
 <div class="@(showIntroModal ? "intro-modal-active" : "")">
     <div class="container-fluid">
         <div class="row">

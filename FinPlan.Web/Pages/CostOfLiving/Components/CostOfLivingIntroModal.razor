@@ -1,0 +1,124 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+@if (Visible)
+{
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+    <div class="modal d-block" style="z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+            <div class="modal-content" style="border-top: 4px solid #FFD600;">
+                <div class="d-block d-md-none"><br><br /></div>
+
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Welcome to Cost of Living Planning!
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+
+                <div class="modal-body" style="background-color: #fffef7;">
+                    <div class="text-center mb-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">📊</div>
+                        <p class="text-muted mb-0">
+                            Let's create your personalized cost of living projection
+                        </p>
+                    </div>
+
+                    <!-- Single Key Assumption -->
+                    <div class="card bg-white mb-4 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
+
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <label class="form-label d-flex align-items-center justify-content-center">
+                                        <span class="fw-bold">Years to Retirement</span>
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer;"
+                                              @onclick="() => showToolTipYearsInfo = !showToolTipYearsInfo"
+                                              title="Click for info"></span>
+                                    </label>
+                                    <input type="number"
+                                           class="form-control form-control-lg text-center fw-bold"
+                                           style="font-size: 1.5rem;"
+                                           @bind="YearsValue"
+                                           min="1"
+                                           max="50" />
+
+                                    @if (showToolTipYearsInfo)
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                            <strong>Years to Retirement:</strong> The number of years until you expect to retire. This helps us project your future costs.
+                                            <button type="button" class="btn-close btn-close-sm float-end" @onclick="() => showToolTipYearsInfo = false"></button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="small text-muted text-center mt-3">
+                                <i class="bi bi-info-circle me-1"></i>
+                                We'll use a default inflation rate of @InflationRate% (you can adjust this later)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-center mb-3">
+                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
+                            <i class="bi bi-lightning-fill me-2"></i>Start with Sample Data
+                        </button>
+                        <button class="btn btn-outline-primary btn-lg px-5" @onclick="StartFromScratch">
+                            <i class="bi bi-pencil me-2"></i>Start from Scratch
+                        </button>
+                    </div>
+
+                    <!-- Don't Show Again -->
+                    <div class="text-center pt-3 border-top">
+                        <div class="form-check d-inline-flex align-items-center">
+                            <input class="form-check-input me-2" type="checkbox"
+                                   id="dontShowIntroAgainCheck" @onchange="DontShowChanged" />
+                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
+                                Don't show this welcome screen again
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+
+    [Parameter] public int YearsToRetirement { get; set; }
+    [Parameter] public EventCallback<int> YearsToRetirementChanged { get; set; }
+
+    [Parameter] public decimal InflationRate { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnStartWithDefaults { get; set; }
+    [Parameter] public EventCallback OnStartFromScratch { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnDontShowIntroChanged { get; set; }
+
+    private bool showToolTipYearsInfo = false;
+
+    // Bridge property to enable two-way binding to parent for YearsToRetirement
+    private int YearsValue
+    {
+        get => YearsToRetirement;
+        set
+        {
+            if (YearsToRetirement != value)
+            {
+                YearsToRetirement = value;
+                _ = YearsToRetirementChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    private Task Close() => OnClose.HasDelegate ? OnClose.InvokeAsync() : Task.CompletedTask;
+    private Task StartWithDefaults() => OnStartWithDefaults.HasDelegate ? OnStartWithDefaults.InvokeAsync() : Task.CompletedTask;
+    private Task StartFromScratch() => OnStartFromScratch.HasDelegate ? OnStartFromScratch.InvokeAsync() : Task.CompletedTask;
+    private Task DontShowChanged(ChangeEventArgs e) => OnDontShowIntroChanged.HasDelegate ? OnDontShowIntroChanged.InvokeAsync(e) : Task.CompletedTask;
+}
