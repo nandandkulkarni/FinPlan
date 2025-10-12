@@ -312,12 +312,12 @@
                 padding-top: 16px; /* Increased from 6px to 16px for more space */
             }
         /* .section-card .actions {
-                                                                margin-top: auto;
-                                                                display: flex;
-                                                                justify-content: flex-start;
-                                                                gap: 8px;
-                                                                padding-top: 6px;
-                                                            } */
+                                                                        margin-top: auto;
+                                                                        display: flex;
+                                                                        justify-content: flex-start;
+                                                                        gap: 8px;
+                                                                        padding-top: 6px;
+                                                                    } */
 
         .btn-update {
             background: #1F6FEB;
@@ -479,21 +479,21 @@
         }
 
         /* .step-badge {
-                                                            width: 36px;
-                                                            height: 36px;
-                                                            min-width: 36px;
-                                                            border-radius: 50%;
-                                                            display: inline-flex;
-                                                            align-items: center;
-                                                            justify-content: center;
-                                                            background: var(--brand-yellow);
-                                                            color: #111;
-                                                            font-weight: 800;
-                                                            font-size: 1rem;
-                                                            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                                                            margin-right: 8px;
-                                                            flex-shrink: 0;
-                                                        } */
+                                                                    width: 36px;
+                                                                    height: 36px;
+                                                                    min-width: 36px;
+                                                                    border-radius: 50%;
+                                                                    display: inline-flex;
+                                                                    align-items: center;
+                                                                    justify-content: center;
+                                                                    background: var(--brand-yellow);
+                                                                    color: #111;
+                                                                    font-weight: 800;
+                                                                    font-size: 1rem;
+                                                                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                                                                    margin-right: 8px;
+                                                                    flex-shrink: 0;
+                                                                } */
 
         .empty-state {
             text-align: center;
@@ -892,7 +892,7 @@
                 <div class="row g-3">
                     <!-- Left mini column (2) -->
                     <div class="col-12 col-md-2">
-                      @*   @if (showSurvey)
+                        @*   @if (showSurvey)
                         {
                             <div class="card survey-card survey-card-narrow mb-2">
                                 <div class="card-body text-center">
@@ -912,84 +912,53 @@
                         @if (!Model.IsModelEmpty() && YearRows.Count > 1)
                         {
                             <div class="projection-cards">
-                                @if (isSimpleMode)
-                                {
-                                    <!-- Simplified macro cards for beginners -->
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Retirement timeline"
-                                         style="background: #FFD600; color: #333; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                        <span class="bi bi-calendar-heart" style="font-size:2rem; margin-bottom:8px; color:#333;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#333;">Your Retirement Plan</div>
-                                        <div class="card-value" style="font-size:1.1rem; color:#333;">@GetProjectionRangeText()</div>
-                                        <small class="text-muted mt-1 text-center">Planning period for your retirement</small>
-                                    </div>
 
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Money status"
-                                         style="background: @(GetDepletionText().Contains("Never") ? "#38B2AC" : "#F56565"); color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                        <span class="bi @(GetDepletionText().Contains("Never") ? "bi-check-circle" : "bi-exclamation-triangle")" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Money Status</div>
-                                        <div class="card-value" style="font-size:1.1rem; color:#fff;">
-                                            @(GetDepletionText().Contains("Never") ? "✓ Looks Good" : "⚠ Needs Attention")
-                                        </div>
-                                        <small class="text-white-50 mt-1 text-center">
-                                            @(GetDepletionText().Contains("Never") ? "Your money should last" : "You may run short")
-                                        </small>
-                                    </div>
 
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Final amount remaining"
-                                         style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 200px; display: flex; flex-direction: column; align-items: center; padding: 16px;">
-                                        <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Money Left Over</div>
-                                        <div class="card-value" style="font-size:1.1rem; color:#fff;">@GetFinalPortfolioText()</div>
-                                        <small class="text-white-50 mt-1 text-center">Estimated at end of plan</small>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <!-- Advanced macro cards (original) -->
-                                         <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
-                                         style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
-                                    </div>
+                                <!-- Advanced macro cards (original) -->
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Runway years"
+                                     style="background: #38B2AC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-arrow-right-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Runway</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetRunwayYearsText()</div>
+                                </div>
 
-                                                <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
-                                         style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
-                                    </div>
-                               
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
-                                         style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
-                                    </div>
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
-                                         style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#222;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#222;">Projection range</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#222;">@GetProjectionRangeText()</div>
-                                    </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Projected depletion"
+                                     style="background: #F56565; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-exclamation-triangle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Projected depletion</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetDepletionText()</div>
+                                </div>
 
-                                    <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
-                                         style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
-                                        <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
-                                        <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
-                                        <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
-                                    </div>
-                                }
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Net shortfall last year"
+                                     style="background: #805AD5; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-arrow-down-circle" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Net shortfall (last year)</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetNetShortfallText()</div>
+                                </div>
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Projection range"
+                                     style="background: #FFD600; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-calendar-range" style="font-size:2rem; margin-bottom:8px; color:#222;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#222;">Projection range</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#222;">@GetProjectionRangeText()</div>
+                                </div>
+
+                                <div class="macro-card" tabindex="0" role="button" aria-label="Final projected portfolio"
+                                     style="background: #6D5DFC; color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); min-width: 160px; display: flex; flex-direction: column; align-items: center;">
+                                    <span class="bi bi-piggy-bank" style="font-size:2rem; margin-bottom:8px; color:#fff;"></span>
+                                    <div class="card-label" style="font-weight:700; color:#fff;">Final portfolio (last year)</div>
+                                    <div class="card-value" style="font-size:1.2rem; color:#fff;">@GetFinalPortfolioText()</div>
+                                </div>
+
                             </div>
                         }
-                      
 
-                       
+
+
 
                         <!-- Complete State - Normal View -->
                         <div class="panel section-panel">
 
-                               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem 1.5rem;">
                                 <div style="flex: 1;"></div>
                                 <h5>
                                     Retirement Planner - Inputs
@@ -1005,27 +974,6 @@
                                     </button>
                                 </div>
                             </div>
-
-                      @*       <!-- Prominent Mode Toggle Header - Same as Cost of Living -->
-                         <div class="mode-toggle-header @(isSimpleMode ? "simple-mode" : "")">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-        <div>
-            <h4 class="mb-1">Plan Input Data</h4>
-            <p class="text-muted mb-0 small">Advanced retirement modeling with detailed projections</p>
-        </div>
-        <div class="border-start ps-0 ps-md-4 d-flex flex-column flex-md-row align-items-stretch gap-2 w-100 w-md-auto">
-            <button class="btn btn-primary w-100 w-md-auto" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="() => OpenWizard(1)">
-                <i class="bi bi-gear me-2"></i>
-                Update Plan
-            </button>
-            <button class="btn btn-outline-danger w-100 w-md-auto" style="padding: 8px 16px; font-size: 0.9rem;" @onclick="ClearDataAsync" title="Clear saved plan data">
-                <i class="bi bi-trash me-1"></i>
-                Clear Plan Data
-            </button>
-        </div>
-    </div>
-</div> *@
-
                             <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                                 <!-- Section 1: Retirement ages & life expectancy -->
                                 <div class="section-card @(!IsRetirementAgesSectionComplete() ? "incomplete-section" : "")"
@@ -1045,19 +993,19 @@
                                         </div>
 
                                         <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
-                                                    You: @Model.RetirementAgeYou
-                                                </span>
-                                                @if (showToolTipYourRetirementAge)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. This affects how long your portfolio needs to last and when you'll start drawing from retirement accounts.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourRetirementAge = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
+                                                You: @Model.RetirementAgeYou
+                                            </span>
+                                            @if (showToolTipYourRetirementAge)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. This affects how long your portfolio needs to last and when you'll start drawing from retirement accounts.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourRetirementAge = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
                                             @if (Model.RetirementAgeYou <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1067,21 +1015,21 @@
                                         </div>
 
                                         <div class="small-note" style="margin-top:8px;">
-                                            
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
-                                                    Partner: @Model.RetirementAgePartner
-                                                </span>
-                                                @if (showToolTipPartnerRetirementAge)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire. Different retirement ages between partners can affect income timing and withdrawal strategies.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerRetirementAge = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
-                                            
+
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
+                                                Partner: @Model.RetirementAgePartner
+                                            </span>
+                                            @if (showToolTipPartnerRetirementAge)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire. Different retirement ages between partners can affect income timing and withdrawal strategies.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerRetirementAge = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
                                             @if (Model.RetirementAgePartner <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1091,19 +1039,19 @@
                                         </div>
 
                                         <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                                                    Life exp (You): @DisplayLifeExpectancyYou
-                                                </span>
-                                                @if (showToolTipYourLifeExpectancy)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Your Life Expectancy:</strong> The age you expect to live to. Your retirement plan should ensure you don't outlive your savings. Consider adding a buffer to this estimate.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourLifeExpectancy = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                                                Life exp (You): @DisplayLifeExpectancyYou
+                                            </span>
+                                            @if (showToolTipYourLifeExpectancy)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Your Life Expectancy:</strong> The age you expect to live to. Your retirement plan should ensure you don't outlive your savings. Consider adding a buffer to this estimate.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourLifeExpectancy = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
                                             @if (DisplayLifeExpectancyYou <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1113,19 +1061,19 @@
                                         </div>
 
                                         <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                                                    Life exp (Partner): @DisplayLifeExpectancyPartner
-                                                </span>
-                                                @if (showToolTipPartnerLifeExpectancy)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to. Different life expectancies can affect survivor benefits and legacy planning.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerLifeExpectancy = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                                                Life exp (Partner): @DisplayLifeExpectancyPartner
+                                            </span>
+                                            @if (showToolTipPartnerLifeExpectancy)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to. Different life expectancies can affect survivor benefits and legacy planning.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerLifeExpectancy = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
                                             @if (DisplayLifeExpectancyPartner <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1438,22 +1386,22 @@
                                         </div>
 
                                         <div class="small-note" style="margin-top:8px;">
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" 
-                                                        @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne" 
-                                                        tabindex="0" 
-                                                        title="Click for more info"></span>
-                                                    One retired: @Model.AnnualWithdrawalOne.ToString("C0")
-                                                </span>
-                                                @if (showToolTipWithdrawalOne)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired. This is typically less than when both partners are retired since one person is still earning income.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon"
+                                                      @onclick="() => showToolTipWithdrawalOne = !showToolTipWithdrawalOne"
+                                                      tabindex="0"
+                                                      title="Click for more info"></span>
+                                                One retired: @Model.AnnualWithdrawalOne.ToString("C0")
+                                            </span>
+                                            @if (showToolTipWithdrawalOne)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Annual Withdrawal (One Retired):</strong> The amount you plan to withdraw annually from your portfolio when only one of you is retired. This is typically less than when both partners are retired since one person is still earning income.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalOne = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
                                             @if (Model.AnnualWithdrawalOne <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1464,19 +1412,19 @@
 
                                         <div class="small-note" style="margin-top:8px;">
 
-                                                <span class="d-flex align-items-center">
-                                                    <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
-                                                    Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
-                                                </span>
-                                                @if (showToolTipWithdrawalBoth)
-                                                {
-                                                    <div class="info-tooltip">
-                                                        <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired. This often needs to be higher than when one person is retired since you'll be relying entirely on portfolio income and Social Security.
-                                                        <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
-                                                            <span class="bi bi-x-lg"></span>
-                                                        </span>
-                                                    </div>
-                                                }
+                                            <span class="d-flex align-items-center">
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipWithdrawalBoth = !showToolTipWithdrawalBoth" tabindex="0" title="Click for more info"></span>
+                                                Both retired: @Model.AnnualWithdrawalBoth.ToString("C0")
+                                            </span>
+                                            @if (showToolTipWithdrawalBoth)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Annual Withdrawal (Both Retired):</strong> The amount you plan to withdraw annually from your portfolio when both of you are retired. This often needs to be higher than when one person is retired since you'll be relying entirely on portfolio income and Social Security.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipWithdrawalBoth = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
                                             @if (Model.AnnualWithdrawalBoth <= 0)
                                             {
                                                 <span class="missing-badge">
@@ -1574,37 +1522,7 @@
 
                     <!-- Right column (2) -->
                     <div class="col-12 col-md-2">
-                        @* <div class="panel">
-                        <div style="font-weight:700; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                            <div>Debug</div>
-                            <div>
-                                <button class="btn-ghost" style="padding:4px 6px; font-size:0.8rem;" @onclick="ToggleRightDebug">Toggle</button>
-                            </div>
-                        </div>
-                        <div style="font-size:0.85rem; color:var(--muted);">Toggle messages</div>
-                        <div style="margin-top:8px;">
-                            <button class="btn-ghost" style="padding:4px 8px; font-size:0.8rem; width:100%;" @onclick="TestCalculation">
-                                <i class="bi bi-calculator" style="margin-right: 4px;"></i>
-                                Test Calc
-                            </button>
-                        </div>
-                        @if (ShowRightDebug)
-                        {
-                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:200px; overflow:auto;">
-                                @foreach (var msg in DebugService.Messages.OrderByDescending(m => m.MessageTime))
-                                {
-                                    <div style="margin-bottom:6px;">
-                                        <small style="color:var(--muted);">@msg.MessageTime.ToString("HH:mm:ss")</small>
-                                        <div>@msg.MessageText</div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div style="margin-top:8px; background:#fbfbfb; padding:8px; border-radius:6px; max-height:120px; overflow:auto;">No messages</div>
-                        }
-                    </div> *@
+                       
                     </div>
                 </div>
             </div>
@@ -1694,28 +1612,6 @@
                                 <!-- This empty div will mimic the table's width and scrollbar -->
                                 <div style="width:1100px; height:1px;"></div>
                             </div>
-                            <!-- Actual table with bottom scrollbar -->
-                            <!-- Retirement Projection with Simple/Advanced Mode Support -->
-                            @if (isSimpleMode)
-                            {
-                                <!-- Simple Mode: Show beginner-friendly summary first -->
-                                <div class="alert alert-light border-primary mb-3">
-                                    <div class="d-flex align-items-start">
-                                        <i class="bi bi-info-circle text-primary me-3" style="font-size: 1.2rem; margin-top: 3px;"></i>
-                                        <div>
-                                            <h6 class="text-primary mb-2">Your Retirement Plan Summary</h6>
-                                            <p class="mb-2 text-dark">
-                                                <strong>What this shows:</strong> Each row represents one year of your retirement.
-                                                You'll see your age, how much money you need, where it comes from, and how much you have left.
-                                            </p>
-                                            <p class="mb-0 text-dark">
-                                                <strong>Pay attention to:</strong> Red numbers mean you might not have enough money that year.
-                                                The goal is to avoid running out of money before your life expectancy.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
 
                             <RetirementSummaryGrid Model="@Model" YearRows="@YearRows" />
 
@@ -1744,77 +1640,7 @@
         </div>
 
         <!-- Methodology Explanation (Simple Mode) -->
-        @if (isSimpleMode)
-        {
-            <div class="mt-3 p-3" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;">
-                <div style="display: flex; align-items: flex-start; gap: 8px;">
-                    <div style="color: #0369a1; margin-top: 2px;">
-                        <i class="bi bi-lightbulb" style="font-size: 1.1rem;"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600; color: #0369a1; margin-bottom: 8px;">How This Retirement Calculator Works</div>
-                        <div style="font-size: 0.9rem; color: #0369a1; line-height: 1.4;">
-                            <p style="margin-bottom: 8px;"><strong>1. Your Income Needs:</strong> We calculate how much money you'll need each year in retirement based on your expected cost of living.</p>
-                            <p style="margin-bottom: 8px;"><strong>2. Income Sources:</strong> We add up all your income sources (Social Security, reverse mortgage payments) to see how much outside income you'll have.</p>
-                            <p style="margin-bottom: 8px;"><strong>3. Portfolio Withdrawals:</strong> If your income sources don't cover all expenses, we withdraw the difference from your investment accounts in tax-efficient order: Taxable first, then Traditional, then Roth.</p>
-                            <p style="margin-bottom: 8px;"><strong>4. Growth & Taxes:</strong> Your remaining money grows each year, but we also calculate taxes on withdrawals from Traditional accounts and investment growth.</p>
-                            <p style="margin-bottom: 0;"><strong>5. Year-by-Year Projection:</strong> We repeat this process for each year of retirement to show you when you might run out of money.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Items for Problems (Simple Mode) -->
-            @if (!GetDepletionText().Contains("Never"))
-            {
-                <div class="mt-3 p-3" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">
-                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <div style="color: #dc2626; margin-top: 2px;">
-                            <i class="bi bi-exclamation-circle" style="font-size: 1.1rem;"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: #dc2626; margin-bottom: 8px;">Your Plan Needs Attention</div>
-                            <p style="font-size: 0.9rem; color: #dc2626; margin-bottom: 8px;">Based on your current plan, you may run short of money during retirement. Here are some options to consider:</p>
-                            <ul style="font-size: 0.9rem; color: #dc2626; line-height: 1.4; margin-bottom: 8px;">
-                                <li><strong>Save More Now:</strong> Increase your retirement contributions while you're still working</li>
-                                <li><strong>Work Longer:</strong> Delay retirement by a few years to build more savings</li>
-                                <li><strong>Reduce Expenses:</strong> Plan to spend less in retirement</li>
-                                <li><strong>Delay Social Security:</strong> Waiting until age 70 increases your monthly benefit</li>
-                                <li><strong>Consider Part-Time Work:</strong> Small income in early retirement can make a big difference</li>
-                            </ul>
-                            <div style="font-size: 0.85rem; color: #991b1b; font-style: italic;">
-                                💡 Even small changes can have a big impact over time. Consider speaking with a financial advisor for personalized strategies.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="mt-3 p-3" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <div style="color: #16a34a; margin-top: 2px;">
-                            <i class="bi bi-check-circle" style="font-size: 1.1rem;"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: #16a34a; margin-bottom: 8px;">Your Plan Looks Good!</div>
-                            <p style="font-size: 0.9rem; color: #16a34a; margin-bottom: 8px;">Based on your current plan, your money should last through retirement. Here are some tips to stay on track:</p>
-                            <ul style="font-size: 0.9rem; color: #16a34a; line-height: 1.4; margin-bottom: 8px;">
-                                <li><strong>Review Annually:</strong> Update your plan each year as circumstances change</li>
-                                <li><strong>Monitor Market Performance:</strong> Actual returns may differ from projections</li>
-                                <li><strong>Plan for Healthcare:</strong> Medical costs can increase significantly in retirement</li>
-                                <li><strong>Consider Inflation:</strong> Make sure your plan accounts for rising costs over time</li>
-                                <li><strong>Build in Buffers:</strong> Having extra cushion helps handle unexpected expenses</li>
-                            </ul>
-                            <div style="font-size: 0.85rem; color: #15803d; font-style: italic;">
-                                💡 Remember, this is just a projection. Regular reviews and adjustments help keep you on track.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-
+       
         <!-- Important Disclaimers -->
         <div class="mt-3 p-3" style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px;">
             <div style="display: flex; align-items: flex-start; gap: 8px;">
