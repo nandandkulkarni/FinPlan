@@ -27,8 +27,8 @@
                     <!-- Single Key Assumption -->
                     <div class="card bg-white mb-4 border-primary">
                         <div class="card-body">
-                            <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
-
+@*                             <h6 class="card-title text-center mb-3 text-primary">When do you plan to retire?</h6>
+ *@
                             <div class="row justify-content-center">
                                 <div class="col-md-6">
                                     <label class="form-label d-flex align-items-center justify-content-center">
@@ -54,25 +54,81 @@
                                     }
                                 </div>
                             </div>
-
+@* 
                             <div class="small text-muted text-center mt-3">
                                 <i class="bi bi-info-circle me-1"></i>
                                 We'll use a default inflation rate of @InflationRate% (you can adjust this later)
-                            </div>
+                            </div> *@
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="d-flex gap-3 justify-content-center mb-3">
-                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
-                            <i class="bi bi-lightning-fill me-2"></i>Start with Sample Data
-                        </button>
+                      
                         <button class="btn btn-outline-primary btn-lg px-5" @onclick="StartFromScratch">
-                            <i class="bi bi-pencil me-2"></i>Start from Scratch
+                            <i class="bi bi-pencil me-2"></i>Start Planning
+                        </button>
+                        <button class="btn btn-primary btn-lg px-5" @onclick="StartWithDefaults">
+                            <i class="bi bi-lightning-fill me-2"></i>Try Sample Data
                         </button>
                     </div>
 
                     <!-- Don't Show Again -->
+                    <style>
+                        /* Highlighted checkbox block for intro modal */
+                        .intro-dont-show {
+                            background: linear-gradient(90deg, rgba(255,246,205,0.95), rgba(255,254,247,0.98));
+                            border-left: 6px solid var(--brand-yellow);
+                            padding: 12px 18px;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            margin-top: 16px;
+                        }
+
+                            .intro-dont-show .form-check-input {
+                                width: 22px;
+                                height: 22px;
+                                margin-top: 0.1rem;
+                            }
+
+                            .intro-dont-show .label-main {
+                                font-size: 1.02rem;
+                                font-weight: 700;
+                                color: #111;
+                                margin-bottom: 2px;
+                            }
+
+                            .intro-dont-show .label-sub {
+                                font-size: 0.85rem;
+                                color: #6c757d;
+                                margin: 0;
+                            }
+
+                            /* Make the entire area clickable on mobile */
+                            .intro-dont-show .form-check {
+                                cursor: pointer;
+                            }
+                    </style>
+
+                    <div class="intro-dont-show" role="region" aria-label="Intro preference">
+                        <div class="form-check d-flex align-items-start mb-0">
+                            <input class="form-check-input me-3" type="checkbox"
+                                   id="dontShowIntroAgainCheck" @onchange="DontShowChanged" />
+                        </div>
+
+                        <label class="form-check-label mb-0" for="dontShowIntroAgainCheck" style="max-width:720px;">
+                            <div class="label-main">
+                                <i class="bi bi-eye-slash-fill text-warning me-2" aria-hidden="true"></i>
+                                Don't show this welcome screen again
+                            </div>
+                            <div class="label-sub">
+                                Hide this welcome screen on future visits. You can re-enable it later in settings.
+                            </div>
+                        </label>
+                    </div>
+               @*      <!-- Don't Show Again -->
                     <div class="text-center pt-3 border-top">
                         <div class="form-check d-inline-flex align-items-center">
                             <input class="form-check-input me-2" type="checkbox"
@@ -81,7 +137,7 @@
                                 Don't show this welcome screen again
                             </label>
                         </div>
-                    </div>
+                    </div> *@
                 </div>
             </div>
         </div>
