@@ -1,0 +1,557 @@
+@using FinPlan.Shared.Models.LivingCosts
+@using Microsoft.AspNetCore.Components.Web
+
+@* Unified Item Modal (Add/Edit) with info icons and inline tooltips *@
+@if (Visible)
+{
+    <div class="modal-backdrop fade show" style="z-index:1040"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1050;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down" role="document">
+            <div class="modal-content shadow" style="border-top: 4px solid #1F6FEB; overflow: hidden;">
+                <div class="modal-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title d-flex align-items-center mb-0">
+                        <span class="bi @(IsEditMode ? "bi-pencil-square" : "bi-plus-circle") me-2 text-primary"></span>
+                        @if (IsSimpleMode)
+                        {
+                            @(IsEditMode ? "Edit Expense" : "Add New Expense")
+                        }
+                        else
+                        {
+                            @(IsEditMode ? "Edit Item" : "Add New Item")
+                        }
+                        @if (!string.IsNullOrWhiteSpace(CategoryName))
+                        {
+                            <small class="text-muted ms-2">in @CategoryName</small>
+                        }
+                    </h5>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Mode Toggle in Modal -->
+                        <div class="modal-mode-toggle d-flex align-items-center gap-3">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary mb-1">
+                                    @(IsSimpleMode ? "?? Simple Mode" : "?? Advanced Mode")
+                                </div>
+                                <small class="text-muted">
+                                    @(IsSimpleMode ? "Easy & basic" : "All features")
+                                </small>
+                            </div>
+                            <div class="form-check form-switch form-check-modal-lg">
+                                <input class="form-check-input" type="checkbox" id="modalModeToggle"
+                                       checked="@(!IsSimpleMode)" @onchange="OnModeToggle">
+                                <label class="form-check-label" for="modalModeToggle" style="cursor: pointer;">
+                                    @(IsSimpleMode ? "Enable Advanced" : "Simplify")
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="OnCancel"></button>
+                    </div>
+                </div>
+
+                <div class="modal-body py-4" style="background-color: #f8faff;">
+
+                    @* Item Name *@
+                    <div class="form-floating mb-3">
+                        <input type="text"
+                               class="form-control"
+                               id="itemName"
+                               placeholder="@(IsSimpleMode ? "Rent, Groceries, Gas, etc." : "e.g., Rent, Groceries, Utilities")"
+                               @bind="localItemName"
+                               @bind:event="oninput"
+                               @onkeydown="HandleKeyPress"
+                               autofocus />
+                        <label for="itemName" class="d-flex align-items-center">
+                            <span>@(IsSimpleMode ? "What do you spend money on?" : "Item Name")</span>
+                            <span class="bi bi-info-circle text-info ms-2"
+                                  style="font-size: 0.9rem; cursor: pointer; vertical-align: middle;"
+                                  title="What is this?"
+                                  @onclick="() => showTipItemName = !showTipItemName"></span>
+                        </label>
+                    </div>
+                    @if (showTipItemName)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 small">
+                            A short, descriptive name for the expense (e.g., Rent, Groceries). This appears as the row label.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipItemName = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+
+                    @if (IsSimpleMode)
+                    {
+                        <!-- Simplified view -->
+                        <div class="form-floating mb-3">
+                            <input class="form-control"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   id="itemAmountSimple"
+                                   placeholder="0"
+                                   @bind="localAmount"
+                                   @onkeydown="HandleKeyPress" />
+                            <label for="itemAmountSimple">How much per month? ($)</label>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Advanced view -->
+                        <div class="row g-3">
+                            @* Frequency *@
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>Frequency</span>
+                                    <span class="bi bi-info-circle text-info ms-2"
+                                          style="font-size: 0.9rem; cursor: pointer;"
+                                          title="What is this?"
+                                          @onclick="() => showTipFrequency = !showTipFrequency"></span>
+                                </label>
+                                <select class="form-select" @bind="localFrequency">
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Yearly">Yearly</option>
+                                </select>
+                                @if (showTipFrequency)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        How often you pay this amount. We convert it to a monthly equivalent for totals.
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipFrequency = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+
+                            @* Amount *@
+                            <div class="col-12 col-md-6">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>Amount ($)</span>
+                                    <span class="bi bi-info-circle text-info ms-2"
+                                          style="font-size: 0.9rem; cursor: pointer;"
+                                          title="What is this?"
+                                          @onclick="() => showTipAmount = !showTipAmount"></span>
+                                </label>
+                                <input class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       @bind="localAmount"
+                                       @onkeydown="HandleKeyPress" />
+                                @if (showTipAmount)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        Enter the amount in the selected frequency (e.g., a yearly premium if Frequency is Yearly).
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAmount = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @* Include in Retirement *@
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="itemInclude" @bind="localIncludeInRetirement" />
+                        <label class="form-check-label d-inline-flex align-items-center" for="itemInclude">
+                            <span>@(IsSimpleMode ? "Will you still have this cost in retirement?" : "Include in Retirement")</span>
+                            <span class="bi bi-info-circle text-info ms-2"
+                                  style="font-size: 0.9rem; cursor: pointer;"
+                                  title="What is this?"
+                                  @onclick="() => showTipInclude = !showTipInclude"></span>
+                        </label>
+                    </div>
+                    @if (showTipInclude)
+                    {
+                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                            Toggle whether this cost should be included in your retirement projection.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipInclude = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+
+                    @* Exclusion Reason (shown only when NOT included) *@
+                    @if (!localIncludeInRetirement)
+                    {
+                        <div class="mt-3">
+                            <label class="form-label d-flex align-items-center">
+                                <span>Reason for exclusion</span>
+                                <span class="bi bi-info-circle text-info ms-2"
+                                      style="font-size: 0.9rem; cursor: pointer;"
+                                      title="Why exclude this?"
+                                      @onclick="() => showTipExclusionReason = !showTipExclusionReason"></span>
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonNotNeeded" 
+                                       value="NotNeeded" @onchange="@(() => localExclusionReason = "NotNeeded")" 
+                                       checked="@(localExclusionReason == "NotNeeded")" />
+                                <label class="btn btn-outline-secondary" for="reasonNotNeeded">Not needed</label>
+
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonPaidOff" 
+                                       value="PaidOff" @onchange="@(() => localExclusionReason = "PaidOff")" 
+                                       checked="@(localExclusionReason == "PaidOff")" />
+                                <label class="btn btn-outline-secondary" for="reasonPaidOff">Paid off</label>
+
+                                <input type="radio" class="btn-check" name="exclusionReason" id="reasonOther" 
+                                       value="Other" @onchange="@(() => localExclusionReason = "Other")" 
+                                       checked="@(localExclusionReason == "Other")" />
+                                <label class="btn btn-outline-secondary" for="reasonOther">Other</label>
+                            </div>
+                            @if (showTipExclusionReason)
+                            {
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                    <strong>Not needed:</strong> Expenses that won't apply in retirement (e.g., childcare, work clothes).<br />
+                                    <strong>Paid off:</strong> Debts that will be eliminated (e.g., mortgage, car loan).<br />
+                                    <strong>Other:</strong> Any other reason for exclusion.
+                                    <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipExclusionReason = false">
+                                        <span class="bi bi-x-lg"></span>
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (localIncludeInRetirement)
+                    {
+                        @if (IsSimpleMode)
+                        {
+                            <!-- Simple mode: Default to inflation adjustment -->
+                            <div class="mt-3">
+                                <div class="alert alert-light py-2 px-3 border">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        This cost will grow with inflation (@GlobalInflationRate% per year) until retirement.
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @* Advanced mode: Full retirement adjustment options *@
+                            <div class="mt-3">
+                                <label class="form-label d-flex align-items-center">
+                                    <span>Retirement Adjustment</span>
+                                    <span class="bi bi-info-circle text-info ms-2"
+                                          style="font-size: 0.9rem; cursor: pointer;"
+                                          title="What is this?"
+                                          @onclick="() => showTipAdjust = !showTipAdjust"></span>
+                                </label>
+                                <select class="form-select" @bind="localAdjustOption">
+                                    <option value="Same">Same</option>
+                                    <option value="CustomPercentage">Custom %</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Inflation">Inflation</option>
+                                </select>
+                                @if (showTipAdjust)
+                                {
+                                    <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                        Choose how this item changes at retirement: keep the same, apply a custom percent,
+                                        enter a manual retirement amount, or grow by inflation.
+                                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAdjust = false">
+                                            <span class="bi bi-x-lg"></span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+
+                            @* Custom % *@
+                            @if (localAdjustOption == "CustomPercentage")
+                            {
+                                <div class="mt-3">
+                                    <label class="form-label d-flex align-items-center">
+                                        <span>Custom %</span>
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer;"
+                                              @onclick="() => showTipCustomPercent = !showTipCustomPercent"></span>
+                                    </label>
+                                    <input class="form-control" type="number" step="1" min="0" @bind="localCustomPercentage" />
+                                    @if (showTipCustomPercent)
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                            Percentage of the current monthly amount at retirement. 50% halves it; 200% doubles it.
+                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCustomPercent = false">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            @* Manual *@
+                            @if (localAdjustOption == "Manual")
+                            {
+                                <div class="mt-3">
+                                    <label class="form-label d-flex align-items-center">
+                                        <span>Manual Retirement Value</span>
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer;"
+                                              @onclick="() => showTipManualValue = !showTipManualValue"></span>
+                                    </label>
+                                    <input class="form-control" type="number" step="0.01" min="0" @bind="localManualRetirementValue" />
+                                    @if (showTipManualValue)
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                            A fixed monthly amount to use in retirement. Overrides other adjustments.
+                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipManualValue = false">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            @* Inflation *@
+                            @if (localAdjustOption == "Inflation")
+                            {
+                                <div class="mt-3">
+                                    <label class="form-label d-flex align-items-center">
+                                        <span>Inflation Source</span>
+                                        <span class="bi bi-info-circle text-info ms-2"
+                                              style="font-size: 0.9rem; cursor: pointer;"
+                                              @onclick="() => showTipInflationSource = !showTipInflationSource"></span>
+                                    </label>
+                                    <select class="form-select" @bind="localInflationSource">
+                                        <option value="UseGlobal">Global</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
+                                    @if (showTipInflationSource)
+                                    {
+                                        <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                            Global uses the plan's inflation rate. Custom lets you specify a per?item inflation rate.
+                                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipInflationSource = false">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (localInflationSource == "Custom")
+                                {
+                                    <div class="mt-3">
+                                        <label class="form-label d-flex align-items-center">
+                                            <span>Custom Inflation %</span>
+                                            <span class="bi bi-info-circle text-info ms-2"
+                                                  style="font-size: 0.9rem; cursor: pointer;"
+                                                  @onclick="() => showTipCustomInflation = !showTipCustomInflation"></span>
+                                        </label>
+                                        <input class="form-control" type="number" step="0.1" min="0" @bind="localCustomInflationPercent" />
+                                        @if (showTipCustomInflation)
+                                        {
+                                            <div class="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                                                Annual inflation rate for this item (e.g., 3 means 3% per year until retirement).
+                                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCustomInflation = false">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                        }
+                    }
+                </div>
+
+                <div class="modal-footer border-top-0 pt-0" style="background-color: #f8faff;">
+                    <button class="btn btn-outline-secondary px-4" @onclick="OnCancel">Cancel</button>
+                    <button class="btn btn-primary px-4 d-flex align-items-center gap-2"
+                            @onclick="OnSave"
+                            disabled="@(IsSaving || IsDisabled)">
+                        @if (IsSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <span class="bi @(IsEditMode ? "bi-check2" : "bi-plus-lg")"></span>
+                        }
+                        @(IsEditMode ? "Save" : "Add Item")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public bool IsSimpleMode { get; set; }
+    [Parameter] public EventCallback<bool> IsSimpleModeChanged { get; set; }
+
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public int EditItemIndex { get; set; } = -1; // Add this parameter
+    [Parameter] public string? CategoryName { get; set; }
+    [Parameter] public decimal GlobalInflationRate { get; set; } = 2.5m;
+    [Parameter] public bool IsSaving { get; set; }
+
+    // Item properties (used to initialize local state)
+    [Parameter] public string ItemName { get; set; } = string.Empty;
+    [Parameter] public string FrequencyValue { get; set; } = "Monthly";
+    [Parameter] public decimal Amount { get; set; }
+    [Parameter] public bool IncludeInRetirement { get; set; } = true;
+    [Parameter] public string ExclusionReasonValue { get; set; } = "NotNeeded";
+    [Parameter] public string AdjustOptionValue { get; set; } = "Inflation";
+    [Parameter] public string InflationSourceValue { get; set; } = "UseGlobal";
+    [Parameter] public decimal CustomInflationPercent { get; set; }
+    [Parameter] public decimal CustomPercentage { get; set; }
+    [Parameter] public string? ManualRetirementValueString { get; set; }
+
+    // Updated callback signature to include edit index
+    [Parameter] public EventCallback<(CostItem Item, bool IsEdit, int EditIndex)> OnSaveCallback { get; set; }
+    [Parameter] public EventCallback OnCancelCallback { get; set; }
+
+    // Local variables for form state
+    private string localItemName = string.Empty;
+    private string localFrequency = "Monthly";
+    private decimal localAmount = 0m;
+    private bool localIncludeInRetirement = true;
+    private string localExclusionReason = "NotNeeded";
+    private string localAdjustOption = "Inflation";
+    private string localInflationSource = "UseGlobal";
+    private decimal localCustomInflationPercent = 0m;
+    private decimal localCustomPercentage = 0m;
+    private string? localManualRetirementValue = null;
+
+    // Tooltip state
+    private bool showTipItemName = false;
+    private bool showTipFrequency = false;
+    private bool showTipAmount = false;
+    private bool showTipInclude = false;
+    private bool showTipExclusionReason = false;
+    private bool showTipAdjust = false;
+    private bool showTipCustomPercent = false;
+    private bool showTipManualValue = false;
+    private bool showTipInflationSource = false;
+    private bool showTipCustomInflation = false;
+
+    private bool IsDisabled => string.IsNullOrWhiteSpace(localItemName?.Trim());
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // Initialize local state from parameters when modal opens
+        if (Visible)
+        {
+            localItemName = ItemName ?? string.Empty;
+            localFrequency = FrequencyValue ?? "Monthly";
+            localAmount = Amount;
+            localIncludeInRetirement = IncludeInRetirement;
+            localExclusionReason = ExclusionReasonValue ?? "NotNeeded";
+            localAdjustOption = AdjustOptionValue ?? "Inflation";
+            localInflationSource = InflationSourceValue ?? "UseGlobal";
+            localCustomInflationPercent = CustomInflationPercent;
+            localCustomPercentage = CustomPercentage;
+            localManualRetirementValue = ManualRetirementValueString;
+        }
+    }
+
+    private async Task OnModeToggle(ChangeEventArgs e)
+    {
+        var newValue = e.Value is bool b && b;
+        await IsSimpleModeChanged.InvokeAsync(!newValue);
+    }
+
+    private async Task OnSave()
+    {
+        if (IsDisabled) return;
+
+        // Build CostItem from local state
+        var item = BuildCostItemFromLocalState();
+
+        // Invoke callback with the item, edit mode flag, and edit index
+        if (OnSaveCallback.HasDelegate)
+        {
+            await OnSaveCallback.InvokeAsync((item, IsEditMode, EditItemIndex));
+        }
+
+        // Close modal
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private CostItem BuildCostItemFromLocalState()
+    {
+        // Set defaults for simple mode
+        if (IsSimpleMode)
+        {
+            if (string.IsNullOrEmpty(localFrequency))
+            {
+                localFrequency = "Monthly";
+            }
+            if (string.IsNullOrEmpty(localAdjustOption))
+            {
+                localAdjustOption = "Inflation";
+            }
+            if (string.IsNullOrEmpty(localInflationSource))
+            {
+                localInflationSource = "UseGlobal";
+            }
+        }
+
+        // Parse enums
+        if (!Enum.TryParse<Frequency>(localFrequency, out var freq))
+            freq = Frequency.Monthly;
+
+        if (!Enum.TryParse<RetirementAdjustOption>(localAdjustOption, out var adjust))
+            adjust = RetirementAdjustOption.Inflation;
+
+        if (!Enum.TryParse<InflationSource>(localInflationSource, out var inflSrc))
+            inflSrc = InflationSource.UseGlobal;
+
+        // Parse exclusion reason
+        ExclusionReason? exclusionReason = null;
+        if (!localIncludeInRetirement && Enum.TryParse<ExclusionReason>(localExclusionReason, out var exReason))
+        {
+            exclusionReason = exReason;
+        }
+
+        // Parse manual value
+        decimal? manualValue = null;
+        if (!string.IsNullOrWhiteSpace(localManualRetirementValue) &&
+            decimal.TryParse(localManualRetirementValue, System.Globalization.NumberStyles.Number, 
+                           System.Globalization.CultureInfo.CurrentCulture, out var mv) && mv >= 0)
+        {
+            manualValue = mv;
+        }
+
+        // Build and return the item
+        var item = new CostItem
+        {
+            Category = CategoryName ?? string.Empty,
+            Subcategory = localItemName.Trim(),
+            CurrentValue = localAmount,
+            Frequency = freq,
+            IncludeInRetirement = localIncludeInRetirement,
+            RetirementExclusionReason = exclusionReason,
+            AdjustOption = adjust,
+            PerItemInflationSource = inflSrc,
+            PerItemInflationPercent = inflSrc == InflationSource.Custom ? localCustomInflationPercent : null,
+            CustomPercentage = localAdjustOption == "CustomPercentage" ? localCustomPercentage : 0m,
+            ManualRetirementValue = localAdjustOption == "Manual" ? manualValue : null
+        };
+
+        return item;
+    }
+
+    private async Task OnCancel()
+    {
+        if (OnCancelCallback.HasDelegate)
+        {
+            await OnCancelCallback.InvokeAsync();
+        }
+
+        // Close modal
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e?.Key == "Enter")
+        {
+            _ = OnSave();
+        }
+    }
+}
