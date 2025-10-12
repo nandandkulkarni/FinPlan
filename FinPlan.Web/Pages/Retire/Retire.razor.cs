@@ -52,13 +52,14 @@ namespace FinPlan.Web.Pages.Retire
                     DebugService.AddMessage("Calendar load started");
                 }
                 catch { }
-                await HandleIntroModal();
 
                 // New: update survey visibility (mobile: only after ~5 loads; desktop: always)
                 await UpdateSurveyVisibilityAsync();
 
-
                 await Load();
+
+                await HandleIntroModal();
+
 
                 StateHasChanged();
             }
@@ -215,7 +216,7 @@ namespace FinPlan.Web.Pages.Retire
             {
                 var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
                 var apiBaseUrl = GetApiBaseUrl();
-                var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType=CalendarWireframe";
+                var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calculatorType}";
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
                 var response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
@@ -251,7 +252,7 @@ namespace FinPlan.Web.Pages.Retire
             {
                 var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
                 var apiBaseUrl = GetApiBaseUrl();
-                var url = $"{apiBaseUrl}/api/Retirement/delete?userGuid={userGuid}&calculatorType=CalendarWireframe";
+                var url = $"{apiBaseUrl}/api/Retirement/delete?userGuid={userGuid}&calculatorType={calculatorType}";
 
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
                 var response = await client.DeleteAsync(url);
