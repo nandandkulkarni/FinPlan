@@ -162,8 +162,8 @@ namespace FinPlan.Web.Pages.Retire
             // Only calculate if the model has meaningful data
             //if (!Model.IsModelEmpty())
             //{
-                Model.Calculate();
-           // }
+            Model.Calculate();
+            // }
 
             return base.OnInitializedAsync();
         }
