@@ -1562,8 +1562,8 @@
         // Section 5: Cost of Living
         if (Model.WithdrawalOne > 0 || Model.WithdrawalBoth > 0) completed++;
 
-        // Section 6: Current Ages & Start Year
-        if (Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0 && Model.SimulationStartYear > 0) completed++;
+        // Section 6: Current Ages (simulation start year removed from requirement)
+        if (Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0) completed++;
 
         return (int)Math.Round((completed * 100.0) / total);
     }
@@ -1592,4 +1592,4 @@
 
         OpenWizard(step);
     }
-}
+}}

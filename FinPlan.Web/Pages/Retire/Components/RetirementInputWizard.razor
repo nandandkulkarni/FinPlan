@@ -745,7 +745,7 @@ else if (wizardStep == 3)
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div class="text-muted small">Claiming at age @Model!.SSStartAgeYou</div>
-                                            <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</div>
+                                            <div class="text-muted small">Starting in year @(DateTime.Now.Year + (Model.SSStartAgeYou - Model.CurrentAgeYou))</div>
                                         </div>
                                         <div class="text-end">
                                             <div class="text-muted small">Total annual Social Security</div>
@@ -829,7 +829,7 @@ else if (wizardStep == 3)
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <div class="text-muted small">Claiming at age @Model!.SSStartAgePartner</div>
-                                                <div>Starting in year @(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</div>
+                                                <div class="text-muted small">Starting in year @(DateTime.Now.Year + (Model.SSStartAgePartner - Model.CurrentAgePartner))</div>
                                             </div>
                                             <div class="text-end">
                                                 <div class="text-muted small">Total annual Social Security</div>
@@ -923,7 +923,7 @@ else if (wizardStep == 3)
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Starts in year:</span>
-                                                <strong>@(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</strong>
+                                                <strong>@(DateTime.Now.Year + (Model.SSStartAgeYou - Model.CurrentAgeYou))</strong>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -1394,129 +1394,6 @@ else if (wizardStep == 3)
                             </div>
                         </div>
 
-                        <div class="card mb-4" style="border-top: 4px solid #0EA5E9;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-calendar3 me-2" style="color: #0EA5E9; font-size: 1.25rem;"></i>
-                                    <h5 class="card-title mb-0">Simulation Settings</h5>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="card" style="border-top: 4px solid #0EA5E9;">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <label class="form-label mb-0">
-                                                        Projection Start Year
-                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear" tabindex="0" title="Click for more info"></span>
-                                                    </label>
-                                                    @if (showToolTipSimulationStartYear)
-                                                    {
-                                                        <div class="info-tooltip">
-                                                            <strong>Projection Start Year:</strong> The calendar year when this retirement analysis begins (typically the current year). All timeline projections, including retirement dates and Social Security benefits, are calculated from this starting point.
-                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
-                                                                <span class="bi bi-x-lg"></span>
-                                                            </span>
-                                                        </div>
-                                                    }
-                                                </div>
-
-                                                <div class="input-group mb-3">
-                                                    <input class="form-control currency-input"
-                                                           type="number"
-                                                           value="@(Model!.SimulationStartYear)"
-                                                           min="2025" max="2100"
-                                                           style="border-width: 2px; border-color: #ccc;"
-                                                           @onchange="e => OnInputChanged(nameof(Model.SimulationStartYear), e.Value!)" />
-                                                </div>
-
-                                                <div class="small-note">Year to begin the retirement simulation</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @* <!-- Key Dates Summary -->
-                                <div class="mt-4">
-                                    <h6 class="mb-3">Key Dates in Your Retirement Journey</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Milestone</th>
-                                                    <th>Your Age</th>
-                                                    <th>Year</th>
-                                                    @if (Model.CurrentAgePartner > 0)
-                                                    {
-                                                        <th>Partner's Age</th>
-                                                    }
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td><i class="bi bi-play-circle me-1 text-primary"></i> Simulation Start</td>
-                                                    <td>@Model!.CurrentAgeYou</td>
-                                                    <td>@Model!.SimulationStartYear</td>
-                                                    @if (Model.CurrentAgePartner > 0)
-                                                    {
-                                                        <td>@Model!.CurrentAgePartner</td>
-                                                    }
-                                                </tr>
-                                                <tr>
-                                                    <td><i class="bi bi-person-check me-1 text-success"></i> Your Retirement</td>
-                                                    <td>@Model!.RetirementAgeYou</td>
-                                                    <td>@(Model.SimulationStartYear + (Model.RetirementAgeYou - Model.CurrentAgeYou))</td>
-                                                    @if (Model.CurrentAgePartner > 0)
-                                                    {
-                                                        <td>@(Model.CurrentAgePartner + (Model.RetirementAgeYou - Model.CurrentAgeYou))</td>
-                                                    }
-                                                </tr>
-                                                @if (Model.CurrentAgePartner > 0)
-                                                {
-                                                    <tr>
-                                                        <td><i class="bi bi-people me-1" style="color: #8B5CF6;"></i> Partner's Retirement</td>
-                                                        <td>@(Model.CurrentAgeYou + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@(Model.SimulationStartYear + (Model.RetirementAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@Model!.RetirementAgePartner</td>
-                                                    </tr>
-                                                }
-                                                <tr>
-                                                    <td><i class="bi bi-piggy-bank me-1 text-primary"></i> Your Social Security</td>
-                                                    <td>@Model!.SSStartAgeYou</td>
-                                                    <td>@(Model.SimulationStartYear + (Model.SSStartAgeYou - Model.CurrentAgeYou))</td>
-                                                    @if (Model.CurrentAgePartner > 0)
-                                                    {
-                                                        <td>@(Model.CurrentAgePartner + (Model.SSStartAgeYou - Model.CurrentAgeYou))</td>
-                                                    }
-                                                </tr>
-                                                @if (Model.CurrentAgePartner > 0)
-                                                {
-                                                    <tr>
-                                                        <td><i class="bi bi-piggy-bank me-1" style="color: #8B5CF6;"></i> Partner's Social Security</td>
-                                                        <td>@(Model.CurrentAgeYou + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@(Model.SimulationStartYear + (Model.SSStartAgePartner - Model.CurrentAgePartner))</td>
-                                                        <td>@Model!.SSStartAgePartner</td>
-                                                    </tr>
-                                                }
-                                                @if (Model.ReverseMortgageStartAge > 0)
-                                                {
-                                                    <tr>
-                                                        <td><i class="bi bi-house-heart me-1 text-warning"></i> Reverse Mortgage</td>
-                                                        <td>@Model!.ReverseMortgageStartAge</td>
-                                                        <td>@(Model.SimulationStartYear + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</td>
-                                                        @if (Model.CurrentAgePartner > 0)
-                                                        {
-                                                            <td>@(Model.CurrentAgePartner + (Model.ReverseMortgageStartAge - Model.CurrentAgeYou))</td>
-                                                        }
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div> *@
-                            </div>
-                        </div>
-
                         <div class="alert alert-success">
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <strong>You're all set!</strong> Click "Save & Finish" below to complete your retirement plan setup.
@@ -1576,7 +1453,7 @@ else if (wizardStep == 3)
     private bool showToolTipWithdrawalBoth = false;
     private bool showToolTipCurrentAgeYou = false;
     private bool showToolTipCurrentAgePartner = false;
-    private bool showToolTipSimulationStartYear = false;
+    // private bool showToolTipSimulationStartYear = false;
 
     private decimal TotalStarting => (Model?.TaxableBalance ?? 0) + (Model?.TraditionalBalance ?? 0) + (Model?.RothBalance ?? 0);
 
@@ -1679,18 +1556,25 @@ else if (wizardStep == 3)
         // final step: sync, save, and close
         TrySyncModel();
 
-        if (OnSave.HasDelegate)
+        // Enforce mandatory current ages before finishing
+        if (Model == null || Model.CurrentAgeYou <= 0 || Model.CurrentAgePartner <= 0)
         {
-            await OnSave.InvokeAsync();
-        }
-        if (OnFinished.HasDelegate && Model != null)
-        {
-            await OnFinished.InvokeAsync((Model.RetirementAgeYou, Model.RetirementAgePartner));
+            // Do not proceed if either current age is not set
+            return;
         }
 
-        Visible = false;
-        await VisibleChanged.InvokeAsync(false);
-        wizardStep = 1;
+         if (OnSave.HasDelegate)
+         {
+             await OnSave.InvokeAsync();
+         }
+         if (OnFinished.HasDelegate && Model != null)
+         {
+             await OnFinished.InvokeAsync((Model.RetirementAgeYou, Model.RetirementAgePartner));
+         }
+
+         Visible = false;
+         await VisibleChanged.InvokeAsync(false);
+         wizardStep = 1;
     }
 
     private async Task CloseClicked()

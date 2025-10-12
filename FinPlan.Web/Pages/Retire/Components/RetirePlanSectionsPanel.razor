@@ -443,11 +443,19 @@
         </div>
 
         <!-- Section 6: Current Ages & Simulation -->
-        <div class="section-card" style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid var(--info);">
+        <div class="section-card @(IsCurrentAgesSectionComplete() ? "" : "incomplete-section")" style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid var(--info);">
             <div>
-                <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
-                    <span class="step-badge">6</span>
-                    <div>Current Ages & Simulation</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="step-badge">6</span>
+                        <div>@(IsSimpleMode ? "Your Current Ages" : "Current Ages")</div>
+                    </div>
+                    @if (!IsCurrentAgesSectionComplete())
+                    {
+                        <span style="font-size:0.75rem; color:#dc3545;">
+                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Needed" : "Required fields missing")
+                        </span>
+                    }
                 </div>
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
@@ -462,6 +470,12 @@
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
+                    }
+                    @if (Model.CurrentAgeYou <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
                     }
                 </div>
 
@@ -479,26 +493,16 @@
                             </span>
                         </div>
                     }
-                </div>
-
-                <div class="small-note" style="margin-top:8px;">
-                    <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipSimulationStartYear = !showToolTipSimulationStartYear" tabindex="0" title="Click for more info"></span>
-                        Projection start year: @Model.SimulationStartYear
-                    </span>
-                    @if (showToolTipSimulationStartYear)
+                    @if (Model.CurrentAgePartner <= 0)
                     {
-                        <div class="info-tooltip">
-                            <strong>Projection Start Year:</strong> The calendar year when the retirement planning analysis begins.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipSimulationStartYear = false" title="Close">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
-                        </div>
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
                     }
                 </div>
             </div>
             <div class="actions">
-                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(5)">
+                <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(6)">
                     <i class="bi bi-pencil me-2" aria-hidden="true"></i>
                     Edit
                 </button>
@@ -540,7 +544,6 @@
     private bool showToolTipWithdrawalBoth = false;
     private bool showToolTipCurrentAgeYou = false;
     private bool showToolTipCurrentAgePartner = false;
-    private bool showToolTipSimulationStartYear = false;
 
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
     private int DisplayLifeExpectancyPartner => ComputeLifeExpectancyAge(Model?.LifeExpectancyPartner ?? 0, Model?.CurrentAgePartner ?? 0);
@@ -568,7 +571,13 @@
 
     private bool IsRetirementAgesSectionComplete()
     {
-        return Model != null && Model.RetirementAgeYou > 0 && (Model.CurrentAgeYou > 0 || Model.LifeExpectancyYou > 0);
+        return Model != null 
+            && Model.RetirementAgeYou > 0 
+            && Model.RetirementAgePartner > 0
+            && Model.CurrentAgeYou > 0 
+            && Model.CurrentAgePartner > 0
+            && DisplayLifeExpectancyYou > 0
+            && DisplayLifeExpectancyPartner > 0;
     }
 
     private bool IsStartingBalancesSectionComplete()
@@ -579,5 +588,10 @@
     private bool IsWithdrawalStrategySectionComplete()
     {
         return Model != null && (Model.AnnualWithdrawalOne > 0 || Model.AnnualWithdrawalBoth > 0);
+    }
+
+    private bool IsCurrentAgesSectionComplete()
+    {
+        return Model != null && Model.CurrentAgeYou > 0 && Model.CurrentAgePartner > 0;
     }
 }
