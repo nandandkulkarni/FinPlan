@@ -22,19 +22,19 @@
     </div>
 
     <div class="plan-sections-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
-        <!-- Section 1: Retirement ages & life expectancy -->
+        <!-- Section 1: Retirement ages -->
         <div class="section-card @(IsRetirementAgesSectionComplete() ? "" : "incomplete-section")"
              style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid var(--brand-yellow);">
             <div>
                 <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span class="step-badge">1</span>
-                        <div>@(IsSimpleMode ? "When You'll Retire" : "Retirement ages & life expectancy")</div>
+                        <div>Retirement ages</div>
                     </div>
                     @if (!IsRetirementAgesSectionComplete())
                     {
                         <span style="font-size:0.75rem; color:#dc3545;">
-                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Needed" : "Required fields missing")
+                            <i class="bi bi-exclamation-circle"></i> Required fields missing
                         </span>
                     }
                 </div>
@@ -83,21 +83,22 @@
                     }
                 </div>
 
+                <!-- Added current ages to Section 1 (required indicators for all 4 fields) -->
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                        Life exp (You): @DisplayLifeExpectancyYou
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
+                        Current age (You): @Model.CurrentAgeYou
                     </span>
-                    @if (showToolTipYourLifeExpectancy)
+                    @if (showToolTipCurrentAgeYou)
                     {
                         <div class="info-tooltip">
-                            <strong>Your Life Expectancy:</strong> The age you expect to live to.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourLifeExpectancy = false" title="Close">
+                            <strong>Your Current Age:</strong> Your age today.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
                     }
-                    @if (DisplayLifeExpectancyYou <= 0)
+                    @if (Model.CurrentAgeYou <= 0)
                     {
                         <span class="missing-badge">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
@@ -107,19 +108,19 @@
 
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
-                        Life exp (Partner): @DisplayLifeExpectancyPartner
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
+                        Current age (Partner): @Model.CurrentAgePartner
                     </span>
-                    @if (showToolTipPartnerLifeExpectancy)
+                    @if (showToolTipCurrentAgePartner)
                     {
                         <div class="info-tooltip">
-                            <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerLifeExpectancy = false" title="Close">
+                            <strong>Partner's Current Age:</strong> Your partner's age today.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
                     }
-                    @if (DisplayLifeExpectancyPartner <= 0)
+                    @if (Model.CurrentAgePartner <= 0)
                     {
                         <span class="missing-badge">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
@@ -142,12 +143,12 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span class="step-badge">2</span>
-                        <div>@(IsSimpleMode ? "Your Savings & Growth" : "Starting Balances & Returns")</div>
+                        <div>Starting Balances & Returns</div>
                     </div>
                     @if (!IsStartingBalancesSectionComplete())
                     {
                         <span style="font-size:0.75rem; color:#dc3545;">
-                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Need at least one account" : "At least one account required")
+                            <i class="bi bi-exclamation-circle"></i> At least one account required
                         </span>
                     }
                 </div>
@@ -442,36 +443,38 @@
             </div>
         </div>
 
-        <!-- Section 6: Current Ages & Simulation -->
+        <!-- Section 6: Life Expectancy -->
         <div class="section-card @(IsCurrentAgesSectionComplete() ? "" : "incomplete-section")" style="background-color: rgba(79, 209, 197, 0.03); border-left: 3px solid var(--info);">
             <div>
                 <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span class="step-badge">6</span>
-                        <div>@(IsSimpleMode ? "Your Current Ages" : "Current Ages")</div>
+                        <div>Life expectancy</div>
                     </div>
                     @if (!IsCurrentAgesSectionComplete())
                     {
                         <span style="font-size:0.75rem; color:#dc3545;">
-                            <i class="bi bi-exclamation-circle"></i> @(IsSimpleMode ? "Needed" : "Required fields missing")
+                            <i class="bi bi-exclamation-circle"></i> Required fields missing
                         </span>
                     }
                 </div>
+
+                <!-- Moved life expectancy displays from Section 1 to Section 6 -->
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
-                        You: @Model.CurrentAgeYou
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourLifeExpectancy = !showToolTipYourLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                        Life exp (You): @DisplayLifeExpectancyYou
                     </span>
-                    @if (showToolTipCurrentAgeYou)
+                    @if (showToolTipYourLifeExpectancy)
                     {
                         <div class="info-tooltip">
-                            <strong>Your Current Age:</strong> Your age today.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
+                            <strong>Your Life Expectancy:</strong> The age you expect to live to.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourLifeExpectancy = false" title="Close">
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
                     }
-                    @if (Model.CurrentAgeYou <= 0)
+                    @if (DisplayLifeExpectancyYou <= 0)
                     {
                         <span class="missing-badge">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
@@ -481,19 +484,19 @@
 
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
-                        Partner: @Model.CurrentAgePartner
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerLifeExpectancy = !showToolTipPartnerLifeExpectancy" tabindex="0" title="Click for more info"></span>
+                        Life exp (Partner): @DisplayLifeExpectancyPartner
                     </span>
-                    @if (showToolTipCurrentAgePartner)
+                    @if (showToolTipPartnerLifeExpectancy)
                     {
                         <div class="info-tooltip">
-                            <strong>Partner's Current Age:</strong> Your partner's age today.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
+                            <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerLifeExpectancy = false" title="Close">
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
                     }
-                    @if (Model.CurrentAgePartner <= 0)
+                    @if (DisplayLifeExpectancyPartner <= 0)
                     {
                         <span class="missing-badge">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
@@ -519,10 +522,11 @@
     public List<CalendarYearRow> YearRows { get; set; } = new();
 
     [Parameter]
-    public bool IsSimpleMode { get; set; }
-
-    [Parameter]
     public EventCallback<int> OnOpenWizard { get; set; }
+
+    // Added IsSimpleMode parameter
+    [Parameter]
+    public bool IsSimpleMode { get; set; } = false;
 
     // Local tooltip flags
     private bool showToolTipYourRetirementAge = false;
@@ -575,9 +579,7 @@
             && Model.RetirementAgeYou > 0 
             && Model.RetirementAgePartner > 0
             && Model.CurrentAgeYou > 0 
-            && Model.CurrentAgePartner > 0
-            && DisplayLifeExpectancyYou > 0
-            && DisplayLifeExpectancyPartner > 0;
+            && Model.CurrentAgePartner > 0;
     }
 
     private bool IsStartingBalancesSectionComplete()

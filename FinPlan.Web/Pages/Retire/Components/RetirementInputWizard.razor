@@ -252,131 +252,85 @@
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
                     @if (wizardStep == 1)
                     {
-                        <label class="form-label mb-3">Retirement Ages & Life Expectancy</label>
+                        <label class="form-label mb-3">Current Ages & Retirement Ages</label>
                         <div class="row mb-3">
-                            <!-- Your Retirement Card -->
+                            <!-- Your Ages Card -->
                             <div class="col-md-6 mb-3">
                                 <div class="card account-card" style="border-top: 4px solid #2563EB;">
                                     <div class="card-body">
                                         <div class="account-header">
                                             <i class="bi bi-person-check" style="color: #2563EB;"></i>
-                                            <h5 class="card-title mb-3">Your Retirement</h5>
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgeYou = !showToolTipRetirementAgeYou" tabindex="0" title="Click for more info"></span>
+                                            <h5 class="card-title mb-3">Your Planning Ages</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
                                         </div>
-                                        @if (showToolTipRetirementAgeYou)
+                                        @if (showToolTipCurrentAgeYou)
                                         {
                                             <div class="info-tooltip">
-                                                <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. This affects how long your portfolio needs to last and when you'll start drawing from retirement accounts.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgeYou = false" title="Close">
+                                                <strong>Your Ages:</strong> Enter your current age and the age you plan to retire. These are the foundation of your retirement planning calculations.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
                                                     <span class="bi bi-x-lg"></span>
                                                 </span>
                                             </div>
                                         }
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Age</label>
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.CurrentAgeYou ?? 0)" min="18" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgeYou), e.Value!)" />
+                                                <span class="fs-6 text-muted">years</span>
+                                            </div>
+                                            <div class="small-note">Your age today</div>
+                                        </div>
                                         <div class="mb-3">
                                             <label class="form-label">Retirement Age</label>
                                             <div class="d-flex align-items-center">
                                                 <input class="form-control currency-input me-2" type="number" value="@(Model?.RetirementAgeYou ?? 0)" min="40" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RetirementAgeYou), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
+                                            <div class="small-note">When you plan to stop working</div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Life Expectancy</label>
-                                            <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" 
-                                                @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyYou), e.Value!)" />
-                                                <span class="fs-6 text-muted">years</span>
-                                            </div>
-                                        </div>
-                                       @*  <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
-                                            <div class="small text-center mb-1">Retirement Timeline</div>
-                                            <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
-                                                <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #2563EB; border-radius: 5px 0 0 5px; width: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (Model!.RetirementAgeYou - Model!.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%;">
-                                                </div>
-                                                <div class="retirement-period" style="position: absolute; left: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (Model!.RetirementAgeYou - Model!.CurrentAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%; top: 0; height: 10px; background-color: #34D399; border-radius: 0 5px 5px 0; width: @(LifeExpectancyAgeYou > Model!.CurrentAgeYou ? (LifeExpectancyAgeYou - Model!.RetirementAgeYou) * 100 / (LifeExpectancyAgeYou - Model!.CurrentAgeYou) : 0)%;">
-                                                </div>
-                                            </div>
-                                            <div class="d-flex justify-content-between mt-1">
-                                                <span class="small">@Model!.CurrentAgeYou</span>
-                                                <span class="small">@Model!.RetirementAgeYou</span>
-                                                <span class="small">@LifeExpectancyAgeYou</span>
-                                            </div>
-                                            <div class="text-muted small mt-2 text-center">
-                                                Approx. @(Model!.RetirementAgeYou - Model!.CurrentAgeYou) years until retirement,
-                                                @(LifeExpectancyAgeYou - Model!.RetirementAgeYou) years in retirement
-                                            </div>
-                                        </div> *@
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Partner Retirement Card -->
+                            <!-- Partner Ages Card -->
                             <div class="col-md-6 mb-3">
                                 <div class="card account-card" style="border-top: 4px solid #8B5CF6;">
                                     <div class="card-body">
                                         <div class="account-header">
                                             <i class="bi bi-people" style="color: #8B5CF6;"></i>
-                                            <h5 class="card-title mb-3">Partner's Retirement</h5>
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAgePartner = !showToolTipRetirementAgePartner" tabindex="0" title="Click for more info"></span>
+                                            <h5 class="card-title mb-3">Partner's Planning Ages</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
                                         </div>
-                                        @if (showToolTipRetirementAgePartner)
+                                        @if (showToolTipCurrentAgePartner)
                                         {
                                             <div class="info-tooltip">
-                                                <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire. Different retirement ages between partners can affect income timing and withdrawal strategies.
-                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAgePartner = false" title="Close">
+                                                <strong>Partner's Ages:</strong> Enter your partner's current age and planned retirement age. Leave as 0 if planning for yourself only.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
                                                     <span class="bi bi-x-lg"></span>
                                                 </span>
                                             </div>
                                         }
                                         <div class="mb-3">
-                                            <label class="form-label">Retirement Age</label>
+                                            <label class="form-label">Current Age</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.RetirementAgePartner ?? 0)" min="40" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RetirementAgePartner), e.Value!)" />
+                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.CurrentAgePartner ?? 0)" min="0" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgePartner), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
+                                            <div class="small-note">Partner's age today</div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Life Expectancy</label>
+                                            <label class="form-label">Retirement Age</label>
                                             <div class="d-flex align-items-center">
-                                                <input class="form-control currency-input me-2" type="number" value="@LifeExpectancyAgePartner" min="55" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyPartner), e.Value!)" />
+                                                <input class="form-control currency-input me-2" type="number" value="@(Model?.RetirementAgePartner ?? 0)" min="0" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.RetirementAgePartner), e.Value!)" />
                                                 <span class="fs-6 text-muted">years</span>
                                             </div>
-                                            <div class="small-note">Leave as 0 if no partner or to use your life expectancy</div>
+                                            <div class="small-note">Leave as 0 if no partner</div>
                                         </div>
-
-                                    @*     <div class="retirement-timeline" style="background-color: #f8fafc; border-radius: 8px; padding: 10px; margin-top: 10px;">
-                                            @if (Model!.CurrentAgePartner > 0 && Model!.RetirementAgePartner > Model!.CurrentAgePartner)
-                                            {
-                                                <div class="small text-center mb-1">Retirement Timeline</div>
-                                                <div class="timeline-bar position-relative" style="height: 10px; background-color: #e2e8f0; border-radius: 5px;">
-                                                    <div class="working-period" style="position: absolute; left: 0; top: 0; height: 10px; background-color: #8B5CF6; border-radius: 5px 0 0 5px; width: @((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner))%;"></div>
-                                                    <div class="retirement-period" style="position: absolute; left: @((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner))%; top: 0; height: 10px; background-color: #F472B6; border-radius: 0 5px 5px 0; width: @(100 - ((Model!.RetirementAgePartner - Model!.CurrentAgePartner) * 100 / (LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner - Model!.CurrentAgePartner : LifeExpectancyAgeYou - Model!.CurrentAgePartner)))%;"></div>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-1">
-                                                    <span class="small">@Model!.CurrentAgePartner</span>
-                                                    <span class="small">@Model!.RetirementAgePartner</span>
-                                                    <span class="small">@(LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou)</span>
-                                                </div>
-                                                <div class="text-muted small mt-2 text-center">
-                                                    Approx. @(Model!.RetirementAgePartner - Model!.CurrentAgePartner) years until retirement,
-                                                    @((LifeExpectancyAgePartner > 0 ? LifeExpectancyAgePartner : LifeExpectancyAgeYou) - Model!.RetirementAgePartner) years in retirement
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="text-muted text-center">
-                                                    <i class="bi bi-person-dash"></i> No partner data entered
-                                                </div>
-                                            } 
-                                        </div>*@
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Overlay timeline showing retirement overlap -->
-@*                         
-
- *@                    }
+                    }
                     else if (wizardStep == 2)
                     {
                         <label class="form-label mb-3">Starting Balances & Expected Returns</label>
@@ -1310,30 +1264,35 @@ else if (wizardStep == 3)
                     }
                     else if (wizardStep == 6)
                     {
-                        <label class="form-label mb-3">Current Ages & Simulation Settings</label>
+                        <label class="form-label mb-3">Life Expectancy & Planning Horizon</label>
 
                         <div class="card mb-4" style="border-top: 4px solid #8B5CF6;">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-person-vcard me-2" style="color: #8B5CF6; font-size: 1.25rem;"></i>
-                                    <h5 class="card-title mb-0">Current Ages</h5>
+                                    <i class="bi bi-hourglass-split me-2" style="color: #8B5CF6; font-size: 1.25rem;"></i>
+                                    <h5 class="card-title mb-0">Life Expectancy</h5>
+                                </div>
+
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                    <strong>Planning for longevity:</strong> Life expectancy determines how long your retirement savings need to last. A conservative estimate (like 100 years) helps ensure you don't outlive your savings.
                                 </div>
 
                                 <div class="row mb-4">
-                                    <!-- Your Current Age -->
+                                    <!-- Your Life Expectancy -->
                                     <div class="col-md-6 mb-3">
                                         <div class="card" style="border-top: 4px solid #2563EB;">
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <label class="form-label mb-0">
-                                                        Your Current Age
-                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
+                                                        Your Life Expectancy
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancyYou = !showToolTipLifeExpectancyYou" tabindex="0" title="Click for more info"></span>
                                                     </label>
-                                                    @if (showToolTipCurrentAgeYou)
+                                                    @if (showToolTipLifeExpectancyYou)
                                                     {
                                                         <div class="info-tooltip">
-                                                            <strong>Your Current Age:</strong> Your age today. This is the starting point for all retirement calculations and determines how many years you have to prepare before retirement.
-                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
+                                                            <strong>Your Life Expectancy:</strong> The age you expect to live to. The default of 100 is a conservative estimate that helps ensure your retirement funds last. You can adjust based on family history and health factors.
+                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancyYou = false" title="Close">
                                                                 <span class="bi bi-x-lg"></span>
                                                             </span>
                                                         </div>
@@ -1341,32 +1300,35 @@ else if (wizardStep == 3)
                                                 </div>
 
                                                 <div class="input-group mb-3">
-                                                    <input class="form-control currency-input" type="number" value="@(Model?.CurrentAgeYou ?? 0)" min="18" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgeYou), e.Value!)" />
+                                                    <input class="form-control currency-input" type="number" value="@LifeExpectancyAgeYou" min="55" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyYou), e.Value!)" />
                                                     <span class="input-group-text">years</span>
                                                 </div>
 
-                                          @*       <div class="text-center p-2 mt-2" style="background-color: #f0f7ff; border-radius: 6px;">
-                                                    <div>Years until retirement:</div>
-                                                    <strong class="fs-4 text-primary">@(Model!.RetirementAgeYou - Model!.CurrentAgeYou)</strong>
-                                                </div> *@
+                                                @if (Model?.CurrentAgeYou > 0 && LifeExpectancyAgeYou > Model.CurrentAgeYou)
+                                                {
+                                                    <div class="text-center p-2 mt-2" style="background-color: #f0f7ff; border-radius: 6px;">
+                                                        <div class="small text-muted">Years in retirement</div>
+                                                        <strong class="fs-4 text-primary">@(LifeExpectancyAgeYou - (Model?.RetirementAgeYou ?? 65))</strong>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Partner's Current Age -->
+                                    <!-- Partner's Life Expectancy -->
                                     <div class="col-md-6 mb-3">
                                         <div class="card" style="border-top: 4px solid #8B5CF6;">
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <label class="form-label mb-0">
-                                                        Partner's Current Age
-                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
+                                                        Partner's Life Expectancy
+                                                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipLifeExpectancyPartner = !showToolTipLifeExpectancyPartner" tabindex="0" title="Click for more info"></span>
                                                     </label>
-                                                    @if (showToolTipCurrentAgePartner)
+                                                    @if (showToolTipLifeExpectancyPartner)
                                                     {
                                                         <div class="info-tooltip">
-                                                            <strong>Partner's Current Age:</strong> Your partner's age today. Enter 0 if you're planning for yourself only. This affects joint retirement planning, especially with age differences.
-                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgePartner = false" title="Close">
+                                                            <strong>Partner's Life Expectancy:</strong> The age your partner expects to live to. Leave at default 100 or adjust based on individual factors. If no partner, this will use your life expectancy.
+                                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipLifeExpectancyPartner = false" title="Close">
                                                                 <span class="bi bi-x-lg"></span>
                                                             </span>
                                                         </div>
@@ -1374,17 +1336,17 @@ else if (wizardStep == 3)
                                                 </div>
 
                                                 <div class="input-group mb-3">
-                                                    <input class="form-control currency-input" type="number" value="@(Model?.CurrentAgePartner ?? 0)" min="0" max="100" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.CurrentAgePartner), e.Value!)" />
+                                                    <input class="form-control currency-input" type="number" value="@LifeExpectancyAgePartner" min="0" max="120" style="border-width: 2px; border-color: #ccc;" @onchange="e => OnInputChanged(nameof(Model.LifeExpectancyPartner), e.Value!)" />
                                                     <span class="input-group-text">years</span>
                                                 </div>
 
-                                                <div class="small-note">Leave as 0 if no partner</div>
+                                                <div class="small-note">Leave at 100 to use conservative default</div>
 
-                                                @if (Model!.CurrentAgePartner > 0)
+                                                @if (Model?.CurrentAgePartner > 0 && LifeExpectancyAgePartner > Model.CurrentAgePartner)
                                                 {
                                                     <div class="text-center p-2 mt-2" style="background-color: #faf5ff; border-radius: 6px;">
-                                                        <div>Partner's years until retirement:</div>
-                                                        <strong class="fs-4" style="color: #8B5CF6;">@(Model.RetirementAgePartner - Model.CurrentAgePartner)</strong>
+                                                        <div class="small text-muted">Partner's years in retirement</div>
+                                                        <strong class="fs-4" style="color: #8B5CF6;">@(LifeExpectancyAgePartner - (Model?.RetirementAgePartner ?? 65))</strong>
                                                     </div>
                                                 }
                                             </div>
@@ -1434,6 +1396,8 @@ else if (wizardStep == 3)
     private int _lastInitialStep = 1;
 
     // Tooltip visibility flags
+    private bool showToolTipCurrentAgeYou = false;
+    private bool showToolTipCurrentAgePartner = false;
     private bool showToolTipRetirementAgeYou = false;
     private bool showToolTipRetirementAgePartner = false;
     private bool showToolTipLifeExpectancyYou = false;
@@ -1451,9 +1415,8 @@ else if (wizardStep == 3)
     private bool showToolTipReverseMortgageMonthly = false;
     private bool showToolTipWithdrawalOne = false;
     private bool showToolTipWithdrawalBoth = false;
-    private bool showToolTipCurrentAgeYou = false;
-    private bool showToolTipCurrentAgePartner = false;
-    // private bool showToolTipSimulationStartYear = false;
+    private bool showToolTipYearsInfo = false;
+    private bool showToolTipInflationInfo = false;
 
     private decimal TotalStarting => (Model?.TaxableBalance ?? 0) + (Model?.TraditionalBalance ?? 0) + (Model?.RothBalance ?? 0);
 
@@ -1542,8 +1505,14 @@ else if (wizardStep == 3)
     {
         if (wizardStep < 6)
         {
-            // minimal validation for step 1
-            if (wizardStep == 1 && (Model?.RetirementAgeYou ?? 0) <= 0) return;
+            // Step 1 validation: require current ages and retirement ages
+            if (wizardStep == 1)
+            {
+                if (Model == null || Model.CurrentAgeYou <= 0 || Model.RetirementAgeYou <= 0 || Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0)
+                {
+                    return; // Don't proceed if required fields are missing
+                }
+            }
 
             TrySyncModel();
             await InvokeOnSaveSafe();
@@ -1556,11 +1525,11 @@ else if (wizardStep == 3)
         // final step: sync, save, and close
         TrySyncModel();
 
-        // Enforce mandatory current ages before finishing
-        if (Model == null || Model.CurrentAgeYou <= 0 || Model.CurrentAgePartner <= 0)
+        // Ensure life expectancy defaults are applied if not set
+        if (Model != null)
         {
-            // Do not proceed if either current age is not set
-            return;
+            if (Model.LifeExpectancyYou == 0) Model.LifeExpectancyYou = 100;
+            if (Model.LifeExpectancyPartner == 0) Model.LifeExpectancyPartner = 100;
         }
 
          if (OnSave.HasDelegate)
@@ -1615,6 +1584,8 @@ else if (wizardStep == 3)
         {
             if (Model == null) return 100;
             var v = Model.LifeExpectancyYou;
+            // If not set (0), default to 100
+            if (v == 0) return 100;
             if (v > 1900)
             {
                 var currentAge = Model.CurrentAgeYou > 0 ? Model.CurrentAgeYou : 0;
@@ -1643,6 +1614,8 @@ else if (wizardStep == 3)
         {
             if (Model == null) return 100;
             var v = Model.LifeExpectancyPartner;
+            // If not set (0), default to 100
+            if (v == 0) return 100;
             if (v > 1900)
             {
                 var currentAge = Model.CurrentAgePartner > 0 ? Model.CurrentAgePartner : 0;
@@ -1691,4 +1664,4 @@ else if (wizardStep == 3)
     {
         return amount * (decimal)Math.Pow((double)(1 + inflationRate / 100), years);
     }
-}
+}}
