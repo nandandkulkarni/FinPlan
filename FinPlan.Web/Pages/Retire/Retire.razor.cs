@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace FinPlan.Web.Components.Pages
+namespace FinPlan.Web.Pages.Retire
 {
     public partial class Retire : IDisposable
     {
