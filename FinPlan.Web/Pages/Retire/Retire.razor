@@ -133,15 +133,52 @@
                         </button>
                     </div>
 
-                    <!-- Don't Show Again -->
-                    <div class="text-center pt-3 border-top">
-                        <div class="form-check d-inline-flex align-items-center">
-                            <input class="form-check-input me-2" type="checkbox"
+                    <!-- Don't Show Again (prominent) -->
+                    <style>
+                        .intro-dont-show {
+                            background: linear-gradient(90deg, rgba(255,250,230,0.95), rgba(255,254,247,0.98));
+                            border-left: 6px solid var(--brand-yellow);
+                            padding: 12px 18px;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            margin-top: 16px;
+                        }
+                        .intro-dont-show .form-check-input {
+                            width: 22px;
+                            height: 22px;
+                            margin-top: 0.12rem;
+                        }
+                        .intro-dont-show .label-main {
+                            font-size: 1.02rem;
+                            font-weight: 700;
+                            color: #111;
+                            margin-bottom: 2px;
+                        }
+                        .intro-dont-show .label-sub {
+                            font-size: 0.87rem;
+                            color: #6c757d;
+                            margin: 0;
+                        }
+                        .intro-dont-show .form-check { cursor: pointer; }
+                    </style>
+
+                    <div class="intro-dont-show" role="region" aria-label="Intro preference">
+                        <div class="form-check d-flex align-items-start mb-0">
+                            <input class="form-check-input me-3" type="checkbox"
                                    id="dontShowIntroAgainCheck" @onchange="OnDontShowIntroChanged" />
-                            <label class="form-check-label small text-muted" for="dontShowIntroAgainCheck">
-                                Don't show this welcome screen again
-                            </label>
                         </div>
+
+                        <label class="form-check-label mb-0" for="dontShowIntroAgainCheck" style="max-width:720px;">
+                            <div class="label-main">
+                                <i class="bi bi-eye-slash-fill text-warning me-2" aria-hidden="true"></i>
+                                Don't show this welcome screen again
+                            </div>
+                            <div class="label-sub">
+                                Hide this welcome screen on future visits. You can re-enable it later in settings.
+                            </div>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -883,7 +920,7 @@
                             <button class="btn btn-primary" @onclick="CloseClearResult">OK</button>
                         </div>
                     </div>
-                </div>
+                </div }
             </div>
         }
 
