@@ -58,6 +58,9 @@
         /* Show mobile view, hide desktop view */
         .rsg-desktop { display: none !important; }
         .rsg-mobile { display: block !important; }
+
+        /* Right-align the right-hand column (labels and values) in mobile rows */
+        .rs-mobile-row > div:last-child { text-align: right; }
     }
 </style>
 
@@ -81,7 +84,7 @@
                         <tr>
                             <th scope="col">Years</th>
                             <th scope="col">Need</th>
-                            <th scope="col">W/d</th>
+                            <th scope="col">Withdrawal</th>
                             <th scope="col">Income + Growth</th>
                             <th scope="col" style="text-align:right">End Portfolio</th>
                         </tr>
@@ -130,7 +133,7 @@
                                 <div class="rs-mobile-val">@s.TotalNeeded.ToString("C0")</div>
                             </div>
                             <div>
-                                <div class="rs-mobile-label">W/d</div>
+                                <div class="rs-mobile-label">Withdrawal</div>
                                 <div class="rs-mobile-val">@s.WithdrawnForCOL.ToString("C0")</div>
                             </div>
                         </div>
