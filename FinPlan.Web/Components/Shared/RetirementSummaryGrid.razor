@@ -24,6 +24,29 @@
     .rs-end-positive { color: #0f766e; }
     .rs-end-negative { color: #b91c1c; }
 
+    /* Desktop/Mobile containers to keep views isolated */
+    /* Use !important to override Bootstrap display utilities if present */
+    .rsg-desktop { display: block !important; }
+    .rsg-mobile { display: none !important; }
+
+    /* Table styles for desktop view */
+    .rsg-table { width: 100%; border-collapse: collapse; }
+    .rsg-table th, .rsg-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+    .rsg-table thead th { font-weight: 700; color: #556; font-size: 0.9rem; }
+    .rsg-table tbody tr { transition: background 0.15s ease; }
+    .rsg-table tbody tr:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .rsg-table td.money { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Mobile specific card styles */
+    .rsg-mobile-card, .rs-row { border: 1px solid #e9ecef; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    /* center the year range in mobile header */
+    .rs-mobile-top { display:flex; justify-content:center; align-items:center; gap:8px; }
+    .rs-mobile-years { font-weight:700; color:#334; font-size:0.95rem; text-align:center; width:100%; }
+    .rs-mobile-balance { font-weight:800; font-size:1.05rem; }
+    .rs-mobile-row { display:flex; justify-content:space-between; gap:12px; }
+    .rs-mobile-label { color:#6b7280; font-size:0.78rem; font-weight:600; }
+    .rs-mobile-val { font-weight:700; }
+
     /* Mobile: each row acts as a single card, items stacked */
     @@media (max-width: 767.98px) {
         .rs-row { padding: 10px; gap: 2px !important; }
@@ -31,6 +54,10 @@
         .rs-chip { width: 100%; min-width: 0; flex: 0 0 auto; text-align: left; padding: 6px 8px; }
         .rs-val { font-size: 1rem; }
         .rs-duo { grid-template-columns: 1fr 1fr; justify-content: start; row-gap: 1px; column-gap: 8px; }
+
+        /* Show mobile view, hide desktop view */
+        .rsg-desktop { display: none !important; }
+        .rsg-mobile { display: block !important; }
     }
 </style>
 
@@ -46,28 +73,69 @@
                 <small class="text-muted">Quick overview before the detailed grid</small>
             </div>
 
-            <div class="d-flex flex-column gap-2">
+            <!-- Desktop view (semantic table, isolated) -->
+            <div class="rsg-desktop">
                 @{ var idx = 0; }
+                <table class="rsg-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Years</th>
+                            <th scope="col">Need</th>
+                            <th scope="col">W/d</th>
+                            <th scope="col">Income + Growth</th>
+                            <th scope="col" style="text-align:right">End Portfolio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in summaries)
+                        {
+                            var tint = GetRowTintClass(idx++);
+                            <tr class="@tint">
+                                <td>@s.StartYear – @s.EndYear</td>
+                                <td>@s.TotalNeeded.ToString("C0")</td>
+                                <td>@s.WithdrawnForCOL.ToString("C0")</td>
+                                <td>@s.IncomePlusGrowth.ToString("C0")</td>
+                                <td class="money @(s.DepletesWithinRange ? "rs-end-negative" : "rs-end-positive")">@s.EndingPortfolio.ToString("C0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile view (separate markup, easy to change independently) -->
+            <div class="rsg-mobile flex-column gap-2">
+                @{ var mIdx = 0; }
                 @foreach (var s in summaries)
                 {
-                    var tint = GetRowTintClass(idx++);
-                    <div class="rs-row @tint d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-2">
-                        <div class="rs-chip">
-                            <h6>Years</h6>
-                            <div class="rs-val">@s.StartYear – @s.EndYear</div>
+                    var tint = GetRowTintClass(mIdx);
+                    <div class="rsg-mobile-card @tint" style="--idx:@mIdx;">
+                        <div class="rs-mobile-top">
+                            <div class="rs-mobile-years">@s.StartYear – @s.EndYear</div>
                         </div>
-                        <div class="rs-chip" title="Needed vs. Withdrawn for cost of living (excl. taxes)" aria-label="Needed versus Withdrawn for cost of living (excluding taxes)">
-                            <h6>Need vs W/d</h6>
-                            <div class="rs-duo">
-                                <small>Need</small><div class="v">@s.TotalNeeded.ToString("C0")</div>
-                                <small>W/d</small><div class="v">@s.WithdrawnForCOL.ToString("C0")</div>
+
+                        <div class="rs-mobile-row">
+                            <div>
+                                <div class="rs-mobile-label">End Portfolio</div>
+                                <div class="rs-mobile-val @(s.DepletesWithinRange ? "rs-end-negative" : "rs-end-positive")">@s.EndingPortfolio.ToString("C0")</div>
+                            </div>
+                            <div>
+                                <div class="rs-mobile-label">Income + Growth</div>
+                                <div class="rs-mobile-val">@s.IncomePlusGrowth.ToString("C0")</div>
                             </div>
                         </div>
-                        <div class="rs-chip">
-                            <h6>End Portfolio</h6>
-                            <div class="rs-val @(s.DepletesWithinRange ? "rs-end-negative" : "rs-end-positive")">@s.EndingPortfolio.ToString("C0")</div>
+
+                        <div class="rs-mobile-row">
+                            <div>
+                                <div class="rs-mobile-label">Need</div>
+                                <div class="rs-mobile-val">@s.TotalNeeded.ToString("C0")</div>
+                            </div>
+                            <div>
+                                <div class="rs-mobile-label">W/d</div>
+                                <div class="rs-mobile-val">@s.WithdrawnForCOL.ToString("C0")</div>
+                            </div>
                         </div>
                     </div>
+                    { mIdx++; }
                 }
             </div>
         </div>
@@ -94,7 +162,7 @@
 
     private List<FiveYearSummary> BuildFiveYearSummaries()
     {
-        var rows = YearRows?.OrderBy(r => r.Year).ToList() ?? [];
+        var rows = YearRows?.OrderBy(r => r.Year).ToList() ?? new List<CalendarYearRow>();
         var result = new List<FiveYearSummary>();
         if (rows.Count == 0) return result;
 
