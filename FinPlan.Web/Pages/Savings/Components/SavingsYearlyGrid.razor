@@ -1,0 +1,94 @@
+@using FinPlan.Shared.Models.Savings
+@using Microsoft.AspNetCore.Components
+
+@inherits ComponentBase
+
+@if (Rows == null || !Rows.Any())
+{
+    <div class="grid">
+        <table class="table table-sm table-bordered" aria-label="Yearly projection">
+            <thead class="table-light">
+                <tr>
+                    <th colspan="15" class="text-center text-muted">No projection rows available. Run Calculate to generate projections.</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+}
+else
+{
+    <div class="grid">
+        <table class="table table-sm table-bordered" aria-label="Yearly projection">
+            <thead class="table-light">
+                <!-- First Row: Categories -->
+                <tr>
+                    <th rowspan="2" style="text-align:left; width:80px;">Year</th>
+                    <th rowspan="2" style="text-align:left; width:60px;">Age</th>
+                    <th colspan="5" class="col-taxable" style="text-align:center; background-color: rgba(31,111,235,0.06);">Taxable</th>
+                    <th colspan="4" class="col-traditional" style="text-align:center; background-color: rgba(56,178,172,0.06);">Traditional</th>
+                    <th colspan="4" class="col-roth" style="text-align:center; background-color: rgba(109,93,252,0.06);">Roth</th>
+                    <th colspan="3" class="col-totals" style="text-align:center; background-color: rgba(255,214,0,0.06);">Totals</th>
+                </tr>
+                <!-- Second Row: Specific Headers -->
+                <tr>
+                    <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">Year Begin</th>
+                    <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">Contribution</th>
+                    <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">Growth</th>
+                    <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">Tax Paid</th>
+                    <th style="width:100px;text-align:right;background-color: rgba(31,111,235,0.06);color: #1F6FEB;">Year End</th>
+
+                    <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Year Begin</th>
+                    <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Contribution</th>
+                    <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Growth</th>
+                    <th style="text-align:right;background-color: rgba(56,178,172,0.06);color: #38B2AC;">Year End</th>
+
+                    <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Year Begin</th>
+                    <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Contribution</th>
+                    <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Growth</th>
+                    <th style="text-align:right;background-color: rgba(109,93,252,0.06);color: #6D5DFC;">Year End</th>
+
+                    <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Contributions</th>
+                    <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Growth</th>
+                    <th style="text-align:right;background-color: rgba(255,214,0,0.06);color: #C79A00;">Year End</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Rows)
+                {
+                    var age = Model?.CurrentAge ?? 0 + (r.Year - 1);
+                    <tr>
+                        <td>@r.Year</td>
+                        <td>@age</td>
+
+                        <td class="text-end col-taxable" style="font-size:0.78rem;font-weight:600;background-color: rgba(31,111,235,0.06);">@FormatMoneySafe(r.TaxableBOYBalance)</td>
+                        <td class="text-end col-taxable" style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06);">@FormatMoneySafe(r.TaxableContribution)</td>
+                        <td class="text-end col-taxable" style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06);">@FormatMoneySafe(r.TaxableInterest)</td>
+                        <td class="text-end col-taxable" style="color:#F56565; font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06);">@FormatMoneySafe(r.TaxesPaid)</td>
+                        <td class="text-end col-taxable" style="font-size:0.78rem;font-weight:600;background-color:rgba(31,111,235,0.06);">@FormatMoneySafe(r.TaxableEOYBalance)</td>
+
+                        <td class="text-end col-traditional" style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06);">@FormatMoneySafe(r.TraditionalBOYBalance)</td>
+                        <td class="text-end col-traditional" style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06);">@FormatMoneySafe(r.TraditionalContribution)</td>
+                        <td class="text-end col-traditional" style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06);">@FormatMoneySafe(r.TraditionalInterest)</td>
+                        <td class="text-end col-traditional" style="font-size:0.78rem;font-weight:600;background-color:rgba(56,178,172,0.06);">@FormatMoneySafe(r.TraditionalEOYBalance)</td>
+
+                        <td class="text-end col-roth" style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06);">@FormatMoneySafe(r.RothBOYBalance)</td>
+                        <td class="text-end col-roth" style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06);">@FormatMoneySafe(r.RothContribution)</td>
+                        <td class="text-end col-roth" style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06);">@FormatMoneySafe(r.RothInterest)</td>
+                        <td class="text-end col-roth" style="font-size:0.78rem;font-weight:600;background-color:rgba(109,93,252,0.06);">@FormatMoneySafe(r.RothEOYBalance)</td>
+
+                        <td class="text-end col-totals" style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06);">@FormatMoneySafe(r.TotalContributions)</td>
+                        <td class="text-end col-totals" style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06);">@FormatMoneySafe(r.TotalGrowth)</td>
+                        <td class="text-end col-totals" style="font-size:0.78rem;font-weight:600;background-color:rgba(255,214,0,0.06);">@FormatMoneySafe(r.TotalEOYBalance)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter] public SavingsCalculatorModel? Model { get; set; }
+    [Parameter] public IReadOnlyList<YearlyBreakdown> Rows { get; set; } = Array.Empty<YearlyBreakdown>();
+
+    private string FormatMoneySafe(decimal? v) => v.HasValue ? v.Value.ToString("C0") : "-";
+}
