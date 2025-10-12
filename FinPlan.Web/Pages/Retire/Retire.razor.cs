@@ -19,6 +19,7 @@ namespace FinPlan.Web.Pages.Retire
         [Inject] public UserGuidService UserGuidService { get; set; } = default!;
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
         [Inject] public IConfiguration Configuration { get; set; } = default!;
+        // NavigationManager is injected in the .razor file; do not duplicate here.
 
         // model instance used for both save/load and calculation
         public CalendarSpendingModel Model { get; set; } = new();
@@ -46,6 +47,23 @@ namespace FinPlan.Web.Pages.Retire
         {
             if (firstRender && !hasInitialized)
             {
+                // Only initialize if the current URI matches the retire page route.
+                // This prevents the component from performing load/save work when it's merely referenced
+                // (for example, a NavLink on the Home page).
+                try
+                {
+                    var relative = Navigation.ToBaseRelativePath(Navigation.Uri).Split('?')[0].Trim('/');
+                    if (!relative.StartsWith("retirement-income-planner", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Do not mark as initialized so if user navigates to the retire route the init will run.
+                        return;
+                    }
+                }
+                catch
+                {
+                    // If Navigation isn't available for some reason, proceed with initialization to avoid blocking functionality.
+                }
+
                 hasInitialized = true;
                 try
                 {
