@@ -23,65 +23,13 @@
     :root {
         --brand-yellow: #FFD600;
         --muted: #6c757d;
-        --bg: #f8f9fa;
         --card-bg: #ffffff;
-        --card-radius: 10px;
-        --accent: #6D5DFC;
-        --danger: #F56565;
-        --success: #38B2AC;
-        --info: #4FD1C5;
+        --card-radius: 8px;
     }
 
-    /* Layout helpers */
+    /* Layout helpers used by this page */
     .container-wire {
         padding: 14px;
-    }
-
-    .panel {
-        background: var(--card-bg);
-        border-radius: var(--card-radius);
-        box-shadow: 0 6px 18px rgba(22,28,36,0.06);
-        padding: 12px;
-        border: 1px solid rgba(0,0,0,0.03);
-        display: flex;
-        flex-direction: column;
-        flex: 1 1 0%;
-    }
-
-    .section-panel {
-        border: 3px solid var(--brand-yellow);
-        border-radius: 10px;
-        box-shadow: 0 12px 30px rgba(13,38,76,0.06), 0 4px 18px rgba(255,214,0,0.08);
-        padding: 14px;
-        background: linear-gradient(180deg, #fff, #fff);
-    }
-
-    .section-card {
-        border: 1px solid rgba(16,24,36,0.12);
-        padding: 10px;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        min-height: 92px;
-        background: #fff;
-    }
-
-        .section-card .actions {
-            margin-top: auto;
-            display: flex;
-            justify-content: flex-start;
-            gap: 8px;
-            padding-top: 6px;
-        }
-
-    .btn-edit {
-        background: #1F6FEB;
-        color: #ffffff;
-        border: 0;
-        padding: 7px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
     }
 
     .page-header {
@@ -92,15 +40,35 @@
         color: #111;
     }
 
-    .top-area {
-        position: relative;
+    .panel {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: 12px;
+        border: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-panel {
+        border: 3px solid var(--brand-yellow);
+        border-radius: 10px;
+        padding: 14px;
+        background: #fff;
+    }
+
+    .section-card {
+        border: 1px solid rgba(16,24,36,0.12);
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
     }
 
     .card {
         background: #fff;
         border-radius: 8px;
         border: 1px solid rgba(0,0,0,0.03);
-        box-shadow: none;
     }
 
     .small-note {
@@ -109,236 +77,18 @@
         margin-top: 4px;
     }
 
-    .grid-panel {
-        margin-top: 12px;
-    }
-
-    .grid-header {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .grid {
-        width: 100%;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid #e9ecef;
-        box-shadow: 0 8px 24px rgba(12,18,30,0.04);
-    }
-
-    /* Make table responsive-friendly by removing large hard min-width */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.98rem;
-        min-width: 0; /* allow table to shrink on small screens */
-    }
-
-    thead th {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        padding: 10px 12px;
-        border-bottom: 1px solid #eef2f6;
-        text-align: left;
-        font-weight: 700;
-        color: #333;
-        z-index: 5;
-    }
-
-    tbody td {
-        padding: 8px 12px;
-        border-bottom: 1px solid #f2f4f7;
-        vertical-align: middle;
-    }
-
-    .money-cell {
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .legend {
-        margin-left: auto;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        font-size: 0.95rem;
-        color: var(--muted);
-    }
-
-    /* Column color helpers */
-    .col-taxable, th.col-taxable {
-        background-color: rgba(31,111,235,0.06);
-    }
-
-    th.col-taxable {
-        color: #1F6FEB;
-        font-weight: 700;
-    }
-
-    .col-traditional, th.col-traditional {
-        background-color: rgba(56,178,172,0.06);
-    }
-
-    th.col-traditional {
-        color: #38B2AC;
-        font-weight: 700;
-    }
-
-    .col-roth, th.col-roth {
-        background-color: rgba(109,93,252,0.06);
-    }
-
-    th.col-roth {
-        color: #6D5DFC;
-        font-weight: 700;
-    }
-
-    .col-totals, th.col-totals {
-        background-color: rgba(255,214,0,0.06);
-    }
-
-    th.col-totals {
-        color: #FFD600;
-        font-weight: 700;
-    }
-
-    /* small touch to keep numeric alignment and readability */
-    .table td.col-taxable,
-    .table td.col-traditional,
-    .table td.col-roth,
-    .table td.col-totals {
-        font-variant-numeric: tabular-nums;
-    }
-
-    /* Desktop / tablet tweaks */
-    @@media (min-width: 768px) and (max-width: 1024px) {
-        .page-header
-
-    {
-        font-size: 1.35rem;
-    }
-
-    .section-panel {
-        padding: 12px;
-    }
-
-    .section-card {
-        min-height: 80px;
-    }
-
-    }
-
-    /* Mobile-first adjustments */
+    /* Simple responsive adjustments for mobile */
     @@media (max-width: 767.98px) {
-        : root
+        .container-wire { padding: 10px; }
+        .panel { padding: 10px; }
+        .section-panel { padding: 10px; border-width: 2px; }
+        .page-header { font-size: 1.25rem; margin-bottom: 8px; }
+        .section-card, .card { padding: 10px; }
 
-    {
-        --card-radius: 8px;
-    }
-
-    .container-wire {
-        padding: 10px;
-    }
-
-    .panel {
-        padding: 10px;
-    }
-
-    .section-panel {
-        padding: 10px;
-        border-width: 2px;
-    }
-
-    .page-header {
-        font-size: 1.25rem;
-        margin-bottom: 8px;
-    }
-
-    /* Collapse the two-column area inside section-panel to a single column */
-    .section-panel > div[style*="grid-template-columns"] {
-        display: block !important;
-    }
-
-    /* Make cards stack and reduce inner padding */
-    .section-card, .card {
-        padding: 10px;
-    }
-
-    /* Improve touch targets */
-    .btn, .btn-edit, button {
-        min-height: 44px;
-        padding: 10px 12px;
-        font-size: 0.98rem;
-    }
-
-    /* Make legend less dominant */
-    .legend {
-        display: none;
-    }
-
-    /* Forms full width and comfortable spacing */
-    .card .form-control,
-    .card .form-select,
-    .card textarea {
-        width: 100%;
-        box-sizing: border-box;
-        font-size: 1rem;
-    }
-
-    /* Table: allow horizontal scroll when needed but avoid forced wide table */
-    .grid {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-        font-size: 0.95rem;
-    }
-
-    thead th, tbody td {
-        padding: 10px 8px;
-    }
-
-    /* Reduce spacing between columns in the outer layout */
-    .row.g-3 {
-        gap: 8px;
-    }
-
-    /* Left/Right small side panels collapse above/below main content */
-    .col-12.col-md-2 {
-        padding-left: 0.25rem;
-        padding-right: 0.25rem;
-    }
-
-    /* Ensure panels take full width and stack vertically */
-    .col-12.col-md-2,
-    .col-12.col-md-8 {
-        width: 100%;
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
-
-    /* Reduce card shadows to avoid heavy chrome on small screens */
-    .panel, .card {
-        box-shadow: 0 4px 12px rgba(12,18,30,0.04);
-    }
-
-    }
-
-    /* Accessibility / reduced motion */
-    @@media (prefers-reduced-motion: reduce) {
-        *
-
-    {
-        transition: none !important;
-        animation-duration: 0.001ms !important;
-        animation-iteration-count: 1 !important;
-    }
-
+        /* Collapse the two-column grid used inside section-panel into a single column on small screens */
+        .section-panel > div[style*="grid-template-columns"] {
+            display: block !important;
+        }
     }
 </style>
 <div class="container-wire">
@@ -391,13 +141,6 @@
                                                 These tools are designed for learning and exploration. They can help you model simple financial scenarios and better understand your options.
                                                 <strong>They are not financial advice.</strong> For decisions that impact your finances, consider consulting a licensed professional.
                                             </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="card p-3">
-                                        <div class="card-body">
-                                            <h5>Get involved</h5>
-                                            <p>If you'd like to contribute, file an issue on the repo or use the Contact page. Small contributions to examples, tests, or localization are welcome.</p>
                                         </div>
                                     </div>
                                 </div>
