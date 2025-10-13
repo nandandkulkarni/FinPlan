@@ -333,6 +333,9 @@
                 // Now we can safely use JavaScript interop
                 model.UserGuid = await UserGuidService.GetOrCreateUserGuidWithJSAsync();
                 StateHasChanged();
+
+                // Track page view once on first render
+                _ = TrackPageViewAsync();
             }
             catch (Exception ex)
             {
@@ -394,6 +397,23 @@
             model.IsSubmitting = false;
             StateHasChanged();
         }
+    }
+
+    private async Task TrackPageViewAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+            string? ua = null;
+            try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+            var dto = new { Page = "About", Route = route, UserGuid = model.UserGuid, UserAgent = ua };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+        }
+        catch { }
     }
 
     private string GetApiBaseUrl()
