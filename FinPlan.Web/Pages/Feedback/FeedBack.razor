@@ -1,0 +1,41 @@
+﻿@page "/feedback"
+@using Microsoft.AspNetCore.Components.Routing
+
+<PageTitle>Feedback</PageTitle>
+
+<div class="container py-3">
+    <div class="text-center mb-3">
+        <h3 class="mb-2">Feedback</h3>
+        <p class="text-muted mb-0">Choose a planner to share your thoughts. No personal data collected.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <NavLink href="/survey-future-cost-of-living"
+                     class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-currency-dollar" aria-hidden="true"></i>
+                <span>Cost of Living Survey</span>
+            </NavLink>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <NavLink href="/survey-savings-wealth-building"
+                     class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-piggy-bank" aria-hidden="true"></i>
+                <span>Savings &amp; Wealth Building Survey</span>
+            </NavLink>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <NavLink href="/survey-retirement-income-planner"
+                     class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-wallet2" aria-hidden="true"></i>
+                <span>Retirement Income Planner Survey</span>
+            </NavLink>
+        </div>
+    </div>
+
+    <div class="mt-3 text-center small text-muted">
+        Thanks for helping us improve.
+    </div>
+</div>
