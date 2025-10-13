@@ -1261,6 +1261,9 @@
             try
             {
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                // Track page view once per first render
+                _ = TrackPageViewAsync();
+
                 await LoadAsync();
                 Calculate();
                 await HandleIntroModal();
@@ -1277,6 +1280,25 @@
         }
     }
 
+    private async Task TrackPageViewAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+
+            // Get UA via JS (server-side requests may not include the browser UA reliably)
+            string? ua = null;
+            try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+
+            var dto = new { Page = "Savings", Route = route, UserGuid = userGuid, UserAgent = ua };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+        }
+        catch { }
+    }
 
     private async Task UpdateSurveyVisibilityAsync()
     {

@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FinPlan.Web.Services
 {
@@ -8,36 +9,41 @@ namespace FinPlan.Web.Services
     public class ForwardClientIpHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ClientConnectionInfo _clientInfo;
 
-        public ForwardClientIpHandler(IHttpContextAccessor httpContextAccessor, ClientConnectionInfo clientInfo)
+        public ForwardClientIpHandler(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _clientInfo = clientInfo;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var context = _httpContextAccessor.HttpContext;
 
-            // Resolve values in order of trust: forwarded headers -> middleware scoped info -> cookies -> remote
+            // Try to resolve the scoped ClientConnectionInfo from the current request scope
+            ClientConnectionInfo? clientInfo = null;
+            if (context != null)
+            {
+                clientInfo = context.RequestServices.GetService<ClientConnectionInfo>();
+            }
+
+            // Resolve values in order of trust: forwarded headers -> scoped info -> cookies -> remote
             string? xff = context?.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                          ?? _clientInfo.XForwardedFor
+                          ?? clientInfo?.XForwardedFor
                           ?? TryGetCookie(context, "FP-Client-IP")
                           ?? context?.Connection.RemoteIpAddress?.ToString();
 
             string? xproto = context?.Request.Headers["X-Forwarded-Proto"].FirstOrDefault()
-                             ?? _clientInfo.XForwardedProto
+                             ?? clientInfo?.XForwardedProto
                              ?? TryGetCookie(context, "FP-Client-Proto")
                              ?? context?.Request.Scheme;
 
             string? xhost = context?.Request.Headers["X-Forwarded-Host"].FirstOrDefault()
-                            ?? _clientInfo.XForwardedHost
+                            ?? clientInfo?.XForwardedHost
                             ?? TryGetCookie(context, "FP-Client-Host")
                             ?? context?.Request.Host.Value;
 
             string? xreal = context?.Request.Headers["X-Real-IP"].FirstOrDefault()
-                            ?? _clientInfo.XRealIp
+                            ?? clientInfo?.XRealIp
                             ?? TryGetCookie(context, "FP-Client-RealIP");
 
             // Normalize XFF to first IP

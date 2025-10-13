@@ -20,6 +20,9 @@ namespace FinPlan.ApiService.Data
         public DbSet<DemographicProfile> DemographicProfiles { get; set; }
         public DbSet<UserDemographics> UserDemographics { get; set; }
 
+        // New: Page views tracking
+        public DbSet<PageView> PageViews { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("finplan");
@@ -114,6 +117,21 @@ namespace FinPlan.ApiService.Data
                     .HasForeignKey(e => e.SelectedCityId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .IsRequired(false);
+            });
+
+            // Configure PageView entity
+            modelBuilder.Entity<PageView>(b =>
+            {
+                b.ToTable("PageViews");
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Page).IsRequired().HasMaxLength(120);
+                b.Property(e => e.Route).HasMaxLength(512);
+                b.Property(e => e.UserGuid).HasMaxLength(100);
+                b.Property(e => e.IpAddress).HasMaxLength(45);
+                b.Property(e => e.UserAgent).HasMaxLength(512);
+                b.Property(e => e.Referrer).HasMaxLength(512);
+                b.Property(e => e.CreatedAt).ValueGeneratedNever();
             });
 
             base.OnModelCreating(modelBuilder);

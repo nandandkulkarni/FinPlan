@@ -9,13 +9,11 @@ namespace FinPlan.Web.Services
     public class ClientAddressMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ClientConnectionInfo _clientInfo;
         private const string CookiePrefix = "FP-Client-";
 
-        public ClientAddressMiddleware(RequestDelegate next, ClientConnectionInfo clientInfo)
+        public ClientAddressMiddleware(RequestDelegate next)
         {
             _next = next;
-            _clientInfo = clientInfo;
         }
 
         public async Task Invoke(HttpContext context)
@@ -41,12 +39,16 @@ namespace FinPlan.Web.Services
                 if (parts.Length > 0) xff = parts[0].Trim();
             }
 
-            // Update scoped container (per Blazor circuit)
-            _clientInfo.RemoteIp = remote;
-            _clientInfo.XForwardedFor = xff;
-            _clientInfo.XRealIp = xreal;
-            _clientInfo.XForwardedProto = proto;
-            _clientInfo.XForwardedHost = host;
+            // Resolve scoped container from the current request scope
+            var clientInfo = context.RequestServices.GetService<ClientConnectionInfo>();
+            if (clientInfo != null)
+            {
+                clientInfo.RemoteIp = remote;
+                clientInfo.XForwardedFor = xff;
+                clientInfo.XRealIp = xreal;
+                clientInfo.XForwardedProto = proto;
+                clientInfo.XForwardedHost = host;
+            }
 
             // Set cookies (short-lived)
             void SetCookie(string name, string? value)
