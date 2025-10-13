@@ -154,6 +154,10 @@ namespace FinPlan.Shared.Models.Savings
         public IncomeType TaxableIncomeType { get; set; } = IncomeType.MixedInvestment; // Keep reasonable defaults
         public TaxBracket TaxBracket { get; set; } = TaxBracket.Medium; // Keep reasonable defaults
 
+        // New: fraction of capital gains realized (and taxed) annually in taxable accounts. Defaults to 25%.
+        [Range(0, 1)]
+        public decimal CapitalGainsRealizationRate { get; set; } = 0.25m;
+
         public int Years
         {
             get

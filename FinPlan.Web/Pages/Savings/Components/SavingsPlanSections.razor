@@ -609,7 +609,7 @@
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center" style="position: relative;">
                         <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipIncomeType) + ":toggle", () => { showToolTipIncomeType = !showToolTipIncomeType; }))" tabindex="0" title="Click for more info"></span>
-                        Taxable Income Type: @Model.TaxableIncomeType
+                        Taxable Income Type: @FormatIncomeTypeName(Model.TaxableIncomeType.ToString())
                         @if (showToolTipIncomeType)
                         {
                             <div class="info-tooltip">
@@ -635,6 +635,21 @@
                                 • No consideration of changing tax laws<br>
                                 • Standard deduction and other tax benefits not modeled
                                 <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipTaxBracket) + ":close", () => { showToolTipTaxBracket = false; }))" title="Close">
+                                    <span class="bi bi-x-lg"></span>
+                                </span>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center" style="position: relative;">
+                        <span class="bi bi-info-circle info-icon" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRealization) + ":toggle", () => { showToolTipRealization = !showToolTipRealization; }))" tabindex="0" title="Click for more info"></span>
+                        Capital Gains Realization: @string.Format("{0:P0}", Model.CapitalGainsRealizationRate) per year
+                        @if (showToolTipRealization)
+                        {
+                            <div class="info-tooltip">
+                                <strong>Capital Gains Realization:</strong> Each year, dividends are taxed fully. For capital gains, only @string.Format("{0:P0}", Model.CapitalGainsRealizationRate) of long-term and short-term gains are considered realized and taxed; the rest are deferred.
+                                <span class="float-end" @onclick="@(() => RunTooltipHandler(nameof(showToolTipRealization) + ":close", () => { showToolTipRealization = false; }))" title="Close">
                                     <span class="bi bi-x-lg"></span>
                                 </span>
                             </div>
@@ -672,6 +687,7 @@
     private bool showToolTipRothGrowth = false;
     private bool showToolTipIncomeType = false;
     private bool showToolTipTaxBracket = false;
+    private bool showToolTipRealization = false;
 
     private void RunTooltipHandler(string handlerName, Action action)
     {
@@ -706,4 +722,9 @@
     }
 
     private string FormatMoney(decimal? value) => value.HasValue ? value.Value.ToString("C0") : "-";
+
+    private string FormatIncomeTypeName(string name)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(name, "([a-z])([A-Z])", "$1 $2");
+    }
 }
