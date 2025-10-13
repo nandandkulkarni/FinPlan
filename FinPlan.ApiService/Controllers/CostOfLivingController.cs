@@ -10,7 +10,7 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CostOfLivingController : ControllerBase
+    public class CostOfLivingController : MyControllerBase
     {
         private readonly FinPlanDbContext _db;
         public CostOfLivingController(FinPlanDbContext db)
@@ -18,40 +18,7 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
-        // Helper method to get the client IP address
-
-        private string GetClientIpAddress() => HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-
-        private string GetClientIpAddress1()
-        {
-            string? ipAddress = null;
-
-            // Check for forwarded IP addresses (when behind proxy/load balancer)
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-            {
-                ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault();
-                if (!string.IsNullOrEmpty(ipAddress))
-                {
-                    // X-Forwarded-For can contain multiple IPs, take the first one
-                    ipAddress = ipAddress.Split(',')[0].Trim();
-                }
-            }
-
-            // Check for X-Real-IP header
-            if (string.IsNullOrEmpty(ipAddress) && Request.Headers.ContainsKey("X-Real-IP"))
-            {
-                ipAddress = Request.Headers["X-Real-IP"].FirstOrDefault();
-            }
-
-            // Fall back to remote IP address
-            if (string.IsNullOrEmpty(ipAddress))
-            {
-                ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            }
-
-            return ipAddress ?? "Unknown";
-        }
-
+        
         // Save calculator data - read raw body and deserialize to return clearer errors when JSON is invalid
         [HttpPost("save")]
         public async Task<IActionResult> Save()

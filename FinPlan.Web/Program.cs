@@ -6,14 +6,23 @@ using Polly.Extensions.Http;
 using System.Globalization;
 using System.Net;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
+// Make HttpContext available for handlers
+builder.Services.AddHttpContextAccessor();
+
+// Scoped container to hold client info per circuit
+builder.Services.AddScoped<ClientConnectionInfo>();
+
 // Register an HttpClient with a Polly retry policy for transient failures (and 429 TooManyRequests)
+builder.Services.AddTransient<ForwardClientIpHandler>();
 builder.Services.AddHttpClient(HttpCustomClientService.RetryClient)
+    .AddHttpMessageHandler<ForwardClientIpHandler>()
     .AddPolicyHandler(GetRetryPolicy());
 
 // Set default culture to US to fix currency symbol issues
@@ -200,6 +209,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Forwarded headers so HttpContext in Blazor sees the real client when behind proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+    // In production, set KnownProxies/KnownNetworks for your reverse proxy/gateway
+});
+
+// Persist client address details into cookies for later reuse by hub/circuit events
+app.UseMiddleware<ClientAddressMiddleware>();
 
 // Configure authentication with no requirements
 app.UseAuthentication();

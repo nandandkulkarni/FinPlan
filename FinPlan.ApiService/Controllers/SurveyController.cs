@@ -1,4 +1,5 @@
-﻿using FinPlan.ApiService.Data;
+﻿using FinPlan.ApiService.Controllers;
+using FinPlan.ApiService.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -7,7 +8,7 @@ namespace FinPlan.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SurveyController : ControllerBase
+public class SurveyController : MyControllerBase
 {
     private readonly FinPlanDbContext _db;
     public SurveyController(FinPlanDbContext db) => _db = db;
@@ -17,7 +18,7 @@ public class SurveyController : ControllerBase
     public async Task<IActionResult> SaveSurvey([FromBody] SurveySaveRequest req)
     {
         // Get client IP address
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var ipAddress = GetClientIpAddress();
 
         var existing = await _db.SurveyResponses
             .FirstOrDefaultAsync(x => x.UserGuid == req.UserGuid && x.SurveyType == req.SurveyType);

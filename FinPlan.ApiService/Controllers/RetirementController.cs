@@ -11,7 +11,7 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RetirementController : ControllerBase
+    public class RetirementController : MyControllerBase
     {
         private readonly FinPlanDbContext _db;
         public RetirementController(FinPlanDbContext db)
@@ -19,36 +19,7 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
-        // Helper method to get the client IP address
-        private string GetClientIpAddress()
-        {
-            string? ipAddress = null;
-
-            // Check for forwarded IP addresses (when behind proxy/load balancer)
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-            {
-                ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault();
-                if (!string.IsNullOrEmpty(ipAddress))
-                {
-                    // X-Forwarded-For can contain multiple IPs, take the first one
-                    ipAddress = ipAddress.Split(',')[0].Trim();
-                }
-            }
-
-            // Check for X-Real-IP header
-            if (string.IsNullOrEmpty(ipAddress) && Request.Headers.ContainsKey("X-Real-IP"))
-            {
-                ipAddress = Request.Headers["X-Real-IP"].FirstOrDefault();
-            }
-
-            // Fall back to remote IP address
-            if (string.IsNullOrEmpty(ipAddress))
-            {
-                ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            }
-
-            return ipAddress ?? "Unknown";
-        }
+  
 
         // Simple ping for diagnostics
         [HttpGet("ping")]
