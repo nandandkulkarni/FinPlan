@@ -3,13 +3,57 @@
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
+@inject IConfiguration Configuration
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject NavigationManager Navigation
 
 @code {
     private bool isMaximized = false;
+    private string userGuid = string.Empty;
 
     private void ToggleMaximize()
     {
         isMaximized = !isMaximized;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            _ = TrackPageViewAsync();
+        }
+        catch { }
+    }
+
+    private async Task TrackPageViewAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+
+            string? ua = null;
+            try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+
+            var dto = new { Page = "Home", Route = route, UserGuid = userGuid, UserAgent = ua };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+        }
+        catch { }
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
     }
 }
 
