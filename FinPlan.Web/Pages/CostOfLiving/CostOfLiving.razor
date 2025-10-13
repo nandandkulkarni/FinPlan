@@ -13,11 +13,11 @@
 @inject NavigationManager Navigation
 <style>
     /* ----------------------------
-                                                                                                                                               Tweakable values
-                                                                                                                                               - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
-                                                                                                                                               - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
-                                                                                                                                               Adjust these values to fine tune the 'kiss' between tabs and panel.
-                                                                                                                                               ---------------------------- */
+                                                                                                                                                   Tweakable values
+                                                                                                                                                   - TAB_PANEL_TOP_OFFSET: how far the panel is pulled up under the tabs (negative pulls up)
+                                                                                                                                                   - TAB_PANEL_PADDING_TOP: extra top padding inside the panel to avoid overlapping content
+                                                                                                                                                   Adjust these values to fine tune the 'kiss' between tabs and panel.
+                                                                                                                                                   ---------------------------- */
     /* Example: change --tab-panel-top-offset to -8px or -4px to tweak */
     /* CSS variables used below for convenience */
     :root {
@@ -114,7 +114,7 @@
         }
     /* ensure tab row doesn't leave default bottom spacing */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                                    margin-bottom: 0 !important; /* override bootstrap utility margin */
+                                                                        margin-bottom: 0 !important; /* override bootstrap utility margin */
     padding-bottom: 0;
     position: relative; /* allow stacking with panel box */
     z-index: 100;
@@ -123,10 +123,10 @@
 
     /* Ensure navigation stays clickable */
     /* .nav, .nav-tabs, .nav.nav-tabs.mb-3 {
-                                                                    margin-bottom: 0 !important;
-                                                                    padding-bottom: 0;
-                                                                    position: relative;
-                                                                    z-index: 200; /* Higher than overlay */
+                                                                        margin-bottom: 0 !important;
+                                                                        padding-bottom: 0;
+                                                                        position: relative;
+                                                                        z-index: 200; /* Higher than overlay */
     }
 
     */
@@ -233,8 +233,8 @@
 
 
     /* Panel that encloses everything below the tabs.
-                                                                                                                                               Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
-                                                                                                                                               Tweak the CSS variables above to adjust placement and padding. */
+                                                                                                                                                   Use positioning (top) instead of negative margin to avoid layout gaps from surrounding elements.
+                                                                                                                                                   Tweak the CSS variables above to adjust placement and padding. */
     .tab-panel-box {
         border: 2px solid #C79A00; /* dark yellow border */
         border-radius: 8px; /* matches tab corner feel */
@@ -1939,9 +1939,9 @@
     @@media (prefers-color-scheme: dark) {
         /* Placeholder for future dark mode */
         /* .card {
-                                background: #1e1e1e;
-                                color: #ffffff;
-                            } */
+                                    background: #1e1e1e;
+                                    color: #ffffff;
+                                } */
     }
 
     /* Landscape Orientation Adjustments */
@@ -2188,15 +2188,14 @@
     <div class="modal-backdrop fade show" style="z-index:1999;"></div>
 }
 
-<CostOfLivingIntroModal
-    Visible="@showIntroModal"
-    YearsToRetirement="@YearsToRetirement"
-    YearsToRetirementChanged="@(val => YearsToRetirement = val)"
-    InflationRate="@InflationRate"
-    OnClose="@( () => CloseIntroModal() )"
-    OnStartWithDefaults="@( () => StartWithDefaults() )"
-    OnStartFromScratch="@( () => StartFromScratch() )"
-    OnDontShowIntroChanged="@OnDontShowIntroChanged" />
+<CostOfLivingIntroModal Visible="@showIntroModal"
+                        YearsToRetirement="@YearsToRetirement"
+                        YearsToRetirementChanged="@(val => YearsToRetirement = val)"
+                        InflationRate="@InflationRate"
+                        OnClose="@( () => CloseIntroModal() )"
+                        OnStartWithDefaults="@( () => StartWithDefaults() )"
+                        OnStartFromScratch="@( () => StartFromScratch() )"
+                        OnDontShowIntroChanged="@OnDontShowIntroChanged" />
 
 
 
@@ -4358,6 +4357,9 @@
                 try
                 {
                     userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+
+                    _ = TrackPageViewAsync();
+
                     Log($"OnAfterRenderAsync got userGuid: {userGuid}");
                 }
                 catch (Exception exGet) { LogError($"UserGuidService.GetOrCreateUserGuidAsync failed: {exGet.Message}"); }
@@ -5195,6 +5197,24 @@
         StateHasChanged();
         ScheduleAutosave();
     }
+
+    private async Task TrackPageViewAsync()
+    {
+        try
+        {
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+            string? ua = null;
+            try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+            var dto = new { Page = "CostOfLiving", Route = route, UserGuid = userGuid, UserAgent = ua };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+        }
+        catch { }
+    }
+
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }

@@ -7,7 +7,7 @@ namespace FinPlan.ApiService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserDemographicsController : ControllerBase
+public class UserDemographicsController : MyControllerBase
 {
     private readonly FinPlanDbContext _context;
     private readonly ILogger<UserDemographicsController> _logger;
@@ -58,8 +58,8 @@ public class UserDemographicsController : ControllerBase
                 return Conflict($"Demographics for user '{demographics.UserGuid}' already exist");
             }
 
-            demographics.CreatedAt = DateTime.UtcNow;
-            demographics.UpdatedAt = DateTime.UtcNow;
+            demographics.CreatedAt = GetEasternTime();
+            demographics.UpdatedAt = GetEasternTime();
 
             _context.UserDemographics.Add(demographics);
             await _context.SaveChangesAsync();

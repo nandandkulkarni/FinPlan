@@ -6,7 +6,7 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : MyControllerBase
     {
         private readonly FinPlanDbContext _db;
         public UserController(FinPlanDbContext db)
@@ -55,8 +55,8 @@ namespace FinPlan.ApiService.Controllers
                         LastName = request.LastName,
                         DisplayName = request.DisplayName,
                         Provider = request.Provider,
-                        CreatedAt = DateTime.UtcNow,
-                        LastSignInAt = DateTime.UtcNow
+                        CreatedAt = GetEasternTime(),
+                        LastSignInAt = GetEasternTime()
                     };
                     _db.Users.Add(user);
                     await _db.SaveChangesAsync();
@@ -83,7 +83,7 @@ namespace FinPlan.ApiService.Controllers
                     existing.LastName = request.LastName ?? existing.LastName;
                     existing.DisplayName = request.DisplayName ?? existing.DisplayName;
                     existing.Provider = request.Provider ?? existing.Provider;
-                    existing.LastSignInAt = DateTime.UtcNow;
+                    existing.LastSignInAt = GetEasternTime();
                     _db.Users.Update(existing);
                     await _db.SaveChangesAsync();
 
@@ -127,7 +127,7 @@ namespace FinPlan.ApiService.Controllers
                     Id = Guid.NewGuid(),
                     UserEmail = request.UserEmail,
                     CookieGuid = request.CookieGuid,
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = GetEasternTime()
                 };
                 _db.UserRegistrations.Add(reg);
                 await _db.SaveChangesAsync();

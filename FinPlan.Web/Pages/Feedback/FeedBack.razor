@@ -1,5 +1,12 @@
 ﻿@page "/feedback"
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject IConfiguration Configuration
 
 <PageTitle>Feedback</PageTitle>
 
@@ -39,3 +46,30 @@
         Thanks for helping us improve.
     </div>
 </div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            var apiBaseUrl = Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+
+            string? ua = null;
+            try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+
+            var dto = new { Page = "Feedback", Route = route, UserGuid = userGuid, UserAgent = ua };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+        }
+        catch
+        {
+            // swallow tracking errors
+        }
+    }
+}

@@ -31,8 +31,8 @@ public class SurveyController : MyControllerBase
                 UserGuid = req.UserGuid,
                 SurveyType = req.SurveyType,
                 SurveyJson = JsonSerializer.Serialize(req.SurveyJson),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = GetEasternTime(),
+                UpdatedAt = GetEasternTime(),
                 IpAddress = ipAddress // log IP address
             };
             _db.SurveyResponses.Add(existing);
@@ -40,7 +40,7 @@ public class SurveyController : MyControllerBase
         else
         {
             existing.SurveyJson = JsonSerializer.Serialize(req.SurveyJson);
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = GetEasternTime();
             existing.IpAddress = ipAddress; // update IP address
         }
 

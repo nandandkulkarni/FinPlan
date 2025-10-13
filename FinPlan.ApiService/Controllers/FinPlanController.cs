@@ -20,16 +20,6 @@ namespace FinPlan.ApiService.Controllers
             _db = db;
         }
 
-        private string GetClientIpAddress1() => HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-        // Helper method to get the client IP address
-      
-
-        // Helper method to get current Eastern Time
-        private DateTime GetEasternTime()
-        {
-            var easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);
-        }
 
         // Save calculator data - read raw body and deserialize to return clearer errors when JSON is invalid
         [HttpPost("save")]

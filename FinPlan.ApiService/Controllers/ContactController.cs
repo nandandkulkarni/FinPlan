@@ -10,7 +10,7 @@ namespace FinPlan.ApiService.Controllers
     {
         [ApiController]
         [Route("api/[controller]")]
-        public class ContactController : ControllerBase
+        public class ContactController : MyControllerBase
         {
             private readonly FinPlanDbContext _db;
 
@@ -36,7 +36,7 @@ namespace FinPlan.ApiService.Controllers
                         Email = request.Email,
                         Message = request.Message,
                         UserGuid = request.UserGuid,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = GetEasternTime()
                     };
 
                     _db.ContactMessages.Add(contactMessage);

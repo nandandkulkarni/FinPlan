@@ -6,6 +6,12 @@ namespace FinPlan.ApiService.Controllers
     {
         // Common functionality for all controllers can go here
 
+        protected DateTime GetEasternTime()
+        {
+            var easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);
+        }
+
         protected string GetClientIpAddress()
         {
             string? ipAddress = null;

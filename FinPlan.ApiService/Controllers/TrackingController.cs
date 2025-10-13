@@ -5,7 +5,7 @@ namespace FinPlan.ApiService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TrackingController : ControllerBase
+    public class TrackingController : MyControllerBase
     {
         private readonly FinPlanDbContext _db;
         public TrackingController(FinPlanDbContext db)
@@ -26,25 +26,27 @@ namespace FinPlan.ApiService.Controllers
             if (dto == null || string.IsNullOrWhiteSpace(dto.Page))
                 return BadRequest("Missing page");
 
-            // Determine IP address from forwarded headers, then remote as fallback
-            string? ip = null;
-            ip = First(Request.Headers["X-Forwarded-For"].FirstOrDefault());
-            if (string.IsNullOrWhiteSpace(ip)) ip = Request.Headers["X-Client-IP"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(ip)) ip = Request.Headers["X-Real-IP"].FirstOrDefault();
+            //// Determine IP address from forwarded headers, then remote as fallback
+            //string? ip = null;
+            //ip = First(Request.Headers["X-Forwarded-For"].FirstOrDefault());
+            //if (string.IsNullOrWhiteSpace(ip)) ip = Request.Headers["X-Client-IP"].FirstOrDefault();
+            //if (string.IsNullOrWhiteSpace(ip)) ip = Request.Headers["X-Real-IP"].FirstOrDefault();
 
-            if (string.IsNullOrWhiteSpace(ip))
-            {
-                var rip = HttpContext.Connection.RemoteIpAddress;
-                if (rip != null)
-                    ip = rip.IsIPv4MappedToIPv6 ? rip.MapToIPv4().ToString() : rip.ToString();
-            }
+            //if (string.IsNullOrWhiteSpace(ip))
+            //{
+            //    var rip = HttpContext.Connection.RemoteIpAddress;
+            //    if (rip != null)
+            //        ip = rip.IsIPv4MappedToIPv6 ? rip.MapToIPv4().ToString() : rip.ToString();
+            //}
+
+            var ip = GetClientIpAddress();
 
             // Prefer client-provided UA if supplied by the browser via Blazor
             var userAgent = !string.IsNullOrWhiteSpace(dto.UserAgent)
                 ? dto.UserAgent
                 : Request.Headers["User-Agent"].FirstOrDefault();
 
-            var referer = Request.Headers["Referer"].FirstOrDefault();
+            var referrer = Request.Headers["Referrer"].FirstOrDefault();
 
             var pv = new PageView
             {
@@ -54,8 +56,8 @@ namespace FinPlan.ApiService.Controllers
                 UserGuid = dto.UserGuid,
                 IpAddress = ip,
                 UserAgent = userAgent,
-                Referrer = referer,
-                CreatedAt = DateTime.UtcNow
+                Referrer = referrer,
+                CreatedAt = GetEasternTime()
             };
 
             _db.PageViews.Add(pv);

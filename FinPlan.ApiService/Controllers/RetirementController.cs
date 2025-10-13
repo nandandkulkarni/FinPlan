@@ -76,8 +76,8 @@ namespace FinPlan.ApiService.Controllers
                     CalculatorType = request.CalculatorType,
                     Data = serializedData,
                     IpAddress = clientIpAddress,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = GetEasternTime(),
+                    UpdatedAt = GetEasternTime()
                 };
                 _db.FinPlans.Add(entity);
             }
@@ -85,7 +85,7 @@ namespace FinPlan.ApiService.Controllers
             {
                 entity.Data = serializedData;
                 entity.IpAddress = clientIpAddress;
-                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = GetEasternTime();
                 _db.FinPlans.Update(entity);
             }
             await _db.SaveChangesAsync();

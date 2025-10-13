@@ -78,11 +78,31 @@ namespace FinPlan.Web.Pages.Retire
 
                 await HandleIntroModal();
 
+                // Track page view once on first render
+                _ = TrackPageViewAsync();
 
                 StateHasChanged();
             }
 
             await base.OnAfterRenderAsync(firstRender);
+        }
+
+        private async Task TrackPageViewAsync()
+        {
+            try
+            {
+                var apiBaseUrl = GetApiBaseUrl();
+                var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+                string userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                string route = Navigation.ToBaseRelativePath(Navigation.Uri);
+                string? ua = null;
+                try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+                var dto = new { Page = "Retire", Route = route, UserGuid = userGuid, UserAgent = ua };
+                var json = System.Text.Json.JsonSerializer.Serialize(dto);
+                using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+            }
+            catch { }
         }
 
         private async Task UpdateSurveyVisibilityAsync()

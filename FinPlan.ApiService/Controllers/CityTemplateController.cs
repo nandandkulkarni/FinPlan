@@ -7,7 +7,7 @@ namespace FinPlan.ApiService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CityTemplateController : ControllerBase
+public class CityTemplateController : MyControllerBase
 {
     private readonly FinPlanDbContext _context;
     private readonly ILogger<CityTemplateController> _logger;
@@ -111,8 +111,8 @@ public class CityTemplateController : ControllerBase
                 return Conflict($"City with ID '{city.CityId}' already exists");
             }
 
-            city.CreatedAt = DateTime.UtcNow;
-            city.UpdatedAt = DateTime.UtcNow;
+            city.CreatedAt = GetEasternTime();
+            city.UpdatedAt = GetEasternTime();
 
             _context.CityTemplates.Add(city);
             await _context.SaveChangesAsync();
@@ -148,7 +148,7 @@ public class CityTemplateController : ControllerBase
             existingCity.Currency = city.Currency;
             existingCity.CostOfLivingIndex = city.CostOfLivingIndex;
             existingCity.CreatedBy = city.CreatedBy;
-            existingCity.UpdatedAt = DateTime.UtcNow;
+            existingCity.UpdatedAt = GetEasternTime();
 
             await _context.SaveChangesAsync();
 
@@ -209,8 +209,8 @@ public class CityTemplateController : ControllerBase
             }
 
             profile.CityId = cityId;
-            profile.CreatedAt = DateTime.UtcNow;
-            profile.UpdatedAt = DateTime.UtcNow;
+            profile.CreatedAt = GetEasternTime();
+            profile.UpdatedAt = GetEasternTime();
 
             _context.DemographicProfiles.Add(profile);
             await _context.SaveChangesAsync();
@@ -271,7 +271,7 @@ public class CityTemplateController : ControllerBase
             existingProfile.ChildrenCount = profile.ChildrenCount;
             existingProfile.ChildrenAgesJSON = profile.ChildrenAgesJSON;
             existingProfile.SampleExpensesJSON = profile.SampleExpensesJSON;
-            existingProfile.UpdatedAt = DateTime.UtcNow;
+            existingProfile.UpdatedAt = GetEasternTime();
 
             await _context.SaveChangesAsync();
 

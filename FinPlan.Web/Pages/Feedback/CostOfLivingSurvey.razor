@@ -2,6 +2,13 @@
 @using FinPlan.Web.Components.Models
 @using FinPlan.Web.Components.Survey
 @using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using FinPlan.Web.Services
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject FinPlan.Web.Services.UserGuidService UserGuidService
+@inject IConfiguration Configuration
 
 <div class="alert alert-info" style="margin-bottom:18px; border-radius:10px; font-size:1.05rem;">
     <strong>Thank you for trying the Cost of Living Planne Planner</strong><br />
@@ -9,8 +16,6 @@
 </div>
 
 <SurveyForm Questions="@questions" Title="Cost of Living Planner - Survey" SurveyType="CostOfLivingPlanner"/>
-
-
 
 @code {
     private List<SurveyQuestion> questions = new()
@@ -44,4 +49,25 @@
         new SurveyQuestion("Did you encounter any bugs or errors? Please describe."),
         new SurveyQuestion("Any other comments or suggestions?")
     };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+                var apiBaseUrl = Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+                var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+                var route = Navigation.ToBaseRelativePath(Navigation.Uri);
+                string? ua = null;
+                try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+                var dto = new { Page = "Survey-CostOfLiving", Route = route, UserGuid = userGuid, UserAgent = ua };
+                var json = System.Text.Json.JsonSerializer.Serialize(dto);
+                using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
+            }
+            catch { }
+        }
+    }
 }
