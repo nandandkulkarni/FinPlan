@@ -767,149 +767,67 @@
                     }
                     else if (wizardStep == 5)
                     {
-                        <div class="mb-3">
-                            @*   <h5 class="mb-3">Tax Treatment</h5>
-
-                            <!-- Tax Strategy Card -->
-                            <div class="card mb-4 strategy-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">
-                                        <i class="bi bi-shield-lock me-2"></i>
-                                        Tax Optimization Strategy
-                                    </h6>
-                                    <div class="form-check form-switch tax-switch">
-                                        <input class="form-check-input" type="checkbox" id="useTaxAdv"
-                                               @bind="Model.UseTaxAdvantaged" @bind:after="OnFieldChanged" />
-                                        <label class="form-check-label" for="useTaxAdv">
-                                            Use tax-advantaged accounts first
-                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxAdvantaged = !showToolTipTaxAdvantaged" tabindex="0" title="Click for more info"></span>
-                                        </label>
-                                    </div>
-                                    @if (showToolTipTaxAdvantaged)
-                                    {
-                                        <div class="info-tooltip">
-                                            <strong>Use Tax-Advantaged Accounts:</strong> When enabled, the calculator will prioritize contributions to tax-advantaged accounts (Traditional and Roth) over taxable accounts when calculating future growth, which typically results in more favorable long-term results.
-                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxAdvantaged = false" title="Close">
-                                                <span class="bi bi-x-lg"></span>
-                                            </span>
+                     <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card taxable h-100">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h6 class="card-title">Taxable Income Type</h6>
                                         </div>
-                                    }
-
-                                    <div class="strategy-description mt-3 p-3 @(Model.UseTaxAdvantaged ? "active-strategy" : "inactive-strategy")">
-                                        @if (Model.UseTaxAdvantaged)
-                                        {
-                                            <div><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Optimized tax strategy:</strong> Prioritize tax-advantaged accounts</div>
-                                            <p class="small text-muted mt-2 mb-0">
-                                                The calculator will maximize contributions to Traditional and Roth accounts before using taxable accounts.
-                                                This typically leads to better long-term growth due to tax-free or tax-deferred compounding.
-                                            </p>
-                                        }
-                                        else
-                                        {
-                                            <div><i class="bi bi-info-circle text-muted me-2"></i> <strong>Standard allocation:</strong> Using your specified contributions</div>
-                                            <p class="small text-muted mt-2 mb-0">
-                                                The calculator will use exactly the contribution amounts you've specified for each account type
-                                                without attempting to optimize for tax efficiency.
-                                            </p>
-                                        }
-                                    </div>
-                                </div>
-                            </div> *@
-                            <div class="row mb-4">
-                                <!-- Taxable Income Type Card -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="card account-card taxable h-100">
-                                        <div class="card-body">
-                                            <div class="account-header">
-                                                <i class="bi bi-wallet2"></i>
-                                                <h6 class="card-title">Taxable Income Type</h6>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
-                                            </div>
-                                            @if (showToolTipIncomeType)
+                                        <div class="income-type-selector mt-2" role="radiogroup" aria-label="Taxable income type">
+                                            @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
                                             {
-                                                <div class="info-tooltip">
-                                                    <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. For now, only interest income is supported (taxed as ordinary income).
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
+                                                var type = Enum.Parse<FinPlan.Shared.Enums.IncomeType>(name);
 
-                                            <div class="income-type-selector mt-3">
-                                                @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
+                                                if(type!= Shared.Enums.IncomeType.MixedInvestment)
                                                 {
-                                                    var isInterest = name == "MostlyInterest";
-                                                    <div class="form-check income-type-option @(isInterest ? "selected" : "")">
-                                                        <input class="form-check-input"
-                                                               type="radio"
-                                                               name="incomeTypeRadio"
-                                                               id="@("income_" + name)"
-                                                               checked="@(isInterest)"
-                                                               disabled />
-                                                        <label class="form-check-label" for="@("income_" + name)">
-                                                            <strong>@FormatIncomeTypeName(name)</strong>
-                                                            <div class="small text-muted">@GetIncomeTypeDescription(name)</div>
-                                                        </label>
-                                                    </div>
+                                                    continue;
                                                 }
-                                            </div>
+                                                var isSelected = (Model.TaxableIncomeType == type) || (Model.TaxableIncomeType == 0 && name == nameof(FinPlan.Shared.Enums.IncomeType.MixedInvestment));
+                                                <label class="form-check income-type-option @(isSelected ? "selected" : "")">
+                                                    <input class="form-check-input" type="radio" name="incomeTypeRadio" value="@name" checked="@isSelected" disabled />
+                                                    <span class="form-check-label">
+                                                        <strong>@FormatIncomeTypeName(name)</strong>
+                                                        <div class="small text-muted">@GetIncomeTypeDescription(name)</div>
+                                                    </span>
+                                                </label>
+                                            }
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Tax Bracket Card -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="card account-card traditional h-100">
-                                        <div class="card-body">
-                                            <div class="account-header">
-                                                <i class="bi bi-percent"></i>
-                                                <h6 class="card-title">Tax Bracket</h6>
-                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
-                                            </div>
-                                            @if (showToolTipTaxBracket)
-                                            {
-                                                <div class="info-tooltip">
-                                                    <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
-                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
-                                                        <span class="bi bi-x-lg"></span>
-                                                    </span>
-                                                </div>
-                                            }
-
-                                            <div class="tax-bracket-selector mt-3">
-                                                @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.TaxBracket)))
-                                                {
-                                                    <div class="form-check tax-bracket-option @(Model.TaxBracket.ToString() == name ? "selected" : "")">
-                                                        <input class="form-check-input"
-                                                               type="radio"
-                                                               name="taxBracketRadio"
-                                                               id="@("bracket_" + name)"
-                                                               checked="@(Model.TaxBracket.ToString() == name)"
-                                                               @onchange="() => SetTaxBracket(name)" />
-                                                        <label class="form-check-label" for="@("bracket_" + name)">
-                                                            <strong>@name</strong>
-                                                            <div class="small text-muted">@GetTaxBracketDescription(name)</div>
-                                                        </label>
-                                                    </div>
-                                                }
-                                            </div>
+                                        <div class="mt-2 small text-muted">
+                                            <strong>Mixed Investment split (uses your tax bracket):</strong>
+                                            <ul class="mb-0 mt-1" style="padding-left: 18px;">
+                                                <li>~25% qualified dividends taxed at @string.Format("{0:P0}", GetLtRateDisplay())</li>
+                                                <li>~25% non-qualified taxed at @string.Format("{0:P0}", GetOrdinaryRateDisplay())</li>
+                                                <li>~40% long-term gains, 25% realized each year taxed at @string.Format("{0:P0}", GetLtRateDisplay())</li>
+                                                <li>~10% short-term gains, 25% realized each year taxed at @string.Format("{0:P0}", GetOrdinaryRateDisplay())</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="alert alert-info">
-                                <i class="bi bi-lightbulb me-2"></i>
-                                <strong>Tax Efficiency Tip:</strong> For optimal tax efficiency, many financial advisors recommend:
-                                <ul class="mb-0 mt-1">
-                                    <li>Holding tax-inefficient investments (bonds, REITs) in tax-advantaged accounts</li>
-                                    <li>Holding tax-efficient investments (growth stocks, index funds) in taxable accounts</li>
-                                    <li>Prioritizing Roth accounts when expecting higher future tax rates</li>
-                                </ul>
+                            <div class="col-md-6 mb-3">
+                                <div class="card account-card taxable h-100">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-graph-up"></i>
+                                            <h6 class="card-title">Capital Gains Realization</h6>
+                                        </div>
+                                        <div class="income-type-selector mt-2" role="radiogroup" aria-label="Capital gains realization">
+                                            <label class="form-check income-type-option selected">
+                                                <input class="form-check-input" type="radio" name="cgRealizationRadio" checked disabled />
+                                                <span class="form-check-label">
+                                                    <strong>Realize 25% per year</strong>
+                                                    <div class="small text-muted">Dividends taxed each year; only 25% of LT/ST gains taxed annually</div>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </div>   
                     }
-                </div>
+                    </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" aria-label="Save & Close" @onclick="CloseClicked">Save & Close</button>
                     <button type="button" class="btn btn-primary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
@@ -970,8 +888,11 @@
 
     protected override void OnParametersSet()
     {
-        if (Model != null)
-            Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MostlyInterest;
+         if (Model != null)
+        {
+            if (Model.TaxableIncomeType == 0) Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
+            if (Model.CapitalGainsRealizationRate <= 0m || Model.CapitalGainsRealizationRate > 1m) Model.CapitalGainsRealizationRate = 0.25m;
+        }
 
         if (Visible)
         {
@@ -1054,31 +975,33 @@
         StateHasChanged();
     }
 
-    private void ApplyConservativeRates()
+      // Preset buttons: make async and null-safe
+    private async Task ApplyConservativeRates()
     {
+        if (Model is null) return;
         Model.AnnualGrowthRateTaxable = 4.5m;
         Model.AnnualGrowthRateTraditional = 5.5m;
         Model.AnnualGrowthRateRoth = 5.5m;
-        OnFieldChanged();
+        await OnFieldChanged();
     }
 
-    private void ApplyModerateRates()
+    private async Task ApplyModerateRates()
     {
+        if (Model is null) return;
         Model.AnnualGrowthRateTaxable = 6.0m;
         Model.AnnualGrowthRateTraditional = 7.0m;
         Model.AnnualGrowthRateRoth = 7.0m;
-        OnFieldChanged();
+        await OnFieldChanged();
     }
 
-    private void ApplyAggressiveRates()
+    private async Task ApplyAggressiveRates()
     {
+        if (Model is null) return;
         Model.AnnualGrowthRateTaxable = 7.5m;
         Model.AnnualGrowthRateTraditional = 9.0m;
         Model.AnnualGrowthRateRoth = 9.0m;
-        OnFieldChanged();
+        await OnFieldChanged();
     }
-
-
     private decimal CalculateGrowth(decimal principal, decimal rate, int years)
     {
         return principal * (decimal)Math.Pow((double)(1 + rate / 100), years);
@@ -1130,4 +1053,25 @@
             _ => string.Empty
         };
     }
+
+   
+
+    // Missing helpers used in Step 5
+    private decimal GetOrdinaryRateDisplay()
+        => Model?.TaxBracket switch
+        {
+            FinPlan.Shared.Enums.TaxBracket.Low => 0.12m,
+            FinPlan.Shared.Enums.TaxBracket.Medium => 0.24m,
+            FinPlan.Shared.Enums.TaxBracket.High => 0.35m,
+            _ => 0.24m
+        };
+
+    private decimal GetLtRateDisplay()
+        => Model?.TaxBracket switch
+        {
+            FinPlan.Shared.Enums.TaxBracket.Low => 0.00m,
+            FinPlan.Shared.Enums.TaxBracket.Medium => 0.15m,
+            FinPlan.Shared.Enums.TaxBracket.High => 0.20m,
+            _ => 0.15m
+        };
 }
