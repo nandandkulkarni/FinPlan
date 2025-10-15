@@ -25,6 +25,12 @@
         /* Other properties remain the same */
     }
 
+    /* Wizard-only: keep a consistent modal width across steps on this page only */
+    .savings-wizard .modal-dialog {
+        width: 800px !important; /* standard width for this wizard */
+        max-width: 800px !important;
+    }
+
 
     .wizard-header-row {
         display: flex;
@@ -207,6 +213,14 @@
             border-color: rgba(72, 187, 120, 0.3);
         }
 
+    /* Desktop: unify wizard body height so the modal doesn't resize between steps */
+    @@media (min-width: 768px) {
+        .wizard-modal-body {
+            height: 540px; /* pick a consistent height roughly matching the largest step */
+            overflow-y: auto;
+        }
+    }
+
     /* ===========================
            MOBILE OPTIMIZATIONS
            Only affects screens less than 768px
@@ -219,6 +233,11 @@
             width: 100% !important;
             height: 100vh !important;
         }
+        /* Ensure wizard-scoped modal also respects full width on mobile */
+        .savings-wizard .modal-dialog {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
 
         .modal-content {
             height: 100vh !important;
@@ -228,6 +247,7 @@
         .modal-body {
             max-height: none !important;
             min-height: auto !important;
+            height: auto !important; /* override fixed desktop height */
             flex: 1 !important;
             overflow-y: auto !important;
             padding: 1rem !important;
@@ -346,7 +366,7 @@
 @if (Visible && Model != null)
 {
     <div class="modal-backdrop fade show"></div>
-    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1055;">
+    <div class="modal d-block savings-wizard" tabindex="-1" role="dialog" style="z-index:1055;">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -359,7 +379,7 @@
                     </div>
                     <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
                 </div>
-                <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
+                <div class="modal-body wizard-modal-body">
                     @if (wizardStep == 1)
                     {
                         <label class="form-label">Milestones & Ages</label>
