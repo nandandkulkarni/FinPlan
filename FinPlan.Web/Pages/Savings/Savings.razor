@@ -1479,8 +1479,20 @@
             DebugService.AddMessage($"Save error: {ex.Message}");
         }
     }
-
-    private async Task HandleWizardFinished((int AgeYou, int AgePartner) ages)
+    private async Task HandleWizardFinished()
+    {
+        try
+        {
+            await SaveAsync();
+            Calculate();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Wizard finish error: {ex.Message}");
+        }
+    }
+    private async Task HandleWizardFinished1((int AgeYou, int AgePartner) ages)
     {
         try
         {

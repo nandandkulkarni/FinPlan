@@ -395,7 +395,7 @@
                                     <div class="card-body">
                                         <div class="account-header">
                                             <i class="bi bi-calendar-check"></i>
-                                            <h5 class="card-title mb-3">Planned Retirement Age</h5>
+                                            <h5 class="card-title mb-3">Planned Retirement</h5>
                                             <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
                                         </div>
                                         @if (showToolTipRetirementAge)
@@ -940,7 +940,8 @@
         if (OnFinished.HasDelegate && Model != null)
         {
             // send back ages to parent for any additional mapping
-            await OnFinished.InvokeAsync((Model.CurrentAge, Model.CurrentAge));
+            //await OnFinished.InvokeAsync((Model.CurrentAge, Model.CurrentAge));
+            await OnFinished.InvokeAsync();
         }
 
         Visible = false;
