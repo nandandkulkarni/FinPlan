@@ -357,6 +357,43 @@ namespace FinPlan.Shared.Models.Spending
 
         }
 
+        // Add inside the CalendarSpendingModel class (near other helpers)
+        private decimal ComputeTaxOnTaxableGrowthSplit(decimal taxableGrowthAmount)
+        {
+            // Tax rates
+            var ordinaryIncomeTaxRate = Math.Max(0m, TraditionalTaxRate / 100m); // reuse your ordinary rate
+            const decimal longTermCapitalGainsTaxRate = 0.15m;                   // LT cap gains / qualified dividends
+            const decimal annualRealizationFraction = 0.25m;                     // fraction of LT/ST gains realized each year
+
+            // Income mix shares (mirrors Savings MixedInvestment)
+            const decimal qualifiedDividendShare = 0.25m;
+            const decimal nonQualifiedIncomeShare = 0.25m;
+            const decimal longTermGainsShare = 0.40m;
+            const decimal shortTermGainsShare = 0.10m;
+
+            // Allocate yearly taxable growth into buckets
+            var qualifiedDividendAmount = taxableGrowthAmount * qualifiedDividendShare;
+            var nonQualifiedIncomeAmount = taxableGrowthAmount * nonQualifiedIncomeShare;
+            var accruedLongTermGains = taxableGrowthAmount * longTermGainsShare;
+            var accruedShortTermGains = taxableGrowthAmount * shortTermGainsShare;
+
+            // Only a portion of gains are realized (and taxed) each year
+            var realizedLongTermGainsThisYear = accruedLongTermGains * annualRealizationFraction;
+            var realizedShortTermGainsThisYear = accruedShortTermGains * annualRealizationFraction;
+
+            // Compute taxes for each bucket
+            var taxOnQualifiedDividends = qualifiedDividendAmount * longTermCapitalGainsTaxRate;
+            var taxOnNonQualifiedIncome = nonQualifiedIncomeAmount * ordinaryIncomeTaxRate;
+            var taxOnRealizedLongTermGains = realizedLongTermGainsThisYear * longTermCapitalGainsTaxRate;
+            var taxOnRealizedShortTermGains = realizedShortTermGainsThisYear * ordinaryIncomeTaxRate;
+
+            return taxOnQualifiedDividends
+                 + taxOnNonQualifiedIncome
+                 + taxOnRealizedLongTermGains
+                 + taxOnRealizedShortTermGains;
+        }
+
+
         public void Calculate()
         {
             SyncRetirementYearsFromAges();
@@ -421,7 +458,10 @@ namespace FinPlan.Shared.Models.Spending
 
                 calendarYearRow.TaxOnTaxableNonSSNonGrowthIncome = CalculateTaxOnTaxableNonSSIncome(calendarYearRow.TotalNonSSNonGrowthTaxableIncome);
                 calendarYearRow.TaxOnSSIncome = (calendarYearRow.SSYou + calendarYearRow.SSPartner) * .15m;
+
                 calendarYearRow.TaxOnTaxableInterestAndDividendGrowth = CalculateTaxOnTaxableInterestOrDividendGrowth(calendarYearRow.GrowthOfTaxableBalance);
+
+                //calendarYearRow.TaxOnTaxableInterestAndDividendGrowth = ComputeTaxOnTaxableGrowthSplit(calendarYearRow.GrowthOfTaxableBalance);
 
                 //WITHDRAWAL
                 calendarYearRow.TaxesDueOnAllTaxableGrowthAndIncome =

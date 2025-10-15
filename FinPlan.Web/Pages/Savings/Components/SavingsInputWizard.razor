@@ -17,13 +17,12 @@
         font-size: 1rem;
         box-shadow: 0 4px 12px rgba(109,93,252,0.18);
     }
-       /* In RetirementInputWizard.razor, find the step badge styling */
+    /* In RetirementInputWizard.razor, find the step badge styling */
     .wizard-step-badge {
         /* Other properties remain the same */
         background: var(--brand-yellow); /* Change from var(--accent) or the hardcoded #6D5DFC to var(--brand-yellow) */
         color: #111;
         /* Other properties remain the same */
-
     }
 
 
@@ -131,6 +130,7 @@
         color: #2D3748;
     }
 
+    /* Growth rate styling */
     .growth-preview {
         background: #f8f9fa;
         padding: 10px 12px;
@@ -146,6 +146,37 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+    }
+
+    /* Tax treatment styling */
+    .tax-switch .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        margin-top: 0.25rem;
+    }
+
+    .tax-switch .form-check-label {
+        padding-left: 0.5rem;
+        font-weight: 600;
+    }
+
+    .strategy-card {
+        border-left: 4px solid #FFD600;
+    }
+
+    .strategy-description {
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .active-strategy {
+        background-color: rgba(72, 187, 120, 0.1);
+        border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+
+    .inactive-strategy {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
     }
 
     .income-type-selector, .tax-bracket-selector {
@@ -176,9 +207,138 @@
             border-color: rgba(72, 187, 120, 0.3);
         }
 
+    /* ===========================
+           MOBILE OPTIMIZATIONS
+           Only affects screens less than 768px
+           =========================== */
     @@media (max-width: 767px) {
-        .income-type-option, .tax-bracket-option {
-            min-height: 44px;
+        /* 1. Modal Dialog - Full screen on mobile */
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+        }
+
+        .modal-content {
+            height: 100vh !important;
+            border-radius: 0 !important;
+        }
+        /* 2. Modal Body - Better scrolling on mobile */
+        .modal-body {
+            max-height: none !important;
+            min-height: auto !important;
+            flex: 1 !important;
+            overflow-y: auto !important;
+            padding: 1rem !important;
+        }
+        /* 3. Wizard Header - More compact on mobile */
+        .wizard-header-row {
+            gap: 8px !important;
+        }
+
+        .step-badge {
+            min-width: 36px !important;
+            height: 36px !important;
+            font-size: 0.875rem !important;
+        }
+
+        .modal-title {
+            font-size: 1.1rem !important;
+        }
+
+        .wizard-step-text {
+            font-size: 0.75rem !important;
+        }
+        /* 4. Account Cards - Stack properly on mobile */
+        .row > [class*="col-"] {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+
+        .account-card {
+            margin-bottom: 1rem !important;
+        }
+
+            .account-card .card-body {
+                padding: 1rem !important;
+            }
+
+            .account-card .card-title {
+                font-size: 1rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+        /* 5. Form Inputs - Larger tap targets on mobile */
+        .form-control,
+        .currency-input {
+            min-height: 44px !important;
+            font-size: 1rem !important;
+        }
+
+        .form-label {
+            font-size: 0.95rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        /* 6. Info Tooltips - Better positioning on mobile */
+        .info-tooltip {
+            position: fixed !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            max-width: 90vw !important;
+            z-index: 1060 !important;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3) !important;
+        }
+
+        .info-icon {
+            font-size: 1.25rem !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        /* 7. Modal Footer Buttons - Stack vertically on mobile */
+        .modal-footer {
+            flex-direction: column-reverse !important;
+            gap: 0.5rem !important;
+            padding: 1rem !important;
+        }
+
+            .modal-footer .btn {
+                width: 100% !important;
+                min-height: 44px !important;
+                margin: 0 !important;
+            }
+        /* 8. Income Type and Tax Bracket Options - Better touch targets */
+        .income-type-option,
+        .tax-bracket-option {
+            min-height: 44px !important;
+            padding: 0.75rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .form-check-input[type="radio"] {
+            min-width: 20px !important;
+            min-height: 20px !important;
+        }
+        /* 9. Alert boxes - More compact on mobile */
+        .alert {
+            padding: 0.75rem !important;
+            font-size: 0.875rem !important;
+        }
+
+            .alert ul {
+                padding-left: 1.25rem !important;
+            }
+
+            .alert li {
+                margin-bottom: 0.25rem !important;
+                font-size: 0.8rem !important;
+            }
+        /* 10. Account Footer - Smaller text on mobile */
+        .account-footer small {
+            font-size: 0.75rem !important;
         }
     }
 </style>
@@ -200,65 +360,552 @@
                     <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
                 </div>
                 <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
-                    @if (wizardStep == 5)
+                    @if (wizardStep == 1)
                     {
-                        <div class="row mb-4">
+                        <label class="form-label">Milestones & Ages</label>
+                        <div class="row mb-3">
                             <div class="col-md-6 mb-3">
-                                <div class="card account-card taxable h-100">
+                                <div class="card account-card" style="border-top: 4px solid #FFD600;">
                                     <div class="card-body">
                                         <div class="account-header">
-                                            <i class="bi bi-wallet2"></i>
-                                            <h6 class="card-title">Taxable Income Type</h6>
+                                            <i class="bi bi-person"></i>
+                                            <h5 class="card-title mb-3">Current Age</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAge = !showToolTipCurrentAge" tabindex="0" title="Click for more info"></span>
                                         </div>
-                                        <div class="income-type-selector mt-2" role="radiogroup" aria-label="Taxable income type">
-                                            @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
-                                            {
-                                                var type = Enum.Parse<FinPlan.Shared.Enums.IncomeType>(name);
-
-                                                if(type!= Shared.Enums.IncomeType.MixedInvestment)
-                                                {
-                                                    continue;
-                                                }
-                                                var isSelected = (Model.TaxableIncomeType == type) || (Model.TaxableIncomeType == 0 && name == nameof(FinPlan.Shared.Enums.IncomeType.MixedInvestment));
-                                                <label class="form-check income-type-option @(isSelected ? "selected" : "")">
-                                                    <input class="form-check-input" type="radio" name="incomeTypeRadio" value="@name" checked="@isSelected" disabled />
-                                                    <span class="form-check-label">
-                                                        <strong>@FormatIncomeTypeName(name)</strong>
-                                                        <div class="small text-muted">@GetIncomeTypeDescription(name)</div>
-                                                    </span>
-                                                </label>
-                                            }
+                                        @if (showToolTipCurrentAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Current Age:</strong> Your age today. This is the starting point for calculating how long you have to save before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.CurrentAge" @bind:after="OnFieldChanged" min="18" max="100" style="border-width: 2px; border-color: #ccc;" />
                                         </div>
-                                        <div class="mt-2 small text-muted">
-                                            <strong>Mixed Investment split (uses your tax bracket):</strong>
-                                            <ul class="mb-0 mt-1" style="padding-left: 18px;">
-                                                <li>~25% qualified dividends taxed at @string.Format("{0:P0}", GetLtRateDisplay())</li>
-                                                <li>~25% non-qualified taxed at @string.Format("{0:P0}", GetOrdinaryRateDisplay())</li>
-                                                <li>~40% long-term gains, 25% realized each year taxed at @string.Format("{0:P0}", GetLtRateDisplay())</li>
-                                                <li>~10% short-term gains, 25% realized each year taxed at @string.Format("{0:P0}", GetOrdinaryRateDisplay())</li>
-                                            </ul>
+                                        <div class="account-footer text-muted">
+                                            <small>Your age today</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div class="card account-card taxable h-100">
+                                <div class="card account-card" style="border-top: 4px solid #48BB78;">
                                     <div class="card-body">
                                         <div class="account-header">
-                                            <i class="bi bi-graph-up"></i>
-                                            <h6 class="card-title">Capital Gains Realization</h6>
+                                            <i class="bi bi-calendar-check"></i>
+                                            <h5 class="card-title mb-3">Planned Retirement Age</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRetirementAge = !showToolTipRetirementAge" tabindex="0" title="Click for more info"></span>
                                         </div>
-                                        <div class="income-type-selector mt-2" role="radiogroup" aria-label="Capital gains realization">
-                                            <label class="form-check income-type-option selected">
-                                                <input class="form-check-input" type="radio" name="cgRealizationRadio" checked disabled />
-                                                <span class="form-check-label">
-                                                    <strong>Realize 25% per year</strong>
-                                                    <div class="small text-muted">Dividends taxed each year; only 25% of LT/ST gains taxed annually</div>
+                                        @if (showToolTipRetirementAge)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Planned Retirement Age:</strong> The age at which you plan to stop working and begin your retirement. Most people retire between ages 62-70, with full Social Security benefits available at 66-67 depending on birth year.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRetirementAge = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
                                                 </span>
-                                            </label>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.RetirementAge" @bind:after="OnFieldChanged" min="40" max="80" style="border-width: 2px; border-color: #ccc;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Typical range is 62-70 years</small>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card account-card" style="border-top: 4px solid #4299E1;">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <h5 class="card-title mb-3">Years Until Retirement</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYearsUntilRetirement = !showToolTipYearsUntilRetirement" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipYearsUntilRetirement)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Years Until Retirement:</strong> Automatically calculated as the difference between your planned retirement age and current age. This determines how many years you have to save and how long your investments can grow before retirement.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYearsUntilRetirement = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control" type="number" value="@Model.Years" disabled style="border-width: 2px; border-color: #ccc; background-color: #f8f9fa;" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Automatically calculated</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 2)
+                    {
+                        <label class="form-label mb-3">Starting Balances</label>
+                        <div class="row mb-2">
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableBalance = !showToolTipTaxableBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Accounts:</strong> Regular investment accounts that don't have special tax advantages. These include brokerage accounts, savings accounts, CDs, and other non-retirement investments. Earnings from these accounts are typically taxed annually.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialTaxableAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Taxed annually on dividends and gains</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalBalance = !showToolTipTraditionalBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Accounts:</strong> Tax-deferred retirement accounts like 401(k)s, 403(b)s, and Traditional IRAs. Contributions often reduce your current taxable income, but withdrawals in retirement are taxed as ordinary income.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialTraditionalAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-deferred until withdrawal</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Accounts</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothBalance = !showToolTipRothBalance" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothBalance)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Accounts:</strong> After-tax retirement accounts like Roth IRAs and Roth 401(k)s. Contributions are made with already-taxed dollars, but qualified withdrawals in retirement are completely tax-free, including all growth.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothBalance = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.InitialRothAmount" @bind:after="OnFieldChanged" step="1000" min="0" />
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-free growth and withdrawals</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="total-balance-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Total Starting Balance</h5>
+                                <span class="total-amount">@Model.InitialAmount.ToString("C0")</span>
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 3)
+                    {
+                        <label class="form-label mb-3">Monthly Contributions</label>
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableContribution = !showToolTipTaxableContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Taxable Contribution:</strong> How much you plan to add each month to your regular, non-retirement investment accounts. These contributions are made with after-tax dollars and offer more flexibility for early withdrawals without penalties.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyTaxableContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Flexible access, taxed annually</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalContribution = !showToolTipTraditionalContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Traditional Contribution:</strong> Your monthly contributions to tax-deferred retirement accounts. For 2023, the annual contribution limit for 401(k)s is $22,500 ($1,875/month) plus catch-up contributions of $7,500 for those 50+. IRA limit is $6,500 ($541/month) plus $1,000 catch-up.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyTraditionalContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>401(k) limit: $1,875/mo, IRA: $541/mo</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Contributions</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothContribution = !showToolTipRothContribution" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothContribution)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Monthly Roth Contribution:</strong> Your monthly contributions to Roth accounts. For 2023, Roth IRA contributions share the same limit as Traditional IRAs: $6,500 ($541/month) plus $1,000 catch-up for those 50+. Income limits apply for eligibility. Roth 401(k) shares the 401(k) limits.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothContribution = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control currency-input" type="number" @bind="Model.MonthlyRothContribution" @bind:after="OnFieldChanged" step="50" min="0" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">/mo</span>
+                                        </div>
+                                        <div class="account-footer text-muted">
+                                            <small>Tax-free growth, IRA limit: $541/mo</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="total-balance-panel mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Total Monthly Contribution</h5>
+                                <span class="total-amount">$@((Model.MonthlyTaxableContribution + Model.MonthlyTraditionalContribution + Model.MonthlyRothContribution).ToString("N0"))</span>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Annual contribution: $@((Model.MonthlyTaxableContribution + Model.MonthlyTraditionalContribution + Model.MonthlyRothContribution) * 12).ToString("N0")
+                            </div>
+                        </div>
+                    }
+                    else if (wizardStep == 4)
+                    {
+                        <label class="form-label mb-3">Estimated Growth Rates (annual %)</label>
+                        <div class="presets-container mb-3">
+                            <span class="me-2">Quick presets:</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyConservativeRates">
+                                <i class="bi bi-shield-fill me-1"></i> Conservative (4-6%)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" @onclick="ApplyModerateRates">
+                                <i class="bi bi-circle-half me-1"></i> Moderate (6-8%)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ApplyAggressiveRates">
+                                <i class="bi bi-graph-up-arrow me-1"></i> Aggressive (8-10%)
+                            </button>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card taxable">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-wallet2"></i>
+                                            <h5 class="card-title mb-3">Taxable Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxableGrowth = !showToolTipTaxableGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTaxableGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Taxable Growth Rate:</strong> Expected annual return for your taxable investments. This might be lower than retirement accounts due to tax drag (paying taxes on dividends and capital gains). Historical average for a diversified portfolio is around 6-7% before taxes.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxableGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateTaxable" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTaxable, 10).ToString("C0")</strong>
+                                            </div>
+                                        </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 4-7% annually</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card traditional">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-piggy-bank"></i>
+                                            <h5 class="card-title mb-3">Traditional Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTraditionalGrowth = !showToolTipTraditionalGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipTraditionalGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Traditional Account Growth Rate:</strong> Expected annual return for your tax-deferred retirement accounts. Because these accounts aren't taxed during growth years, returns can compound more efficiently. Historical average for a balanced portfolio is around 7-8%.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTraditionalGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateTraditional" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateTraditional, 10).ToString("C0")</strong>
+                                            </div>
+                                        </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 6-8% annually</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card account-card roth">
+                                    <div class="card-body">
+                                        <div class="account-header">
+                                            <i class="bi bi-safe"></i>
+                                            <h5 class="card-title mb-3">Roth Growth Rate</h5>
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipRothGrowth = !showToolTipRothGrowth" tabindex="0" title="Click for more info"></span>
+                                        </div>
+                                        @if (showToolTipRothGrowth)
+                                        {
+                                            <div class="info-tooltip">
+                                                <strong>Roth Account Growth Rate:</strong> Expected annual return for your Roth retirement accounts. Like traditional accounts, Roth investments grow tax-free, allowing for efficient compounding. The historical average is similar to traditional accounts at around 7-8%.
+                                                <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipRothGrowth = false" title="Close">
+                                                    <span class="bi bi-x-lg"></span>
+                                                </span>
+                                            </div>
+                                        }
+                                        <div class="input-group mb-2">
+                                            <input class="form-control currency-input" type="number" @bind="Model.AnnualGrowthRateRoth" @bind:after="OnFieldChanged" step="0.1" min="0" max="20" style="border-width: 2px; border-color: #ccc;" />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="growth-preview">
+                                            <div class="d-flex justify-content-between">
+                                                <small>$10,000 grows to in 10 years:</small>
+                                                <strong>@CalculateGrowth(10000, Model.AnnualGrowthRateRoth, 10).ToString("C0")</strong>
+                                            </div>
+                                        </div>
+                                        <div class="account-footer text-muted mt-2">
+                                            <small>Typical range: 6-8% annually</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb me-2"></i>
+                            <strong>Tip:</strong> Growth rates typically range from 4% (very conservative) to 10% (aggressive).
+                            The S&P 500 has averaged about 10% annually since 1926 (before inflation),
+                            while a balanced portfolio might average 7-8%.
+                        </div>
+                    }
+                    else if (wizardStep == 5)
+                    {
+                        <div class="mb-3">
+                            @*   <h5 class="mb-3">Tax Treatment</h5>
+
+                            <!-- Tax Strategy Card -->
+                            <div class="card mb-4 strategy-card">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-shield-lock me-2"></i>
+                                        Tax Optimization Strategy
+                                    </h6>
+                                    <div class="form-check form-switch tax-switch">
+                                        <input class="form-check-input" type="checkbox" id="useTaxAdv"
+                                               @bind="Model.UseTaxAdvantaged" @bind:after="OnFieldChanged" />
+                                        <label class="form-check-label" for="useTaxAdv">
+                                            Use tax-advantaged accounts first
+                                            <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxAdvantaged = !showToolTipTaxAdvantaged" tabindex="0" title="Click for more info"></span>
+                                        </label>
+                                    </div>
+                                    @if (showToolTipTaxAdvantaged)
+                                    {
+                                        <div class="info-tooltip">
+                                            <strong>Use Tax-Advantaged Accounts:</strong> When enabled, the calculator will prioritize contributions to tax-advantaged accounts (Traditional and Roth) over taxable accounts when calculating future growth, which typically results in more favorable long-term results.
+                                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxAdvantaged = false" title="Close">
+                                                <span class="bi bi-x-lg"></span>
+                                            </span>
+                                        </div>
+                                    }
+
+                                    <div class="strategy-description mt-3 p-3 @(Model.UseTaxAdvantaged ? "active-strategy" : "inactive-strategy")">
+                                        @if (Model.UseTaxAdvantaged)
+                                        {
+                                            <div><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Optimized tax strategy:</strong> Prioritize tax-advantaged accounts</div>
+                                            <p class="small text-muted mt-2 mb-0">
+                                                The calculator will maximize contributions to Traditional and Roth accounts before using taxable accounts.
+                                                This typically leads to better long-term growth due to tax-free or tax-deferred compounding.
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <div><i class="bi bi-info-circle text-muted me-2"></i> <strong>Standard allocation:</strong> Using your specified contributions</div>
+                                            <p class="small text-muted mt-2 mb-0">
+                                                The calculator will use exactly the contribution amounts you've specified for each account type
+                                                without attempting to optimize for tax efficiency.
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div> *@
+                            <div class="row mb-4">
+                                <!-- Taxable Income Type Card -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card account-card taxable h-100">
+                                        <div class="card-body">
+                                            <div class="account-header">
+                                                <i class="bi bi-wallet2"></i>
+                                                <h6 class="card-title">Taxable Income Type</h6>
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipIncomeType = !showToolTipIncomeType" tabindex="0" title="Click for more info"></span>
+                                            </div>
+                                            @if (showToolTipIncomeType)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Taxable Income Type:</strong> The primary type of income your taxable investments generate. For now, only interest income is supported (taxed as ordinary income).
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipIncomeType = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="income-type-selector mt-3">
+                                                @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.IncomeType)))
+                                                {
+                                                    var isInterest = name == "MostlyInterest";
+                                                    <div class="form-check income-type-option @(isInterest ? "selected" : "")">
+                                                        <input class="form-check-input"
+                                                               type="radio"
+                                                               name="incomeTypeRadio"
+                                                               id="@("income_" + name)"
+                                                               checked="@(isInterest)"
+                                                               disabled />
+                                                        <label class="form-check-label" for="@("income_" + name)">
+                                                            <strong>@FormatIncomeTypeName(name)</strong>
+                                                            <div class="small text-muted">@GetIncomeTypeDescription(name)</div>
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tax Bracket Card -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card account-card traditional h-100">
+                                        <div class="card-body">
+                                            <div class="account-header">
+                                                <i class="bi bi-percent"></i>
+                                                <h6 class="card-title">Tax Bracket</h6>
+                                                <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipTaxBracket = !showToolTipTaxBracket" tabindex="0" title="Click for more info"></span>
+                                            </div>
+                                            @if (showToolTipTaxBracket)
+                                            {
+                                                <div class="info-tooltip">
+                                                    <strong>Tax Bracket:</strong> Your estimated income tax bracket. This affects the tax efficiency of different account types. For 2023, federal brackets range from 10% to 37%. Low = 10-12%, Medium = 22-24%, High = 32-37%.
+                                                    <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipTaxBracket = false" title="Close">
+                                                        <span class="bi bi-x-lg"></span>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <div class="tax-bracket-selector mt-3">
+                                                @foreach (var name in Enum.GetNames(typeof(FinPlan.Shared.Enums.TaxBracket)))
+                                                {
+                                                    <div class="form-check tax-bracket-option @(Model.TaxBracket.ToString() == name ? "selected" : "")">
+                                                        <input class="form-check-input"
+                                                               type="radio"
+                                                               name="taxBracketRadio"
+                                                               id="@("bracket_" + name)"
+                                                               checked="@(Model.TaxBracket.ToString() == name)"
+                                                               @onchange="() => SetTaxBracket(name)" />
+                                                        <label class="form-check-label" for="@("bracket_" + name)">
+                                                            <strong>@name</strong>
+                                                            <div class="small text-muted">@GetTaxBracketDescription(name)</div>
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tax Efficiency Tip:</strong> For optimal tax efficiency, many financial advisors recommend:
+                                <ul class="mb-0 mt-1">
+                                    <li>Holding tax-inefficient investments (bonds, REITs) in tax-advantaged accounts</li>
+                                    <li>Holding tax-efficient investments (growth stocks, index funds) in taxable accounts</li>
+                                    <li>Prioritizing Roth accounts when expecting higher future tax rates</li>
+                                </ul>
                             </div>
                         </div>
                     }
@@ -296,14 +943,35 @@
     private bool _wasVisible = false;
     private int _lastInitialStep = 1;
 
+    // Helper property for life expectancy (if the model doesn't have this property)
+    private int LifeExpectancy { get; set; } = 100;
+
+    // Tooltip visibility flags
+    private bool showToolTipCurrentAge = false;
+    private bool showToolTipRetirementAge = false;
+    private bool showToolTipLifeExpectancy = false;
+    private bool showToolTipYearsUntilRetirement = false;
+
+    private bool showToolTipTaxableBalance = false;
+    private bool showToolTipTraditionalBalance = false;
+    private bool showToolTipRothBalance = false;
+
+    private bool showToolTipTaxableContribution = false;
+    private bool showToolTipTraditionalContribution = false;
+    private bool showToolTipRothContribution = false;
+
+    private bool showToolTipTaxableGrowth = false;
+    private bool showToolTipTraditionalGrowth = false;
+    private bool showToolTipRothGrowth = false;
+
+    private bool showToolTipTaxAdvantaged = false;
+    private bool showToolTipIncomeType = false;
+    private bool showToolTipTaxBracket = false;
+
     protected override void OnParametersSet()
     {
-        // Ensure defaults
         if (Model != null)
-        {
-            if (Model.TaxableIncomeType == 0) Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
-            if (Model.CapitalGainsRealizationRate <= 0m || Model.CapitalGainsRealizationRate > 1m) Model.CapitalGainsRealizationRate = 0.25m;
-        }
+            Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MostlyInterest;
 
         if (Visible)
         {
@@ -336,16 +1004,21 @@
     {
         if (wizardStep < 5)
         {
+            // minimal validation for step 1
+            if (wizardStep == 1 && (Model?.RetirementAge ?? 0) <= 0) return;
+
             await InvokeOnSave();
             wizardStep++;
             StateHasChanged();
             return;
         }
 
+        // final step: save and close
         await InvokeOnSave();
 
         if (OnFinished.HasDelegate && Model != null)
         {
+            // send back ages to parent for any additional mapping
             await OnFinished.InvokeAsync((Model.CurrentAge, Model.CurrentAge));
         }
 
@@ -371,11 +1044,67 @@
                 await OnSave.InvokeAsync();
             }
         }
-        catch { }
+        catch { /* swallow - original code ignored errors */ }
+    }
+
+    // Single event handler for all field changes
+    private async Task OnFieldChanged()
+    {
+        await InvokeOnSave();
+        StateHasChanged();
+    }
+
+    private void ApplyConservativeRates()
+    {
+        Model.AnnualGrowthRateTaxable = 4.5m;
+        Model.AnnualGrowthRateTraditional = 5.5m;
+        Model.AnnualGrowthRateRoth = 5.5m;
+        OnFieldChanged();
+    }
+
+    private void ApplyModerateRates()
+    {
+        Model.AnnualGrowthRateTaxable = 6.0m;
+        Model.AnnualGrowthRateTraditional = 7.0m;
+        Model.AnnualGrowthRateRoth = 7.0m;
+        OnFieldChanged();
+    }
+
+    private void ApplyAggressiveRates()
+    {
+        Model.AnnualGrowthRateTaxable = 7.5m;
+        Model.AnnualGrowthRateTraditional = 9.0m;
+        Model.AnnualGrowthRateRoth = 9.0m;
+        OnFieldChanged();
+    }
+
+
+    private decimal CalculateGrowth(decimal principal, decimal rate, int years)
+    {
+        return principal * (decimal)Math.Pow((double)(1 + rate / 100), years);
+    }
+
+    private void SetIncomeType(string typeName)
+    {
+        if (Enum.TryParse<FinPlan.Shared.Enums.IncomeType>(typeName, out var incomeType))
+        {
+            Model.TaxableIncomeType = incomeType;
+            OnFieldChanged();
+        }
+    }
+
+    private void SetTaxBracket(string bracketName)
+    {
+        if (Enum.TryParse<FinPlan.Shared.Enums.TaxBracket>(bracketName, out var taxBracket))
+        {
+            Model.TaxBracket = taxBracket;
+            OnFieldChanged();
+        }
     }
 
     private string FormatIncomeTypeName(string name)
     {
+        // Convert "MostlyLongTermGains" to "Mostly Long Term Gains"
         return System.Text.RegularExpressions.Regex.Replace(name, "([a-z])([A-Z])", "$1 $2");
     }
 
@@ -391,21 +1120,14 @@
         };
     }
 
-    private decimal GetOrdinaryRateDisplay()
-        => Model?.TaxBracket switch
+    private string GetTaxBracketDescription(string name)
+    {
+        return name switch
         {
-            FinPlan.Shared.Enums.TaxBracket.Low => 0.12m,
-            FinPlan.Shared.Enums.TaxBracket.Medium => 0.24m,
-            FinPlan.Shared.Enums.TaxBracket.High => 0.35m,
-            _ => 0.24m
+            "Low" => "10-12% federal tax bracket (2023)",
+            "Medium" => "22-24% federal tax bracket (2023)",
+            "High" => "32-37% federal tax bracket (2023)",
+            _ => string.Empty
         };
-
-    private decimal GetLtRateDisplay()
-        => Model?.TaxBracket switch
-        {
-            FinPlan.Shared.Enums.TaxBracket.Low => 0.00m,
-            FinPlan.Shared.Enums.TaxBracket.Medium => 0.15m,
-            FinPlan.Shared.Enums.TaxBracket.High => 0.20m,
-            _ => 0.15m
-        };
+    }
 }
