@@ -67,6 +67,20 @@
         /* Other properties remain the same */
     }
 
+    /* Wizard-only: keep a consistent modal width across steps on this page only */
+    .retirement-wizard .modal-dialog {
+        width: 800px !important; /* standard width for this wizard */
+        max-width: 800px !important;
+    }
+
+    /* Desktop: unify wizard body height so the modal doesn't resize between steps */
+    @@media (min-width: 768px) {
+        .wizard-modal-body {
+            height: 540px; /* roughly matches Savings wizard */
+            overflow-y: auto;
+        }
+    }
+
     /* ===========================
        MOBILE OPTIMIZATIONS
        Only affects screens less than 768px
@@ -236,7 +250,7 @@
 @if (Visible)
 {
     <div class="modal-backdrop fade show"></div>
-    <div class="modal d-block" tabindex="-1" role="dialog" style="z-index:1055;">
+    <div class="modal d-block retirement-wizard" tabindex="-1" role="dialog" style="z-index:1055;">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -249,7 +263,7 @@
                     </div>
                     <button type="button" class="btn-close" aria-label="Save & Close" @onclick="CloseClicked"></button>
                 </div>
-                <div class="modal-body" style="min-height:360px; max-height:520px; overflow:auto;">
+                <div class="modal-body wizard-modal-body">
                     @if (wizardStep == 1)
                     {
                         <label class="form-label mb-3">Current Ages & Retirement Ages</label>
@@ -710,7 +724,7 @@ else if (wizardStep == 3)
                             </div>
                         </div>
 
-                        @if (Model.CurrentAgePartner >= 0)
+                        @if (Model.CurrentAgePartner > 0)
                         {
                             <!-- Partner Social Security Card -->
                             <div class="card mb-4" style="border-top: 4px solid #8B5CF6;">
