@@ -76,6 +76,8 @@ namespace FinPlan.Web.Pages.Retire
 
                 await Load();
 
+                await ApplySavingsAgesIfEmptyAsync();
+
                 await HandleIntroModal();
 
                 // Track page view once on first render

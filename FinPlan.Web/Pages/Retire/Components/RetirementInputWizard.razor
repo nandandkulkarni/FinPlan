@@ -130,9 +130,9 @@
     }
 
     /* ===========================
-                               MOBILE OPTIMIZATIONS
-                               Only affects screens less than 768px
-                               =========================== */
+                                   MOBILE OPTIMIZATIONS
+                                   Only affects screens less than 768px
+                                   =========================== */
     @@media (max-width: 767px) {
         /* 1. Modal Dialog - Full screen on mobile */
         .modal-dialog {
@@ -442,8 +442,8 @@
                                             <div class="copy-hint">
                                                 <span>Use @savingsCurrentAgeYou from Savings</span>
                                                 <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgeYou))">Copy</button>
-                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
-                                            </div>
+                                                @*                                                 <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+ *@                                            </div>
                                         }
                                     </div>
 
@@ -457,8 +457,8 @@
                                             <div class="copy-hint">
                                                 <span>Use @savingsRetirementAgeYou from Savings</span>
                                                 <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgeYou))">Copy</button>
-                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
-                                            </div>
+                                                @*                                                 <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+ *@                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -482,8 +482,8 @@
                                             <div class="copy-hint partner">
                                                 <span>Use @savingsCurrentAgePartner from Savings</span>
                                                 <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgePartner))">Copy</button>
-                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
-                                            </div>
+                                                @*                                                 <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+ *@                                            </div>
                                         }
                                     </div>
 
@@ -497,8 +497,8 @@
                                             <div class="copy-hint partner">
                                                 <span>Use @savingsRetirementAgePartner from Savings</span>
                                                 <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgePartner))">Copy</button>
-                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
-                                            </div>
+                                                @*                                                 <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+ *@                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -1415,7 +1415,7 @@
             TrySyncModel();
 
             // Persist certain age fields back to localStorage so Savings can pick them up if empty
-            await PersistAgesToSavingsLocalStorageAsync(propertyName);
+            //await PersistAgesToSavingsLocalStorageAsync(propertyName);
 
             await InvokeOnSaveSafe();
         }
@@ -1669,13 +1669,13 @@
         }
     }
 
-    private async Task RefreshHintsAsync()
-    {
-        _hintsLoaded = false;
-        await LoadRetirementHintsAsync();
-        _hintsLoaded = true;
-        StateHasChanged();
-    }
+    // private async Task RefreshHintsAsync()
+    // {
+    //     _hintsLoaded = false;
+    //     await LoadRetirementHintsAsync();
+    //     _hintsLoaded = true;
+    //     StateHasChanged();
+    // }
 
 
     private async Task LoadRetirementHintsAsync()
@@ -1690,7 +1690,7 @@
             CalendarSpendingModel? backendRet = null;
             try
             {
-                var retUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=retirement";
+                var retUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=retirement_planner";
                 backendRet = await client.GetFromJsonAsync<CalendarSpendingModel>(retUrl);
             }
             catch { backendRet = null; }
@@ -1707,63 +1707,68 @@
                 if (Model == null) Model = new CalendarSpendingModel();
             }
 
-            // If any essential age fields are missing (0), try to seed from savings backend models
-            bool anyMissing =
-                (Model.CurrentAgeYou <= 0 || Model.RetirementAgeYou <= 0) ||
-                (Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0);
+            // // If any essential age fields are missing (0), try to seed from savings backend models
+            // bool anyMissing =
+            //     (Model.CurrentAgeYou <= 0 || Model.RetirementAgeYou <= 0) ||
+            //     (Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0);
 
-            if (anyMissing)
+            //if (anyMissing)
+            // {
+            // Load savings models (yours + partner) from backend
+            SavingsCalculatorModel? savingsYours = null;
+            SavingsCalculatorModel? savingsPartner = null;
+            try
             {
-                // Load savings models (yours + partner) from backend
-                SavingsCalculatorModel? savingsYours = null;
-                SavingsCalculatorModel? savingsPartner = null;
-                try
-                {
-                    var yoursUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_yours";
-                    savingsYours = await client.GetFromJsonAsync<SavingsCalculatorModel>(yoursUrl);
-                }
-                catch { savingsYours = null; }
-
-                try
-                {
-                    var partnerUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_partners";
-                    savingsPartner = await client.GetFromJsonAsync<SavingsCalculatorModel>(partnerUrl);
-                }
-                catch { savingsPartner = null; }
-
-                var changed = false;
-
-                if ((Model.CurrentAgeYou <= 0 || Model.CurrentAgeYou == null) && (savingsYours?.CurrentAge ?? 0) > 0)
-                {
-                    Model.CurrentAgeYou = savingsYours!.CurrentAge;
-                    changed = true;
-                }
-
-                if ((Model.RetirementAgeYou <= 0 || Model.RetirementAgeYou == null) && (savingsYours?.RetirementAge ?? 0) > 0)
-                {
-                    Model.RetirementAgeYou = savingsYours!.RetirementAge;
-                    changed = true;
-                }
-
-                if ((Model.CurrentAgePartner <= 0 || Model.CurrentAgePartner == null) && (savingsPartner?.CurrentAge ?? 0) > 0)
-                {
-                    Model.CurrentAgePartner = savingsPartner!.CurrentAge;
-                    changed = true;
-                }
-
-                if ((Model.RetirementAgePartner <= 0 || Model.RetirementAgePartner == null) && (savingsPartner?.RetirementAge ?? 0) > 0)
-                {
-                    Model.RetirementAgePartner = savingsPartner!.RetirementAge;
-                    changed = true;
-                }
-
-                if (changed)
-                {
-                    TrySyncModel();
-                    // Save merged retirement model back to backend so retirement becomes canonical
-                    await PersistRetirementToBackendAsync();
-                }
+                var yoursUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_yours";
+                savingsYours = await client.GetFromJsonAsync<SavingsCalculatorModel>(yoursUrl);
             }
+            catch { savingsYours = null; }
+
+            try
+            {
+                var partnerUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_partners";
+                savingsPartner = await client.GetFromJsonAsync<SavingsCalculatorModel>(partnerUrl);
+            }
+            catch { savingsPartner = null; }
+
+            var changed = false;
+
+            savingsCurrentAgeYou = savingsYours?.CurrentAge;
+            savingsRetirementAgeYou = savingsYours?.RetirementAge;
+            savingsCurrentAgePartner = savingsPartner?.CurrentAge;
+            savingsRetirementAgePartner = savingsPartner?.RetirementAge;
+
+            if ((Model.CurrentAgeYou <= 0) && (savingsYours?.CurrentAge ?? 0) > 0)
+            {
+                Model.CurrentAgeYou = savingsYours!.CurrentAge;
+                changed = true;
+            }
+
+            if ((Model.RetirementAgeYou <= 0) && (savingsYours?.RetirementAge ?? 0) > 0)
+            {
+                Model.RetirementAgeYou = savingsYours!.RetirementAge;
+                changed = true;
+            }
+
+            if ((Model.CurrentAgePartner <= 0) && (savingsPartner?.CurrentAge ?? 0) > 0)
+            {
+                Model.CurrentAgePartner = savingsPartner!.CurrentAge;
+                changed = true;
+            }
+
+            if ((Model.RetirementAgePartner <= 0) && (savingsPartner?.RetirementAge ?? 0) > 0)
+            {
+                Model.RetirementAgePartner = savingsPartner!.RetirementAge;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                TrySyncModel();
+                // Save merged retirement model back to backend so retirement becomes canonical
+                await PersistRetirementToBackendAsync();
+            }
+            // }
 
             // record timestamp for UI if you still need hintsFetchedAt
             hintsFetchedAt = DateTime.Now;
@@ -1859,37 +1864,37 @@
 
     // Replace previous LoadSavingsHintsAsync with this API-based implementation
 
-    private async Task PersistAgesToSavingsLocalStorageAsync(string propertyName)
-    {
-        if (JSRuntime == null || Model == null) return;
+    // private async Task PersistAgesToSavingsLocalStorageAsync(string propertyName)
+    // {
+    //     if (JSRuntime == null || Model == null) return;
 
-        try
-        {
-            switch (propertyName)
-            {
-                case nameof(Model.CurrentAgeYou):
-                    if (Model.CurrentAgeYou > 0)
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.You", Model.CurrentAgeYou.ToString());
-                    break;
-                case nameof(Model.RetirementAgeYou):
-                    if (Model.RetirementAgeYou > 0)
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.You", Model.RetirementAgeYou.ToString());
-                    break;
-                case nameof(Model.CurrentAgePartner):
-                    if (Model.CurrentAgePartner > 0)
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.Partner", Model.CurrentAgePartner.ToString());
-                    break;
-                case nameof(Model.RetirementAgePartner):
-                    if (Model.RetirementAgePartner > 0)
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.Partner", Model.RetirementAgePartner.ToString());
-                    break;
-                default:
-                    break;
-            }
-        }
-        catch
-        {
-            // best-effort only
-        }
-    }
+    //     try
+    //     {
+    //         switch (propertyName)
+    //         {
+    //             case nameof(Model.CurrentAgeYou):
+    //                 if (Model.CurrentAgeYou > 0)
+    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.You", Model.CurrentAgeYou.ToString());
+    //                 break;
+    //             case nameof(Model.RetirementAgeYou):
+    //                 if (Model.RetirementAgeYou > 0)
+    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.You", Model.RetirementAgeYou.ToString());
+    //                 break;
+    //             case nameof(Model.CurrentAgePartner):
+    //                 if (Model.CurrentAgePartner > 0)
+    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.Partner", Model.CurrentAgePartner.ToString());
+    //                 break;
+    //             case nameof(Model.RetirementAgePartner):
+    //                 if (Model.RetirementAgePartner > 0)
+    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.Partner", Model.RetirementAgePartner.ToString());
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    //     catch
+    //     {
+    //         // best-effort only
+    //     }
+    // }
 }
