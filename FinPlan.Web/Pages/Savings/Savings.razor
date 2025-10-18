@@ -3,6 +3,7 @@
 @page "/savings-wealth-building"
 
 @using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Models.Spending
 @using FinPlan.Shared.Services
 @using FinPlan.Web.Services
 @using Microsoft.JSInterop
@@ -904,6 +905,7 @@
                     VisibleChanged="@(v => showWizard = v)"
                     OnFinished="HandleWizardFinished"
                     OnSave="SaveAsync"
+                    ActiveTab=activeTab
                     InitialStep="@wizardOpenStep" />
 
 <SetupSavingsSampleData Visible="@showSampleDataModal"
@@ -1143,7 +1145,7 @@
         <div class="grid-panel panel mt-3">
             <div class="grid-header">
                 <div style="font-weight:800; font-size:1rem;">Yearly Projection</div>
-@*                 <div style="display: flex; gap: 12px; align-items: center;">
+@*                 <div style="display: flex; gap: 12px, align-items: center;">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="simpleViewToggle" @onchange="ToggleSimpleView" checked="@showSimpleView">
                         <label class="form-check-label" for="simpleViewToggle" style="font-size: 0.9rem;">Simple View</label>
@@ -1265,10 +1267,14 @@
                 _ = TrackPageViewAsync();
 
                 await LoadAsync();
+                // New: seed savings ages from retirement backend when savings ages are empty
+                await ApplyRetirementAgesIfEmptyAsync();
+
                 Calculate();
+
                 await HandleIntroModal();
 
-                // New: update survey visibility (mobile: only after ~5 loads; desktop: always)
+                // New: update survey visibility (desktop: always show; mobile handling removed because localStorage eliminated)
                 await UpdateSurveyVisibilityAsync();
 
                 StateHasChanged();
@@ -1280,6 +1286,88 @@
         }
     }
 
+    // Try to read ages persisted by the savings/retirement wizards and apply when model ages are empty (best-effort)
+   
+
+   
+    private async Task ApplyRetirementAgesIfEmptyAsync()
+    {
+        try
+        {
+            if (calculatorModel == null) calculatorModel = new SavingsCalculatorModel();
+
+            // If savings already has ages, nothing to do
+            var savingsHasAges =
+                (calculatorModel.CurrentAge > 0 && calculatorModel.RetirementAge > 0);
+
+            if (savingsHasAges)
+                return;
+
+            // load retirement model from backend
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+            var userGuidLocal = await UserGuidService.GetOrCreateUserGuidAsync();
+
+            CalendarSpendingModel? retModel = null;
+            try
+            {
+                var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuidLocal}&calculatorType=retirement";
+                retModel = await client.GetFromJsonAsync<CalendarSpendingModel>(url);
+            }
+            catch
+            {
+                retModel = null;
+            }
+
+            if (retModel == null) return;
+
+            var changed = false;
+
+            // If current calculator is "your" or activeTab is "your" => map from retirement's "You" fields.
+            if (calculatorType == calculatorTypeYours || string.Equals(activeTab, "your", StringComparison.OrdinalIgnoreCase))
+            {
+                if (calculatorModel.CurrentAge <= 0 && retModel.CurrentAgeYou > 0)
+                {
+                    calculatorModel.CurrentAge = retModel.CurrentAgeYou;
+                    changed = true;
+                }
+
+                if (calculatorModel.RetirementAge <= 0 && retModel.RetirementAgeYou > 0)
+                {
+                    calculatorModel.RetirementAge = retModel.RetirementAgeYou;
+                    changed = true;
+                }
+            }
+            else // partner savings calculator -> use partner fields
+            {
+                if (calculatorModel.CurrentAge <= 0 && retModel.CurrentAgePartner > 0)
+                {
+                    calculatorModel.CurrentAge = retModel.CurrentAgePartner;
+                    changed = true;
+                }
+
+                if (calculatorModel.RetirementAge <= 0 && retModel.RetirementAgePartner > 0)
+                {
+                    calculatorModel.RetirementAge = retModel.RetirementAgePartner;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                // Persist the seeded savings model to backend so savings becomes canonical
+                await SaveAsync();
+
+                // Recalculate and update UI
+                Calculate();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugService.AddMessage($"Seed from retirement failed: {ex.Message}");
+        }
+    }
     private async Task TrackPageViewAsync()
     {
         try

@@ -1,9 +1,57 @@
 ﻿@using FinPlan.Shared.Models
+@using FinPlan.Shared.Models.Savings
 @using FinPlan.Shared.Models.Spending
+@using FinPlan.Web.Services
 @using Microsoft.AspNetCore.Components
 @using System.Reflection
+@using Microsoft.JSInterop
+@using System.Net.Http
+
+@inject IConfiguration Configuration
+@inject IHttpClientFactory HttpClientFactory
+@inject UserGuidService UserGuidService
+
+@inject IJSRuntime JSRuntime
 
 <style>
+
+    /* Copy-from-Savings hint styles */
+    .copy-hint {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-top: .35rem;
+        padding: .4rem .6rem;
+        border: 1px dashed var(--bs-border-color, #d0d7de);
+        border-left: 3px solid #2563EB; /* default accent */
+        border-radius: 6px;
+        background: #f7fbff;
+        font-size: .875rem;
+    }
+
+        .copy-hint.partner {
+            border-left-color: #8B5CF6;
+        }
+
+        .copy-hint .hint-meta {
+            color: var(--muted, #6b7280);
+            font-size: .8rem;
+        }
+
+    .copy-btn-pill {
+        padding: .15rem .6rem;
+        line-height: 1.1;
+        border-radius: 999px;
+        font-size: .8rem;
+    }
+
+    .copy-hint .refresh-link {
+        margin-left: auto;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: .8rem;
+    }
+
     .wizard-step-bubble {
         width: 38px;
         height: 38px;
@@ -82,9 +130,9 @@
     }
 
     /* ===========================
-               MOBILE OPTIMIZATIONS
-               Only affects screens less than 768px
-               =========================== */
+                               MOBILE OPTIMIZATIONS
+                               Only affects screens less than 768px
+                               =========================== */
     @@media (max-width: 767px) {
         /* 1. Modal Dialog - Full screen on mobile */
         .modal-dialog {
@@ -271,7 +319,7 @@
                                             @if (showToolTipCurrentAgeYou)
                                             {
                                                 <div class="info-tooltip">
-                                                    <strong>Your Ages:</strong> Enter your current age and the age you plan to retire. These are the foundation of your retirement planning calculations.
+                                                    <strong>Your Ages:</strong> Enter your current age and the age you plan to retire.
                                                     <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipCurrentAgeYou = false" title="Close">
                                                         <span class="bi bi-x-lg"></span>
                                                     </span>
@@ -284,7 +332,16 @@
                                                     <span class="fs-6 text-muted">years</span>
                                                 </div>
                                                 <div class="small-note">Your age today</div>
+
+                                                @if (ShowHint(savingsCurrentAgeYou, Model?.CurrentAgeYou ?? 0))
+                                                {
+                                                    <div class="copy-hint">
+                                                        <span>From Savings: <strong>@savingsCurrentAgeYou</strong></span>
+                                                        <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgeYou))">Copy</button>
+                                                    </div>
+                                                }
                                             </div>
+
                                             <div class="mb-0">
                                                 <label class="form-label">Retirement Age</label>
                                                 <div class="d-flex align-items-center">
@@ -292,6 +349,15 @@
                                                     <span class="fs-6 text-muted">years</span>
                                                 </div>
                                                 <div class="small-note">When you plan to stop working</div>
+
+                                                @if (ShowHint(savingsRetirementAgeYou, Model?.RetirementAgeYou ?? 0))
+                                                {
+                                                    <div class="copy-hint">
+                                                        <span>From Savings: <strong>@savingsRetirementAgeYou</strong></span>
+                                                        <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgeYou))">Copy</button>
+
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -322,7 +388,16 @@
                                                     <span class="fs-6 text-muted">years</span>
                                                 </div>
                                                 <div class="small-note">Partner's age today</div>
+
+                                                @if (ShowHint(savingsCurrentAgePartner, Model?.CurrentAgePartner ?? 0))
+                                                {
+                                                    <div class="copy-hint partner">
+                                                        <span>From Savings: <strong>@savingsCurrentAgePartner</strong></span>
+                                                        <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgePartner))">Copy</button>
+                                                    </div>
+                                                }
                                             </div>
+
                                             <div class="mb-0">
                                                 <label class="form-label">Retirement Age</label>
                                                 <div class="d-flex align-items-center">
@@ -330,6 +405,14 @@
                                                     <span class="fs-6 text-muted">years</span>
                                                 </div>
                                                 <div class="small-note">Leave as 0 if no partner</div>
+
+                                                @if (ShowHint(savingsRetirementAgePartner, Model?.RetirementAgePartner ?? 0))
+                                                {
+                                                    <div class="copy-hint partner">
+                                                        <span>From Savings: <strong>@savingsRetirementAgePartner</strong></span>
+                                                        <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgePartner))">Copy</button>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -353,12 +436,30 @@
                                         <label class="form-label mb-1">Current Age</label>
                                         <input class="form-control" type="number" inputmode="numeric" value="@(Model?.CurrentAgeYou ?? 0)" min="18" max="100" @onchange="e => OnInputChanged(nameof(Model.CurrentAgeYou), e.Value!)" />
                                         <div class="text-muted small mt-1">Your age today</div>
+
+                                        @if (ShowHint(savingsCurrentAgeYou, Model?.CurrentAgeYou ?? 0))
+                                        {
+                                            <div class="copy-hint">
+                                                <span>Use @savingsCurrentAgeYou from Savings</span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgeYou))">Copy</button>
+                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+                                            </div>
+                                        }
                                     </div>
 
                                     <div class="mb-0">
                                         <label class="form-label mb-1">Retirement Age</label>
                                         <input class="form-control" type="number" inputmode="numeric" value="@(Model?.RetirementAgeYou ?? 0)" min="40" max="100" @onchange="e => OnInputChanged(nameof(Model.RetirementAgeYou), e.Value!)" />
                                         <div class="text-muted small mt-1">When you plan to stop working</div>
+
+                                        @if (ShowHint(savingsRetirementAgeYou, Model?.RetirementAgeYou ?? 0))
+                                        {
+                                            <div class="copy-hint">
+                                                <span>Use @savingsRetirementAgeYou from Savings</span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgeYou))">Copy</button>
+                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -375,12 +476,30 @@
                                         <label class="form-label mb-1">Current Age</label>
                                         <input class="form-control" type="number" inputmode="numeric" value="@(Model?.CurrentAgePartner ?? 0)" min="0" max="100" @onchange="e => OnInputChanged(nameof(Model.CurrentAgePartner), e.Value!)" />
                                         <div class="text-muted small mt-1">Partner's age today (0 if none)</div>
+
+                                        @if (ShowHint(savingsCurrentAgePartner, Model?.CurrentAgePartner ?? 0))
+                                        {
+                                            <div class="copy-hint partner">
+                                                <span>Use @savingsCurrentAgePartner from Savings</span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.CurrentAgePartner))">Copy</button>
+                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+                                            </div>
+                                        }
                                     </div>
 
                                     <div class="mb-0">
                                         <label class="form-label mb-1">Retirement Age</label>
                                         <input class="form-control" type="number" inputmode="numeric" value="@(Model?.RetirementAgePartner ?? 0)" min="0" max="100" @onchange="e => OnInputChanged(nameof(Model.RetirementAgePartner), e.Value!)" />
                                         <div class="text-muted small mt-1">Leave 0 if not applicable</div>
+
+                                        @if (ShowHint(savingsRetirementAgePartner, Model?.RetirementAgePartner ?? 0))
+                                        {
+                                            <div class="copy-hint partner">
+                                                <span>Use @savingsRetirementAgePartner from Savings</span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromSavings(nameof(Model.RetirementAgePartner))">Copy</button>
+                                                <span class="refresh-link" @onclick="RefreshHintsAsync">Refresh</span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -522,7 +641,7 @@
                             </div>
                         </div>
                     }
-                 else if (wizardStep == 3)
+                    else if (wizardStep == 3)
                     {
                         <label class="form-label mb-3">Social Security Benefits</label>
 
@@ -1233,7 +1352,8 @@
     </div>
 }
 
-@code {
+@code
+{
     [Parameter]
     public CalendarSpendingModel? Model { get; set; }
 
@@ -1293,6 +1413,10 @@
             var safeValue = Convert.ChangeType(value, targetType);
             prop.SetValue(Model, safeValue);
             TrySyncModel();
+
+            // Persist certain age fields back to localStorage so Savings can pick them up if empty
+            await PersistAgesToSavingsLocalStorageAsync(propertyName);
+
             await InvokeOnSaveSafe();
         }
     }
@@ -1525,5 +1649,247 @@
     {
         return amount * (decimal)Math.Pow((double)(1 + inflationRate / 100), years);
     }
+
+
+    // Savings hints (nullable means "not found")
+    private int? savingsCurrentAgeYou, savingsRetirementAgeYou, savingsCurrentAgePartner, savingsRetirementAgePartner;
+    private bool _hintsLoaded;
+    private DateTime? hintsFetchedAt;
+
+    private bool ShowHint(int? suggestion, int currentValue)
+        => suggestion.HasValue && suggestion.Value > 0 && (currentValue <= 0 || suggestion.Value != currentValue);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Visible && wizardStep == 1 && !_hintsLoaded)
+        {
+            await LoadRetirementHintsAsync();
+            _hintsLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshHintsAsync()
+    {
+        _hintsLoaded = false;
+        await LoadRetirementHintsAsync();
+        _hintsLoaded = true;
+        StateHasChanged();
+    }
+
+
+    private async Task LoadRetirementHintsAsync()
+    {
+        try
+        {
+            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            // 1) Try to load retirement model from backend
+            CalendarSpendingModel? backendRet = null;
+            try
+            {
+                var retUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=retirement";
+                backendRet = await client.GetFromJsonAsync<CalendarSpendingModel>(retUrl);
+            }
+            catch { backendRet = null; }
+
+            // If backend returned a model with real data, merge it into Model
+            if (backendRet != null)
+            {
+                // Merge so Model reference (Parameter) is kept and UI binding stays intact
+                Model = backendRet;
+            }
+            else
+            {
+                // Ensure Model exists even if backend returned null
+                if (Model == null) Model = new CalendarSpendingModel();
+            }
+
+            // If any essential age fields are missing (0), try to seed from savings backend models
+            bool anyMissing =
+                (Model.CurrentAgeYou <= 0 || Model.RetirementAgeYou <= 0) ||
+                (Model.CurrentAgePartner <= 0 || Model.RetirementAgePartner <= 0);
+
+            if (anyMissing)
+            {
+                // Load savings models (yours + partner) from backend
+                SavingsCalculatorModel? savingsYours = null;
+                SavingsCalculatorModel? savingsPartner = null;
+                try
+                {
+                    var yoursUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_yours";
+                    savingsYours = await client.GetFromJsonAsync<SavingsCalculatorModel>(yoursUrl);
+                }
+                catch { savingsYours = null; }
+
+                try
+                {
+                    var partnerUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_partners";
+                    savingsPartner = await client.GetFromJsonAsync<SavingsCalculatorModel>(partnerUrl);
+                }
+                catch { savingsPartner = null; }
+
+                var changed = false;
+
+                if ((Model.CurrentAgeYou <= 0 || Model.CurrentAgeYou == null) && (savingsYours?.CurrentAge ?? 0) > 0)
+                {
+                    Model.CurrentAgeYou = savingsYours!.CurrentAge;
+                    changed = true;
+                }
+
+                if ((Model.RetirementAgeYou <= 0 || Model.RetirementAgeYou == null) && (savingsYours?.RetirementAge ?? 0) > 0)
+                {
+                    Model.RetirementAgeYou = savingsYours!.RetirementAge;
+                    changed = true;
+                }
+
+                if ((Model.CurrentAgePartner <= 0 || Model.CurrentAgePartner == null) && (savingsPartner?.CurrentAge ?? 0) > 0)
+                {
+                    Model.CurrentAgePartner = savingsPartner!.CurrentAge;
+                    changed = true;
+                }
+
+                if ((Model.RetirementAgePartner <= 0 || Model.RetirementAgePartner == null) && (savingsPartner?.RetirementAge ?? 0) > 0)
+                {
+                    Model.RetirementAgePartner = savingsPartner!.RetirementAge;
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    TrySyncModel();
+                    // Save merged retirement model back to backend so retirement becomes canonical
+                    await PersistRetirementToBackendAsync();
+                }
+            }
+
+            // record timestamp for UI if you still need hintsFetchedAt
+            hintsFetchedAt = DateTime.Now;
+        }
+        catch
+        {
+            // keep best-effort behavior: fail silently
+            hintsFetchedAt = DateTime.Now;
+        }
+    }
+
+    private async Task PersistRetirementToBackendAsync()
+    {
+        try
+        {
+            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            var payload = new
+            {
+                UserGuid = userGuid,
+                CalculatorType = "retirement",
+                Data = Model
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(payload);
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{apiBaseUrl}/api/FinPlan/save", content);
+        }
+        catch
+        {
+            // best-effort — swallow errors or add logging via DebugService if available
+        }
+    }
+
+    private async Task CopyFromSavings(string propertyName)
+    {
+        try
+        {
+            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+            var apiBaseUrl = GetApiBaseUrl();
+            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+            // decide which savings model to call based on property (yours vs partner)
+            var isPartnerField = propertyName.Contains("Partner", StringComparison.OrdinalIgnoreCase);
+            var calculatorType = isPartnerField ? "savings_partners" : "savings_yours";
+
+            var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
+            var saved = await client.GetFromJsonAsync<SavingsCalculatorModel>(url);
+            if (saved == null) return;
+
+            int? value = propertyName switch
+            {
+                nameof(Model.CurrentAgeYou) => saved.CurrentAge,
+                nameof(Model.RetirementAgeYou) => saved.RetirementAge,
+                nameof(Model.CurrentAgePartner) => saved.CurrentAge,
+                nameof(Model.RetirementAgePartner) => saved.RetirementAge,
+                _ => null
+            };
+
+            if (value.HasValue && value.Value > 0)
+            {
+                await OnInputChanged(propertyName, value.Value);
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    }
 }
+
+@code {
+    // Add a small DTO to map the API response
+    private sealed class SavingsAgesDto
+    {
+        public int CurrentAgeYou { get; set; }
+        public int RetirementAgeYou { get; set; }
+        public int CurrentAgePartner { get; set; }
+        public int RetirementAgePartner { get; set; }
+        public DateTime? LastUpdatedUtc { get; set; }
+    }
+
+    private string GetApiBaseUrl()
+    {
+#if DEBUG
+    return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+#else
+        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+#endif
+    }
+
+    // Replace previous LoadSavingsHintsAsync with this API-based implementation
+
+    private async Task PersistAgesToSavingsLocalStorageAsync(string propertyName)
+    {
+        if (JSRuntime == null || Model == null) return;
+
+        try
+        {
+            switch (propertyName)
+            {
+                case nameof(Model.CurrentAgeYou):
+                    if (Model.CurrentAgeYou > 0)
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.You", Model.CurrentAgeYou.ToString());
+                    break;
+                case nameof(Model.RetirementAgeYou):
+                    if (Model.RetirementAgeYou > 0)
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.You", Model.RetirementAgeYou.ToString());
+                    break;
+                case nameof(Model.CurrentAgePartner):
+                    if (Model.CurrentAgePartner > 0)
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.Partner", Model.CurrentAgePartner.ToString());
+                    break;
+                case nameof(Model.RetirementAgePartner):
+                    if (Model.RetirementAgePartner > 0)
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.Partner", Model.RetirementAgePartner.ToString());
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch
+        {
+            // best-effort only
+        }
+    }
 }

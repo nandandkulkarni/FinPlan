@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components
 @using System.Reflection
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
 
 <style>
     .wizard-step-bubble {
@@ -872,6 +874,9 @@
     public EventCallback OnSave { get; set; }
 
     [Parameter]
+    public string ActiveTab { get; set; }
+    
+    [Parameter]
     public EventCallback<(int AgeYou, int AgePartner)> OnFinished { get; set; }
 
     [Parameter]
@@ -906,12 +911,19 @@
     private bool showToolTipIncomeType = false;
     private bool showToolTipTaxBracket = false;
 
+    private int _lastSavedCurrentAge = 0;
+    private int _lastSavedRetirementAge = 0;
+
     protected override void OnParametersSet()
     {
          if (Model != null)
         {
             if (Model.TaxableIncomeType == 0) Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
             if (Model.CapitalGainsRealizationRate <= 0m || Model.CapitalGainsRealizationRate > 1m) Model.CapitalGainsRealizationRate = 0.25m;
+
+            // initialize last-saved values so we can detect changes
+            _lastSavedCurrentAge = Model.CurrentAge;
+            _lastSavedRetirementAge = Model.RetirementAge;
         }
 
         if (Visible)
@@ -992,6 +1004,22 @@
     // Single event handler for all field changes
     private async Task OnFieldChanged()
     {
+        // detect age changes and persist to localStorage so retirement wizard can pick them up
+        if (Model != null)
+        {
+            if (Model.CurrentAge != _lastSavedCurrentAge)
+            {
+                _lastSavedCurrentAge = Model.CurrentAge;
+                await PersistAgeToLocalStorageAsync(nameof(Model.CurrentAge));
+            }
+
+            if (Model.RetirementAge != _lastSavedRetirementAge)
+            {
+                _lastSavedRetirementAge = Model.RetirementAge;
+                await PersistAgeToLocalStorageAsync(nameof(Model.RetirementAge));
+            }
+        }
+
         await InvokeOnSave();
         StateHasChanged();
     }
@@ -1075,7 +1103,200 @@
         };
     }
 
-   
+    private static class SavingsAgeKeys
+    {
+        public const string CurrentAgeYou = "Savings.CurrentAge.You";
+        public const string RetirementAgeYou = "Savings.RetirementAge.You";
+        public const string CurrentAgePartner = "Savings.CurrentAge.Partner";
+        public const string RetirementAgePartner = "Savings.RetirementAge.Partner";
+    }
+
+    // Also accept keys the retirement wizard may write (prefer them when reading)
+    private static class RetirementAgeKeys
+    {
+        public const string CurrentAgeYou = "Retirement.CurrentAge.You";
+        public const string RetirementAgeYou = "Retirement.RetirementAge.You";
+        public const string CurrentAgePartner = "Retirement.CurrentAge.Partner";
+        public const string RetirementAgePartner = "Retirement.RetirementAge.Partner";
+    }
+
+    private async Task SetLocalStorageAsync(string key, int value)
+    {
+        try
+        {
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, value.ToString());
+            }
+        }
+        catch
+        {
+            // best effort only
+        }
+    }
+
+    // Try multiple keys in order; return first integer found
+    private async Task<int?> ReadLocalStorageIntAsync(params string[] keys)
+    {
+        try
+        {
+            if (JSRuntime == null) return null;
+            foreach (var key in keys)
+            {
+                try
+                {
+                    var s = await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
+                    if (int.TryParse(s, out var v)) return v;
+                }
+                catch { }
+            }
+        }
+        catch { }
+        return null;
+    }
+
+    private async Task PersistAgeToLocalStorageAsync(string propertyName)
+    {
+        if (Model == null) return;
+
+        try
+        {
+            switch (propertyName)
+            {
+                case nameof(Model.CurrentAge):
+                    if (Model.CurrentAge > 0)
+                    {
+                        if (string.Equals(ActiveTab, "your", StringComparison.OrdinalIgnoreCase))
+                        {
+                            await SetLocalStorageAsync(SavingsAgeKeys.CurrentAgeYou, Model.CurrentAge);
+                        }
+                        else if (string.Equals(ActiveTab, "partner", StringComparison.OrdinalIgnoreCase))
+                        {
+                            await SetLocalStorageAsync(SavingsAgeKeys.CurrentAgePartner, Model.CurrentAge);
+                        }
+                    }
+                    break;
+
+                case nameof(Model.RetirementAge):
+                    if (Model.RetirementAge > 0)
+                    {
+                        if (string.Equals(ActiveTab, "your", StringComparison.OrdinalIgnoreCase))
+                        {
+                            await SetLocalStorageAsync(SavingsAgeKeys.RetirementAgeYou, Model.RetirementAge);
+                        }
+                        else if (string.Equals(ActiveTab, "partner", StringComparison.OrdinalIgnoreCase))
+                        {
+                            await SetLocalStorageAsync(SavingsAgeKeys.RetirementAgePartner, Model.RetirementAge);
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            // best-effort: also write both 'you' keys when active tab unknown
+            if (string.IsNullOrWhiteSpace(ActiveTab))
+            {
+                if (Model.CurrentAge > 0) await SetLocalStorageAsync(SavingsAgeKeys.CurrentAgeYou, Model.CurrentAge);
+                if (Model.RetirementAge > 0) await SetLocalStorageAsync(SavingsAgeKeys.RetirementAgeYou, Model.RetirementAge);
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    // Add OnAfterRender to pick up retirement edits persisted to localStorage and apply when savings model has zero/empty ages
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (Model == null) return;
+
+            // If savings model has empty ages, try to read retirement values from localStorage first (prefer retirement keys), then fall back to savings keys
+            if (Model.CurrentAge <= 0)
+            {
+                var v = await ReadLocalStorageIntAsync(
+                    RetirementAgeKeys.CurrentAgeYou,
+                    SavingsAgeKeys.CurrentAgeYou,
+                    RetirementAgeKeys.CurrentAgePartner,
+                    SavingsAgeKeys.CurrentAgePartner);
+                if (v.HasValue) { Model.CurrentAge = v.Value; await InvokeOnSave(); StateHasChanged(); }
+            }
+
+            if (Model.RetirementAge <= 0)
+            {
+                var v = await ReadLocalStorageIntAsync(
+                    RetirementAgeKeys.RetirementAgeYou,
+                    SavingsAgeKeys.RetirementAgeYou,
+                    RetirementAgeKeys.RetirementAgePartner,
+                    SavingsAgeKeys.RetirementAgePartner);
+                if (v.HasValue) { Model.RetirementAge = v.Value; await InvokeOnSave(); StateHasChanged(); }
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    // private int? GetIntProp(string propName)
+    // {
+    //     if (Model is null || string.IsNullOrWhiteSpace(propName)) return null;
+
+    //     var prop = Model.GetType().GetProperty(
+    //         propName,
+    //         BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+    //     if (prop is null) return null;
+
+    //     var raw = prop.GetValue(Model);
+    //     if (raw is null) return null;
+
+    //     try
+    //     {
+    //         // Fast paths for expected types
+    //         if (raw is int i) return i;
+    //         if (raw is int? ni) return ni;
+
+    //         if (raw is long l) return (l >= int.MinValue && l <= int.MaxValue) ? (int)l : null;
+    //         if (raw is long? nl) return nl.HasValue && nl.Value >= int.MinValue && nl.Value <= int.MaxValue ? (int?)nl.Value : null;
+
+    //         if (raw is short s) return s;
+    //         if (raw is short? ns) return ns;
+
+    //         if (raw is byte b) return b;
+    //         if (raw is byte? nb) return nb;
+
+    //         if (raw is decimal dec) return Convert.ToInt32(dec);
+    //         if (raw is decimal? ndec) return ndec.HasValue ? Convert.ToInt32(ndec.Value) : null;
+
+    //         if (raw is double dbl) return Convert.ToInt32(dbl);
+    //         if (raw is double? ndbl) return ndbl.HasValue ? Convert.ToInt32(ndbl.Value) : (int?)null;
+
+    //         if (raw is float flt) return Convert.ToInt32(flt);
+    //         if (raw is float? nflt) return nflt.HasValue ? Convert.ToInt32(nflt.Value) : (int?)null;
+
+    //         if (raw is string sraw && int.TryParse(sraw, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+    //             return parsed;
+
+    //         if (raw is IConvertible conv)
+    //             return Convert.ToInt32(conv, System.Globalization.CultureInfo.InvariantCulture);
+    //     }
+    //     catch
+    //     {
+    //         // best effort: return null on any conversion failure
+    //     }
+
+    //     return null;
+    // }
+
+
+    // private async Task PersistAgeToLocalStorageAsync(string propertyName)
+    // {
+    // }
 
     // Missing helpers used in Step 5
     private decimal GetOrdinaryRateDisplay()

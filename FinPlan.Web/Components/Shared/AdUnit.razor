@@ -1,0 +1,68 @@
+@using FinPlan.Web.Config
+@using Microsoft.Extensions.Options
+@inject IJSRuntime JSRuntime
+@inject IOptions<AdSettings> AdOptions
+
+@if (ShouldRenderAd)
+{
+    <ins class="adsbygoogle @Class"
+         style="@Style"
+         data-ad-client="@AdClient"
+         data-ad-slot="@ResolvedSlot"
+         data-ad-format="@Format"
+         data-full-width-responsive="@Responsive"
+         data-adtest="@AdTest"
+         data-ad-layout-key="@LayoutKey"></ins>
+}
+else if (!string.IsNullOrEmpty(PlaceholderText))
+{
+    <div class="adunit-placeholder text-muted small">@PlaceholderText</div>
+}
+
+@code {
+    private AdSettings Settings => AdOptions.Value;
+    private string? AdClient => string.IsNullOrWhiteSpace(Settings.ClientId) ? null : Settings.ClientId;
+    private string? ResolvedSlot => !string.IsNullOrWhiteSpace(Slot) ? Slot : Settings.DefaultSlot;
+    private string? AdTest => Settings.UseTestAds ? "on" : null;
+    private bool ShouldRenderAd => !string.IsNullOrWhiteSpace(AdClient) && !string.IsNullOrWhiteSpace(ResolvedSlot);
+
+    [Parameter]
+    public string Slot { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Style { get; set; } = "display:block";
+
+    [Parameter]
+    public string? Format { get; set; } = "auto";
+
+    [Parameter]
+    public string? Responsive { get; set; } = "true";
+
+    [Parameter]
+    public string? LayoutKey { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? PlaceholderText { get; set; } = "Advertisement";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!ShouldRenderAd)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "(adsbygoogle=window.adsbygoogle||[]).push({});");
+        }
+        catch (JSException)
+        {
+            // Swallow JS initialization issues to avoid breaking the page; they can be inspected in browser console.
+        }
+    }
+}

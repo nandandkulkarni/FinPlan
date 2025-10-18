@@ -1,4 +1,5 @@
 using FinPlan.Web.Components;
+using FinPlan.Web.Config;
 using FinPlan.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Polly;
@@ -44,6 +45,9 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddOutputCache();
 
 builder.Services.AddBlazoredLocalStorage();
+
+// Centralized Google AdSense configuration
+builder.Services.Configure<AdSettings>(builder.Configuration.GetSection("AdSense"));
 
 // Register the Excel Export Service
 //builder.Services.AddScoped<FinPlan.Web.Services.IExcelExportService, FinPlan.Web.Services.ExcelExportService>();
@@ -144,6 +148,12 @@ builder.Services.AddAuthentication(options =>
         {
             try
             {
+                var identity = context.Identity;
+                if (identity == null)
+                {
+                    return;
+                }
+
                 var user = context.User; // JObject-like (JsonElement)
                 // helper to extract string safely
                 static string? GetProp(Microsoft.AspNetCore.Authentication.OAuth.OAuthCreatingTicketContext ctx, params string[] names)
@@ -164,25 +174,25 @@ builder.Services.AddAuthentication(options =>
                 var name = GetProp(context, "name");
                 var sub = GetProp(context, "sub", "id");
 
-                if (!string.IsNullOrWhiteSpace(email) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Email))
+                if (!string.IsNullOrWhiteSpace(email) && !identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Email))
                 {
-                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
+                    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
                 }
-                if (!string.IsNullOrWhiteSpace(given) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.GivenName))
+                if (!string.IsNullOrWhiteSpace(given) && !identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.GivenName))
                 {
-                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.GivenName, given));
+                    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.GivenName, given));
                 }
-                if (!string.IsNullOrWhiteSpace(family) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Surname))
+                if (!string.IsNullOrWhiteSpace(family) && !identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Surname))
                 {
-                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Surname, family));
+                    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Surname, family));
                 }
-                if (!string.IsNullOrWhiteSpace(name) && !context.Identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Name))
+                if (!string.IsNullOrWhiteSpace(name) && !identity.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Name))
                 {
-                    context.Identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
+                    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
                 }
-                if (!string.IsNullOrWhiteSpace(sub) && !context.Identity.HasClaim(c => c.Type == "sub"))
+                if (!string.IsNullOrWhiteSpace(sub) && !identity.HasClaim(c => c.Type == "sub"))
                 {
-                    context.Identity.AddClaim(new System.Security.Claims.Claim("sub", sub));
+                    identity.AddClaim(new System.Security.Claims.Claim("sub", sub));
                 }
             }
             catch

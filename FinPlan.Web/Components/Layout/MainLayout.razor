@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using FinPlan.Web.Config
+@using Microsoft.Extensions.Options
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager Navigation
@@ -8,6 +10,7 @@
 @inject IConfiguration Configuration
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject IJSRuntime JSRuntime
+@inject IOptions<AdSettings> AdOptions
 
 <style>
     /* Top strip: primary navigation shortcuts */
@@ -659,6 +662,10 @@
     <a class="dismiss">🗙</a>
 </div>
 
+@if (!string.IsNullOrWhiteSpace(AdOptions.Value.ClientId))
+{
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=@AdOptions.Value.ClientId" crossorigin="anonymous"></script>
+}
 <script src="/js/adLoader.js"></script>
 <script src="/js/audioInterop.js"></script>
 <script>

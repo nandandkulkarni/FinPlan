@@ -26,10 +26,11 @@
         <div class="section-card @(IsRetirementAgesSectionComplete() ? "" : "incomplete-section")"
              style="background-color: rgba(255, 214, 0, 0.03); border-left: 3px solid var(--brand-yellow);">
             <div>
+
                 <div style="display:flex; align-items:center; justify-content:space-between; font-weight:700;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span class="step-badge">1</span>
-                        <div>Retirement ages</div>
+                        <div>Ages</div>
                     </div>
                     @if (!IsRetirementAgesSectionComplete())
                     {
@@ -39,55 +40,12 @@
                     }
                 </div>
 
-                <div class="small-note" style="margin-top:8px;">
-                    <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
-                        You: @Model.RetirementAgeYou
-                    </span>
-                    @if (showToolTipYourRetirementAge)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourRetirementAge = false" title="Close">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
-                        </div>
-                    }
-                    @if (Model.RetirementAgeYou <= 0)
-                    {
-                        <span class="missing-badge">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
-                        </span>
-                    }
-                </div>
 
-                <div class="small-note" style="margin-top:8px;">
-                    <span class="d-flex align-items-center">
-                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
-                        Partner: @Model.RetirementAgePartner
-                    </span>
-                    @if (showToolTipPartnerRetirementAge)
-                    {
-                        <div class="info-tooltip">
-                            <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire.
-                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerRetirementAge = false" title="Close">
-                                <span class="bi bi-x-lg"></span>
-                            </span>
-                        </div>
-                    }
-                    @if (Model.RetirementAgePartner <= 0)
-                    {
-                        <span class="missing-badge">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
-                        </span>
-                    }
-                </div>
-
-                <!-- Added current ages to Section 1 (required indicators for all 4 fields) -->
+                    <!-- Added current ages to Section 1 (required indicators for all 4 fields) -->
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgeYou = !showToolTipCurrentAgeYou" tabindex="0" title="Click for more info"></span>
-                        Current age (You): @Model.CurrentAgeYou
+                        Your age: @Model.CurrentAgeYou
                     </span>
                     @if (showToolTipCurrentAgeYou)
                     {
@@ -109,7 +67,7 @@
                 <div class="small-note" style="margin-top:8px;">
                     <span class="d-flex align-items-center">
                         <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipCurrentAgePartner = !showToolTipCurrentAgePartner" tabindex="0" title="Click for more info"></span>
-                        Current age (Partner): @Model.CurrentAgePartner
+                        Partner age: @Model.CurrentAgePartner
                     </span>
                     @if (showToolTipCurrentAgePartner)
                     {
@@ -127,6 +85,54 @@
                         </span>
                     }
                 </div>
+
+              
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipYourRetirementAge = !showToolTipYourRetirementAge" tabindex="0" title="Click for more info"></span>
+                        Your Retirement: @Model.RetirementAgeYou
+                    </span>
+                    @if (showToolTipYourRetirementAge)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Your Retirement Age:</strong> The age at which you plan to stop working and begin your retirement.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipYourRetirementAge = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.RetirementAgeYou <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+                <div class="small-note" style="margin-top:8px;">
+                    <span class="d-flex align-items-center">
+                        <span class="bi bi-info-circle info-icon" @onclick="() => showToolTipPartnerRetirementAge = !showToolTipPartnerRetirementAge" tabindex="0" title="Click for more info"></span>
+                        Partner Retirement: @Model.RetirementAgePartner
+                    </span>
+                    @if (showToolTipPartnerRetirementAge)
+                    {
+                        <div class="info-tooltip">
+                            <strong>Partner's Retirement Age:</strong> The age at which your partner plans to retire.
+                            <span class="float-end" style="cursor:pointer;" @onclick="() => showToolTipPartnerRetirementAge = false" title="Close">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (Model.RetirementAgePartner <= 0)
+                    {
+                        <span class="missing-badge">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Required
+                        </span>
+                    }
+                </div>
+
+            
             </div>
             <div class="actions">
                 <button class="btn-outline-accent" type="button" @onclick="() => RequestOpenWizard(1)">
