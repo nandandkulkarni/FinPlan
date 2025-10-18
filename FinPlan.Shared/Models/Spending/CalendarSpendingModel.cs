@@ -446,8 +446,7 @@ namespace FinPlan.Shared.Models.Spending
                 calendarYearRow.OtherTaxableIncome = OtherTaxableIncomeForYear(year);
 
                 //CALCULATE INCOME
-                calendarYearRow.TotalTaxableIncome = calendarYearRow.SSYou + calendarYearRow.SSPartner + calendarYearRow.ReverseMortgage + calendarYearRow.OtherTaxableIncome;
-                calendarYearRow.TotalNonSSNonGrowthTaxableIncome = calendarYearRow.ReverseMortgage + calendarYearRow.OtherTaxableIncome;
+                calendarYearRow.TotalNonSSNonGrowthTaxableIncome = calendarYearRow.OtherTaxableIncome;
 
                 //CALCULATE GROWTH
                 calendarYearRow.GrowthOfTaxableBalance = CalculateNetGrowth(lastYearTaxableBalance, 12);
@@ -469,7 +468,7 @@ namespace FinPlan.Shared.Models.Spending
                         calendarYearRow.TaxOnSSIncome +
                         calendarYearRow.TaxOnTaxableInterestAndDividendGrowth;
 
-                decimal taxableBalanceSoFar = lastYearTaxableBalance + calendarYearRow.TotalTaxableIncome + calendarYearRow.GrowthOfTaxableBalance;
+                decimal taxableBalanceSoFar = lastYearTaxableBalance + calendarYearRow.SSYou + calendarYearRow.SSPartner + calendarYearRow.ReverseMortgage + calendarYearRow.OtherTaxableIncome + calendarYearRow.GrowthOfTaxableBalance;
                 decimal traditionalBalanceSoFar = lastYearTraditionalBalance + calendarYearRow.GrowthOfTradionalBalance;
                 decimal rothBalanceSoFar = lastYearRothBalance + calendarYearRow.GrowthOfRothBalance;
 
@@ -620,12 +619,7 @@ namespace FinPlan.Shared.Models.Spending
             return balance * (InvestmentReturn / 100m); //Simple interest for now
         }
 
-        internal void SetTotalTaxableIncomeForYear(CalendarYearRow calendarYearRow)
-        {
-            calendarYearRow.TotalTaxableIncome = calendarYearRow.SSYou + calendarYearRow.SSPartner + calendarYearRow.ReverseMortgage + calendarYearRow.OtherTaxableIncome;
-            calendarYearRow.TotalNonSSNonGrowthTaxableIncome = calendarYearRow.ReverseMortgage + calendarYearRow.OtherTaxableIncome;
-
-        }
+     
 
         internal decimal OtherTaxableIncomeForYear(int year)
         {
@@ -821,7 +815,6 @@ namespace FinPlan.Shared.Models.Spending
         public decimal EndingRoth { get; set; }
         public string Notes { get; set; } = string.Empty;
         public decimal AmountNeededForCostOfLiving { get; set; }
-        public decimal TotalTaxableIncome { get; internal set; }
         public decimal TotalNonSSNonGrowthTaxableIncome { get; internal set; }
         public decimal GrowthOfTaxableBalance { get; internal set; }
         public decimal EstimatedTaxableSocialSecurity { get; internal set; }
