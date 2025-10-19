@@ -1669,14 +1669,8 @@
         }
     }
 
-    // private async Task RefreshHintsAsync()
-    // {
-    //     _hintsLoaded = false;
-    //     await LoadRetirementHintsAsync();
-    //     _hintsLoaded = true;
-    //     StateHasChanged();
-    // }
-
+    SavingsCalculatorModel? SavingsCalculatorModelYours = new();
+    SavingsCalculatorModel? SavingsCalculatorModelPartner = new();
 
     private async Task LoadRetirementHintsAsync()
     {
@@ -1715,50 +1709,49 @@
             //if (anyMissing)
             // {
             // Load savings models (yours + partner) from backend
-            SavingsCalculatorModel? savingsYours = null;
-            SavingsCalculatorModel? savingsPartner = null;
+         
             try
             {
                 var yoursUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_yours";
-                savingsYours = await client.GetFromJsonAsync<SavingsCalculatorModel>(yoursUrl);
+                SavingsCalculatorModelYours = await client.GetFromJsonAsync<SavingsCalculatorModel>(yoursUrl);
             }
-            catch { savingsYours = null; }
+            catch { SavingsCalculatorModelYours = null; }
 
             try
             {
                 var partnerUrl = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType=savings_partners";
-                savingsPartner = await client.GetFromJsonAsync<SavingsCalculatorModel>(partnerUrl);
+                SavingsCalculatorModelPartner = await client.GetFromJsonAsync<SavingsCalculatorModel>(partnerUrl);
             }
-            catch { savingsPartner = null; }
+            catch { SavingsCalculatorModelPartner = null; }
 
             var changed = false;
 
-            savingsCurrentAgeYou = savingsYours?.CurrentAge;
-            savingsRetirementAgeYou = savingsYours?.RetirementAge;
-            savingsCurrentAgePartner = savingsPartner?.CurrentAge;
-            savingsRetirementAgePartner = savingsPartner?.RetirementAge;
+            savingsCurrentAgeYou = SavingsCalculatorModelYours?.CurrentAge;
+            savingsRetirementAgeYou = SavingsCalculatorModelYours?.RetirementAge;
+            savingsCurrentAgePartner = SavingsCalculatorModelPartner?.CurrentAge;
+            savingsRetirementAgePartner = SavingsCalculatorModelPartner?.RetirementAge;
 
-            if ((Model.CurrentAgeYou <= 0) && (savingsYours?.CurrentAge ?? 0) > 0)
+            if ((Model.CurrentAgeYou <= 0) && (SavingsCalculatorModelYours?.CurrentAge ?? 0) > 0)
             {
-                Model.CurrentAgeYou = savingsYours!.CurrentAge;
+                Model.CurrentAgeYou = SavingsCalculatorModelYours!.CurrentAge;
                 changed = true;
             }
 
-            if ((Model.RetirementAgeYou <= 0) && (savingsYours?.RetirementAge ?? 0) > 0)
+            if ((Model.RetirementAgeYou <= 0) && (SavingsCalculatorModelYours?.RetirementAge ?? 0) > 0)
             {
-                Model.RetirementAgeYou = savingsYours!.RetirementAge;
+                Model.RetirementAgeYou = SavingsCalculatorModelYours!.RetirementAge;
                 changed = true;
             }
 
-            if ((Model.CurrentAgePartner <= 0) && (savingsPartner?.CurrentAge ?? 0) > 0)
+            if ((Model.CurrentAgePartner <= 0) && (SavingsCalculatorModelPartner?.CurrentAge ?? 0) > 0)
             {
-                Model.CurrentAgePartner = savingsPartner!.CurrentAge;
+                Model.CurrentAgePartner = SavingsCalculatorModelPartner!.CurrentAge;
                 changed = true;
             }
 
-            if ((Model.RetirementAgePartner <= 0) && (savingsPartner?.RetirementAge ?? 0) > 0)
+            if ((Model.RetirementAgePartner <= 0) && (SavingsCalculatorModelPartner?.RetirementAge ?? 0) > 0)
             {
-                Model.RetirementAgePartner = savingsPartner!.RetirementAge;
+                Model.RetirementAgePartner = SavingsCalculatorModelPartner!.RetirementAge;
                 changed = true;
             }
 
@@ -1809,35 +1802,29 @@
     {
         try
         {
-            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-            var apiBaseUrl = GetApiBaseUrl();
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-
-            // decide which savings model to call based on property (yours vs partner)
-            var isPartnerField = propertyName.Contains("Partner", StringComparison.OrdinalIgnoreCase);
-            var calculatorType = isPartnerField ? "savings_partners" : "savings_yours";
-
-            var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
-            var saved = await client.GetFromJsonAsync<SavingsCalculatorModel>(url);
-            if (saved == null) return;
+            // Choose the pre-loaded savings model (yours vs partner) instead of calling the API
+            bool isPartnerField = propertyName.Contains("Partner", StringComparison.OrdinalIgnoreCase);
+            var source = isPartnerField ? SavingsCalculatorModelPartner : SavingsCalculatorModelYours;
+            if (source == null) return;
 
             int? value = propertyName switch
             {
-                nameof(Model.CurrentAgeYou) => saved.CurrentAge,
-                nameof(Model.RetirementAgeYou) => saved.RetirementAge,
-                nameof(Model.CurrentAgePartner) => saved.CurrentAge,
-                nameof(Model.RetirementAgePartner) => saved.RetirementAge,
+                nameof(Model.CurrentAgeYou) => source.CurrentAge,
+                nameof(Model.RetirementAgeYou) => source.RetirementAge,
+                nameof(Model.CurrentAgePartner) => source.CurrentAge,
+                nameof(Model.RetirementAgePartner) => source.RetirementAge,
                 _ => null
             };
 
             if (value.HasValue && value.Value > 0)
             {
                 await OnInputChanged(propertyName, value.Value);
+                StateHasChanged();
             }
         }
         catch
         {
-            // ignore
+            // best-effort: swallow errors to avoid interrupting the UX
         }
     }
 }
@@ -1862,39 +1849,5 @@
 #endif
     }
 
-    // Replace previous LoadSavingsHintsAsync with this API-based implementation
 
-    // private async Task PersistAgesToSavingsLocalStorageAsync(string propertyName)
-    // {
-    //     if (JSRuntime == null || Model == null) return;
-
-    //     try
-    //     {
-    //         switch (propertyName)
-    //         {
-    //             case nameof(Model.CurrentAgeYou):
-    //                 if (Model.CurrentAgeYou > 0)
-    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.You", Model.CurrentAgeYou.ToString());
-    //                 break;
-    //             case nameof(Model.RetirementAgeYou):
-    //                 if (Model.RetirementAgeYou > 0)
-    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.You", Model.RetirementAgeYou.ToString());
-    //                 break;
-    //             case nameof(Model.CurrentAgePartner):
-    //                 if (Model.CurrentAgePartner > 0)
-    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.CurrentAge.Partner", Model.CurrentAgePartner.ToString());
-    //                 break;
-    //             case nameof(Model.RetirementAgePartner):
-    //                 if (Model.RetirementAgePartner > 0)
-    //                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "Savings.RetirementAge.Partner", Model.RetirementAgePartner.ToString());
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    //     catch
-    //     {
-    //         // best-effort only
-    //     }
-    // }
 }
