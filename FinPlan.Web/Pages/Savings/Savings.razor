@@ -900,7 +900,8 @@
 <PageTitle>Savings & Wealth Building</PageTitle>
 
 
-<SavingsInputWizard Model="@calculatorModel"
+<SavingsInputWizard Model="@SavingsModel"
+                    RetirementModel="@RetirementModel"
                     Visible="@showWizard"
                     VisibleChanged="@(v => showWizard = v)"
                     OnFinished="HandleWizardFinished"
@@ -1056,7 +1057,7 @@
                         <!-- Yellow border section panel that touches the tabs -->
                         <div class="section-panel" style="margin-top: -1px; border-top-left-radius: 0; border-top-right-radius: 0;">
 
-                            @if (results != null && !calculatorModel.IsModelEmpty())
+                            @if (results != null && !SavingsModel.IsModelEmpty())
                             {
                                 <div class="summary-cards-row">
                                     <div class="summary-card savings-card savings-card-teal">
@@ -1115,7 +1116,7 @@
                                 </div>
                             </div>
 
-                            <SavingsPlanSections Model="@calculatorModel"
+                            <SavingsPlanSections Model="@SavingsModel"
                                                  ShowAdvancedSections="@showAdvancedSetup"
                                                  OnOpenWizard="@HandleOpenWizard" />
 
@@ -1170,7 +1171,7 @@
                 }
             </div>
 
-            @if (calculatorModel.IsModelEmpty())
+            @if (SavingsModel.IsModelEmpty())
             {
                 <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
                     <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
@@ -1182,9 +1183,9 @@
             else if (HasProjection)
             {
 
-                <SavingsSummaryGrid Model = "@calculatorModel" Rows = "@yearlyBreakdown" StartCalendarYear = "@DateTime.Now.Year" />
+                <SavingsSummaryGrid Model = "@SavingsModel" Rows = "@yearlyBreakdown" StartCalendarYear = "@DateTime.Now.Year" />
 
-                <SavingsYearlyGrid Model="@calculatorModel" Rows="@yearlyBreakdown" />
+                <SavingsYearlyGrid Model="@SavingsModel" Rows="@yearlyBreakdown" />
 
                 
             }
@@ -1218,7 +1219,8 @@
     private bool showSampleDataModal = false;
     private bool showRightDebug = false;
 
-    public SavingsCalculatorModel calculatorModel { get; set; } = new();
+    public SavingsCalculatorModel SavingsModel { get; set; } = new();
+    public CalendarSpendingModel RetirementModel { get; set; } = new();
     private SavingsResults? results;
     private List<YearlyBreakdown> yearlyBreakdown = new();
     private string userGuid = string.Empty;
@@ -1294,61 +1296,60 @@
     {
         try
         {
-            if (calculatorModel == null) calculatorModel = new SavingsCalculatorModel();
+            if (SavingsModel == null) SavingsModel = new SavingsCalculatorModel();
 
-            // If savings already has ages, nothing to do
-            var savingsHasAges =
-                (calculatorModel.CurrentAge > 0 && calculatorModel.RetirementAge > 0);
+            // // If savings already has ages, nothing to do
+            // var savingsHasAges =
+            //     (SavingsModel.CurrentAge > 0 && SavingsModel.RetirementAge > 0);
 
-            if (savingsHasAges)
-                return;
+            // if (savingsHasAges)
+            //     return;
 
             // load retirement model from backend
             var apiBaseUrl = GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var userGuidLocal = await UserGuidService.GetOrCreateUserGuidAsync();
 
-            CalendarSpendingModel? retModel = null;
             try
             {
-                var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuidLocal}&calculatorType=retirement";
-                retModel = await client.GetFromJsonAsync<CalendarSpendingModel>(url);
+                var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuidLocal}&calculatorType=retirement_planner";
+                RetirementModel = await client.GetFromJsonAsync<CalendarSpendingModel>(url) ?? new();
             }
             catch
             {
-                retModel = null;
+                RetirementModel = new();
             }
 
-            if (retModel == null) return;
+            if (RetirementModel == null) return;
 
             var changed = false;
 
             // If current calculator is "your" or activeTab is "your" => map from retirement's "You" fields.
             if (calculatorType == calculatorTypeYours || string.Equals(activeTab, "your", StringComparison.OrdinalIgnoreCase))
             {
-                if (calculatorModel.CurrentAge <= 0 && retModel.CurrentAgeYou > 0)
+                if (SavingsModel.CurrentAge <= 0 && RetirementModel.CurrentAgeYou > 0)
                 {
-                    calculatorModel.CurrentAge = retModel.CurrentAgeYou;
+                    SavingsModel.CurrentAge = RetirementModel.CurrentAgeYou;
                     changed = true;
                 }
 
-                if (calculatorModel.RetirementAge <= 0 && retModel.RetirementAgeYou > 0)
+                if (SavingsModel.RetirementAge <= 0 && RetirementModel.RetirementAgeYou > 0)
                 {
-                    calculatorModel.RetirementAge = retModel.RetirementAgeYou;
+                    SavingsModel.RetirementAge = RetirementModel.RetirementAgeYou;
                     changed = true;
                 }
             }
             else // partner savings calculator -> use partner fields
             {
-                if (calculatorModel.CurrentAge <= 0 && retModel.CurrentAgePartner > 0)
+                if (SavingsModel.CurrentAge <= 0 && RetirementModel.CurrentAgePartner > 0)
                 {
-                    calculatorModel.CurrentAge = retModel.CurrentAgePartner;
+                    SavingsModel.CurrentAge = RetirementModel.CurrentAgePartner;
                     changed = true;
                 }
 
-                if (calculatorModel.RetirementAge <= 0 && retModel.RetirementAgePartner > 0)
+                if (SavingsModel.RetirementAge <= 0 && RetirementModel.RetirementAgePartner > 0)
                 {
-                    calculatorModel.RetirementAge = retModel.RetirementAgePartner;
+                    SavingsModel.RetirementAge = RetirementModel.RetirementAgePartner;
                     changed = true;
                 }
             }
@@ -1444,7 +1445,7 @@
 
         showIntroModal = false;
 
-        if (!calculatorModel.HasRealData)
+        if (!SavingsModel.HasRealData)
         {
             // Check localStorage for intro modal preference
             string key = calculatorType == calculatorTypeYours
@@ -1491,8 +1492,8 @@
         try
         {
             var calculator = new SavingsCalculationEngine();
-            results = calculator.Calculate(calculatorModel);
-            yearlyBreakdown = calculator.GetYearlyBreakdown(calculatorModel);
+            results = calculator.Calculate(SavingsModel);
+            yearlyBreakdown = calculator.GetYearlyBreakdown(SavingsModel);
         }
         catch (Exception ex)
         {
@@ -1515,13 +1516,13 @@
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (loadedModel != null)
                 {
-                    calculatorModel = loadedModel;
+                    SavingsModel = loadedModel;
                 }
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //Does not exist, create an empty one
-                calculatorModel = new SavingsCalculatorModel();
+                SavingsModel = new SavingsCalculatorModel();
             }
         }
         catch (Exception ex)
@@ -1542,12 +1543,12 @@
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
             }
 
-            calculatorModel.LastUpdateDate = DateTime.UtcNow;
+            SavingsModel.LastUpdateDate = DateTime.UtcNow;
             var saveRequest = new PersistSavingsRequest
             {
                 UserGuid = userGuid,
                 CalculatorType = calculatorType,
-                Data = calculatorModel
+                Data = SavingsModel
             };
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -1584,7 +1585,7 @@
     {
         try
         {
-            if (ages.AgeYou > 0) calculatorModel.RetirementAge = ages.AgeYou;
+            if (ages.AgeYou > 0) SavingsModel.RetirementAge = ages.AgeYou;
             await SaveAsync();
             Calculate();
             StateHasChanged();
@@ -1597,7 +1598,7 @@
 
     private async Task HandleSampleDataSelected(SavingsCalculatorModel sampleModel)
     {
-        calculatorModel = sampleModel;
+        SavingsModel = sampleModel;
         await SaveAsync();
         Calculate();
         StateHasChanged();
@@ -1648,19 +1649,19 @@
     }
     private bool IsMonthlyContributionsSectionComplete()
     {
-        return calculatorModel.MonthlyTaxableContribution > 0 ||
-               calculatorModel.MonthlyTraditionalContribution > 0 ||
-               calculatorModel.MonthlyRothContribution > 0;
+        return SavingsModel.MonthlyTaxableContribution > 0 ||
+               SavingsModel.MonthlyTraditionalContribution > 0 ||
+               SavingsModel.MonthlyRothContribution > 0;
     }
     private bool IsMilestonesSectionComplete()
     {
-        return calculatorModel.CurrentAge > 0 && calculatorModel.RetirementAge > 0;
+        return SavingsModel.CurrentAge > 0 && SavingsModel.RetirementAge > 0;
     }
     private bool IsStartingBalancesSectionComplete()
     {
-        return calculatorModel.InitialTaxableAmount > 0 ||
-               calculatorModel.InitialTraditionalAmount > 0 ||
-               calculatorModel.InitialRothAmount > 0;
+        return SavingsModel.InitialTaxableAmount > 0 ||
+               SavingsModel.InitialTraditionalAmount > 0 ||
+               SavingsModel.InitialRothAmount > 0;
     }
 
 
@@ -1769,7 +1770,7 @@
 
                 // Reset the model to empty so IsModelEmpty() returns true on reload
                 await JSRuntime.InvokeVoidAsync("console.log", "ClearDataAsync: Resetting calculator model to empty state");
-                calculatorModel = new SavingsCalculatorModel();
+                SavingsModel = new SavingsCalculatorModel();
 
                 // Reload the page to reflect the cleared state
                 await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Reloading page to {Navigation.Uri}");
@@ -1812,13 +1813,13 @@
     }
     private (string title, string message, bool isGood) GetSavingsProgressMessage()
     {
-        if (results == null || calculatorModel == null) return ("", "", true);
+        if (results == null || SavingsModel == null) return ("", "", true);
 
-        var monthlyContributions = calculatorModel.MonthlyTaxableContribution +
-                                  calculatorModel.MonthlyTraditionalContribution +
-                                  calculatorModel.MonthlyRothContribution;
+        var monthlyContributions = SavingsModel.MonthlyTaxableContribution +
+                                  SavingsModel.MonthlyTraditionalContribution +
+                                  SavingsModel.MonthlyRothContribution;
         var annualContributions = monthlyContributions * 12;
-        var yearsToRetirement = calculatorModel.RetirementAge - calculatorModel.CurrentAge;
+        var yearsToRetirement = SavingsModel.RetirementAge - SavingsModel.CurrentAge;
         var finalSavings = results.FinalAmount;
 
         // Simple rule of thumb: 10-15% of income saved, or $1M+ by retirement

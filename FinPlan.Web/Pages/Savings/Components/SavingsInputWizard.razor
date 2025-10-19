@@ -1,9 +1,54 @@
 @using FinPlan.Shared.Models.Savings
+@using FinPlan.Shared.Models.Spending
+@using FinPlan.Web.Services
 @using Microsoft.AspNetCore.Components
 @using System.Reflection
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
+
 @inject IJSRuntime JSRuntime
+@inject UserGuidService UserGuidService
+
+<style>
+
+    /* Copy-from-Savings hint styles */
+    .copy-hint {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-top: .35rem;
+        padding: .4rem .6rem;
+        border: 1px dashed var(--bs-border-color, #d0d7de);
+        border-left: 3px solid #2563EB; /* default accent */
+        border-radius: 6px;
+        background: #f7fbff;
+        font-size: .875rem;
+    }
+
+        .copy-hint.partner {
+            border-left-color: #8B5CF6;
+        }
+
+        .copy-hint .hint-meta {
+            color: var(--muted, #6b7280);
+            font-size: .8rem;
+        }
+
+    .copy-btn-pill {
+        padding: .15rem .6rem;
+        line-height: 1.1;
+        border-radius: 999px;
+        font-size: .8rem;
+    }
+
+    .copy-hint .refresh-link {
+        margin-left: auto;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: .8rem;
+    }
+
+</style>
 
 <style>
     .wizard-step-bubble {
@@ -224,9 +269,9 @@
     }
 
     /* ===========================
-           MOBILE OPTIMIZATIONS
-           Only affects screens less than 768px
-           =========================== */
+               MOBILE OPTIMIZATIONS
+               Only affects screens less than 768px
+               =========================== */
     @@media (max-width: 767px) {
         /* 1. Modal Dialog - Full screen on mobile */
         .modal-dialog {
@@ -409,6 +454,13 @@
                                         <div class="account-footer text-muted">
                                             <small>Your age today</small>
                                         </div>
+                                        @if (ShowHint(RetirementCurrentAgeYou, Model?.CurrentAge ?? 0))
+                                        {
+                                            <div class="copy-hint">
+                                                <span>From Retirement: <strong>@RetirementCurrentAgeYou</strong></span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromRetirementAsync(nameof(Model.CurrentAge))">Copy</button>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -789,7 +841,7 @@
                     }
                     else if (wizardStep == 5)
                     {
-                     <div class="row mb-4">
+                        <div class="row mb-4">
                             <div class="col-md-6 mb-3">
                                 <div class="card account-card taxable h-100">
                                     <div class="card-body">
@@ -802,7 +854,7 @@
                                             {
                                                 var type = Enum.Parse<FinPlan.Shared.Enums.IncomeType>(name);
 
-                                                if(type!= Shared.Enums.IncomeType.MixedInvestment)
+                                                if (type != Shared.Enums.IncomeType.MixedInvestment)
                                                 {
                                                     continue;
                                                 }
@@ -847,9 +899,9 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>   
+                        </div>
                     }
-                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" aria-label="Save & Close" @onclick="CloseClicked">Save & Close</button>
                     <button type="button" class="btn btn-primary" @onclick="PrevwizardStep" disabled="@(wizardStep == 1)">Previous</button>
@@ -865,6 +917,10 @@
     public SavingsCalculatorModel? Model { get; set; }
 
     [Parameter]
+    public CalendarSpendingModel? RetirementModel { get; set; }
+
+
+    [Parameter]
     public bool Visible { get; set; }
 
     [Parameter]
@@ -875,7 +931,7 @@
 
     [Parameter]
     public string ActiveTab { get; set; }
-    
+
     [Parameter]
     public EventCallback<(int AgeYou, int AgePartner)> OnFinished { get; set; }
 
@@ -916,7 +972,7 @@
 
     protected override void OnParametersSet()
     {
-         if (Model != null)
+        if (Model != null)
         {
             if (Model.TaxableIncomeType == 0) Model.TaxableIncomeType = FinPlan.Shared.Enums.IncomeType.MixedInvestment;
             if (Model.CapitalGainsRealizationRate <= 0m || Model.CapitalGainsRealizationRate > 1m) Model.CapitalGainsRealizationRate = 0.25m;
@@ -1024,7 +1080,7 @@
         StateHasChanged();
     }
 
-      // Preset buttons: make async and null-safe
+    // Preset buttons: make async and null-safe
     private async Task ApplyConservativeRates()
     {
         if (Model is null) return;
@@ -1137,7 +1193,132 @@
         }
     }
 
- 
+    private async Task CopyFromRetirementAsync(string propertyName)
+    {
+        try
+        {
+            var ret = RetirementModel;
+            if (ret == null || Model == null) return;
+
+            // Determine whether we're operating on the partner tab
+            var isPartner = string.Equals(ActiveTab, "partner", StringComparison.OrdinalIgnoreCase);
+
+            int? value = propertyName switch
+            {
+                nameof(SavingsCalculatorModel.CurrentAge) or "CurrentAge" =>
+                    isPartner ? (ret.CurrentAgePartner > 0 ? ret.CurrentAgePartner : null)
+                              : (ret.CurrentAgeYou > 0 ? ret.CurrentAgeYou : null),
+
+                nameof(SavingsCalculatorModel.RetirementAge) or "RetirementAge" =>
+                    isPartner ? (ret.RetirementAgePartner > 0 ? ret.RetirementAgePartner : null)
+                              : (ret.RetirementAgeYou > 0 ? ret.RetirementAgeYou : null),
+
+                // compatibility keys used elsewhere
+                "CurrentAgePartner" => ret.CurrentAgePartner > 0 ? ret.CurrentAgePartner : null,
+                "RetirementAgePartner" => ret.RetirementAgePartner > 0 ? ret.RetirementAgePartner : null,
+                "CurrentAgeYou" => ret.CurrentAgeYou > 0 ? ret.CurrentAgeYou : null,
+                "RetirementAgeYou" => ret.RetirementAgeYou > 0 ? ret.RetirementAgeYou : null,
+
+                _ => null
+            };
+
+            if (!value.HasValue || value.Value <= 0) return;
+
+            // Apply into the active savings model fields
+            if (propertyName.IndexOf("Retirement", StringComparison.OrdinalIgnoreCase) >= 0
+                || string.Equals(propertyName, nameof(SavingsCalculatorModel.RetirementAge), StringComparison.OrdinalIgnoreCase))
+            {
+                Model.RetirementAge = value.Value;
+            }
+            else
+            {
+                Model.CurrentAge = value.Value;
+            }
+
+            // Persist via parent callback and update UI
+            await InvokeOnSave();
+            StateHasChanged();
+        }
+        catch
+        {
+            // best-effort; swallow errors same as surrounding code
+        }
+    }
+    // private async Task CopyFromRetirementAsync(string propertyName)
+    // {
+    //     try
+    //     {
+    //         var userGuidLocal = await UserGuidService.GetOrCreateUserGuidAsync();
+    //         var apiBaseUrl = GetApiBaseUrl();
+    //         var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+    //         // Try the common calculatorType values used in the project (fallback)
+    //         CalendarSpendingModel? ret = null;
+    //         foreach (var calcType in new[] { "retirement", "retirement_planner" })
+    //         {
+    //             try
+    //             {
+    //                 var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuidLocal}&calculatorType={calcType}";
+    //                 ret = await client.GetFromJsonAsync<CalendarSpendingModel>(url);
+    //                 if (ret != null) break;
+    //             }
+    //             catch
+    //             {
+    //                 ret = null;
+    //             }
+    //         }
+
+    //         if (ret == null) return;
+
+    //         // Determine whether we're operating on the partner calculator (tab) or "your" calculator.
+    //         var isPartner = string.Equals(calculatorType, calculatorTypePartners, StringComparison.OrdinalIgnoreCase)
+    //                         || string.Equals(activeTab, "partner", StringComparison.OrdinalIgnoreCase);
+
+    //         int? value = propertyName switch
+    //         {
+    //             // caller may pass nameof(calculatorModel.CurrentAge) or "CurrentAge"
+    //             nameof(SavingsCalculatorModel.CurrentAge) or "CurrentAge" =>
+    //                 isPartner ? (ret.CurrentAgePartner > 0 ? ret.CurrentAgePartner : null) : (ret.CurrentAgeYou > 0 ? ret.CurrentAgeYou : null),
+
+    //             nameof(SavingsCalculatorModel.RetirementAge) or "RetirementAge" =>
+    //                 isPartner ? (ret.RetirementAgePartner > 0 ? ret.RetirementAgePartner : null) : (ret.RetirementAgeYou > 0 ? ret.RetirementAgeYou : null),
+
+    //             // Backwards compatibility if consumer passes names used elsewhere
+    //             "CurrentAgePartner" => ret.CurrentAgePartner > 0 ? ret.CurrentAgePartner : null,
+    //             "RetirementAgePartner" => ret.RetirementAgePartner > 0 ? ret.RetirementAgePartner : null,
+    //             "CurrentAgeYou" => ret.CurrentAgeYou > 0 ? ret.CurrentAgeYou : null,
+    //             "RetirementAgeYou" => ret.RetirementAgeYou > 0 ? ret.RetirementAgeYou : null,
+
+    //             _ => null
+    //         };
+
+    //         if (value.HasValue && value.Value > 0)
+    //         {
+    //             // Apply into the active savings model fields
+    //             if (propertyName.IndexOf("Retirement", StringComparison.OrdinalIgnoreCase) >= 0
+    //                 || string.Equals(propertyName, nameof(SavingsCalculatorModel.RetirementAge), StringComparison.OrdinalIgnoreCase))
+    //             {
+    //                 calculatorModel.RetirementAge = value.Value;
+    //             }
+    //             else
+    //             {
+    //                 calculatorModel.CurrentAge = value.Value;
+    //             }
+
+    //             // Persist and refresh UI
+    //             await SaveAsync();
+    //             Calculate();
+    //             StateHasChanged();
+    //         }
+    //     }
+    //     catch
+    //     {
+    //         // best-effort: ignore failures (can add DebugService logging if desired)
+    //     }
+    // }
+
+    private bool ShowHint(int? suggestion, int currentValue)
+         => suggestion.HasValue && suggestion.Value > 0 && (currentValue <= 0 || suggestion.Value != currentValue);
 
 
     // private async Task PersistAgeToLocalStorageAsync(string propertyName)
@@ -1162,4 +1343,9 @@
             FinPlan.Shared.Enums.TaxBracket.High => 0.20m,
             _ => 0.15m
         };
+
+    private int RetirementCurrentAgeYou => RetirementModel?.CurrentAgeYou ?? 0;
+    private int RetirementCurrentAgePartner => RetirementModel?.CurrentAgePartner ?? 0;
+    private int RetirementRetirementAgeYou => RetirementModel?.RetirementAgeYou ?? 0;
+    private int RetirementRetirementAgePartner => RetirementModel?.RetirementAgePartner ?? 0;
 }
