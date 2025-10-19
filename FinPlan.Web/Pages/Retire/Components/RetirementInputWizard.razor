@@ -1775,27 +1775,30 @@
 
     private async Task PersistRetirementToBackendAsync()
     {
-        try
-        {
-            var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-            var apiBaseUrl = GetApiBaseUrl();
-            var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
 
-            var payload = new
-            {
-                UserGuid = userGuid,
-                CalculatorType = "retirement",
-                Data = Model
-            };
+        await InvokeOnSaveSafe(); 
 
-            var json = System.Text.Json.JsonSerializer.Serialize(payload);
-            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            await client.PostAsync($"{apiBaseUrl}/api/FinPlan/save", content);
-        }
-        catch
-        {
-            // best-effort — swallow errors or add logging via DebugService if available
-        }
+        // try
+        // {
+        //     var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
+        //     var apiBaseUrl = GetApiBaseUrl();
+        //     var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
+
+        //     var payload = new
+        //     {
+        //         UserGuid = userGuid,
+        //         CalculatorType = "retirement_planner",
+        //         Data = Model
+        //     };
+
+        //     var json = System.Text.Json.JsonSerializer.Serialize(payload);
+        //     using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+        //     await client.PostAsync($"{apiBaseUrl}/api/FinPlan/save", content);
+        // }
+        // catch
+        // {
+        //     // best-effort — swallow errors or add logging via DebugService if available
+        // }
     }
 
     private async Task CopyFromSavings(string propertyName)
@@ -1831,15 +1834,7 @@
 
 @code {
     // Add a small DTO to map the API response
-    private sealed class SavingsAgesDto
-    {
-        public int CurrentAgeYou { get; set; }
-        public int RetirementAgeYou { get; set; }
-        public int CurrentAgePartner { get; set; }
-        public int RetirementAgePartner { get; set; }
-        public DateTime? LastUpdatedUtc { get; set; }
-    }
-
+ 
     private string GetApiBaseUrl()
     {
 #if DEBUG

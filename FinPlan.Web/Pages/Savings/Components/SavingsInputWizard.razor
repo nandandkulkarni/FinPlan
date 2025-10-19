@@ -454,11 +454,20 @@
                                         <div class="account-footer text-muted">
                                             <small>Your age today</small>
                                         </div>
-                                        @if (ShowHint(RetirementCurrentAgeYou, Model?.CurrentAge ?? 0))
+                                        @{
+                                            var isPartnerTab1 = string.Equals(ActiveTab, "partner", StringComparison.OrdinalIgnoreCase);
+                                            var hintValue = isPartnerTab1 ? RetirementCurrentAgePartner : RetirementCurrentAgeYou;
+                                            var hintLabel = isPartnerTab1 ? "Partner" : "You";
+                                        }
+
+                                        @if (ShowHint(hintValue, Model?.CurrentAge ?? 0))
                                         {
-                                            <div class="copy-hint">
-                                                <span>From Retirement: <strong>@RetirementCurrentAgeYou</strong></span>
-                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill" @onclick="() => CopyFromRetirementAsync(nameof(Model.CurrentAge))">Copy</button>
+                                            <div class="copy-hint @(isPartnerTab1 ? "partner" : "")">
+                                                <span>From Retirement (@hintLabel): <strong>@hintValue</strong></span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill"
+                                                        @onclick="() => CopyFromRetirementAsync(nameof(Model.CurrentAge))">
+                                                    Copy
+                                                </button>
                                             </div>
                                         }
                                     </div>
@@ -487,6 +496,23 @@
                                         <div class="account-footer text-muted">
                                             <small>Typical range is 62-70 years</small>
                                         </div>
+
+                                        @{
+                                            var isPartnerTab2 = string.Equals(ActiveTab, "partner", StringComparison.OrdinalIgnoreCase);
+                                            var hintValueRet = isPartnerTab2 ? RetirementRetirementAgePartner : RetirementRetirementAgeYou;
+                                            var hintLabelRet = isPartnerTab2 ? "Partner" : "You";
+                                        }
+
+                                        @if (ShowHint(hintValueRet, Model?.RetirementAge ?? 0))
+                                        {
+                                            <div class="copy-hint @(isPartnerTab2 ? "partner" : "")">
+                                                <span>From Retirement (@hintLabelRet): <strong>@hintValueRet</strong></span>
+                                                <button class="btn btn-outline-primary btn-sm copy-btn-pill"
+                                                        @onclick="() => CopyFromRetirementAsync(nameof(Model.RetirementAge))">
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
