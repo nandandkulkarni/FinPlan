@@ -41,7 +41,7 @@ app.UseExceptionHandler();
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "FinPlan API v1");
         options.RoutePrefix = string.Empty; // Swagger at root
     });
-    app.MapOpenApi();
+    // MapOpenApi is .NET 9 feature - removed for .NET 8 compatibility
 //}
 
 app.MapDefaultEndpoints();

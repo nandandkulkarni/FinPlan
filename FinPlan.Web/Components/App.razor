@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
 
     <!-- Inline typography baseline and local font-face (keeps cloud & local consistent) -->
@@ -59,8 +59,8 @@
         }
     </style>
 
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["FinPlan.Web.styles.css"]" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="FinPlan.Web.styles.css" />
 
     <!-- Ensure font is loaded for all pages (fallback remote) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
@@ -75,7 +75,7 @@
         <Routes @rendermode="InteractiveServer" />
     </CascadingAuthenticationState>
     <script src="_framework/blazor.web.js"></script>
-    <script src="@Assets["lib/bootstrap/dist/js/bootstrap.bundle.min.js"]"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/excelExport.js"></script>
     <script src="js/cookieHandlerExtension.js"></script>
 </body>
