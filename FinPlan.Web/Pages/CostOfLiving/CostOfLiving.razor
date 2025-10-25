@@ -11,6 +11,7 @@
 @inject IJSRuntime JSRuntime
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject NavigationManager Navigation
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 <style>
     /* ----------------------------
                                                                                                                                                    Tweakable values
@@ -3180,7 +3181,7 @@
 
             if (!confirm) return;
 
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
 
             // Create request body for POST method instead of query parameters
             var deleteRequest = new
@@ -3543,7 +3544,7 @@
         try
         {
             var calcType = MapTabToCalculatorType(tab);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var loadUrl = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
             CostOfLivingData? data = null;
@@ -3638,7 +3639,7 @@
 
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
 
             // Make a copy of dynamicTabs to avoid mutation during enumeration
@@ -3763,7 +3764,7 @@
                 Data = initialData
             };
 
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -3816,7 +3817,7 @@
         try
         {
             var calcType = MapTabToCalculatorType(tab);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calcType)}";
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.DeleteAsync(url);
@@ -3859,7 +3860,7 @@
         Log("LoadTabsAsync start");
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/CostOfLiving/tabs?userGuid={Uri.EscapeDataString(userGuid)}";
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             // reduce timeout for this non-critical call so UI can proceed if API is slow
@@ -3930,7 +3931,7 @@
     private async Task LoadFromApi()
     {
         Log($"LoadFromApi start: {calculatorType}");
-        var apiBaseUrl = GetApiBaseUrl();
+        var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/CostOfLiving/load?userGuid={Uri.EscapeDataString(userGuid)}&calculatorType={Uri.EscapeDataString(calculatorType)}";
 
         try
@@ -4230,14 +4231,7 @@
     private string userGuid = Guid.NewGuid().ToString();
     private string calculatorType = "CostOfLiving_Your";
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-                        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+
 
     private async Task SaveToApi()
     {
@@ -4247,7 +4241,7 @@
         lastSaveMessage = string.Empty;
         await InvokeAsync(StateHasChanged);
 
-        var apiBaseUrl = GetApiBaseUrl();
+        var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
         var url = $"{apiBaseUrl}/api/CostOfLiving/save";
 
         try
@@ -4920,7 +4914,7 @@
         try
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             availableCities = await client.GetFromJsonAsync<List<CityTemplate>>($"{apiBaseUrl}/api/citytemplate");
             Log($"Loaded {availableCities?.Count ?? 0} city templates");
         }
@@ -4935,7 +4929,7 @@
         try
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
 
             try
             {
@@ -4963,7 +4957,7 @@
 
             // Load profiles for this city
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             cityProfiles = await client.GetFromJsonAsync<List<DemographicProfile>>($"{apiBaseUrl}/api/citytemplate/{city.CityId}/profiles");
 
             // Try to match a profile if we have user demographics
@@ -4991,7 +4985,7 @@
             if (userDemographics == null) return;
 
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
 
             var url = $"{apiBaseUrl}/api/citytemplate/match?" +
                       $"cityId={Uri.EscapeDataString(cityId)}" +
@@ -5063,7 +5057,7 @@
         try
         {
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
 
             var demographics = new UserDemographics
             {
@@ -5202,7 +5196,7 @@
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var route = Navigation.ToBaseRelativePath(Navigation.Uri);
             string? ua = null;
@@ -5218,3 +5212,10 @@
     // Ad HTML for left column — paste your Adsterra long banner snippet here or store in config and load on init.
     private string AdHtmlLeft = "<!-- Adsterra long banner snippet goes here -->";
 }
+
+
+
+
+
+
+

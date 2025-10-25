@@ -1,4 +1,4 @@
-﻿@using FinPlan.Web.Components.Models
+@using FinPlan.Web.Components.Models
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @using System.Text.Json
@@ -7,6 +7,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject IConfiguration Configuration
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 <div class="d-flex justify-content-center align-items-center" style="min-height:70vh;">
     <div class="w-100" style="max-width:900px;">
@@ -139,7 +140,7 @@
 
     private async Task SaveAnswersToApiAsync()
     {
-        var apiBase = GetApiBaseUrl();
+        var apiBase = this.ApiUrlProvider.GetApiBaseUrl();
 
         try
         {
@@ -166,12 +167,8 @@
         await SaveAnswersToApiAsync();
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+
 }
+
+
+

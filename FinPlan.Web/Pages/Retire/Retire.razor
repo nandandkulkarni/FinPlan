@@ -13,6 +13,7 @@
 
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 @namespace FinPlan.Web.Pages.Retire
 
@@ -1461,7 +1462,7 @@
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
             }
 
-            var apiBaseUrl = GetApiBaseUrl(); // You'll need to implement this based on your configuration
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl(); // You'll need to implement this based on your configuration
             var url = $"{apiBaseUrl}/api/FinPlan/remove"; // Changed endpoint to match POST pattern
 
             using var httpClient = new HttpClient(); // Or use your existing HTTP client service
@@ -1580,7 +1581,7 @@
             return;
 
         var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-        var apiBaseUrl = GetApiBaseUrl();
+        var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
         var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
 
         SavingsCalculatorModel? savingsYours = null;

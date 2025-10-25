@@ -11,6 +11,7 @@
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject IJSRuntime JSRuntime
 @inject IOptions<AdSettings> AdOptions
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 <style>
     /* Top strip: primary navigation shortcuts */
@@ -832,14 +833,14 @@
         StateHasChanged();
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+//     private string GetApiBaseUrl()
+//     {
+// #if DEBUG
+//             return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+// #else
+//         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+// #endif
+//     }
 
     private async Task EnsureUserRecordAsync()
     {
@@ -871,7 +872,7 @@
                 CookieGuid = cookieGuid
             };
 
-            var apiBase = GetApiBaseUrl();
+            var apiBase = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBase}/api/User/upsert";
             var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var json = System.Text.Json.JsonSerializer.Serialize(request);

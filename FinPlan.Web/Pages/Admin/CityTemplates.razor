@@ -5,6 +5,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 <div class="container-fluid py-4">
     <div class="row mb-4">
@@ -432,19 +433,12 @@
     private HttpClient CreateHttpClient()
     {
         var client = HttpClientFactory.CreateClient();
-        var baseUrl = GetApiBaseUrl();
+        var baseUrl = this.ApiUrlProvider.GetApiBaseUrl();
         client.BaseAddress = new Uri(baseUrl);
         return client;
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "https://api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -948,3 +942,6 @@
         StateHasChanged();
     }
 }
+
+
+

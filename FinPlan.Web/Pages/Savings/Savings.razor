@@ -1,4 +1,4 @@
-﻿@namespace FinPlan.Web.Components.Pages
+@namespace FinPlan.Web.Components.Pages
 
 @page "/savings-wealth-building"
 
@@ -18,7 +18,7 @@
 @inject DebugMessageService DebugService
 @inject UserGuidService UserGuidService
 @inject NavigationManager Navigation
-
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 <style>
     body {
@@ -1306,7 +1306,7 @@
             //     return;
 
             // load retirement model from backend
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var userGuidLocal = await UserGuidService.GetOrCreateUserGuidAsync();
 
@@ -1373,7 +1373,7 @@
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var route = Navigation.ToBaseRelativePath(Navigation.Uri);
 
@@ -1505,7 +1505,7 @@
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/FinPlan/load?userGuid={userGuid}&calculatorType={calculatorType}";
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var response = await client.GetAsync(url);
@@ -1553,7 +1553,7 @@
             var json = System.Text.Json.JsonSerializer.Serialize(saveRequest);
             using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
-            var response = await client.PostAsync($"{GetApiBaseUrl()}/api/FinPlan/save", content);
+            var response = await client.PostAsync($"{this.ApiUrlProvider.GetApiBaseUrl()}/api/FinPlan/save", content);
             if (!response.IsSuccessStatusCode)
             {
                 DebugService.AddMessage($"Save failed: {response.StatusCode}");
@@ -1693,14 +1693,14 @@
     private bool showToolTipTableHeaderAge = false;
     private bool showToolTipTableHeaderTotalsCategory = false;
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+//     private string GetApiBaseUrl()
+//     {
+// #if DEBUG
+//             return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+// #else
+//         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+// #endif
+//     }
     // Add this method to your @code section
     // Add this method to your @code section
     private async Task ClearDataAsync()
@@ -1730,7 +1730,7 @@
 
             await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: Using user GUID = {userGuid}");
 
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             await JSRuntime.InvokeVoidAsync("console.log", $"ClearDataAsync: API base URL = {apiBaseUrl}");
 
             // Create request body for POST instead of query parameters for DELETE

@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @page "/home"
 
 @using Microsoft.JSInterop
@@ -7,6 +7,7 @@
 @inject IConfiguration Configuration
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject NavigationManager Navigation
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 @code {
     private bool isMaximized = false;
@@ -32,7 +33,7 @@
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var route = Navigation.ToBaseRelativePath(Navigation.Uri);
 
@@ -47,14 +48,7 @@
         catch { }
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+
 }
 
 <!-- Professional Financial Header -->
@@ -343,3 +337,6 @@
         </div>
     </div>
 </div>
+
+
+

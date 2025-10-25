@@ -93,7 +93,7 @@ namespace FinPlan.Web.Pages.Retire
         {
             try
             {
-                var apiBaseUrl = GetApiBaseUrl();
+                var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
                 string userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
                 string route = Navigation.ToBaseRelativePath(Navigation.Uri);
@@ -211,7 +211,7 @@ namespace FinPlan.Web.Pages.Retire
         }
         public async Task<bool> Save()
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/Retirement/save";
             Model.Calculate();
             try
@@ -255,7 +255,7 @@ namespace FinPlan.Web.Pages.Retire
             try
             {
                 var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-                var apiBaseUrl = GetApiBaseUrl();
+                var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
                 var url = $"{apiBaseUrl}/api/Retirement/load?userGuid={userGuid}&calculatorType={calculatorType}";
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
                 var response = await client.GetAsync(url);
@@ -291,7 +291,7 @@ namespace FinPlan.Web.Pages.Retire
             try
             {
                 var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-                var apiBaseUrl = GetApiBaseUrl();
+                var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
                 var url = $"{apiBaseUrl}/api/Retirement/delete?userGuid={userGuid}&calculatorType={calculatorType}";
 
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
@@ -400,14 +400,14 @@ namespace FinPlan.Web.Pages.Retire
             }
         }
 
-        private string GetApiBaseUrl()
-        {
-#if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-        }
+//        private string GetApiBaseUrl()
+//        {
+//#if DEBUG
+//            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+//#else
+//            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+//#endif
+//        }
 
         public void Dispose()
         {

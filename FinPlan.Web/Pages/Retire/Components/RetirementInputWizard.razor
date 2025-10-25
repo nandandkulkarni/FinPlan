@@ -12,6 +12,8 @@
 @inject UserGuidService UserGuidService
 
 @inject IJSRuntime JSRuntime
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
+
 
 <style>
 
@@ -1677,7 +1679,7 @@
         try
         {
             var userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
 
             // 1) Try to load retirement model from backend
@@ -1835,14 +1837,14 @@
 @code {
     // Add a small DTO to map the API response
  
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-    return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+//     private string GetApiBaseUrl()
+//     {
+// #if DEBUG
+//     return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+// #else
+//         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+// #endif
+//     }
 
 
 }

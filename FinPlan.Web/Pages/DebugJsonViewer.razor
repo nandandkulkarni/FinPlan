@@ -1,10 +1,11 @@
-﻿@page "/debug/json-viewer"
+@page "/debug/json-viewer"
 @using System.Text.Json
 @using Microsoft.JSInterop
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 @inject IWebHostEnvironment Env
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 <h3>FinPlan JSON viewer (development only)</h3>
 
@@ -165,14 +166,7 @@ else
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+
 
 
     private HttpClient CreateClient()
@@ -194,7 +188,7 @@ else
         groups = new List<Grouped>();
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = CreateClient();
             client.Timeout = TimeSpan.FromSeconds(15);
             var url = $"{apiBaseUrl}/api/Debug/finplans";
@@ -247,7 +241,7 @@ else
 
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = CreateClient();
             client.Timeout = TimeSpan.FromSeconds(20);
             var url = $"{apiBaseUrl}/api/Debug/finplans/{id}";
@@ -307,7 +301,7 @@ else
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = CreateClient();
             var url = $"{apiBaseUrl}/api/Debug/finplans/{id}";
             var resp = await client.GetAsync(url);
@@ -330,3 +324,5 @@ else
         }
     }
 }
+
+

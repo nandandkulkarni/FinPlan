@@ -14,6 +14,7 @@
 @inject FinPlan.Web.Services.DebugMessageService DebugService
 @inject FinPlan.Web.Services.UserGuidService UserGuidService
 @inject NavigationManager Navigation
+@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider
 
 @namespace FinPlan.Web.Components.Pages
 
@@ -357,7 +358,7 @@
 
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var url = $"{apiBaseUrl}/api/Contact/save";
 
             var request = new
@@ -403,7 +404,7 @@
     {
         try
         {
-            var apiBaseUrl = GetApiBaseUrl();
+            var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
             var client = FinPlan.Web.Services.HttpCustomClientService.CreateRetryClient(HttpClientFactory);
             var route = Navigation.ToBaseRelativePath(Navigation.Uri);
             string? ua = null;
@@ -416,14 +417,14 @@
         catch { }
     }
 
-    private string GetApiBaseUrl()
-    {
-#if DEBUG
-        return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-#else
-        return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-#endif
-    }
+//     private string GetApiBaseUrl()
+//     {
+// #if DEBUG
+//         return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
+// #else
+//         return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
+// #endif
+//     }
 
     private class AboutPageModel
     {

@@ -1,7 +1,9 @@
 using FinPlan.Web.Components;
 using FinPlan.Web.Config;
 using FinPlan.Web.Services;
+using FinPlan.Web.Data;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using Polly;
 using Polly.Extensions.Http;
 using System.Globalization;
@@ -19,6 +21,10 @@ builder.Services.AddHttpContextAccessor();
 
 // Scoped container to hold client info per circuit
 builder.Services.AddScoped<ClientConnectionInfo>();
+
+// Register DbContext with SQL Server
+builder.Services.AddDbContext<FinPlanDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register an HttpClient with a Polly retry policy for transient failures (and 429 TooManyRequests)
 builder.Services.AddTransient<ForwardClientIpHandler>();
@@ -46,6 +52,9 @@ builder.Services.AddOutputCache();
 
 builder.Services.AddBlazoredLocalStorage();
 
+// Add controllers for API endpoints
+builder.Services.AddControllers();
+
 // Centralized Google AdSense configuration
 builder.Services.Configure<AdSettings>(builder.Configuration.GetSection("AdSense"));
 
@@ -59,6 +68,9 @@ builder.Services.AddLogging();
 
 // Register the UserGuidService as scoped
 builder.Services.AddScoped<FinPlan.Web.Services.UserGuidService>();
+
+// Register the ApiUrlProvider as scoped
+builder.Services.AddScoped<FinPlan.Web.Services.ApiUrlProvider>();
 
 // Add authorization services for Blazor components
 builder.Services.AddAuthorization();
@@ -250,6 +262,8 @@ app.UseStaticFiles();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapControllers();
 
 app.MapDefaultEndpoints();
 
