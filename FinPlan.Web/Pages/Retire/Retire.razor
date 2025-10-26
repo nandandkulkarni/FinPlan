@@ -1187,55 +1187,13 @@
     private bool showIntroModal = true; // Show by default unless user has opted out
     private bool dontShowIntroAgain = false;
 
-    private bool showToolTipYourRetirementAge = false;
-    private bool showToolTipPartnerRetirementAge = false;
-    private bool showToolTipYourLifeExpectancy = false;
-    private bool showToolTipPartnerLifeExpectancy = false;
 
-    private bool showToolTipTaxableBalance = false;
-    private bool showToolTipTraditionalBalance = false;
-    private bool showToolTipRothBalance = false;
-    private bool showToolTipInvestmentReturn = false;
-    private bool showToolTipInflationRate = false;
-
-    private bool showToolTipSocialSecurityYou = false;
-    private bool showToolTipSocialSecurityPartner = false;
-    private bool showToolTipSSStartAgeYou = false;
-    private bool showToolTipSSStartAgePartner = false;
-
-    private bool showToolTipReverseMortgageStartYear = false;
-    private bool showToolTipReverseMortgageMonthly = false;
-
-    private bool showToolTipWithdrawalOne = false;
-    private bool showToolTipWithdrawalBoth = false;
-
-    private bool showToolTipCurrentAgeYou = false;
-    private bool showToolTipCurrentAgePartner = false;
-    private bool showToolTipSimulationStartYear = false;
-
-    private bool showToolTipYear = false;
-    private bool showToolTipYourAge = false;
-    private bool showToolTipPartnerAge = false;
-    private bool showToolTipMilestones = false;
-    private bool showToolTipAmountNeeded = false;
-    private bool showToolTipSSYou = false;
-    private bool showToolTipSSPartner = false;
-    private bool showToolTipReverseMortgage = false;
-    private bool showToolTipGrowth = false;
-    private bool showToolTipTaxableWithdrawal = false;
-    private bool showToolTipTraditionalWithdrawal = false;
-    private bool showToolTipRothWithdrawal = false;
-    private bool showToolTipTaxesPaid = false;
-    private bool showToolTipTaxableEnding = false;
-    private bool showToolTipTraditionalEnding = false;
-    private bool showToolTipRothEnding = false;
-    private bool showSurvey = false;
 
     // Helper properties to display life expectancy as age not calendar year
     private int DisplayLifeExpectancyYou => ComputeLifeExpectancyAge(Model?.LifeExpectancyYou ?? 0, Model?.CurrentAgeYou ?? 0);
     private int DisplayLifeExpectancyPartner => ComputeLifeExpectancyAge(Model?.LifeExpectancyPartner ?? 0, Model?.CurrentAgePartner ?? 0);
 
-    const string calculatorType = "retirement_planner"; // Or whatever identifier you use for retirement data
+    const string calculatorType = "retirement_planner";
 
 
     private int ComputeLifeExpectancyAge(int lifeValue, int currentAge)
@@ -1268,7 +1226,6 @@
 
     private void ConfirmClearAll()
     {
-        // show confirmation modal
         showClearConfirm = true;
     }
 
@@ -1296,7 +1253,6 @@
     {
         showClearResult = false;
 
-        // If clear succeeded, open wizard for re-entry (model already set by code-behind)
         if (clearSucceeded)
         {
             _isDataAvaiableForTheUser = true;
@@ -1305,28 +1261,7 @@
         StateHasChanged();
     }
 
-    private async Task SaveAndClose()
-    {
-        await Save();
-        _isDataAvaiableForTheUser = false;
-        StateHasChanged();
-    }
-
     private bool showSetupChecklist = false;
-    private bool showToolTipAmountWithdrawn = false;
-
-    private void CompleteSection(int stepNumber)
-    {
-        showSetupChecklist = false;
-        OpenWizard(stepNumber);
-    }
-
-    private void ContinueSetup()
-    {
-        var nextStep = Model.GetNextIncompleteStep();
-        showSetupChecklist = false;
-        OpenWizard(nextStep);
-    }
 
     private bool showSampleDataModal = false;
 
@@ -1338,17 +1273,11 @@
         StateHasChanged();
     }
 
-
     private async Task HandleIntroModal()
     {
         showIntroModal = false;
-
-        // Only show intro modal if model is empty and user hasn't opted out
-        //if (Model == null || Model.IsModelEmpty())
-        //{
         var hideIntro = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "finplan-retirement-income-planner-hide-intro");
         showIntroModal = string.IsNullOrEmpty(hideIntro) || !hideIntro.Equals("true", StringComparison.OrdinalIgnoreCase);
-        //}
     }
 
     private async Task OnDontShowIntroChanged(ChangeEventArgs e)
@@ -1366,19 +1295,11 @@
         }
     }
 
-    // Add these new methods
     private void CloseIntroModal()
     {
         showIntroModal = false;
         StateHasChanged();
-
     }
-
-    private bool showToolTipIncomeSources = false;
-    private bool showToolTipWithdrawals = false;
-    private bool showToolTipEndingBalances = false;
-    private bool showToolTipTaxPaid = false;
-
 
     private string GetDepletionText()
     {
@@ -1603,25 +1524,25 @@
 
         var changed = false;
 
-        if ((Model.CurrentAgeYou <= 0 || Model.CurrentAgeYou == null) && (savingsYours?.CurrentAge ?? 0) > 0)
+        if (Model.CurrentAgeYou <= 0 && (savingsYours?.CurrentAge ?? 0) > 0)
         {
             Model.CurrentAgeYou = savingsYours!.CurrentAge;
             changed = true;
         }
 
-        if ((Model.RetirementAgeYou <= 0 || Model.RetirementAgeYou == null) && (savingsYours?.RetirementAge ?? 0) > 0)
+        if (Model.RetirementAgeYou <= 0 && (savingsYours?.RetirementAge ?? 0) > 0)
         {
             Model.RetirementAgeYou = savingsYours!.RetirementAge;
             changed = true;
         }
 
-        if ((Model.CurrentAgePartner <= 0 || Model.CurrentAgePartner == null) && (savingsPartner?.CurrentAge ?? 0) > 0)
+        if (Model.CurrentAgePartner <= 0 && (savingsPartner?.CurrentAge ?? 0) > 0)
         {
             Model.CurrentAgePartner = savingsPartner!.CurrentAge;
             changed = true;
         }
 
-        if ((Model.RetirementAgePartner <= 0 || Model.RetirementAgePartner == null) && (savingsPartner?.RetirementAge ?? 0) > 0)
+        if (Model.RetirementAgePartner <= 0 && (savingsPartner?.RetirementAge ?? 0) > 0)
         {
             Model.RetirementAgePartner = savingsPartner!.RetirementAge;
             changed = true;

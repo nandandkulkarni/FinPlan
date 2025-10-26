@@ -19,14 +19,9 @@ namespace FinPlan.Web.Pages.Retire
         [Inject] public UserGuidService UserGuidService { get; set; } = default!;
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
         [Inject] public IConfiguration Configuration { get; set; } = default!;
-        // NavigationManager is injected in the .razor file; do not duplicate here.
 
         // model instance used for both save/load and calculation
         public CalendarSpendingModel Model { get; set; } = new();
-
-        // UI toggle
-        public bool ShowRightDebug { get; set; } = false;
-        public void ToggleRightDebug() => ShowRightDebug = !ShowRightDebug;
 
         // Results proxy for the grid binds to Model.YearRows
         public List<CalendarYearRow> YearRows => Model.YearRows;
@@ -36,7 +31,7 @@ namespace FinPlan.Web.Pages.Retire
 
         // debounce timer for auto-calc
         private System.Timers.Timer? debounceTimer;
-        private const double DebounceMs = 300; // debounce period agreed
+        private const double DebounceMs = 300;
 
         // track last save time to avoid rapid duplicate saves
         private DateTime _lastSave = DateTime.MinValue;
@@ -71,9 +66,6 @@ namespace FinPlan.Web.Pages.Retire
                 }
                 catch { }
 
-                // New: update survey visibility (mobile: only after ~5 loads; desktop: always)
-                await UpdateSurveyVisibilityAsync();
-
                 await Load();
 
                 await ApplySavingsAgesIfEmptyAsync();
@@ -105,44 +97,6 @@ namespace FinPlan.Web.Pages.Retire
                 await client.PostAsync($"{apiBaseUrl}/api/Tracking/pageview", content);
             }
             catch { }
-        }
-
-        private async Task UpdateSurveyVisibilityAsync()
-        {
-            try
-            {
-                // Detect mobile via matchMedia (<= 767px)
-                var isMobile = await JSRuntime.InvokeAsync<bool>("eval", "window.matchMedia && window.matchMedia('(max-width: 767px)').matches");
-
-                if (!isMobile)
-                {
-                    // Desktop -> always show
-                    showSurvey = true;
-                    return;
-                }
-
-                // Mobile -> show only after ~5 page loads (per device/localStorage)
-                string key = "finplan-retire-mobile-loads";
-
-                var raw = await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
-                int count = 0;
-                if (!string.IsNullOrEmpty(raw) && int.TryParse(raw, out var parsed)) count = parsed;
-
-                count++;
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, count.ToString());
-
-                showSurvey = count >= 5;
-            }
-            catch (Exception ex)
-            {
-                DebugService.AddMessage($"Survey visibility check failed: {ex.Message}");
-                // fallback: hide on error to avoid surprising mobile UX
-                showSurvey = false;
-            }
-            finally
-            {
-                StateHasChanged();
-            }
         }
 
         protected override Task OnInitializedAsync()
@@ -181,16 +135,10 @@ namespace FinPlan.Web.Pages.Retire
             // Enable AutoCalculate by default for better user experience
             Model.AutoCalculate = true;
 
-            // Only calculate if the model has meaningful data
-            //if (!Model.IsModelEmpty())
-            //{
             Model.Calculate();
-            // }
 
             return base.OnInitializedAsync();
         }
-
-        // Save now returns success flag so callers can display result
 
         private bool IsRetirementAgesSectionComplete()
         {
@@ -202,13 +150,10 @@ namespace FinPlan.Web.Pages.Retire
         private bool IsStartingBalancesSectionComplete()
         {
             return Model.TaxableBalance > 0 ||
-                   Model.TraditionalBalance > 0 ||
-                   Model.RothBalance > 0;
+                    Model.TraditionalBalance > 0 ||
+                    Model.RothBalance > 0;
         }
-        private bool IsWithdrawalStrategySectionComplete()
-        {
-            return Model.AnnualWithdrawalOne > 0 && Model.AnnualWithdrawalBoth > 0;
-        }
+
         public async Task<bool> Save()
         {
             var apiBaseUrl = this.ApiUrlProvider.GetApiBaseUrl();
@@ -245,11 +190,6 @@ namespace FinPlan.Web.Pages.Retire
             }
         }
 
-        public void Calculate()
-        {
-            Model.Calculate();
-        }
-
         public async Task Load()
         {
             try
@@ -266,13 +206,12 @@ namespace FinPlan.Web.Pages.Retire
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
-                // The API now stores CalendarSpendingModel directly — deserialize
                 var stored = System.Text.Json.JsonSerializer.Deserialize<CalendarSpendingModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (stored != null)
                 {
                     Model = stored;
-                    Model.AutoCalculate = true; // Ensure auto-calculate is enabled
-                    Model.Calculate(); // Trigger calculation after loading
+                    Model.AutoCalculate = true;
+                    Model.Calculate();
                     DebugService.AddMessage($"loaded and calculated. YearRows count: {Model.YearRows.Count}");
                     StateHasChanged();
                 }
@@ -283,8 +222,6 @@ namespace FinPlan.Web.Pages.Retire
             }
         }
 
-        // New: Clear server-side saved plan and reset local model, then open wizard for re-entry
-        // Returns true if overall operation succeeded (delete + save), false otherwise
         public async Task<bool> ClearAllAndOpenWizardAsync()
         {
             var deleteSuccess = false;
@@ -313,28 +250,22 @@ namespace FinPlan.Web.Pages.Retire
                 DebugService.AddMessage($"delete error: {ex.Message}");
             }
 
-            // Reset local model to a clean instance and open the wizard for quick re-entry
             Model = new CalendarSpendingModel();
             Model.Calculate();
             _isDataAvaiableForTheUser = true;
             StateHasChanged();
 
-            // Also save the cleared state so server and client are in sync
             var saveSuccess = false;
             try { saveSuccess = await Save(); } catch { saveSuccess = false; }
 
-            // Consider operation successful only if delete and save both succeeded
             return deleteSuccess && saveSuccess;
         }
 
-        // Called on many input changes; debounces Calculate when AutoCalculate is enabled
         private void OnInputChanged()
         {
-            // always keep retirement years in sync for immediate display
             Model.SyncRetirementYearsFromAges();
             StateHasChanged();
 
-            // if auto-calc is enabled, debounce a Calculate call
             if (Model.AutoCalculate && debounceTimer != null)
             {
                 debounceTimer.Stop();
@@ -342,54 +273,43 @@ namespace FinPlan.Web.Pages.Retire
             }
         }
 
-        // Called when focus leaves the panel (bubbling from inputs)
         private async Task HandleFocusOut(FocusEventArgs e)
         {
-            // debounce quick focus changes
             if (DateTime.UtcNow - _lastSave < _minSaveInterval) return;
             _lastSave = DateTime.UtcNow;
             await Save();
         }
 
-        // Called when key pressed inside panel; save on Enter
         private async Task HandleKeyDown(KeyboardEventArgs e)
         {
             if (e == null) return;
             if (e.Key == "Enter")
             {
-                // prevent multiple saves if already recently saved
                 if (DateTime.UtcNow - _lastSave < _minSaveInterval) return;
                 _lastSave = DateTime.UtcNow;
                 await Save();
             }
         }
 
-        // Handler invoked when the RetirementInputWizard finishes
         public async Task HandleWizardFinished((int AgeYou, int AgePartner) ages)
         {
             try
             {
                 DebugService.AddMessage("Wizard finished - applying data and calculating");
 
-                // Apply ages to model and sync years
                 Model.CurrentAgeYou = ages.AgeYou > 0 ? ages.AgeYou : Model.CurrentAgeYou;
                 Model.CurrentAgePartner = ages.AgePartner > 0 ? ages.AgePartner : Model.CurrentAgePartner;
                 Model.SyncRetirementYearsFromAges();
 
-                // Ensure AutoCalculate is enabled
                 Model.AutoCalculate = true;
 
-                // hide the modal flag
                 _isDataAvaiableForTheUser = false;
 
-                // Force immediate recalculation
                 Model.Calculate();
                 DebugService.AddMessage($"Calculation completed. YearRows count: {Model.YearRows.Count}");
 
-                // Save the updated model
                 await Save();
 
-                // Force UI update
                 StateHasChanged();
 
                 DebugService.AddMessage("Wizard completion finished successfully");
@@ -399,15 +319,6 @@ namespace FinPlan.Web.Pages.Retire
                 DebugService.AddMessage($"Wizard finish error: {ex.Message}");
             }
         }
-
-//        private string GetApiBaseUrl()
-//        {
-//#if DEBUG
-//            return Configuration["FinPlanSettings:ApiBaseUrlLocal"] ?? "https://localhost:7330";
-//#else
-//            return Configuration["FinPlanSettings:ApiBaseUrlCloud"] ?? "api-money-amperespark-bnbva5h5g6gme6fm.eastus2-01.azurewebsites.net";
-//#endif
-//        }
 
         public void Dispose()
         {
