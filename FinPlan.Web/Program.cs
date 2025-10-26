@@ -10,8 +10,12 @@ using System.Globalization;
 using System.Net;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.HttpOverrides;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
@@ -266,6 +270,10 @@ app.MapRazorComponents<App>()
 app.MapControllers();
 
 app.MapDefaultEndpoints();
+
+// Test logging
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Application is starting up and Serilog is configured.");
 
 // Lightweight endpoints to trigger the external auth challenge and sign-out
 // Start the OAuth flow from a distinct path so the middleware can reserve the callback path (/signin-google)
