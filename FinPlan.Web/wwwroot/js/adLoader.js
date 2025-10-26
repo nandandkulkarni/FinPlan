@@ -84,5 +84,74 @@
         });
     }
 
+    // Expose simple API for ad push to avoid Blazor/AdSense DOM mutation conflicts.
+    // Usage: call window.fpAds.pushAfterRender() from Blazor after the <ins> element is in the DOM.
+    window.fpAds = window.fpAds || {};
+
+    // Try to call (adsbygoogle=window.adsbygoogle||[]).push({}) when it's safe.
+    window.fpAds.pushAfterRender = function(retries, delayMs) {
+        retries = typeof retries === 'number' ? retries : 8;
+        delayMs = typeof delayMs === 'number' ? delayMs : 120;
+
+        function attempt(n) {
+            try {
+                // allow Blazor to finish DOM updates
+                setTimeout(function() {
+                    try {
+                        if (window.adsbygoogle) {
+                            try {
+                                // Create the adsbygoogle array if it doesn't exist
+                                window.adsbygoogle = window.adsbygoogle || [];
+                                // Push the ad configuration
+                                window.adsbygoogle.push({});
+                                console.log('fpAds: Successfully pushed ad to adsbygoogle');
+                                // success - no further retries needed
+                                return;
+                            } catch (e) {
+                                // If adsbygoogle push throws, try again later
+                                console.warn('fpAds.pushAfterRender: push error, retries left: ' + n, e);
+                                if (n > 0) {
+                                    attempt(n - 1);
+                                }
+                            }
+                        } else {
+                            console.warn('fpAds.pushAfterRender: adsbygoogle not ready, retries left: ' + n);
+                            if (n > 0) {
+                                attempt(n - 1);
+                            } else {
+                                console.error('fpAds.pushAfterRender: adsbygoogle never became available. Ad script may not have loaded.');
+                            }
+                        }
+                    } catch(e) { 
+                        console.warn('fpAds.pushAfterRender: error in attempt, retries left: ' + n, e);
+                        if (n > 0) {
+                            attempt(n - 1);
+                        }
+                    }
+                }, delayMs);
+            } catch (ex) { 
+                console.error('fpAds.pushAfterRender: outer error', ex);
+            }
+        }
+
+        attempt(retries);
+    };
+
+    // Helper function that can be safely called from Blazor via JSRuntime
+    // This wraps pushAfterRender in a way that's compatible with Blazor's JSInterop
+    window.fpAds.safePush = function() {
+        try {
+            if (window.fpAds && window.fpAds.pushAfterRender) {
+                window.fpAds.pushAfterRender(8, 120);
+            } else {
+                console.error('fpAds.safePush: pushAfterRender not available');
+            }
+        } catch(e) {
+            console.error('fpAds.safePush error:', e);
+        }
+    };
+
     window.adLoader = { init: init };
+
+    console.log('adLoader.js: Initialized. fpAds.pushAfterRender and fpAds.safePush are available.');
 })();

@@ -665,7 +665,24 @@
 
 @if (!string.IsNullOrWhiteSpace(AdOptions.Value.ClientId))
 {
+    <script>
+        // Diagnostic: log the configured client id from server-side config
+        try {
+            console.log('Diagnostic: Ad client (server): "@AdOptions.Value.ClientId"');
+        } catch(e) { console.log('Diagnostic: failed to read Ad client'); }
+        // Diagnostic: log whether the pagead2 script is already present in the DOM
+        try {
+            console.log('Diagnostic: pagead2 script present:', !!document.querySelector('script[src*="pagead2.googlesyndication"]'));
+        } catch(e) { }
+    </script>
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=@AdOptions.Value.ClientId" crossorigin="anonymous"></script>
+}
+else
+{
+    <script>
+        try { console.log('Diagnostic: No Ad client configured (AdOptions.Value.ClientId is empty)'); } catch(e) { }
+    </script>
 }
 <script src="/js/adLoader.js"></script>
 <script src="/js/audioInterop.js"></script>

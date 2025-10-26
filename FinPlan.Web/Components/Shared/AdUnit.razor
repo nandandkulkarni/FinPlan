@@ -3,28 +3,33 @@
 @inject IJSRuntime JSRuntime
 @inject IOptions<AdSettings> AdOptions
 
-@if (ShouldRenderAd)
-{
-    <ins class="adsbygoogle @Class"
-         style="@Style"
-         data-ad-client="@AdClient"
-         data-ad-slot="@ResolvedSlot"
-         data-ad-format="@Format"
-         data-full-width-responsive="@Responsive"
-         data-adtest="@AdTest"
-         data-ad-layout-key="@LayoutKey"></ins>
-}
-else if (!string.IsNullOrEmpty(PlaceholderText))
-{
-    <div class="adunit-placeholder text-muted small">@PlaceholderText</div>
-}
+@* Render a container. Only mark it with data-ad-type when no AdSense client is configured so local adLoader can insert placeholders.
+   When an AdSense client exists we allow the native ins/adsbygoogle flow to run. *@
+<div data-ad-type="@(string.IsNullOrEmpty(AdClient) ? "adsbygoogle" : null)" class="adunit-container" style="@Style">
+    @if (ShouldRenderAd)
+    {
+        <ins class="adsbygoogle @Class"
+             style="width:100%;height:100%;display:block;"
+             data-ad-client="@AdClient"
+             data-ad-slot="@ResolvedSlot"
+             data-ad-format="@Format"
+             data-full-width-responsive="@Responsive"
+             data-adtest="@AdTest"
+             data-ad-layout-key="@LayoutKey"></ins>
+    }
+    else if (!string.IsNullOrEmpty(PlaceholderText))
+    {
+        <div class="adunit-placeholder text-muted small">@PlaceholderText</div>
+    }
+</div>
 
 @code {
     private AdSettings Settings => AdOptions.Value;
     private string? AdClient => string.IsNullOrWhiteSpace(Settings.ClientId) ? null : Settings.ClientId;
     private string? ResolvedSlot => !string.IsNullOrWhiteSpace(Slot) ? Slot : Settings.DefaultSlot;
     private string? AdTest => Settings.UseTestAds ? "on" : null;
-    private bool ShouldRenderAd => !string.IsNullOrWhiteSpace(AdClient) && !string.IsNullOrWhiteSpace(ResolvedSlot);
+    // Allow rendering when client id is present. Empty slot IDs are valid for Google's test ads.
+    private bool ShouldRenderAd => !string.IsNullOrWhiteSpace(AdClient);
 
     [Parameter]
     public string Slot { get; set; } = string.Empty;
@@ -58,11 +63,18 @@ else if (!string.IsNullOrEmpty(PlaceholderText))
 
         try
         {
-            await JSRuntime.InvokeVoidAsync("eval", "(adsbygoogle=window.adsbygoogle||[]).push({});");
+            // Use the safe fpAds.safePush() method designed to avoid Blazor/AdSense DOM conflicts
+            // This method includes retry logic and proper timing to avoid DOM mutation conflicts
+            await JSRuntime.InvokeVoidAsync("fpAds.safePush");
         }
-        catch (JSException)
+        catch (JSException ex)
         {
             // Swallow JS initialization issues to avoid breaking the page; they can be inspected in browser console.
+            System.Diagnostics.Debug.WriteLine($"AdUnit JS error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"AdUnit error: {ex.Message}");
         }
     }
 }

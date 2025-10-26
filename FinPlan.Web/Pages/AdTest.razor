@@ -1,0 +1,102 @@
+﻿@page "/ad-test"
+@using FinPlan.Web.Components.Shared
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Google Ads Test Page</PageTitle>
+
+<div class="container my-5">
+    <h2 class="mb-4">🧪 Google AdSense Test Page</h2>
+    
+    <div class="alert alert-success">
+        <strong>✅ Test Ads Enabled:</strong> Google will send test ads in test mode.
+        Your settings: <code>UseTestAds: true</code> and <code>ClientId: ca-pub-1906825262608580</code>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>ℹ️ How This Works:</strong>
+        <ul class="mb-0">
+            <li>Empty slot IDs trigger Google's default test ad behavior</li>
+            <li>You'll see sample Google test ads (safe to click)</li>
+            <li>Data-adtest="on" ensures no revenue is counted</li>
+            <li>Perfect for testing layout and styling</li>
+        </ul>
+    </div>
+
+    <!-- Horizontal Banner -->
+    <div class="mb-5">
+        <h4>Horizontal Banner (728x90)</h4>
+        <div class="border p-3 bg-light">
+            <AdUnit Slot=""
+                    Style="display:inline-block; width:728px; height:90px;"
+                    Format="horizontal"
+                    PlaceholderText="Leaderboard Ad (728x90)"></AdUnit>
+        </div>
+    </div>
+
+    <!-- Medium Rectangle -->
+    <div class="mb-5">
+        <h4>Medium Rectangle (300x250)</h4>
+        <div class="border p-3 bg-light">
+            <AdUnit Slot=""
+                    Style="display:inline-block; width:300px; height:250px;"
+                    PlaceholderText="Medium Rectangle (300x250)"></AdUnit>
+        </div>
+    </div>
+
+    <!-- Responsive Ad -->
+    <div class="mb-5">
+        <h4>Responsive Ad (Auto-size)</h4>
+        <div class="border p-3 bg-light">
+            <AdUnit Slot=""
+                    Style="display:block; min-height: 120px;"
+                    Format="auto"
+                    Responsive="true"
+                    PlaceholderText="Responsive Advertisement"></AdUnit>
+        </div>
+    </div>
+
+    <!-- Vertical Sidebar -->
+    <div class="mb-5">
+        <h4>Vertical Sidebar (160x600)</h4>
+        <div class="border p-3 bg-light">
+            <AdUnit Slot=""
+                    Style="display:inline-block; width:160px; height:600px;"
+                    Format="vertical"
+                    PlaceholderText="Skyscraper Ad (160x600)"></AdUnit>
+        </div>
+    </div>
+
+    <div class="alert alert-warning mt-4">
+        <strong>📝 What You Should See:</strong>
+        <ul class="mb-0">
+            <li>Google test ad boxes appearing (may say "Ad" with sample content)</li>
+            <li>Each ad sized to the dimensions specified above</li>
+            <li>These are 100% safe test ads from Google</li>
+            <li>Check browser console (F12) for any ad-related messages</li>
+        </ul>
+    </div>
+
+    <div class="alert alert-secondary mt-3">
+        <strong>🔧 Troubleshooting:</strong>
+        <ul class="mb-0">
+            <li>If no ads show: Open browser DevTools (F12) → Console tab</li>
+            <li>Look for errors about "adsbygoogle"</li>
+            <li>Make sure ad blocker is disabled for localhost</li>
+            <li>Refresh the page with Ctrl+Shift+R (hard refresh)</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Log ad testing info to console
+            await JSRuntime.InvokeVoidAsync("console.log", "🧪 Ad Test Page Loaded - Google test ads should appear in test mode");
+            await JSRuntime.InvokeVoidAsync("console.log", "Publisher ID: ca-pub-1906825262608580");
+            await JSRuntime.InvokeVoidAsync("console.log", "Test Mode: ENABLED (data-adtest='on')");
+        }
+    }
+}

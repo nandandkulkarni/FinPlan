@@ -1,4 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Options
+@using FinPlan.Web.Config
+@inject IOptions<AdSettings> AdOptions
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,54 +13,8 @@
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
 
-    <!-- Inline typography baseline and local font-face (keeps cloud & local consistent) -->
-    <style>
-        /* Prefer locally-hosted Inter, fallback to Google/system fonts */
-        @@font-face {
-            font-family: 'InterLocal';
-            src: url('/fonts/Inter-Regular.woff2') format('woff2');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @@font-face {
-            font-family: 'InterLocal';
-            src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
-            font-weight: 600;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @@font-face {
-            font-family: 'InterLocal';
-            src: url('/fonts/Inter-Bold.woff2') format('woff2');
-            font-weight: 700;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @@font-face {
-            font-family: 'InterLocal';
-            src: url('/fonts/Inter-Light.woff2') format('woff2');
-            font-weight: 300;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        body {
-            font-family: InterLocal, 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            line-height: 1.45;
-            color: #111827;
-        }
-    </style>
+    <!-- Shared typography (base body styles). Use Google Fonts CDN as the reliable fallback. -->
+    <link rel="stylesheet" href="css/typography.css" />
 
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="FinPlan.Web.styles.css" />
@@ -69,6 +26,15 @@
     <title>REWealth-en</title>
     <link rel="icon" type="image/svg+xml" href="images/wealthyfyx-logo.svg" />
     <HeadOutlet />
+
+    @* Load AdSense script early in the host document head to avoid document.write / DOM mutation conflicts with Blazor renderer. *@
+    @if (!string.IsNullOrWhiteSpace(AdOptions.Value.ClientId))
+    {
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=@AdOptions.Value.ClientId" crossorigin="anonymous"></script>
+        <script>
+            try { console.log('App: AdSense script added to head (client @AdOptions.Value.ClientId)'); } catch(e) { }
+        </script>
+    }
 </head>
 <body>
     <CascadingAuthenticationState>
@@ -78,6 +44,7 @@
     <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/excelExport.js"></script>
     <script src="js/cookieHandlerExtension.js"></script>
+    <script src="js/adLoader.js"></script>
 </body>
 
 </html>
