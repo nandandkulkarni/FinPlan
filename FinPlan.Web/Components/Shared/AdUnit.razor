@@ -1,12 +1,13 @@
-@using FinPlan.Web.Config
+﻿@using FinPlan.Web.Config
 @using Microsoft.Extensions.Options
 @inject IJSRuntime JSRuntime
 @inject IOptions<AdSettings> AdOptions
+@inject NavigationManager Navigation
 
-@* Render a container. Only mark it with data-ad-type when no AdSense client is configured so local adLoader can insert placeholders.
-   When an AdSense client exists we allow the native ins/adsbygoogle flow to run. *@
-<div data-ad-type="@(string.IsNullOrEmpty(AdClient) ? "adsbygoogle" : null)" class="adunit-container" style="@Style">
-    @if (ShouldRenderAd)
+@* Only add data-ad-type when AdSense is NOT configured (for placeholder test ads).
+   When real AdSense is active, omit data-ad-type to prevent adLoader.js interference. *@
+<div data-ad-type="@(ShouldShowPlaceholder ? "adsbygoogle" : "")" class="adunit-container" style="@Style" @ref="containerRef">
+    @if (ShouldRenderAd && !IsLocalhost)
     {
         <ins class="adsbygoogle @Class"
              style="width:100%;height:100%;display:block;"
@@ -15,7 +16,16 @@
              data-ad-format="@Format"
              data-full-width-responsive="@Responsive"
              data-adtest="@AdTest"
-             data-ad-layout-key="@LayoutKey"></ins>
+             data-ad-layout-key="@LayoutKey"
+             @ref="adElementRef"></ins>
+    }
+    else if (IsLocalhost && !string.IsNullOrEmpty(AdClient))
+    {
+        <div class="adunit-placeholder p-3 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; min-height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">🚫 AdSense Blocked on Localhost</div>
+            <div style="font-size: 0.75rem; opacity: 0.9;">Google blocks localhost. Deploy to see real ads.</div>
+            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem;">Slot: @(string.IsNullOrEmpty(ResolvedSlot) ? "default" : ResolvedSlot)</div>
+        </div>
     }
     else if (!string.IsNullOrEmpty(PlaceholderText))
     {
@@ -24,12 +34,21 @@
 </div>
 
 @code {
+    private ElementReference containerRef;
+    private ElementReference adElementRef;
     private AdSettings Settings => AdOptions.Value;
     private string? AdClient => string.IsNullOrWhiteSpace(Settings.ClientId) ? null : Settings.ClientId;
     private string? ResolvedSlot => !string.IsNullOrWhiteSpace(Slot) ? Slot : Settings.DefaultSlot;
     private string? AdTest => Settings.UseTestAds ? "on" : null;
-    // Allow rendering when client id is present. Empty slot IDs are valid for Google's test ads.
-    private bool ShouldRenderAd => !string.IsNullOrWhiteSpace(AdClient);
+    
+    // Check if running on localhost
+    private bool IsLocalhost => Navigation.Uri.Contains("localhost") || Navigation.Uri.Contains("127.0.0.1");
+    
+    // Show placeholder when on localhost OR when no AdClient configured
+    private bool ShouldShowPlaceholder => string.IsNullOrEmpty(AdClient) || IsLocalhost;
+    
+    // Allow rendering when client id is present AND not on localhost
+    private bool ShouldRenderAd => !string.IsNullOrWhiteSpace(AdClient) && !IsLocalhost;
 
     [Parameter]
     public string Slot { get; set; } = string.Empty;
@@ -54,27 +73,29 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (!ShouldRenderAd)
+        if (!firstRender || !ShouldRenderAd)
         {
             return;
         }
 
         try
         {
-            // Use the safe fpAds.safePush() method designed to avoid Blazor/AdSense DOM conflicts
-            // This method includes retry logic and proper timing to avoid DOM mutation conflicts
-            await JSRuntime.InvokeVoidAsync("fpAds.safePush");
+            // Use a longer delay and requestAnimationFrame to ensure Blazor has completely finished
+            // rendering before we try to initialize the ad
+            await Task.Delay(300);
+            
+            // Push to adsbygoogle using a safer approach that waits for the next animation frame
+            await JSRuntime.InvokeVoidAsync("fpAds.safeBlazorPush");
         }
         catch (JSException ex)
         {
-            // Swallow JS initialization issues to avoid breaking the page; they can be inspected in browser console.
             System.Diagnostics.Debug.WriteLine($"AdUnit JS error: {ex.Message}");
+            Console.WriteLine($"AdUnit JS error: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"AdUnit error: {ex.Message}");
+            Console.WriteLine($"AdUnit error: {ex.Message}");
         }
     }
 }

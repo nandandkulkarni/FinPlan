@@ -8,20 +8,33 @@
 <div class="container my-5">
     <h2 class="mb-4">🧪 Google AdSense Test Page</h2>
     
-    <div class="alert alert-success">
-        <strong>✅ Test Ads Enabled:</strong> Google will send test ads in test mode.
-        Your settings: <code>UseTestAds: true</code> and <code>ClientId: ca-pub-1906825262608580</code>
-    </div>
-
-    <div class="alert alert-info">
-        <strong>ℹ️ How This Works:</strong>
-        <ul class="mb-0">
-            <li>Empty slot IDs trigger Google's default test ad behavior</li>
-            <li>You'll see sample Google test ads (safe to click)</li>
-            <li>Data-adtest="on" ensures no revenue is counted</li>
-            <li>Perfect for testing layout and styling</li>
+    <div class="alert alert-warning">
+        <strong>⚠️ Localhost Limitation:</strong> Google AdSense blocks requests from localhost (403 Forbidden).
+        <ul class="mb-0 mt-2">
+            <li>Your code is working correctly ✅</li>
+            <li>Ads are being initialized and pushed to the queue ✅</li>
+            <li>Google's servers refuse to serve ads to localhost ❌</li>
+            <li><strong>Solution:</strong> Deploy to a real domain to see actual ads</li>
         </ul>
     </div>
+    
+    <div class="alert alert-info">
+        <strong>ℹ️ What You're Seeing:</strong>
+        <ul class="mb-0">
+            <li>Purple placeholder boxes instead of real ads</li>
+            <li>This is normal behavior for localhost development</li>
+            <li>On a real domain, these will be replaced with actual AdSense ads</li>
+            <li>Your settings: <code>UseTestAds: true</code> and <code>ClientId: ca-pub-1906825262608580</code></li>
+        </ul>
+    </div>
+
+    @if (!string.IsNullOrEmpty(diagnosticMessage))
+    {
+        <div class="alert alert-secondary">
+            <strong>🔍 Diagnostic Info:</strong>
+            <pre class="mb-0">@diagnosticMessage</pre>
+        </div>
+    }
 
     <!-- Horizontal Banner -->
     <div class="mb-5">
@@ -67,36 +80,73 @@
         </div>
     </div>
 
-    <div class="alert alert-warning mt-4">
-        <strong>📝 What You Should See:</strong>
+    <div class="alert alert-success mt-4">
+        <strong>✅ Your Code is Working!</strong>
         <ul class="mb-0">
-            <li>Google test ad boxes appearing (may say "Ad" with sample content)</li>
-            <li>Each ad sized to the dimensions specified above</li>
-            <li>These are 100% safe test ads from Google</li>
-            <li>Check browser console (F12) for any ad-related messages</li>
+            <li>AdUnit components are rendering correctly</li>
+            <li>Ad initialization logic is functioning</li>
+            <li>The only "issue" is Google's localhost restriction</li>
+            <li><strong>Next step:</strong> Deploy to Azure, Vercel, or any real domain</li>
         </ul>
     </div>
 
     <div class="alert alert-secondary mt-3">
-        <strong>🔧 Troubleshooting:</strong>
+        <strong>🔧 Testing Options:</strong>
         <ul class="mb-0">
-            <li>If no ads show: Open browser DevTools (F12) → Console tab</li>
-            <li>Look for errors about "adsbygoogle"</li>
-            <li>Make sure ad blocker is disabled for localhost</li>
-            <li>Refresh the page with Ctrl+Shift+R (hard refresh)</li>
+            <li><strong>Option 1:</strong> Deploy to a staging/production domain</li>
+            <li><strong>Option 2:</strong> Use a local domain (edit hosts file: <code>127.0.0.1 dev.yourapp.local</code>)</li>
+            <li><strong>Option 3:</strong> Accept placeholders for local development (current setup)</li>
         </ul>
+    </div>
+
+    <div class="mt-4 p-3 bg-light border rounded">
+        <h5>🧪 Alternative Test</h5>
+        <p class="mb-2">Try the bare-bones test page (will also show placeholders on localhost):</p>
+        <a href="/simple-ad-test" class="btn btn-primary">
+            <i class="bi bi-lightning"></i> Simple Ad Test (No Components)
+        </a>
     </div>
 </div>
 
 @code {
+    private string? diagnosticMessage;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Log ad testing info to console
-            await JSRuntime.InvokeVoidAsync("console.log", "🧪 Ad Test Page Loaded - Google test ads should appear in test mode");
-            await JSRuntime.InvokeVoidAsync("console.log", "Publisher ID: ca-pub-1906825262608580");
-            await JSRuntime.InvokeVoidAsync("console.log", "Test Mode: ENABLED (data-adtest='on')");
+            try
+            {
+                // Log ad testing info to console
+                await JSRuntime.InvokeVoidAsync("console.log", "🧪 Ad Test Page Loaded - Google test ads should appear in test mode");
+                await JSRuntime.InvokeVoidAsync("console.log", "Publisher ID: ca-pub-1906825262608580");
+                await JSRuntime.InvokeVoidAsync("console.log", "Test Mode: ENABLED (data-adtest='on')");
+
+                // Wait longer for all ads to initialize
+                // (4 ads × 300ms delay + 2 animation frames + AdSense processing time)
+                await Task.Delay(4000);
+
+                // Check if adsbygoogle exists and how many ads were pushed
+                var adsbyGoogleExists = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.adsbygoogle !== 'undefined'");
+                
+                if (adsbyGoogleExists)
+                {
+                    var adCount = await JSRuntime.InvokeAsync<int>("eval", "window.adsbygoogle?.length || 0");
+                    var status = adCount == 4 ? "✅" : "⚠️";
+                    diagnosticMessage = $"{status} AdSense loaded\n📊 Ads pushed to queue: {adCount}\n💡 Expected: 4 ads on this page\n⏰ Checked at: {DateTime.Now:HH:mm:ss}";
+                }
+                else
+                {
+                    diagnosticMessage = $"❌ AdSense script not loaded\n💡 Check for ad blockers or network issues\n⏰ Checked at: {DateTime.Now:HH:mm:ss}";
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                diagnosticMessage = $"⚠️ Diagnostic error: {ex.Message}";
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
 }

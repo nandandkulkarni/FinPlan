@@ -88,6 +88,43 @@
     // Usage: call window.fpAds.pushAfterRender() from Blazor after the <ins> element is in the DOM.
     window.fpAds = window.fpAds || {};
 
+    // New safer method that uses requestAnimationFrame to avoid DOM conflicts with Blazor
+    window.fpAds.safeBlazorPush = function() {
+        // Use requestAnimationFrame to wait for the browser to finish all rendering
+        // This ensures Blazor's DOM updates are complete before AdSense tries to modify the DOM
+        if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(function() {
+                // Wait one more frame to be extra safe
+                window.requestAnimationFrame(function() {
+                    try {
+                        if (window.adsbygoogle) {
+                            window.adsbygoogle = window.adsbygoogle || [];
+                            window.adsbygoogle.push({});
+                            console.log('fpAds.safeBlazorPush: Successfully pushed ad');
+                        } else {
+                            console.warn('fpAds.safeBlazorPush: adsbygoogle not available yet');
+                        }
+                    } catch (e) {
+                        console.error('fpAds.safeBlazorPush: Error pushing ad', e);
+                    }
+                });
+            });
+        } else {
+            // Fallback for browsers without requestAnimationFrame
+            setTimeout(function() {
+                try {
+                    if (window.adsbygoogle) {
+                        window.adsbygoogle = window.adsbygoogle || [];
+                        window.adsbygoogle.push({});
+                        console.log('fpAds.safeBlazorPush: Successfully pushed ad (fallback)');
+                    }
+                } catch (e) {
+                    console.error('fpAds.safeBlazorPush: Error in fallback', e);
+                }
+            }, 100);
+        }
+    };
+
     // Try to call (adsbygoogle=window.adsbygoogle||[]).push({}) when it's safe.
     window.fpAds.pushAfterRender = function(retries, delayMs) {
         retries = typeof retries === 'number' ? retries : 8;
@@ -153,5 +190,5 @@
 
     window.adLoader = { init: init };
 
-    console.log('adLoader.js: Initialized. fpAds.pushAfterRender and fpAds.safePush are available.');
+    console.log('adLoader.js: Initialized. fpAds methods available: safeBlazorPush, pushAfterRender, safePush');
 })();

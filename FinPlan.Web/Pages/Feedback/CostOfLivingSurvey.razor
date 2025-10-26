@@ -61,7 +61,7 @@
                 var client = HttpCustomClientService.CreateRetryClient(HttpClientFactory);
                 var route = Navigation.ToBaseRelativePath(Navigation.Uri);
                 string? ua = null;
-                try { ua = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent"); } catch { }
+                try { ua = await JSRuntime.InvokeAsync<string>("fpBrowserInfo.getUserAgent"); } catch { }
                 var dto = new { Page = "Survey-CostOfLiving", Route = route, UserGuid = userGuid, UserAgent = ua };
                 var json = System.Text.Json.JsonSerializer.Serialize(dto);
                 using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

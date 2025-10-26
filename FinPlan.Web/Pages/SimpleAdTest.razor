@@ -1,0 +1,216 @@
+﻿@page "/simple-ad-test"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+<PageTitle>Simple Google AdSense Test</PageTitle>
+
+<div class="container my-5">
+    <h1 class="mb-4">🧪 Simple AdSense Test (No Components)</h1>
+    
+    <div class="alert alert-info">
+        <strong>ℹ️ This is a bare-bones test page</strong>
+        <ul class="mb-0">
+            <li>No custom components - just raw HTML</li>
+            <li>AdSense script loaded in App.razor head</li>
+            <li>Ads initialized via JavaScript after Blazor render</li>
+            <li>Publisher ID: ca-pub-1906825262608580</li>
+            <li>Test Mode: data-adtest="on"</li>
+            <li>Environment: @(IsLocalhost ? "Localhost (Ads Blocked)" : "Production")</li>
+        </ul>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert alert-@(alertClass)">
+            <strong>📊 Status:</strong>
+            <pre class="mb-0">@statusMessage</pre>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(consoleOutput))
+    {
+        <div class="alert alert-secondary">
+            <strong>📋 Console Output:</strong>
+            <pre class="mb-0" style="font-size: 0.75rem; max-height: 200px; overflow-y: auto;">@consoleOutput</pre>
+        </div>
+    }
+
+    <!-- Ad 1: Horizontal Banner -->
+    <div class="mb-5">
+        <h4>Test Ad #1 - Horizontal Banner (728x90)</h4>
+        <div class="border p-3 bg-light" style="min-height: 120px;">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:728px;height:90px"
+                 data-ad-client="ca-pub-1906825262608580"
+                 data-ad-slot=""
+                 data-ad-format="horizontal"
+                 data-adtest="on"></ins>
+        </div>
+    </div>
+
+    <!-- Ad 2: Medium Rectangle -->
+    <div class="mb-5">
+        <h4>Test Ad #2 - Medium Rectangle (300x250)</h4>
+        <div class="border p-3 bg-light" style="min-height: 280px;">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:300px;height:250px"
+                 data-ad-client="ca-pub-1906825262608580"
+                 data-ad-slot=""
+                 data-adtest="on"></ins>
+        </div>
+    </div>
+
+    <!-- Ad 3: Responsive -->
+    <div class="mb-5">
+        <h4>Test Ad #3 - Responsive</h4>
+        <div class="border p-3 bg-light" style="min-height: 150px;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-1906825262608580"
+                 data-ad-slot=""
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"
+                 data-adtest="on"></ins>
+        </div>
+    </div>
+
+    <!-- Ad 4: Square -->
+    <div class="mb-5">
+        <h4>Test Ad #4 - Square (250x250)</h4>
+        <div class="border p-3 bg-light" style="min-height: 280px;">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:250px;height:250px"
+                 data-ad-client="ca-pub-1906825262608580"
+                 data-ad-slot=""
+                 data-adtest="on"></ins>
+        </div>
+    </div>
+
+    <div class="alert alert-secondary">
+        <strong>🔍 Debugging:</strong>
+        <ul class="mb-0">
+            <li>Open browser console (F12) to see initialization logs</li>
+            <li>Look for "SimpleAdInit" messages in console</li>
+            <li>Check Network tab for adsbygoogle.js loading</li>
+            <li>Verify no ad blockers are active</li>
+            <li>Console logs are also captured above</li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <a href="/ad-test" class="btn btn-secondary">← Back to Component-Based Test</a>
+    </div>
+</div>
+
+@code {
+    private string? statusMessage;
+    private string? consoleOutput;
+    private string alertClass = "info";
+    private bool IsLocalhost => Navigation.Uri.Contains("localhost") || Navigation.Uri.Contains("127.0.0.1");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var logs = new System.Text.StringBuilder();
+            
+            try
+            {
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Starting initialization...");
+                
+                // Give Blazor time to fully render the page
+                await Task.Delay(500);
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Blazor render delay complete");
+                
+                // Check if simpleAdInit is available
+                var scriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", 
+                    "typeof window.simpleAdInit !== 'undefined'");
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] simpleAdInit loaded: {scriptLoaded}");
+                
+                if (!scriptLoaded)
+                {
+                    consoleOutput = logs.ToString();
+                    statusMessage = $"❌ SCRIPT ERROR\nsimpleAdInit.js not loaded\nCheck Network tab\nTime: {DateTime.Now:HH:mm:ss}";
+                    alertClass = "danger";
+                    await InvokeAsync(StateHasChanged);
+                    return;
+                }
+                
+                // Initialize ads using the simpleAdInit.js script
+                await JSRuntime.InvokeVoidAsync("console.log", "🎯 SimpleAdTest: Calling simpleAdInit.initialize()");
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Calling simpleAdInit.initialize()");
+                
+                var initialized = await JSRuntime.InvokeAsync<bool>("simpleAdInit.initialize");
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Initialize returned: {initialized}");
+                
+                // Wait for ads to be pushed
+                await Task.Delay(3000);
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Waiting for ad initialization complete");
+
+                // Check AdSense status
+                var adsbyGoogleExists = await JSRuntime.InvokeAsync<bool>("eval", 
+                    "typeof window.adsbygoogle !== 'undefined'");
+                logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] adsbygoogle exists: {adsbyGoogleExists}");
+                
+                if (adsbyGoogleExists)
+                {
+                    var adCount = await JSRuntime.InvokeAsync<int>("eval", 
+                        "window.adsbygoogle?.length || 0");
+                    logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Queue length: {adCount}");
+                    
+                    var adElements = await JSRuntime.InvokeAsync<int>("eval",
+                        "document.querySelectorAll('.adsbygoogle').length");
+                    logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Ad elements found: {adElements}");
+                    
+                    var uninitializedAds = await JSRuntime.InvokeAsync<int>("eval",
+                        "document.querySelectorAll('.adsbygoogle:not([data-adsbygoogle-status])').length");
+                    logs.AppendLine($"[{DateTime.Now:HH:mm:ss.fff}] Uninitialized ads: {uninitializedAds}");
+
+                    consoleOutput = logs.ToString();
+
+                    if (adCount >= 4)
+                    {
+                        statusMessage = $"✅ SUCCESS!\n" +
+                                      $"Ads in queue: {adCount}\n" +
+                                      $"Ad elements found: {adElements}\n" +
+                                      $"Uninitialized: {uninitializedAds}\n" +
+                                      $"Initialized: {initialized}\n" +
+                                      $"Time: {DateTime.Now:HH:mm:ss}";
+                        alertClass = "success";
+                    }
+                    else
+                    {
+                        statusMessage = $"⚠️ PARTIAL INITIALIZATION\n" +
+                                      $"Ads in queue: {adCount} (expected: 4)\n" +
+                                      $"Ad elements found: {adElements}\n" +
+                                      $"Uninitialized: {uninitializedAds}\n" +
+                                      $"Initialized: {initialized}\n" +
+                                      $"Environment: {(IsLocalhost ? "localhost" : "production")}\n" +
+                                      $"Time: {DateTime.Now:HH:mm:ss}";
+                        alertClass = "warning";
+                    }
+                }
+                else
+                {
+                    consoleOutput = logs.ToString();
+                    statusMessage = $"❌ FAILED\n" +
+                                  $"AdSense script not loaded\n" +
+                                  $"Check if script is blocked\n" +
+                                  $"Initialized: {initialized}\n" +
+                                  $"Time: {DateTime.Now:HH:mm:ss}";
+                    alertClass = "danger";
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                consoleOutput = logs.ToString() + $"\n[ERROR] {ex.Message}\n{ex.StackTrace}";
+                statusMessage = $"⚠️ ERROR\n{ex.Message}\nTime: {DateTime.Now:HH:mm:ss}";
+                alertClass = "danger";
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+}
