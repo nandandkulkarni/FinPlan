@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Ads\" />
     <Folder Include="Components\Shared\" />
     <Folder Include="Models\" />
   </ItemGroup>
