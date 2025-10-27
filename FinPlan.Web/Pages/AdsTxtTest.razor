@@ -1,0 +1,146 @@
+@page "/ads-txt-test"
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+
+<PageTitle>ads.txt Test</PageTitle>
+
+<div class="container my-5">
+    <h2>?? ads.txt Verification</h2>
+    
+    <div class="alert alert-info">
+        <strong>?? What This Page Does:</strong>
+        <p>This page helps you verify that your ads.txt file is properly accessible.</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center my-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Checking ads.txt...</p>
+        </div>
+    }
+    else
+    {
+        @if (isSuccess)
+        {
+            <div class="alert alert-success">
+                <h4>? ads.txt is accessible!</h4>
+                <p><strong>URL:</strong> <a href="@adsUrl" target="_blank">@adsUrl</a></p>
+                <p class="mb-0"><strong>Status:</strong> HTTP @statusCode</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <strong>?? File Content:</strong>
+                </div>
+                <div class="card-body">
+                    <pre style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">@fileContent</pre>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3">
+                <strong>? Note:</strong> It may take 24-48 hours for Google AdSense to crawl and verify your ads.txt file after deployment.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <h4>? ads.txt is NOT accessible</h4>
+                <p><strong>URL:</strong> <a href="@adsUrl" target="_blank">@adsUrl</a></p>
+                <p><strong>Status:</strong> @statusCode</p>
+                <p class="mb-0"><strong>Error:</strong> @errorMessage</p>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>?? Troubleshooting Steps:</strong>
+                <ol>
+                    <li>Ensure the file is deployed to your production server</li>
+                    <li>Check that wwwroot/ads.txt exists in your deployment</li>
+                    <li>Verify your web server is configured to serve .txt files</li>
+                    <li>Test the URL directly: <a href="@adsUrl" target="_blank">@adsUrl</a></li>
+                </ol>
+            </div>
+        }
+    }
+
+    <div class="mt-4">
+        <button class="btn btn-primary" @onclick="TestAgain">
+            ?? Test Again
+        </button>
+        <a href="/" class="btn btn-secondary ms-2">? Back to Home</a>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <strong>?? Expected ads.txt Format:</strong>
+        </div>
+        <div class="card-body">
+            <pre style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">google.com, pub-1906825262608580, DIRECT, f08c47fec0942fa0</pre>
+            <p class="mb-0 small text-muted">
+                Format: <code>domain, publisher_id, relationship, certification_authority_id</code>
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool isSuccess = false;
+    private string? fileContent;
+    private string? errorMessage;
+    private int statusCode;
+    private string adsUrl = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TestAdsTxt();
+    }
+
+    private async Task TestAgain()
+    {
+        isLoading = true;
+        StateHasChanged();
+        await Task.Delay(500); // Brief delay for UI feedback
+        await TestAdsTxt();
+    }
+
+    private async Task TestAdsTxt()
+    {
+        try
+        {
+            var baseUri = new Uri(Navigation.BaseUri);
+            adsUrl = $"{baseUri.Scheme}://{baseUri.Host}{(baseUri.Port != 80 && baseUri.Port != 443 ? $":{baseUri.Port}" : "")}/ads.txt";
+
+            using var client = new HttpClient();
+            var response = await client.GetAsync(adsUrl);
+            statusCode = (int)response.StatusCode;
+
+            if (response.IsSuccessStatusCode)
+            {
+                fileContent = await response.Content.ReadAsStringAsync();
+                isSuccess = true;
+                errorMessage = null;
+            }
+            else
+            {
+                isSuccess = false;
+                errorMessage = $"HTTP {statusCode} - {response.ReasonPhrase}";
+                fileContent = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            statusCode = 0;
+            errorMessage = ex.Message;
+            fileContent = null;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

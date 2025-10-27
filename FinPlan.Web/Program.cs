@@ -11,6 +11,7 @@ using System.Net;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -262,7 +263,23 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = new List<CultureInfo> { new CultureInfo("en-US") }
 });
 
-app.UseStaticFiles();
+// Configure static files with proper MIME type for ads.txt
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".txt"] = "text/plain";
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider,
+    OnPrepareResponse = ctx =>
+    {
+        // Ensure ads.txt is served with correct headers
+        if (ctx.File.Name.Equals("ads.txt", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers.Append("Content-Type", "text/plain; charset=utf-8");
+            ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        }
+    }
+});
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
@@ -270,6 +287,24 @@ app.MapRazorComponents<App>()
 app.MapControllers();
 
 app.MapDefaultEndpoints();
+
+// Explicitly map ads.txt endpoint to ensure it's accessible
+app.MapGet("/ads.txt", async (HttpContext context) =>
+{
+    var filePath = Path.Combine(app.Environment.WebRootPath, "ads.txt");
+    
+    if (File.Exists(filePath))
+    {
+        context.Response.ContentType = "text/plain; charset=utf-8";
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        await context.Response.SendFileAsync(filePath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("ads.txt not found");
+    }
+});
 
 // Test logging
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
