@@ -183,6 +183,8 @@
 
     /* Mobile tab navigation improvements */
     @@media (max-width: 767px) {
+        /* Sidebar ad columns are now hidden server-side via conditional rendering instead of CSS */
+
         .nav-tabs {
             flex-wrap: nowrap;
             overflow-x: auto;

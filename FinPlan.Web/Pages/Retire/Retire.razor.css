@@ -1,0 +1,13 @@
+/* Mobile responsive styles - hide sidebar ads on mobile */
+@media (max-width: 767px) {
+    /* Hide left and right sidebar ads on mobile */
+    .col-12.col-md-2 {
+        display: none !important;
+    }
+
+    /* Make main content full width when sidebars are hidden */
+    .col-12.col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}

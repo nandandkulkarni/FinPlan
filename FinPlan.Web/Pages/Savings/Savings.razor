@@ -112,18 +112,21 @@
         <div class="top-area">
             <div class="container-fluid">
                 <div class="row g-3">
-                    <div class="col-12 col-md-2">
-                        <!-- Ad Placement: Left Sidebar -->
-                        <div class="mb-3">
-                            <AdUnit Slot="2499101058"
-                                    Style="display:inline-block; width:160px; height:600px; margin: 0 auto;"
-                                    Format="vertical"
-                                    Responsive="false"
-                                    PlaceholderText="Advertisement"></AdUnit>
+                    @if (!isMobileDevice)
+                    {
+                        <div class="col-12 col-md-2">
+                            <!-- Ad Placement: Left Sidebar -->
+                            <div class="mb-3">
+                                <AdUnit Slot="2499101058"
+                                        Style="display:inline-block; width:160px; height:600px; margin: 0 auto;"
+                                        Format="vertical"
+                                        Responsive="false"
+                                        PlaceholderText="Advertisement"></AdUnit>
+                            </div>
                         </div>
-                    </div>
+                    }
 
-                    <div class="col-12 col-md-8">
+                    <div class="@(isMobileDevice ? "col-12" : "col-12 col-md-8")">
                         <!-- Tab Navigation -->
                         <ul class="nav nav-tabs">
                             <li class="nav-item d-flex align-items-center me-1 @(activeTab == "your" ? "tab-item-active" : "")" role="presentation">
@@ -208,16 +211,19 @@
                     </div>
 
                     <!-- Right column-->
-                    <div class="col-12 col-md-2">
-                        <!-- Ad Placement: Right Sidebar Top -->
-                        <div class="mb-3">
-                            <AdUnit Slot="2576204242"
-                                    Style="display:inline-block; width:160px; height:600px; margin: 0 auto;"
-                                    Format="vertical"
-                                    Responsive="false"
-                                    PlaceholderText="Advertisement"></AdUnit>
+                    @if (!isMobileDevice)
+                    {
+                        <div class="col-12 col-md-2">
+                            <!-- Ad Placement: Right Sidebar Top -->
+                            <div class="mb-3">
+                                <AdUnit Slot="2576204242"
+                                        Style="display:inline-block; width:160px; height:600px; margin: 0 auto;"
+                                        Format="vertical"
+                                        Responsive="false"
+                                        PlaceholderText="Advertisement"></AdUnit>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
@@ -291,6 +297,7 @@
     private int wizardOpenStep = 1;
     private bool showSampleDataModal = false;
     private bool showRightDebug = false;
+    private bool isMobileDevice = false; // Add mobile detection flag
 
     public SavingsCalculatorModel SavingsModel { get; set; } = new();
     public CalendarSpendingModel RetirementModel { get; set; } = new();
@@ -340,6 +347,16 @@
                 userGuid = await UserGuidService.GetOrCreateUserGuidAsync();
                 // Track page view once per first render
                 _ = TrackPageViewAsync();
+
+                // Detect if mobile device
+                try
+                {
+                    isMobileDevice = await JSRuntime.InvokeAsync<bool>("eval", "window.matchMedia && window.matchMedia('(max-width: 767px)').matches");
+                }
+                catch
+                {
+                    isMobileDevice = false; // Default to desktop if detection fails
+                }
 
                 await LoadAsync();
                 // New: seed savings ages from retirement backend when savings ages are empty
