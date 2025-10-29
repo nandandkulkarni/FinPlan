@@ -8,15 +8,8 @@
 @using FinPlan.Web.Services
 @using FinPlan.Web.Components.Shared
 
-@* @inject IHttpClientFactory HttpClientFactory
-@inject IConfiguration Configuration
-@inject IJSRuntime JSRuntime
-@inject FinPlan.Web.Services.UserGuidService UserGuidService
-@inject NavigationManager Navigation
-@inject FinPlan.Web.Services.ApiUrlProvider ApiUrlProvider *@
+<link href="./Pages/CostOfLiving/CostOfLiving.mobile.css" rel="stylesheet" />
 
-@* Replace the inline modal with the reusable component *@
-@* Replace previous component invocation with explicit C# expressions so Blazor doesn't emit invalid attribute names *@
 <EditAssumptionsModal Visible="@showAssumptionsModal"
                       YearsToRetirement="@YearsToRetirement"
                       InflationRate="@InflationRate"
@@ -579,53 +572,50 @@
 
                     <br />
 
-
-
                     <!-- Totals Strip: Current and Retirement side by side -->
                     <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-3">
-                        <div class="totals-strip d-flex align-items-center justify-content-center gap-4 mb-2">
-                            <div class="totals-box bg-primary bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
-                                <span class="totals-label d-flex align-items-center">
-                                    Current Total
-                                    <span class="bi bi-info-circle text-warning ms-2"
-                                          style="cursor: pointer; font-size: .95rem;"
-                                          title="What is this?"
-                                          @onclick="() => showTipCurrentTotal = !showTipCurrentTotal"></span>
-                                </span>
-                                <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
-                            </div>
-                            <div class="totals-box bg-success bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
-                                <span class="totals-label d-flex align-items-center">
-                                    Retirement Total
-                                    <span class="bi bi-info-circle text-warning ms-2"
-                                          style="cursor: pointer; font-size: .95rem;"
-                                          title="What is this?"
-                                          @onclick="() => showTipRetirementTotal = !showTipRetirementTotal"></span>
-                                </span>
-                                <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
-                            </div>
+                        <div class="totals-box bg-primary bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
+                            <span class="totals-label d-flex align-items-center">
+                                Current Total
+                                <span class="bi bi-info-circle text-warning ms-2"
+                                      style="cursor: pointer; font-size: .95rem;"
+                                      title="What is this?"
+                                      @onclick="() => showTipCurrentTotal = !showTipCurrentTotal"></span>
+                            </span>
+                            <span class="totals-value">@FormatCurrency(TotalCurrentPerMonth)</span>
                         </div>
-
-                        @if (showTipCurrentTotal)
-                        {
-                            <div class="alert alert-info py-2 px-3 mb-2 small text-center" style="max-width:640px; margin:0 auto;">
-                                Current Total is the sum of all items converted to monthly values across categories.
-                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCurrentTotal = false">
-                                    <span class="bi bi-x-lg"></span>
-                                </span>
-                            </div>
-                        }
-                        @if (showTipRetirementTotal)
-                        {
-                            <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
-                                Retirement Total is the projected monthly amount at retirement using each item’s adjustment and inflation.
-                                Years to retirement: <b>@YearsToRetirement</b>, Global inflation: <b>@InflationRate%</b>.
-                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipRetirementTotal = false">
-                                    <span class="bi bi-x-lg"></span>
-                                </span>
-                            </div>
-                        }
+                        <div class="totals-box bg-success bg-opacity-75 text-white px-4 py-3 d-flex flex-column align-items-center">
+                            <span class="totals-label d-flex align-items-center">
+                                Retirement Total
+                                <span class="bi bi-info-circle text-warning ms-2"
+                                      style="cursor: pointer; font-size: .95rem;"
+                                      title="What is this?"
+                                      @onclick="() => showTipRetirementTotal = !showTipRetirementTotal"></span>
+                            </span>
+                            <span class="totals-value">@FormatCurrency(TotalRetirement)</span>
+                        </div>
                     </div>
+
+                    @if (showTipCurrentTotal)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-2 small text-center" style="max-width:640px; margin:0 auto;">
+                            Current Total is the sum of all items converted to monthly values across categories.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCurrentTotal = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+                    @if (showTipRetirementTotal)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                            Retirement Total is the projected monthly amount at retirement using each item's adjustment and inflation.
+                            Years to retirement: <b>@YearsToRetirement</b>, Global inflation: <b>@InflationRate%</b>.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipRetirementTotal = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
+                        </div>
+                    }
+
                     <div class="d-flex justify-content-center mb-3">
                         <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
                             <button class="btn btn-success btn-sm rounded-pill px-4 fw-semibold shadow-sm" style="height:32px; font-size:1.04rem;"
@@ -637,41 +627,40 @@
                                   title="What is this?"
                                   @onclick="() => showTipAddCategory = !showTipAddCategory"></span>
                         </div>
-                        @if (showTipAddCategory)
-                        {
-                            <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
-                                Add a new category to group related items (e.g., Housing, Food). You can add items inside it afterwards.
-                                <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAddCategory = false">
-                                    <span class="bi bi-x-lg"></span>
-                                </span>
-                            </div>
-                        }
                     </div>
-                    <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                        <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                                    title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
-                                    @onclick="ToggleCollapseAllCategories">
-                                <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                                <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
-                            </button>
-                            <span class="bi bi-info-circle text-info ms-2"
-                                  style="cursor: pointer; font-size: 1rem;"
-                                  title="What is this?"
-                                  @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                    @if (showTipAddCategory)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 small text-center" style="max-width:640px; margin:0 auto;">
+                            Add a new category to group related items (e.g., Housing, Food). You can add items inside it afterwards.
+                            <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipAddCategory = false">
+                                <span class="bi bi-x-lg"></span>
+                            </span>
                         </div>
-                        @if (showTipCollapseAll)
-                        {
-                            <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
-                                @(AnyCategoryExpanded()
-                                                            ? "Collapse all categories to condense the view."
-                                                            : "Expand all categories to view every item at once.")
+                    }
+
+                    <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
+                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                                title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
+                                @onclick="ToggleCollapseAllCategories">
+                            <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                            <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
+                        </button>
+                        <span class="bi bi-info-circle text-info ms-2"
+                              style="cursor: pointer; font-size: 1rem;"
+                              title="What is this?"
+                              @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
+                    </div>
+                    @if (showTipCollapseAll)
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
+                            @(AnyCategoryExpanded()
+                                                ? "Collapse all categories to condense the view."
+                                                : "Expand all categories to view every item at once.")
                             <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
                                 <span class="bi bi-x-lg"></span>
                             </span>
                         </div>
-                                                }
-                    </div>
+                    }
 
 
                 
@@ -840,31 +829,6 @@
                     </div>
                 }
 
-                <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                    <div class="d-flex align-items-center mb-2" style="margin-left: 8px;">
-                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                                title="@(AnyCategoryExpanded() ? "Collapse all categories" : "Expand all categories")"
-                                @onclick="ToggleCollapseAllCategories">
-                            <span class="bi @(AnyCategoryExpanded() ? "bi-chevron-up" : "bi-chevron-down")"></span>
-                            <span>@(AnyCategoryExpanded() ? "Collapse All" : "Expand All")</span>
-                        </button>
-                        <span class="bi bi-info-circle text-info ms-2"
-                              style="cursor: pointer; font-size: 1rem;"
-                              title="What is this?"
-                              @onclick="() => showTipCollapseAll = !showTipCollapseAll"></span>
-                    </div>
-                    @if (showTipCollapseAll)
-                    {
-                        <div class="alert alert-info py-2 px-3 mb-2 small" style="max-width:640px; margin-left:8px;">
-                            @(AnyCategoryExpanded()
-                                                    ? "Collapse all categories to condense the view."
-                                                    : "Expand all categories to view every item at once.")
-                        <span class="float-end" style="cursor:pointer;" title="Close" @onclick="() => showTipCollapseAll = false">
-                            <span class="bi bi-x-lg"></span>
-                        </span>
-                    </div>
-                                        }
-                </div>
             </div>
             <!-- Right column (2) -->
             <div class="col-12 col-md-2">
@@ -902,14 +866,3 @@
         </div>
     </div>
 </div>
-
-@code {
-  
-}
-
-
-
-
-
-
-

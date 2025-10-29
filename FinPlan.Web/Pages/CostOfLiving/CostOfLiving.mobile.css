@@ -1,0 +1,73 @@
+/* Mobile-specific fixes for CostOfLiving page */
+
+/* Fix for mode toggle and action buttons that don't play nice on mobile */
+@media (max-width: 767px) {
+    /* Override absolute positioning on mobile - stack elements naturally */
+    .tab-panel-box > .position-absolute {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        left: auto !important;
+        margin-bottom: 12px;
+        width: 100%;
+    }
+
+    /* Mode toggle container - ensure full width */
+    .tab-panel-box > .position-absolute[style*="right: 280px"] {
+        width: 100%;
+        order: 1;
+    }
+
+        /* Mode toggle inner styling */
+        .tab-panel-box > .position-absolute[style*="right: 280px"] > div {
+            width: 100% !important;
+            justify-content: space-between;
+            padding: 12px 16px !important;
+            border-radius: 8px;
+        }
+
+    /* Action buttons container */
+    .tab-panel-box > .position-absolute[style*="right: 10px"] {
+        width: 100%;
+        order: 2;
+    }
+
+        /* Stack buttons vertically */
+        .tab-panel-box > .position-absolute[style*="right: 10px"].d-flex {
+            flex-direction: column;
+            gap: 8px !important;
+            width: 100%;
+        }
+
+        /* Full width buttons with proper touch targets */
+        .tab-panel-box > .position-absolute[style*="right: 10px"] button {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+        }
+
+    /* Ensure toggle switch is large enough */
+    .tab-panel-box .form-check-input {
+        min-width: 48px;
+        min-height: 28px;
+    }
+
+    /* Better label sizing on mobile */
+    .tab-panel-box .form-check-label {
+        font-size: 0.9rem;
+    }
+}
+
+/* Very small screens - even more compact */
+@media (max-width: 575px) {
+    .tab-panel-box > .position-absolute[style*="right: 280px"] > div {
+        padding: 10px 12px !important;
+        gap: 8px !important;
+    }
+
+    .tab-panel-box > .position-absolute[style*="right: 10px"] button {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+}

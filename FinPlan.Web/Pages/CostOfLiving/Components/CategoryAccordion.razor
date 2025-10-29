@@ -80,24 +80,36 @@
                         <th class="fw-bold text-center align-middle" style="width:140px; font-weight: bold !important;">
                             @(IsSimpleMode ? "Expense" : "Item")
                         </th>
-                        <th class="fw-bold text-center align-middle complex-column" style="width:120px; font-weight: bold !important;">
-                            @(IsSimpleMode ? "How Often" : "Frequency")<br /><span class="small">@(IsSimpleMode ? "" : "(Units)")</span>
-                        </th>
-                        <th class="fw-bold text-end align-middle complex-column" style="width:140px; font-weight: bold !important;">
-                            @(IsSimpleMode ? "Amount" : "Per Unit")<br /><span class="small">($)</span>
-                        </th>
+                        
+                        @* Show frequency columns only in advanced mode *@
+                        @if (!IsSimpleMode)
+                        {
+                            <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">
+                                Frequency<br /><span class="small">(Units)</span>
+                            </th>
+                            <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">
+                                Per Unit<br /><span class="small">($)</span>
+                            </th>
+                        }
+                        
                         <th class="fw-bold text-end align-middle" style="width:140px; font-weight: bold !important;">
                             @(IsSimpleMode ? "Monthly Cost" : "Per Month")<br /><span class="small">($)</span>
                         </th>
                         <th class="fw-bold text-center align-middle" style="width:120px; font-weight: bold !important;">
                             @(IsSimpleMode ? "Retirement?" : "Include In")<br /><span class="small">@(IsSimpleMode ? "" : "Retirement")</span>
                         </th>
-                        <th class="fw-bold text-center align-middle complex-column" style="width:320px; font-weight: bold !important;">
-                            Retirement<br /><span class="small">Adjustment</span>
-                        </th>
-                        <th class="fw-bold text-center align-middle complex-column" style="width:160px; font-weight: bold !important;">
-                            Inflation<br /><span class="small">Rate (%)</span>
-                        </th>
+                        
+                        @* Show retirement adjustment columns only in advanced mode *@
+                        @if (!IsSimpleMode)
+                        {
+                            <th class="fw-bold text-center align-middle" style="width:320px; font-weight: bold !important;">
+                                Retirement<br /><span class="small">Adjustment</span>
+                            </th>
+                            <th class="fw-bold text-center align-middle" style="width:160px; font-weight: bold !important;">
+                                Inflation<br /><span class="small">Rate (%)</span>
+                            </th>
+                        }
+                        
                         <th class="fw-bold text-end align-middle" style="width:180px; font-weight: bold !important;">
                             @(IsSimpleMode ? "Future Cost" : "Retirement")<br /><span class="small">@(IsSimpleMode ? "($)" : "Value")</span>
                         </th>
@@ -120,8 +132,14 @@
                                 </div>
                             </td>
                             <td class="text-left align-middle">@item.Subcategory</td>
-                            <td class="text-center align-middle complex-column" style="width:120px;">@item.Frequency</td>
-                            <td class="text-end align-middle complex-column" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                            
+                            @* Show frequency columns only in advanced mode *@
+                            @if (!IsSimpleMode)
+                            {
+                                <td class="text-center align-middle" style="width:120px;">@item.Frequency</td>
+                                <td class="text-end align-middle" style="width:140px;">@FormatCurrency(item.CurrentValue)</td>
+                            }
+                            
                             <td class="text-end align-middle" style="width:140px;">
                                 <span class="fw-bold">@FormatCurrency(item.GetMonthlyEquivalent)</span>
                             </td>
@@ -149,40 +167,46 @@
                                     }
                                 }
                             </td>
-                            <td class="text-center align-middle complex-column" style="width:320px;">
-                                @if (item.IncludeInRetirement)
-                                {
-                                    @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                            
+                            @* Show retirement adjustment columns only in advanced mode *@
+                            @if (!IsSimpleMode)
+                            {
+                                <td class="text-center align-middle" style="width:320px;">
+                                    @if (item.IncludeInRetirement)
                                     {
-                                        <span>@item.CustomPercentage%</span>
+                                        @if (item.AdjustOption == RetirementAdjustOption.CustomPercentage)
+                                        {
+                                            <span>@item.CustomPercentage%</span>
+                                        }
+                                        else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                        {
+                                            <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
+                                        }
+                                        else if (item.AdjustOption == RetirementAdjustOption.Same)
+                                        {
+                                            <span>No change</span>
+                                        }
+                                        else if (item.AdjustOption == RetirementAdjustOption.Inflation)
+                                        {
+                                            <span>Inflation</span>
+                                        }
                                     }
-                                    else if (item.AdjustOption == RetirementAdjustOption.Manual)
+                                </td>
+                                <td class="text-center align-middle" style="width:160px;">
+                                    @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
                                     {
-                                        <span>@FormatCurrency(item.ManualRetirementValue ?? 0)</span>
+                                        @if (item.PerItemInflationSource == InflationSource.UseGlobal)
+                                        {
+                                            <span>@GlobalInflationRate%</span>
+                                        }
+                                        else if (item.PerItemInflationSource == InflationSource.Custom)
+                                        {
+                                            <span>@item.PerItemInflationPercent%</span>
+                                        }
                                     }
-                                    else if (item.AdjustOption == RetirementAdjustOption.Same)
-                                    {
-                                        <span>No change</span>
-                                    }
-                                    else if (item.AdjustOption == RetirementAdjustOption.Inflation)
-                                    {
-                                        <span>Inflation</span>
-                                    }
-                                }
-                            </td>
-                            <td class="text-center align-middle complex-column" style="width:160px;">
-                                @if (item.IncludeInRetirement && item.AdjustOption == RetirementAdjustOption.Inflation)
-                                {
-                                    @if (item.PerItemInflationSource == InflationSource.UseGlobal)
-                                    {
-                                        <span>@GlobalInflationRate%</span>
-                                    }
-                                    else if (item.PerItemInflationSource == InflationSource.Custom)
-                                    {
-                                        <span>@item.PerItemInflationPercent%</span>
-                                    }
-                                }
-                            </td>
+                                </td>
+                            }
+                            
                             <td class="text-end align-middle" style="width:180px;">
                                 <span class="fw-bold">@FormatCurrency(item.GetRetirementValue(YearsToRetirement, GlobalInflationRate))</span>
                             </td>
