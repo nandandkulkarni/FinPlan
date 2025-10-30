@@ -1,5 +1,49 @@
 /* Quick Retirement Calculator Styles */
 
+/* Header Navigation */
+.quick-retirement-header {
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+}
+
+.header-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    text-decoration: none;
+}
+
+.header-brand:hover {
+    color: #667eea;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.header-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.header-link:hover {
+    text-decoration: underline;
+}
+
 .quick-retirement-container {
     max-width: 900px;
     margin: 0 auto;
@@ -281,12 +325,16 @@
 
 .confidence-range {
     margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
 }
 
 .range-label {
     font-weight: 600;
-    margin-bottom: 1rem;
-    color: #555;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.1rem;
 }
 
 .range-visual {
@@ -295,13 +343,27 @@
 
 .range-bar {
     position: relative;
-    height: 60px;
+    height: 80px;
     background: linear-gradient(to right, #ffc107 0%, #28a745 50%, #17a2b8 100%);
-    border-radius: 30px;
+    border-radius: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 1rem;
+    padding: 0 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.range-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-50%);
+    z-index: 0;
 }
 
 .range-point {
@@ -310,14 +372,24 @@
     align-items: center;
     color: white;
     font-weight: 700;
-    font-size: 1rem;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    font-size: 1.1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 1;
+}
+
+.range-point::before {
+    content: '●';
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    display: block;
 }
 
 .range-point small {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.85rem;
+    font-weight: 600;
     margin-top: 0.25rem;
+    text-transform: capitalize;
 }
 
 .income-projection {
@@ -422,6 +494,19 @@
 .assumption-actions {
     margin-top: 1.5rem;
     text-align: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
 }
 
 /* Detailed Scenarios */
@@ -509,8 +594,21 @@
     .range-bar {
         flex-direction: column;
         height: auto;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 1.5rem;
+        padding: 2rem 1rem;
+        border-radius: 20px;
+    }
+    
+    .range-bar::before {
+        display: none;
+    }
+    
+    .range-point {
+        font-size: 1rem;
+    }
+    
+    .range-point::before {
+        font-size: 1.2rem;
     }
     
     .detailed-scenarios {

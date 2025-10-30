@@ -34,35 +34,34 @@
                 At age @Result.RetirementAge, you'll have around <strong>@FormatCurrency(Result.MostLikelySavings)</strong> saved
             </p>
             
-            @if (Result.Status == RetirementStatus.NeedsWork)
+            @if (Result.Status == RetirementStatus.NeedsWork || Result.Status == RetirementStatus.Close)
             {
                 <div class="shortfall-warning">
                     <p>You need: ~@FormatCurrency(Result.TargetSavings) for comfortable retirement</p>
                     <p class="warning-text">⚠️ Shortfall: @FormatCurrency(Result.TargetSavings - Result.MostLikelySavings)</p>
                 </div>
             }
-            else
-            {
-                <div class="confidence-range">
-                    <p class="range-label">Confidence Range:</p>
-                    <div class="range-visual">
-                        <div class="range-bar">
-                            <span class="range-point conservative">
-                                @FormatCurrency(Result.ConservativeSavings)
-                                <small>Conservative</small>
-                            </span>
-                            <span class="range-point likely">
-                                @FormatCurrency(Result.MostLikelySavings)
-                                <small>Most Likely</small>
-                            </span>
-                            <span class="range-point optimistic">
-                                @FormatCurrency(Result.OptimisticSavings)
-                                <small>Optimistic</small>
-                            </span>
-                        </div>
+            
+            <!-- Always show confidence range -->
+            <div class="confidence-range">
+                <p class="range-label">Confidence Range:</p>
+                <div class="range-visual">
+                    <div class="range-bar">
+                        <span class="range-point conservative">
+                            @FormatCurrency(Result.ConservativeSavings)
+                            <small>Conservative</small>
+                        </span>
+                        <span class="range-point likely">
+                            @FormatCurrency(Result.MostLikelySavings)
+                            <small>Most Likely</small>
+                        </span>
+                        <span class="range-point optimistic">
+                            @FormatCurrency(Result.OptimisticSavings)
+                            <small>Optimistic</small>
+                        </span>
                     </div>
                 </div>
-            }
+            </div>
         </div>
         
         @if (Result.Status == RetirementStatus.OnTrack || Result.Status == RetirementStatus.Close)
@@ -139,6 +138,9 @@
                 </ul>
                 
                 <div class="assumption-actions">
+                    <button class="btn btn-success" @onclick="HandleAssumptionsConfirmed">
+                        ✓ These look right
+                    </button>
                     <button class="btn btn-secondary" @onclick="OnRecalculate">
                         Let me adjust these →
                     </button>
@@ -257,6 +259,13 @@
     private void ToggleScenarios()
     {
         _showDetailedScenarios = !_showDetailedScenarios;
+    }
+    
+    private async Task HandleAssumptionsConfirmed()
+    {
+        // User confirmed the assumptions are correct
+        // Could track this event or proceed to start tracking
+        await OnStartTracking.InvokeAsync();
     }
     
     private string FormatCurrency(decimal amount)
