@@ -12,7 +12,7 @@
             <div class="input-wrapper">
                 <input type="number" 
                        id="employer-match" 
-                       @bind="Input.Employer401kMatchPercent" 
+                       @bind="_employerMatch" 
                        @bind:event="oninput"
                        min="0" 
                        max="100" 
@@ -29,7 +29,7 @@
             <div class="input-wrapper">
                 <input type="number" 
                        id="pretax-percentage" 
-                       @bind="Input.PreTaxSavingsPercentage" 
+                       @bind="_preTaxPercentage" 
                        @bind:event="oninput"
                        min="0" 
                        max="100" 
@@ -47,7 +47,7 @@
                 <span class="input-prefix">$</span>
                 <input type="number" 
                        id="other-income" 
-                       @bind="Input.OtherRetirementIncome" 
+                       @bind="_otherIncome" 
                        @bind:event="oninput"
                        min="0" 
                        step="100"
@@ -80,20 +80,31 @@
     [Parameter]
     public EventCallback OnSkip { get; set; }
 
+    private decimal _employerMatch = 0;
+    private decimal _preTaxPercentage = 0;
+    private decimal _otherIncome = 0;
+
+    protected override void OnParametersSet()
+    {
+        _employerMatch = Input.Employer401kMatchPercent ?? 0;
+        _preTaxPercentage = Input.PreTaxSavingsPercentage ?? 0;
+        _otherIncome = Input.OtherRetirementIncome ?? 0;
+    }
+
     private bool IsValid =>
-        Input.Employer401kMatchPercent.HasValue &&
-        Input.Employer401kMatchPercent >= 0 &&
-        Input.Employer401kMatchPercent <= 100 &&
-        Input.PreTaxSavingsPercentage.HasValue &&
-        Input.PreTaxSavingsPercentage >= 0 &&
-        Input.PreTaxSavingsPercentage <= 100 &&
-        Input.OtherRetirementIncome.HasValue &&
-        Input.OtherRetirementIncome >= 0;
+        _employerMatch >= 0 &&
+        _employerMatch <= 100 &&
+        _preTaxPercentage >= 0 &&
+        _preTaxPercentage <= 100 &&
+        _otherIncome >= 0;
 
     private async Task HandleRefine()
     {
         if (IsValid)
         {
+            Input.Employer401kMatchPercent = _employerMatch;
+            Input.PreTaxSavingsPercentage = _preTaxPercentage;
+            Input.OtherRetirementIncome = _otherIncome;
             await OnRefine.InvokeAsync();
         }
     }

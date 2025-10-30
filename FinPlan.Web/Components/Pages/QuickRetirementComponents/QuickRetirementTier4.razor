@@ -13,7 +13,7 @@
                 <span class="input-prefix">$</span>
                 <input type="number" 
                        id="social-security" 
-                       @bind="Input.ExpectedSocialSecurity" 
+                       @bind="_socialSecurity" 
                        @bind:event="oninput"
                        min="0" 
                        step="50"
@@ -74,7 +74,7 @@
                 <span class="input-prefix">$</span>
                 <input type="number" 
                        id="healthcare-cost" 
-                       @bind="Input.MonthlyHealthcareCost" 
+                       @bind="_healthcareCost" 
                        @bind:event="oninput"
                        min="0" 
                        step="50"
@@ -110,17 +110,29 @@
     [Parameter]
     public decimal EstimatedSS { get; set; }
 
+    private decimal _socialSecurity = 0;
+    private decimal _healthcareCost = 0;
+
+    protected override void OnParametersSet()
+    {
+        _socialSecurity = Input.ExpectedSocialSecurity ?? 0;
+        _healthcareCost = Input.MonthlyHealthcareCost ?? 0;
+        
+        // If no risk tolerance selected yet, don't set a default
+        // User must actively choose one
+    }
+
     private bool IsValid =>
-        Input.ExpectedSocialSecurity.HasValue &&
-        Input.ExpectedSocialSecurity >= 0 &&
+        _socialSecurity >= 0 &&
         Input.RiskTolerance.HasValue &&
-        Input.MonthlyHealthcareCost.HasValue &&
-        Input.MonthlyHealthcareCost >= 0;
+        _healthcareCost >= 0;
 
     private async Task HandleRefine()
     {
         if (IsValid)
         {
+            Input.ExpectedSocialSecurity = _socialSecurity > 0 ? _socialSecurity : null;
+            Input.MonthlyHealthcareCost = _healthcareCost;
             await OnRefine.InvokeAsync();
         }
     }

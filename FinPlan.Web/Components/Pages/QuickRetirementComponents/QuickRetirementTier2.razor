@@ -12,7 +12,7 @@
             <div class="input-wrapper">
                 <input type="number" 
                        id="retirement-age" 
-                       @bind="Input.DesiredRetirementAge" 
+                       @bind="_retirementAge" 
                        @bind:event="oninput"
                        min="50" 
                        max="75" 
@@ -29,7 +29,7 @@
                 <span class="input-prefix">$</span>
                 <input type="number" 
                        id="monthly-income" 
-                       @bind="Input.ActualMonthlyIncome" 
+                       @bind="_monthlyIncome" 
                        @bind:event="oninput"
                        min="0" 
                        step="100"
@@ -45,7 +45,7 @@
                 <span class="input-prefix">$</span>
                 <input type="number" 
                        id="monthly-expenses" 
-                       @bind="Input.ActualMonthlyExpenses" 
+                       @bind="_monthlyExpenses" 
                        @bind:event="oninput"
                        min="0" 
                        step="100"
