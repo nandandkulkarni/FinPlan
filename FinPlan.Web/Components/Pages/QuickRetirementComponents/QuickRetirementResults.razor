@@ -107,7 +107,7 @@
             </div>
             
             <div class="action-button">
-                <button class="btn btn-primary" @onclick="OnRecalculate">
+                <button class="btn btn-primary" @onclick="ToggleRefinement">
                     Show Me a Detailed Plan →
                 </button>
             </div>
@@ -141,10 +141,20 @@
                     <button class="btn btn-success" @onclick="HandleAssumptionsConfirmed">
                         ✓ These look right
                     </button>
-                    <button class="btn btn-secondary" @onclick="OnRecalculate">
+                    <button class="btn btn-secondary" @onclick="ToggleRefinement">
                         Let me adjust these →
                     </button>
                 </div>
+                
+                @if (_showRefinement)
+                {
+                    <QuickRetirementRefinement 
+                        CurrentInput="CurrentInput"
+                        EstimatedIncome="Result.EstimatedMonthlyIncome"
+                        EstimatedExpenses="Result.EstimatedMonthlyExpenses"
+                        OnRecalculate="HandleRefinedRecalculate"
+                        OnCancel="ToggleRefinement" />
+                }
             </div>
         }
         else
@@ -249,16 +259,25 @@
     public RetirementCalculationResult Result { get; set; } = default!;
     
     [Parameter]
-    public EventCallback OnRecalculate { get; set; }
+    public RetirementInput CurrentInput { get; set; } = default!;
+    
+    [Parameter]
+    public EventCallback<RetirementInput> OnRecalculate { get; set; }
     
     [Parameter]
     public EventCallback OnStartTracking { get; set; }
     
     private bool _showDetailedScenarios = false;
+    private bool _showRefinement = false;
     
     private void ToggleScenarios()
     {
         _showDetailedScenarios = !_showDetailedScenarios;
+    }
+    
+    private void ToggleRefinement()
+    {
+        _showRefinement = !_showRefinement;
     }
     
     private async Task HandleAssumptionsConfirmed()
@@ -266,6 +285,12 @@
         // User confirmed the assumptions are correct
         // Could track this event or proceed to start tracking
         await OnStartTracking.InvokeAsync();
+    }
+    
+    private async Task HandleRefinedRecalculate(RetirementInput refinedInput)
+    {
+        _showRefinement = false;
+        await OnRecalculate.InvokeAsync(refinedInput);
     }
     
     private string FormatCurrency(decimal amount)

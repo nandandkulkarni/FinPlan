@@ -509,6 +509,65 @@
     background: #218838;
 }
 
+.btn-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+}
+
+.btn-link:hover {
+    color: #5568d3;
+}
+
+/* Refinement Section */
+.refinement-section {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #f0f7ff;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+}
+
+.refinement-section h3 {
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.refinement-intro {
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.refinement-form .form-group {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.refinement-form label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.05rem;
+}
+
+.impact-text {
+    color: #667eea !important;
+    font-weight: 600;
+    font-size: 0.95rem !important;
+}
+
+.refinement-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 /* Detailed Scenarios */
 .detailed-scenarios {
     display: flex;

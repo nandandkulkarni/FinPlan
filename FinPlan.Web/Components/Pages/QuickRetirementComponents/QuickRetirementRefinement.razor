@@ -1,0 +1,109 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="refinement-section">
+    <h3>🎯 Get More Accurate Results</h3>
+    <p class="refinement-intro">
+        These numbers are based on estimates. Answer 3 quick questions to see your real retirement picture.
+    </p>
+
+    <div class="refinement-form">
+        <div class="form-group">
+            <label for="retirement-age">1. When do you want to retire?</label>
+            <div class="input-wrapper">
+                <input type="number" 
+                       id="retirement-age" 
+                       @bind="_retirementAge" 
+                       min="55" 
+                       max="80" 
+                       class="form-control" />
+                <span class="input-suffix">years old</span>
+            </div>
+            <small class="help-text impact-text">💡 Each extra year adds ~$100K to your savings</small>
+        </div>
+
+        <div class="form-group">
+            <label for="actual-income">2. What's your monthly income (before taxes)?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="actual-income" 
+                       @bind="_monthlyIncome" 
+                       min="0" 
+                       step="100"
+                       class="form-control with-prefix"
+                       placeholder="@EstimatedIncome.ToString("N0")" />
+            </div>
+            <small class="help-text impact-text">💡 Helps estimate Social Security & taxes accurately</small>
+        </div>
+
+        <div class="form-group">
+            <label for="actual-expenses">3. How much do you spend per month?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="actual-expenses" 
+                       @bind="_monthlyExpenses" 
+                       min="0" 
+                       step="100"
+                       class="form-control with-prefix"
+                       placeholder="@EstimatedExpenses.ToString("N0")" />
+            </div>
+            <small class="help-text impact-text">💡 Shows if your retirement savings will be enough</small>
+        </div>
+
+        <div class="refinement-actions">
+            <button class="btn btn-primary btn-large" @onclick="HandleRecalculate">
+                Recalculate My Results →
+            </button>
+            <button class="btn btn-link" @onclick="OnCancel">
+                Never mind, keep estimates
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RetirementInput CurrentInput { get; set; } = default!;
+    
+    [Parameter]
+    public decimal EstimatedIncome { get; set; }
+    
+    [Parameter]
+    public decimal EstimatedExpenses { get; set; }
+    
+    [Parameter]
+    public EventCallback<RetirementInput> OnRecalculate { get; set; }
+    
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    
+    private int _retirementAge = 65;
+    private decimal? _monthlyIncome;
+    private decimal? _monthlyExpenses;
+    
+    protected override void OnParametersSet()
+    {
+        // Pre-fill with current values or defaults
+        _retirementAge = CurrentInput.DesiredRetirementAge ?? 65;
+        _monthlyIncome = CurrentInput.ActualMonthlyIncome ?? EstimatedIncome;
+        _monthlyExpenses = CurrentInput.ActualMonthlyExpenses ?? EstimatedExpenses;
+    }
+    
+    private async Task HandleRecalculate()
+    {
+        // Update the input with refined values
+        var refinedInput = new RetirementInput
+        {
+            CurrentAge = CurrentInput.CurrentAge,
+            CurrentSavings = CurrentInput.CurrentSavings,
+            MonthlySavings = CurrentInput.MonthlySavings,
+            HasPartner = CurrentInput.HasPartner,
+            DesiredRetirementAge = _retirementAge,
+            ActualMonthlyIncome = _monthlyIncome > 0 ? _monthlyIncome : null,
+            ActualMonthlyExpenses = _monthlyExpenses > 0 ? _monthlyExpenses : null
+        };
+        
+        await OnRecalculate.InvokeAsync(refinedInput);
+    }
+}

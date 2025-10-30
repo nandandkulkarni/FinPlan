@@ -27,6 +27,7 @@
     {
         <QuickRetirementResults 
             Result="_calculationResult"
+            CurrentInput="_currentInput"
             OnRecalculate="HandleRecalculate"
             OnStartTracking="HandleStartTracking" />
     }
@@ -35,16 +36,28 @@
 @code {
     private bool _showResults = false;
     private RetirementCalculationResult? _calculationResult;
+    private RetirementInput? _currentInput;
 
     private void HandleCalculate(RetirementInput input)
     {
+        _currentInput = input;
         _calculationResult = CalculateRetirement(input);
         _showResults = true;
     }
 
-    private void HandleRecalculate()
+    private void HandleRecalculate(RetirementInput? refinedInput = null)
     {
-        _showResults = false;
+        if (refinedInput != null)
+        {
+            // User refined their inputs, recalculate with new data
+            _currentInput = refinedInput;
+            _calculationResult = CalculateRetirement(refinedInput);
+        }
+        else
+        {
+            // User wants to start over
+            _showResults = false;
+        }
     }
 
     private void HandleStartTracking()

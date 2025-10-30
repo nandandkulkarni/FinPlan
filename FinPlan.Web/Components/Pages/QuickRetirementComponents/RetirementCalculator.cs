@@ -16,18 +16,36 @@ public class RetirementCalculator
     {
         var result = new RetirementCalculationResult
         {
-            RetirementAge = DEFAULT_RETIREMENT_AGE
+            RetirementAge = input.DesiredRetirementAge ?? DEFAULT_RETIREMENT_AGE
         };
         
         // Calculate derived values
         var multiplier = input.HasPartner ? PARTNER_INCOME_MULTIPLIER : 1.0m;
         var expenseMultiplier = input.HasPartner ? PARTNER_EXPENSE_MULTIPLIER : 1.0m;
         
-        result.EstimatedMonthlyIncome = input.MonthlySavings / SAVINGS_RATE_ASSUMPTION * multiplier;
-        result.EstimatedMonthlyExpenses = (result.EstimatedMonthlyIncome - input.MonthlySavings * multiplier) / expenseMultiplier * expenseMultiplier;
-        result.EstimatedSocialSecurity = GetSocialSecurityEstimate(input.CurrentAge) * (input.HasPartner ? PARTNER_SS_MULTIPLIER : 1.0m);
+        // Use actual income if provided, otherwise estimate from savings
+        if (input.ActualMonthlyIncome.HasValue && input.ActualMonthlyIncome.Value > 0)
+        {
+            result.EstimatedMonthlyIncome = input.ActualMonthlyIncome.Value;
+        }
+        else
+        {
+            result.EstimatedMonthlyIncome = input.MonthlySavings / SAVINGS_RATE_ASSUMPTION * multiplier;
+        }
         
-        var yearsUntilRetirement = DEFAULT_RETIREMENT_AGE - input.CurrentAge;
+        // Use actual expenses if provided, otherwise estimate from income
+        if (input.ActualMonthlyExpenses.HasValue && input.ActualMonthlyExpenses.Value > 0)
+        {
+            result.EstimatedMonthlyExpenses = input.ActualMonthlyExpenses.Value;
+        }
+        else
+        {
+            result.EstimatedMonthlyExpenses = (result.EstimatedMonthlyIncome - input.MonthlySavings * multiplier) / expenseMultiplier * expenseMultiplier;
+        }
+        
+        result.EstimatedSocialSecurity = GetSocialSecurityEstimate(input.CurrentAge, result.EstimatedMonthlyIncome) * (input.HasPartner ? PARTNER_SS_MULTIPLIER : 1.0m);
+        
+        var yearsUntilRetirement = result.RetirementAge - input.CurrentAge;
         var monthsUntilRetirement = yearsUntilRetirement * 12;
         
         // Conservative scenario (5% return, 4% inflation, 90% savings)
@@ -204,17 +222,30 @@ public class RetirementCalculator
         return shortfall / (decimal)denominator;
     }
     
-    private decimal GetSocialSecurityEstimate(int currentAge)
+    private decimal GetSocialSecurityEstimate(int currentAge, decimal monthlyIncome)
     {
-        // Simplified social security estimates based on age
-        // Younger people may see lower benefits due to system changes
+        // Base estimate on age
+        decimal baseEstimate;
         if (currentAge < 40)
-            return 1500m; // Conservative for younger workers
+            baseEstimate = 1500m; // Conservative for younger workers
         else if (currentAge < 50)
-            return 1700m;
+            baseEstimate = 1700m;
         else if (currentAge < 60)
-            return 1800m;
+            baseEstimate = 1800m;
         else
-            return 1900m;
+            baseEstimate = 1900m;
+        
+        // Adjust based on income (SS is progressive but income-based)
+        // Average earner (~$4K/month) gets base estimate
+        // Higher earners get more, but capped
+        var incomeAdjustment = 1.0m;
+        if (monthlyIncome > 6000)
+            incomeAdjustment = 1.3m; // Higher earner, but SS caps benefits
+        else if (monthlyIncome > 4000)
+            incomeAdjustment = 1.15m;
+        else if (monthlyIncome < 2500)
+            incomeAdjustment = 0.75m; // Lower earner
+        
+        return baseEstimate * incomeAdjustment;
     }
 }
