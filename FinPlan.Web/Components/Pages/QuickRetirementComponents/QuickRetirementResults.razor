@@ -107,12 +107,18 @@
             </div>
             
             <div class="action-button">
-                <button class="btn btn-primary" @onclick="ToggleRefinement">
-                    Show Me a Detailed Plan →
-                </button>
+                <p class="action-note">👇 Answer 3 more questions below to get a personalized plan</p>
             </div>
         </div>
     }
+
+    <!-- Refinement Section - Always Visible -->
+    <QuickRetirementRefinement 
+        CurrentInput="CurrentInput"
+        EstimatedIncome="Result.EstimatedMonthlyIncome"
+        EstimatedExpenses="Result.EstimatedMonthlyExpenses"
+        OnRecalculate="HandleRefinedRecalculate"
+        OnCancel="HandleSkipRefinement" />
 
     <!-- Assumptions Section -->
     <div class="result-section assumptions">
@@ -141,20 +147,7 @@
                     <button class="btn btn-success" @onclick="HandleAssumptionsConfirmed">
                         ✓ These look right
                     </button>
-                    <button class="btn btn-secondary" @onclick="ToggleRefinement">
-                        Let me adjust these →
-                    </button>
                 </div>
-                
-                @if (_showRefinement)
-                {
-                    <QuickRetirementRefinement 
-                        CurrentInput="CurrentInput"
-                        EstimatedIncome="Result.EstimatedMonthlyIncome"
-                        EstimatedExpenses="Result.EstimatedMonthlyExpenses"
-                        OnRecalculate="HandleRefinedRecalculate"
-                        OnCancel="ToggleRefinement" />
-                }
             </div>
         }
         else
@@ -268,16 +261,10 @@
     public EventCallback OnStartTracking { get; set; }
     
     private bool _showDetailedScenarios = false;
-    private bool _showRefinement = false;
     
     private void ToggleScenarios()
     {
         _showDetailedScenarios = !_showDetailedScenarios;
-    }
-    
-    private void ToggleRefinement()
-    {
-        _showRefinement = !_showRefinement;
     }
     
     private async Task HandleAssumptionsConfirmed()
@@ -289,8 +276,14 @@
     
     private async Task HandleRefinedRecalculate(RetirementInput refinedInput)
     {
-        _showRefinement = false;
         await OnRecalculate.InvokeAsync(refinedInput);
+    }
+    
+    private void HandleSkipRefinement()
+    {
+        // User chose to skip refinement
+        // Could scroll to assumptions or CTA section
+        // For now, do nothing - they can continue reading
     }
     
     private string FormatCurrency(decimal amount)

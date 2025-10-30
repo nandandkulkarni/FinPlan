@@ -459,6 +459,13 @@
     text-align: center;
 }
 
+.action-note {
+    color: #667eea;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
 /* Assumptions */
 .assumptions-header {
     display: flex;

@@ -3,12 +3,12 @@
 <div class="refinement-section">
     <h3>🎯 Get More Accurate Results</h3>
     <p class="refinement-intro">
-        These numbers are based on estimates. Answer 3 quick questions to see your real retirement picture.
+        Answer 3 more questions to refine your retirement projection. We'll use these along with what you already told us.
     </p>
 
     <div class="refinement-form">
         <div class="form-group">
-            <label for="retirement-age">1. When do you want to retire?</label>
+            <label for="retirement-age">What age do you want to retire?</label>
             <div class="input-wrapper">
                 <input type="number" 
                        id="retirement-age" 
@@ -18,11 +18,11 @@
                        class="form-control" />
                 <span class="input-suffix">years old</span>
             </div>
-            <small class="help-text impact-text">💡 Each extra year adds ~$100K to your savings</small>
+            <small class="help-text impact-text">💡 Each extra year working adds ~$100K to your nest egg</small>
         </div>
 
         <div class="form-group">
-            <label for="actual-income">2. What's your monthly income (before taxes)?</label>
+            <label for="actual-income">What's your monthly income (before taxes)?</label>
             <div class="input-wrapper">
                 <span class="input-prefix">$</span>
                 <input type="number" 
@@ -31,13 +31,13 @@
                        min="0" 
                        step="100"
                        class="form-control with-prefix"
-                       placeholder="@EstimatedIncome.ToString("N0")" />
+                       placeholder="Enter your actual income" />
             </div>
-            <small class="help-text impact-text">💡 Helps estimate Social Security & taxes accurately</small>
+            <small class="help-text impact-text">💡 We estimated ~@FormatCurrency(EstimatedIncome) - your actual helps calculate Social Security accurately</small>
         </div>
 
         <div class="form-group">
-            <label for="actual-expenses">3. How much do you spend per month?</label>
+            <label for="actual-expenses">How much do you spend per month?</label>
             <div class="input-wrapper">
                 <span class="input-prefix">$</span>
                 <input type="number" 
@@ -46,17 +46,17 @@
                        min="0" 
                        step="100"
                        class="form-control with-prefix"
-                       placeholder="@EstimatedExpenses.ToString("N0")" />
+                       placeholder="Enter your spending" />
             </div>
-            <small class="help-text impact-text">💡 Shows if your retirement savings will be enough</small>
+            <small class="help-text impact-text">💡 We estimated ~@FormatCurrency(EstimatedExpenses) - knowing your actual spending shows if savings will be enough</small>
         </div>
 
         <div class="refinement-actions">
-            <button class="btn btn-primary btn-large" @onclick="HandleRecalculate">
-                Recalculate My Results →
+            <button class="btn btn-primary btn-large" @onclick="HandleRecalculate" disabled="@(!IsValid)">
+                Recalculate with Better Data →
             </button>
             <button class="btn btn-link" @onclick="OnCancel">
-                Never mind, keep estimates
+                Skip this, keep my results
             </button>
         </div>
     </div>
@@ -82,28 +82,47 @@
     private decimal? _monthlyIncome;
     private decimal? _monthlyExpenses;
     
+    private bool IsValid => _retirementAge >= 55 && _retirementAge <= 80;
+    
     protected override void OnParametersSet()
     {
-        // Pre-fill with current values or defaults
+        // Pre-fill retirement age if already provided, otherwise default to 65
         _retirementAge = CurrentInput.DesiredRetirementAge ?? 65;
-        _monthlyIncome = CurrentInput.ActualMonthlyIncome ?? EstimatedIncome;
-        _monthlyExpenses = CurrentInput.ActualMonthlyExpenses ?? EstimatedExpenses;
+        // Leave income and expenses empty - user needs to actively provide these
+        _monthlyIncome = CurrentInput.ActualMonthlyIncome;
+        _monthlyExpenses = CurrentInput.ActualMonthlyExpenses;
     }
     
     private async Task HandleRecalculate()
     {
-        // Update the input with refined values
+        // Update the input with refined values - ADDITIVE approach
         var refinedInput = new RetirementInput
         {
+            // Keep original basic inputs
             CurrentAge = CurrentInput.CurrentAge,
             CurrentSavings = CurrentInput.CurrentSavings,
             MonthlySavings = CurrentInput.MonthlySavings,
             HasPartner = CurrentInput.HasPartner,
+            
+            // Add new refined inputs
             DesiredRetirementAge = _retirementAge,
-            ActualMonthlyIncome = _monthlyIncome > 0 ? _monthlyIncome : null,
-            ActualMonthlyExpenses = _monthlyExpenses > 0 ? _monthlyExpenses : null
+            ActualMonthlyIncome = _monthlyIncome.HasValue && _monthlyIncome.Value > 0 ? _monthlyIncome : null,
+            ActualMonthlyExpenses = _monthlyExpenses.HasValue && _monthlyExpenses.Value > 0 ? _monthlyExpenses : null
         };
         
         await OnRecalculate.InvokeAsync(refinedInput);
     }
+    
+    private string FormatCurrency(decimal amount)
+    {
+        if (amount >= 1000)
+        {
+            return $"${amount:N0}";
+        }
+        else
+        {
+            return $"${amount:N0}";
+        }
+    }
 }
+
