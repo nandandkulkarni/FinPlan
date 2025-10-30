@@ -1,0 +1,54 @@
+@page "/quick-retirement"
+@using FinPlan.Web.Components.Pages.QuickRetirementComponents
+@rendermode InteractiveServer
+
+<PageTitle>Quick Retirement Calculator - FinPlan</PageTitle>
+
+<link href="css/quick-retirement.css" rel="stylesheet" />
+
+<div class="quick-retirement-container">
+    @if (!_showResults)
+    {
+        <QuickRetirementForm 
+            OnCalculate="HandleCalculate" />
+    }
+    else
+    {
+        <QuickRetirementResults 
+            Result="_calculationResult"
+            OnRecalculate="HandleRecalculate"
+            OnStartTracking="HandleStartTracking" />
+    }
+</div>
+
+@code {
+    private bool _showResults = false;
+    private RetirementCalculationResult? _calculationResult;
+
+    private void HandleCalculate(RetirementInput input)
+    {
+        _calculationResult = CalculateRetirement(input);
+        _showResults = true;
+    }
+
+    private void HandleRecalculate()
+    {
+        _showResults = false;
+    }
+
+    private void HandleStartTracking()
+    {
+        // Navigate to full app signup/onboarding
+        // For now, navigate to home
+        NavigationManager.NavigateTo("/");
+    }
+
+    private RetirementCalculationResult CalculateRetirement(RetirementInput input)
+    {
+        var calculator = new RetirementCalculator();
+        return calculator.Calculate(input);
+    }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

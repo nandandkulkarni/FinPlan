@@ -238,11 +238,74 @@
     .step-header .summary-money {
         margin: 0;
     }
+
+    .quick-retirement-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .quick-retirement-banner h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .quick-retirement-banner p {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.95;
+    }
+
+    .quick-retirement-banner .btn {
+        font-size: 1.2rem;
+        padding: 14px 40px;
+        font-weight: 700;
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .quick-retirement-banner .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        background: #f8f9fa;
+    }
+
+    @@media (max-width: 768px) {
+        .quick-retirement-banner h2 {
+            font-size: 1.5rem;
+        }
+        
+        .quick-retirement-banner p {
+            font-size: 1rem;
+        }
+        
+        .quick-retirement-banner .btn {
+            font-size: 1rem;
+            padding: 12px 30px;
+        }
+    }
 </style>
 
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-lg-10 mx-auto">
+            <!-- Quick Retirement Calculator Banner -->
+            <div class="quick-retirement-banner">
+                <h2>🎯 Will You Have Enough to Retire?</h2>
+                <p>Find out in 2 minutes - no signup required</p>
+                <NavLink href="/quick-retirement" class="btn">
+                    Check Your Retirement Readiness →
+                </NavLink>
+            </div>
+
             <div class="row g-4">
                 <div class="col-md-4 mb-4">
                     <div class="card feature-card h-100">

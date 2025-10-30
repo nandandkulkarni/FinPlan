@@ -1,0 +1,100 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="hero-section">
+    <h1>🎯 Will You Have Enough to Retire?</h1>
+    <p class="subtitle">Find out in 2 minutes - no signup required</p>
+</div>
+
+<div class="form-container">
+    <h2>Tell us a bit about yourself:</h2>
+
+    <div class="form-group">
+        <label for="age">1. How old are you?</label>
+        <div class="input-wrapper">
+            <input type="number" 
+                   id="age" 
+                   @bind="_input.CurrentAge" 
+                   min="18" 
+                   max="100" 
+                   class="form-control" />
+            <span class="input-suffix">years</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="savings">2. How much have you saved for retirement?</label>
+        <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" 
+                   id="savings" 
+                   @bind="_input.CurrentSavings" 
+                   min="0" 
+                   step="1000"
+                   class="form-control with-prefix" 
+                   placeholder="0" />
+        </div>
+        <small class="help-text">💡 Include 401k, IRA, savings, investments</small>
+    </div>
+
+    <div class="form-group">
+        <label for="monthly-savings">3. How much do you save per month for retirement?</label>
+        <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" 
+                   id="monthly-savings" 
+                   @bind="_input.MonthlySavings" 
+                   min="0" 
+                   step="50"
+                   class="form-control with-prefix"
+                   placeholder="0" />
+        </div>
+    </div>
+
+    <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+            <input type="checkbox" 
+                   @bind="_input.HasPartner" />
+            <span class="checkbox-text">Planning retirement with a spouse/partner</span>
+        </label>
+        <small class="help-text">💡 We'll adjust for combined income and shared expenses</small>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn-primary" 
+                @onclick="HandleSubmit"
+                disabled="@(!IsValid)">
+            Calculate My Retirement →
+        </button>
+    </div>
+</div>
+
+<div class="existing-user-link">
+    Already tracking finances? <a href="/">Go to Dashboard →</a>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<RetirementInput> OnCalculate { get; set; }
+
+    private RetirementInput _input = new()
+    {
+        CurrentAge = 35,
+        CurrentSavings = 50000,
+        MonthlySavings = 600,
+        HasPartner = false
+    };
+
+    private bool IsValid => 
+        _input.CurrentAge >= 18 && 
+        _input.CurrentAge <= 100 &&
+        _input.CurrentSavings >= 0 &&
+        _input.MonthlySavings >= 0;
+
+    private async Task HandleSubmit()
+    {
+        if (IsValid)
+        {
+            await OnCalculate.InvokeAsync(_input);
+        }
+    }
+}

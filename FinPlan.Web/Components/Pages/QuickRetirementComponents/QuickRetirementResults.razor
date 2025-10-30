@@ -1,0 +1,289 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="results-header">
+    @if (Result.Status == RetirementStatus.OnTrack)
+    {
+        <div class="status-banner status-green">
+            <h1>🟢 You're On Track!</h1>
+            <p>You're projected to retire comfortably</p>
+        </div>
+    }
+    else if (Result.Status == RetirementStatus.Close)
+    {
+        <div class="status-banner status-yellow">
+            <h1>🟡 You're Close, But Could Save More</h1>
+            <p>Small changes now = big impact later</p>
+        </div>
+    }
+    else
+    {
+        <div class="status-banner status-red">
+            <h1>🔴 Let's Get You On Track</h1>
+            <p>Don't worry - we'll show you exactly what to do</p>
+        </div>
+    }
+</div>
+
+<div class="results-content">
+    <!-- Savings Projection Section -->
+    <div class="result-section savings-projection">
+        <h2>📊 Your Retirement Savings Projection</h2>
+        
+        <div class="projection-main">
+            <p class="projection-headline">
+                At age @Result.RetirementAge, you'll have around <strong>@FormatCurrency(Result.MostLikelySavings)</strong> saved
+            </p>
+            
+            @if (Result.Status == RetirementStatus.NeedsWork)
+            {
+                <div class="shortfall-warning">
+                    <p>You need: ~@FormatCurrency(Result.TargetSavings) for comfortable retirement</p>
+                    <p class="warning-text">⚠️ Shortfall: @FormatCurrency(Result.TargetSavings - Result.MostLikelySavings)</p>
+                </div>
+            }
+            else
+            {
+                <div class="confidence-range">
+                    <p class="range-label">Confidence Range:</p>
+                    <div class="range-visual">
+                        <div class="range-bar">
+                            <span class="range-point conservative">
+                                @FormatCurrency(Result.ConservativeSavings)
+                                <small>Conservative</small>
+                            </span>
+                            <span class="range-point likely">
+                                @FormatCurrency(Result.MostLikelySavings)
+                                <small>Most Likely</small>
+                            </span>
+                            <span class="range-point optimistic">
+                                @FormatCurrency(Result.OptimisticSavings)
+                                <small>Optimistic</small>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        @if (Result.Status == RetirementStatus.OnTrack || Result.Status == RetirementStatus.Close)
+        {
+            <div class="income-projection">
+                <h3>💰 Monthly Retirement Income</h3>
+                <p class="income-range">
+                    @FormatCurrency(Result.ConservativeMonthlyIncome) - @FormatCurrency(Result.OptimisticMonthlyIncome) per month
+                </p>
+                <p class="income-likely">(Most likely: @FormatCurrency(Result.MostLikelyMonthlyIncome)/month)</p>
+            </div>
+            
+            <div class="good-news">
+                <h3>✅ Good News!</h3>
+                <ul>
+                    <li>Even in the worst case, your money lasts until age @Result.ConservativeMoneyLastsUntil</li>
+                    <li>In the most likely scenario, you're covered past age @Result.MostLikelyMoneyLastsUntil</li>
+                    <li>You have a @FormatCurrency(Result.MinSafetyCushion) - @FormatCurrency(Result.MaxSafetyCushion) safety cushion above minimum needs</li>
+                </ul>
+            </div>
+        }
+    </div>
+
+    <!-- Action Items for Not On Track -->
+    @if (Result.Status == RetirementStatus.NeedsWork || Result.Status == RetirementStatus.Close)
+    {
+        <div class="result-section action-items">
+            <h2>💡 How to Get On Track</h2>
+            
+            <div class="action-option">
+                <strong>Option 1: Increase monthly savings</strong>
+                <p>Save an extra <strong>@FormatCurrency(Result.AdditionalMonthlySavingsNeeded)/month</strong> → Reach @FormatCurrency(Result.TargetSavings) ✓</p>
+            </div>
+            
+            <div class="action-option">
+                <strong>Option 2: Work 2 more years</strong>
+                <p>Retire at @(Result.RetirementAge + 2) instead of @Result.RetirementAge → On track ✓</p>
+            </div>
+            
+            <div class="action-option">
+                <strong>Option 3: Reduce retirement expenses</strong>
+                <p>Plan for @FormatCurrency(Result.ReducedMonthlyExpenses)/month instead of @FormatCurrency(Result.ProjectedMonthlyExpenses) → On track ✓</p>
+            </div>
+            
+            <div class="action-button">
+                <button class="btn btn-primary" @onclick="OnRecalculate">
+                    Show Me a Detailed Plan →
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Assumptions Section -->
+    <div class="result-section assumptions">
+        <div class="assumptions-header">
+            <h2>📋 What We Assumed</h2>
+            <button class="link-button" @onclick="ToggleScenarios">
+                @(_showDetailedScenarios ? "Hide scenarios ▲" : "See all scenarios ▼")
+            </button>
+        </div>
+        
+        @if (!_showDetailedScenarios)
+        {
+            <div class="assumptions-summary">
+                <p>Based on your input, we estimated:</p>
+                <ul>
+                    <li>Your income: ~@FormatCurrency(Result.EstimatedMonthlyIncome)/month</li>
+                    <li>Your expenses: ~@FormatCurrency(Result.EstimatedMonthlyExpenses)/month</li>
+                    <li>Retirement age: @Result.RetirementAge</li>
+                    <li>Investment returns: 5-9% annually</li>
+                    <li>Inflation: 2-4% annually</li>
+                    <li>Social Security: ~@FormatCurrency(Result.EstimatedSocialSecurity)/month at 67</li>
+                    <li>Retirement expenses: 80% of current (adjusted for inflation)</li>
+                </ul>
+                
+                <div class="assumption-actions">
+                    <button class="btn btn-secondary" @onclick="OnRecalculate">
+                        Let me adjust these →
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="detailed-scenarios">
+                <!-- Conservative Scenario -->
+                <div class="scenario-card scenario-conservative">
+                    <h3>😰 Conservative Scenario (If markets struggle)</h3>
+                    
+                    <div class="scenario-assumptions">
+                        <strong>Assumptions:</strong>
+                        <ul>
+                            <li>5% investment returns</li>
+                            <li>4% inflation rate</li>
+                            <li>You save 10% less than planned</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="scenario-results">
+                        <strong>Results:</strong>
+                        <ul>
+                            <li>Retirement savings: @FormatCurrency(Result.ConservativeSavings)</li>
+                            <li>Monthly income: @FormatCurrency(Result.ConservativeMonthlyIncome)</li>
+                            <li>Money lasts until: Age @Result.ConservativeMoneyLastsUntil</li>
+                            <li>Status: @GetScenarioStatus(Result.ConservativeMoneyLastsUntil)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Most Likely Scenario -->
+                <div class="scenario-card scenario-likely">
+                    <h3>😊 Most Likely Scenario (Historical averages) ← DEFAULT</h3>
+                    
+                    <div class="scenario-assumptions">
+                        <strong>Assumptions:</strong>
+                        <ul>
+                            <li>7% investment returns</li>
+                            <li>3% inflation rate</li>
+                            <li>You maintain current savings rate</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="scenario-results">
+                        <strong>Results:</strong>
+                        <ul>
+                            <li>Retirement savings: @FormatCurrency(Result.MostLikelySavings)</li>
+                            <li>Monthly income: @FormatCurrency(Result.MostLikelyMonthlyIncome)</li>
+                            <li>Money lasts until: Age @Result.MostLikelyMoneyLastsUntil@(Result.MostLikelyMoneyLastsUntil >= 95 ? "+" : "")</li>
+                            <li>Status: @GetScenarioStatus(Result.MostLikelyMoneyLastsUntil)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Optimistic Scenario -->
+                <div class="scenario-card scenario-optimistic">
+                    <h3>🎉 Optimistic Scenario (If markets do well)</h3>
+                    
+                    <div class="scenario-assumptions">
+                        <strong>Assumptions:</strong>
+                        <ul>
+                            <li>9% investment returns</li>
+                            <li>2% inflation rate</li>
+                            <li>You increase savings by 10%</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="scenario-results">
+                        <strong>Results:</strong>
+                        <ul>
+                            <li>Retirement savings: @FormatCurrency(Result.OptimisticSavings)</li>
+                            <li>Monthly income: @FormatCurrency(Result.OptimisticMonthlyIncome)</li>
+                            <li>Money lasts until: Age @Result.OptimisticMoneyLastsUntil@(Result.OptimisticMoneyLastsUntil >= 100 ? "+" : "")</li>
+                            <li>Status: @GetScenarioStatus(Result.OptimisticMoneyLastsUntil)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- CTA Section -->
+    <div class="result-section cta-section">
+        <h2>💡 Want Even More Accurate Results?</h2>
+        <p>
+            These projections are based on reasonable assumptions.
+            Track your actual income and expenses for 30 days to get a
+            personalized retirement plan with higher confidence.
+        </p>
+        
+        <div class="cta-actions">
+            <button class="btn btn-primary btn-large" @onclick="OnStartTracking">
+                Start Tracking - 2 Min Setup →
+            </button>
+        </div>
+        
+        <p class="cta-note">(You can always come back to this quick calculator)</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RetirementCalculationResult Result { get; set; } = default!;
+    
+    [Parameter]
+    public EventCallback OnRecalculate { get; set; }
+    
+    [Parameter]
+    public EventCallback OnStartTracking { get; set; }
+    
+    private bool _showDetailedScenarios = false;
+    
+    private void ToggleScenarios()
+    {
+        _showDetailedScenarios = !_showDetailedScenarios;
+    }
+    
+    private string FormatCurrency(decimal amount)
+    {
+        if (amount >= 1000000)
+        {
+            return $"${amount / 1000000:N1}M";
+        }
+        else if (amount >= 1000)
+        {
+            return $"${amount / 1000:N0}K";
+        }
+        else
+        {
+            return $"${amount:N0}";
+        }
+    }
+    
+    private string GetScenarioStatus(int ageMoneyLasts)
+    {
+        if (ageMoneyLasts >= 100)
+            return "Excellent ✓✓✓";
+        else if (ageMoneyLasts >= 95)
+            return "Comfortable ✓✓";
+        else if (ageMoneyLasts >= 88)
+            return "Still okay ✓";
+        else
+            return "Needs improvement";
+    }
+}
