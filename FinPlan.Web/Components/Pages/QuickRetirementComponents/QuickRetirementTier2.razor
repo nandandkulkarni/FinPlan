@@ -1,0 +1,115 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="refinement-section tier-2">
+    <div class="tier-header">
+        <h3>📊 Tier 2: Refine Your Estimate</h3>
+        <p class="tier-description">Answer these 3 questions to boost confidence to <strong>80%</strong></p>
+    </div>
+
+    <div class="form-container">
+        <div class="form-group">
+            <label for="retirement-age">When do you want to retire?</label>
+            <div class="input-wrapper">
+                <input type="number" 
+                       id="retirement-age" 
+                       @bind="Input.DesiredRetirementAge" 
+                       @bind:event="oninput"
+                       min="50" 
+                       max="75" 
+                       class="form-control" 
+                       placeholder="@DEFAULT_RETIREMENT_AGE" />
+                <span class="input-suffix">years old</span>
+            </div>
+            <small class="help-text">💡 Most people retire between 62-67</small>
+        </div>
+
+        <div class="form-group">
+            <label for="monthly-income">What's your actual monthly income?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="monthly-income" 
+                       @bind="Input.ActualMonthlyIncome" 
+                       @bind:event="oninput"
+                       min="0" 
+                       step="100"
+                       class="form-control with-prefix" 
+                       placeholder="0" />
+            </div>
+            <small class="help-text">💡 After-tax take-home pay @(Input.HasPartner ? "(combined if with partner)" : "")</small>
+        </div>
+
+        <div class="form-group">
+            <label for="monthly-expenses">What are your actual monthly expenses?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="monthly-expenses" 
+                       @bind="Input.ActualMonthlyExpenses" 
+                       @bind:event="oninput"
+                       min="0" 
+                       step="100"
+                       class="form-control with-prefix"
+                       placeholder="0" />
+            </div>
+            <small class="help-text">💡 Include all spending: housing, food, utilities, etc. @(Input.HasPartner ? "(combined if with partner)" : "")</small>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-secondary" @onclick="HandleSkip">
+                Skip for now
+            </button>
+            <button class="btn btn-primary" 
+                    @onclick="HandleRefine"
+                    disabled="@(!IsValid)">
+                Refine Calculation →
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const int DEFAULT_RETIREMENT_AGE = 65;
+
+    [Parameter]
+    public RetirementInput Input { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefine { get; set; }
+
+    [Parameter]
+    public EventCallback OnSkip { get; set; }
+
+    private int _retirementAge = 65;
+    private decimal _monthlyIncome = 0;
+    private decimal _monthlyExpenses = 0;
+
+    protected override void OnParametersSet()
+    {
+        _retirementAge = Input.DesiredRetirementAge ?? DEFAULT_RETIREMENT_AGE;
+        _monthlyIncome = Input.ActualMonthlyIncome ?? 0;
+        _monthlyExpenses = Input.ActualMonthlyExpenses ?? 0;
+    }
+
+    private bool IsValid =>
+        _retirementAge >= 50 &&
+        _retirementAge <= 75 &&
+        _monthlyIncome > 0 &&
+        _monthlyExpenses > 0;
+
+    private async Task HandleRefine()
+    {
+        if (IsValid)
+        {
+            Input.DesiredRetirementAge = _retirementAge;
+            Input.ActualMonthlyIncome = _monthlyIncome;
+            Input.ActualMonthlyExpenses = _monthlyExpenses;
+            await OnRefine.InvokeAsync();
+        }
+    }
+
+    private async Task HandleSkip()
+    {
+        await OnSkip.InvokeAsync();
+    }
+}

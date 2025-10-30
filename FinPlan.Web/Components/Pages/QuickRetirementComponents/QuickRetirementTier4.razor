@@ -1,0 +1,132 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="refinement-section tier-4">
+    <div class="tier-header">
+        <h3>🎯 Tier 4: Expert Precision</h3>
+        <p class="tier-description">Answer these final 3 questions to achieve <strong>99%</strong> confidence</p>
+    </div>
+
+    <div class="form-container">
+        <div class="form-group">
+            <label for="social-security">Expected monthly Social Security benefit?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="social-security" 
+                       @bind="Input.ExpectedSocialSecurity" 
+                       @bind:event="oninput"
+                       min="0" 
+                       step="50"
+                       class="form-control with-prefix"
+                       placeholder="@EstimatedSS" />
+            </div>
+            <small class="help-text">
+                💡 Check your estimate at <a href="https://www.ssa.gov/myaccount/" target="_blank">ssa.gov/myaccount</a>
+                @if (EstimatedSS > 0)
+                {
+                    <span> or leave blank to use our estimate: <strong>$@EstimatedSS/month</strong></span>
+                }
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="risk-tolerance">What's your investment risk tolerance?</label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" 
+                           name="risk" 
+                           value="@RiskTolerance.Conservative"
+                           checked="@(Input.RiskTolerance == RiskTolerance.Conservative)"
+                           @onchange="@(() => { Input.RiskTolerance = RiskTolerance.Conservative; StateHasChanged(); })" />
+                    <span class="radio-text">
+                        <strong>Conservative</strong>
+                        <small>Prioritize safety, accept lower returns (4-6%)</small>
+                    </span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" 
+                           name="risk" 
+                           value="@RiskTolerance.Moderate"
+                           checked="@(Input.RiskTolerance == RiskTolerance.Moderate)"
+                           @onchange="@(() => { Input.RiskTolerance = RiskTolerance.Moderate; StateHasChanged(); })" />
+                    <span class="radio-text">
+                        <strong>Moderate</strong>
+                        <small>Balanced approach, typical returns (5-9%)</small>
+                    </span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" 
+                           name="risk" 
+                           value="@RiskTolerance.Aggressive"
+                           checked="@(Input.RiskTolerance == RiskTolerance.Aggressive)"
+                           @onchange="@(() => { Input.RiskTolerance = RiskTolerance.Aggressive; StateHasChanged(); })" />
+                    <span class="radio-text">
+                        <strong>Aggressive</strong>
+                        <small>Maximize growth, higher volatility (6-12%)</small>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="healthcare-cost">Expected monthly healthcare costs in retirement?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="healthcare-cost" 
+                       @bind="Input.MonthlyHealthcareCost" 
+                       @bind:event="oninput"
+                       min="0" 
+                       step="50"
+                       class="form-control with-prefix"
+                       placeholder="400" />
+            </div>
+            <small class="help-text">💡 Average retiree spends $300-600/month on healthcare (Medicare + supplements + out-of-pocket)</small>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-secondary" @onclick="HandleSkip">
+                Skip for now
+            </button>
+            <button class="btn btn-primary" 
+                    @onclick="HandleRefine"
+                    disabled="@(!IsValid)">
+                Get Maximum Precision →
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RetirementInput Input { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefine { get; set; }
+
+    [Parameter]
+    public EventCallback OnSkip { get; set; }
+
+    [Parameter]
+    public decimal EstimatedSS { get; set; }
+
+    private bool IsValid =>
+        Input.ExpectedSocialSecurity.HasValue &&
+        Input.ExpectedSocialSecurity >= 0 &&
+        Input.RiskTolerance.HasValue &&
+        Input.MonthlyHealthcareCost.HasValue &&
+        Input.MonthlyHealthcareCost >= 0;
+
+    private async Task HandleRefine()
+    {
+        if (IsValid)
+        {
+            await OnRefine.InvokeAsync();
+        }
+    }
+
+    private async Task HandleSkip()
+    {
+        await OnSkip.InvokeAsync();
+    }
+}

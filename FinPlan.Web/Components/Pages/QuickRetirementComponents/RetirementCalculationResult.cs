@@ -5,6 +5,9 @@ public class RetirementCalculationResult
     public RetirementStatus Status { get; set; }
     public int RetirementAge { get; set; }
     
+    // Confidence level (0-100)
+    public int ConfidenceLevel { get; set; }
+    
     // Savings projections
     public decimal ConservativeSavings { get; set; }
     public decimal MostLikelySavings { get; set; }

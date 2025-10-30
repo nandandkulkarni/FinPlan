@@ -43,32 +43,85 @@ public class RetirementCalculator
             result.EstimatedMonthlyExpenses = (result.EstimatedMonthlyIncome - input.MonthlySavings * multiplier) / expenseMultiplier * expenseMultiplier;
         }
         
-        result.EstimatedSocialSecurity = GetSocialSecurityEstimate(input.CurrentAge, result.EstimatedMonthlyIncome) * (input.HasPartner ? PARTNER_SS_MULTIPLIER : 1.0m);
+        // Add healthcare costs if provided (Tier 4)
+        if (input.MonthlyHealthcareCost.HasValue && input.MonthlyHealthcareCost.Value > 0)
+        {
+            result.EstimatedMonthlyExpenses += input.MonthlyHealthcareCost.Value;
+        }
+        
+        // Use explicit Social Security if provided (Tier 4), otherwise estimate
+        if (input.ExpectedSocialSecurity.HasValue && input.ExpectedSocialSecurity.Value > 0)
+        {
+            result.EstimatedSocialSecurity = input.ExpectedSocialSecurity.Value;
+        }
+        else
+        {
+            result.EstimatedSocialSecurity = GetSocialSecurityEstimate(input.CurrentAge, result.EstimatedMonthlyIncome) * (input.HasPartner ? PARTNER_SS_MULTIPLIER : 1.0m);
+        }
+        
+        // Add other retirement income if provided (Tier 3)
+        var otherMonthlyIncome = input.OtherRetirementIncome ?? 0m;
         
         var yearsUntilRetirement = result.RetirementAge - input.CurrentAge;
         var monthsUntilRetirement = yearsUntilRetirement * 12;
         
-        // Conservative scenario (5% return, 4% inflation, 90% savings)
+        // Calculate effective monthly savings including 401k match (Tier 3)
+        var effectiveMonthlySavings = input.MonthlySavings;
+        if (input.Employer401kMatchPercent.HasValue && input.Employer401kMatchPercent.Value > 0)
+        {
+            // Assume employer matches up to the savings amount
+            var matchAmount = input.MonthlySavings * (input.Employer401kMatchPercent.Value / 100m);
+            effectiveMonthlySavings += matchAmount;
+        }
+        
+        // Determine return rates based on risk tolerance (Tier 4)
+        double conservativeReturn = 0.05;
+        double mostLikelyReturn = 0.07;
+        double optimisticReturn = 0.09;
+        
+        if (input.RiskTolerance.HasValue)
+        {
+            switch (input.RiskTolerance.Value)
+            {
+                case QuickRetirementComponents.RiskTolerance.Conservative:
+                    conservativeReturn = 0.04;
+                    mostLikelyReturn = 0.05;
+                    optimisticReturn = 0.06;
+                    break;
+                case QuickRetirementComponents.RiskTolerance.Moderate:
+                    conservativeReturn = 0.05;
+                    mostLikelyReturn = 0.07;
+                    optimisticReturn = 0.09;
+                    break;
+                case QuickRetirementComponents.RiskTolerance.Aggressive:
+                    conservativeReturn = 0.06;
+                    mostLikelyReturn = 0.09;
+                    optimisticReturn = 0.12;
+                    break;
+            }
+        }
+        
+        // Conservative scenario (lower return, higher inflation, 90% savings)
         result.ConservativeSavings = CalculateFutureValue(
             input.CurrentSavings * multiplier,
-            input.MonthlySavings * multiplier * 0.9m,
-            0.05,
+            effectiveMonthlySavings * multiplier * 0.9m,
+            conservativeReturn,
             yearsUntilRetirement
         );
         
-        // Most likely scenario (7% return, 3% inflation, 100% savings)
+        // Most likely scenario (median return, median inflation, 100% savings)
         result.MostLikelySavings = CalculateFutureValue(
             input.CurrentSavings * multiplier,
-            input.MonthlySavings * multiplier,
-            0.07,
+            effectiveMonthlySavings * multiplier,
+            mostLikelyReturn,
             yearsUntilRetirement
         );
         
-        // Optimistic scenario (9% return, 2% inflation, 110% savings)
+        // Optimistic scenario (higher return, lower inflation, 110% savings)
         result.OptimisticSavings = CalculateFutureValue(
             input.CurrentSavings * multiplier,
-            input.MonthlySavings * multiplier * 1.1m,
-            0.09,
+            effectiveMonthlySavings * multiplier * 1.1m,
+            optimisticReturn,
             yearsUntilRetirement
         );
         
@@ -78,43 +131,45 @@ public class RetirementCalculator
         var mostLikelyRetirementExpenses = currentAnnualExpenses * (decimal)Math.Pow(1.03, yearsUntilRetirement) * RETIREMENT_EXPENSE_RATIO;
         var optimisticRetirementExpenses = currentAnnualExpenses * (decimal)Math.Pow(1.02, yearsUntilRetirement) * RETIREMENT_EXPENSE_RATIO;
         
-        // Calculate monthly income from savings
-        result.ConservativeMonthlyIncome = CalculateMonthlyIncome(result.ConservativeSavings, result.EstimatedSocialSecurity, conservativeRetirementExpenses / 12);
-        result.MostLikelyMonthlyIncome = CalculateMonthlyIncome(result.MostLikelySavings, result.EstimatedSocialSecurity, mostLikelyRetirementExpenses / 12);
-        result.OptimisticMonthlyIncome = CalculateMonthlyIncome(result.OptimisticSavings, result.EstimatedSocialSecurity, optimisticRetirementExpenses / 12);
+        // Calculate monthly income from savings (including other retirement income from Tier 3)
+        result.ConservativeMonthlyIncome = CalculateMonthlyIncome(result.ConservativeSavings, result.EstimatedSocialSecurity + otherMonthlyIncome, conservativeRetirementExpenses / 12);
+        result.MostLikelyMonthlyIncome = CalculateMonthlyIncome(result.MostLikelySavings, result.EstimatedSocialSecurity + otherMonthlyIncome, mostLikelyRetirementExpenses / 12);
+        result.OptimisticMonthlyIncome = CalculateMonthlyIncome(result.OptimisticSavings, result.EstimatedSocialSecurity + otherMonthlyIncome, optimisticRetirementExpenses / 12);
         
-        // Calculate how long money lasts
+        // Calculate how long money lasts (including other retirement income)
+        var totalAnnualOtherIncome = (result.EstimatedSocialSecurity + otherMonthlyIncome) * 12;
+        
         result.ConservativeMoneyLastsUntil = CalculateMoneyLastsUntil(
             result.ConservativeSavings,
             conservativeRetirementExpenses,
-            result.EstimatedSocialSecurity * 12,
+            totalAnnualOtherIncome,
             DEFAULT_RETIREMENT_AGE,
             0.04,
-            0.05
+            conservativeReturn
         );
         
         result.MostLikelyMoneyLastsUntil = CalculateMoneyLastsUntil(
             result.MostLikelySavings,
             mostLikelyRetirementExpenses,
-            result.EstimatedSocialSecurity * 12,
+            totalAnnualOtherIncome,
             DEFAULT_RETIREMENT_AGE,
             0.03,
-            0.05
+            mostLikelyReturn
         );
         
         result.OptimisticMoneyLastsUntil = CalculateMoneyLastsUntil(
             result.OptimisticSavings,
             optimisticRetirementExpenses,
-            result.EstimatedSocialSecurity * 12,
+            totalAnnualOtherIncome,
             DEFAULT_RETIREMENT_AGE,
             0.02,
-            0.05
+            optimisticReturn
         );
         
         // Calculate minimum retirement needs
         var minimumNeeded = CalculateMinimumRetirementSavings(
             mostLikelyRetirementExpenses,
-            result.EstimatedSocialSecurity * 12,
+            totalAnnualOtherIncome,
             DEFAULT_LIFE_EXPECTANCY - DEFAULT_RETIREMENT_AGE
         );
         
@@ -144,6 +199,9 @@ public class RetirementCalculator
             result.ProjectedMonthlyExpenses = mostLikelyRetirementExpenses / 12;
             result.ReducedMonthlyExpenses = result.ProjectedMonthlyExpenses * 0.85m; // 15% reduction
         }
+        
+        // Calculate confidence level based on data quality
+        result.ConfidenceLevel = CalculateConfidence(input);
         
         return result;
     }
@@ -247,5 +305,44 @@ public class RetirementCalculator
             incomeAdjustment = 0.75m; // Lower earner
         
         return baseEstimate * incomeAdjustment;
+    }
+    
+    private int CalculateConfidence(RetirementInput input)
+    {
+        // Tier 1: Basic (4 questions) → 40% Confidence
+        // Always have these: CurrentAge, CurrentSavings, MonthlySavings, HasPartner
+        var tier = 1;
+        var confidence = 40;
+        
+        // Tier 2: Refined (+ 3 questions) → 80% Confidence
+        if (input.DesiredRetirementAge.HasValue &&
+            input.ActualMonthlyIncome.HasValue && input.ActualMonthlyIncome.Value > 0 &&
+            input.ActualMonthlyExpenses.HasValue && input.ActualMonthlyExpenses.Value > 0)
+        {
+            tier = 2;
+            confidence = 80;
+        }
+        
+        // Tier 3: Advanced (+ 3 questions) → 95% Confidence
+        if (tier >= 2 &&
+            input.Employer401kMatchPercent.HasValue &&
+            input.PreTaxSavingsPercentage.HasValue &&
+            input.OtherRetirementIncome.HasValue)
+        {
+            tier = 3;
+            confidence = 95;
+        }
+        
+        // Tier 4: Expert (+ 3 questions) → 99% Confidence
+        if (tier >= 3 &&
+            input.ExpectedSocialSecurity.HasValue &&
+            input.RiskTolerance.HasValue &&
+            input.MonthlyHealthcareCost.HasValue)
+        {
+            tier = 4;
+            confidence = 99;
+        }
+        
+        return confidence;
     }
 }

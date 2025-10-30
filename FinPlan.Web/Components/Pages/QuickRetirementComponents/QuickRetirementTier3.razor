@@ -1,0 +1,105 @@
+@namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
+
+<div class="refinement-section tier-3">
+    <div class="tier-header">
+        <h3>🎓 Tier 3: Advanced Details</h3>
+        <p class="tier-description">Answer these 3 questions to boost confidence to <strong>95%</strong></p>
+    </div>
+
+    <div class="form-container">
+        <div class="form-group">
+            <label for="employer-match">Does your employer match 401k contributions?</label>
+            <div class="input-wrapper">
+                <input type="number" 
+                       id="employer-match" 
+                       @bind="Input.Employer401kMatchPercent" 
+                       @bind:event="oninput"
+                       min="0" 
+                       max="100" 
+                       step="0.5"
+                       class="form-control" 
+                       placeholder="0" />
+                <span class="input-suffix">%</span>
+            </div>
+            <small class="help-text">💡 Common matches: 50% (enter 50), 100% (enter 100), or dollar-for-dollar up to 6% of salary. Enter 0 if no match.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="pretax-percentage">What % of your savings is pre-tax (401k, traditional IRA)?</label>
+            <div class="input-wrapper">
+                <input type="number" 
+                       id="pretax-percentage" 
+                       @bind="Input.PreTaxSavingsPercentage" 
+                       @bind:event="oninput"
+                       min="0" 
+                       max="100" 
+                       step="5"
+                       class="form-control" 
+                       placeholder="0" />
+                <span class="input-suffix">%</span>
+            </div>
+            <small class="help-text">💡 Pre-tax = 401k, traditional IRA. Post-tax = Roth IRA, regular savings. Enter 100 if all 401k, 0 if all Roth/savings.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="other-income">Expected monthly income from other sources in retirement?</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" 
+                       id="other-income" 
+                       @bind="Input.OtherRetirementIncome" 
+                       @bind:event="oninput"
+                       min="0" 
+                       step="100"
+                       class="form-control with-prefix"
+                       placeholder="0" />
+            </div>
+            <small class="help-text">💡 Pension, rental income, part-time work, annuities, etc. Enter 0 if none.</small>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-secondary" @onclick="HandleSkip">
+                Skip for now
+            </button>
+            <button class="btn btn-primary" 
+                    @onclick="HandleRefine"
+                    disabled="@(!IsValid)">
+                Refine Further →
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RetirementInput Input { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefine { get; set; }
+
+    [Parameter]
+    public EventCallback OnSkip { get; set; }
+
+    private bool IsValid =>
+        Input.Employer401kMatchPercent.HasValue &&
+        Input.Employer401kMatchPercent >= 0 &&
+        Input.Employer401kMatchPercent <= 100 &&
+        Input.PreTaxSavingsPercentage.HasValue &&
+        Input.PreTaxSavingsPercentage >= 0 &&
+        Input.PreTaxSavingsPercentage <= 100 &&
+        Input.OtherRetirementIncome.HasValue &&
+        Input.OtherRetirementIncome >= 0;
+
+    private async Task HandleRefine()
+    {
+        if (IsValid)
+        {
+            await OnRefine.InvokeAsync();
+        }
+    }
+
+    private async Task HandleSkip()
+    {
+        await OnSkip.InvokeAsync();
+    }
+}

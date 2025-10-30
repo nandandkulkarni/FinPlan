@@ -1,6 +1,13 @@
 @namespace FinPlan.Web.Components.Pages.QuickRetirementComponents
 
 <div class="results-header">
+    <!-- Confidence Badge -->
+    <div class="confidence-badge confidence-@GetConfidenceTier()">
+        <span class="confidence-icon">@GetConfidenceIcon()</span>
+        <span class="confidence-text">@Result.ConfidenceLevel% Confidence</span>
+        <span class="confidence-tier">Tier @GetTierNumber()</span>
+    </div>
+    
     @if (Result.Status == RetirementStatus.OnTrack)
     {
         <div class="status-banner status-green">
@@ -112,13 +119,50 @@
         </div>
     }
 
-    <!-- Refinement Section - Always Visible -->
-    <QuickRetirementRefinement 
-        CurrentInput="CurrentInput"
-        EstimatedIncome="Result.EstimatedMonthlyIncome"
-        EstimatedExpenses="Result.EstimatedMonthlyExpenses"
-        OnRecalculate="HandleRefinedRecalculate"
-        OnCancel="HandleSkipRefinement" />
+    <!-- Refinement Section - Progressive Tiers -->
+    @if (Result.ConfidenceLevel < 99)
+    {
+        <div class="result-section refinement-tiers">
+            <h2>🎯 Increase Your Confidence</h2>
+            <p class="refinement-intro">
+                Your current estimate is at <strong>@Result.ConfidenceLevel% confidence</strong>.
+                Answer a few more questions to get a more precise retirement plan.
+            </p>
+            
+            @if (Result.ConfidenceLevel == 40)
+            {
+                <!-- Show Tier 2 -->
+                <QuickRetirementTier2 
+                    Input="CurrentInput"
+                    OnRefine="HandleTier2Refine"
+                    OnSkip="HandleSkipRefinement" />
+            }
+            else if (Result.ConfidenceLevel == 80)
+            {
+                <!-- Show Tier 3 -->
+                <QuickRetirementTier3 
+                    Input="CurrentInput"
+                    OnRefine="HandleTier3Refine"
+                    OnSkip="HandleSkipRefinement" />
+            }
+            else if (Result.ConfidenceLevel == 95)
+            {
+                <!-- Show Tier 4 -->
+                <QuickRetirementTier4 
+                    Input="CurrentInput"
+                    EstimatedSS="Result.EstimatedSocialSecurity"
+                    OnRefine="HandleTier4Refine"
+                    OnSkip="HandleSkipRefinement" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="result-section max-confidence">
+            <h2>🎯 Maximum Precision Achieved!</h2>
+            <p>You've provided all the details needed for a <strong>99% confidence</strong> retirement projection.</p>
+        </div>
+    }
 
     <!-- Assumptions Section -->
     <div class="result-section assumptions">
@@ -274,6 +318,24 @@
         await OnStartTracking.InvokeAsync();
     }
     
+    private async Task HandleTier2Refine()
+    {
+        // Tier 2 fields are already bound to CurrentInput
+        await OnRecalculate.InvokeAsync(CurrentInput);
+    }
+    
+    private async Task HandleTier3Refine()
+    {
+        // Tier 3 fields are already bound to CurrentInput
+        await OnRecalculate.InvokeAsync(CurrentInput);
+    }
+    
+    private async Task HandleTier4Refine()
+    {
+        // Tier 4 fields are already bound to CurrentInput
+        await OnRecalculate.InvokeAsync(CurrentInput);
+    }
+    
     private async Task HandleRefinedRecalculate(RetirementInput refinedInput)
     {
         await OnRecalculate.InvokeAsync(refinedInput);
@@ -284,6 +346,42 @@
         // User chose to skip refinement
         // Could scroll to assumptions or CTA section
         // For now, do nothing - they can continue reading
+    }
+    
+    private string GetConfidenceIcon()
+    {
+        return Result.ConfidenceLevel switch
+        {
+            40 => "📊",
+            80 => "📈",
+            95 => "🎯",
+            99 => "💎",
+            _ => "📊"
+        };
+    }
+    
+    private string GetConfidenceTier()
+    {
+        return Result.ConfidenceLevel switch
+        {
+            40 => "tier-1",
+            80 => "tier-2",
+            95 => "tier-3",
+            99 => "tier-4",
+            _ => "tier-1"
+        };
+    }
+    
+    private int GetTierNumber()
+    {
+        return Result.ConfidenceLevel switch
+        {
+            40 => 1,
+            80 => 2,
+            95 => 3,
+            99 => 4,
+            _ => 1
+        };
     }
     
     private string FormatCurrency(decimal amount)
